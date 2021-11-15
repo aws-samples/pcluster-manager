@@ -12,6 +12,10 @@ Follow the [installation instructions](https://github.com/aws-samples/pcluster-m
 
 ![Architecture](https://github.com/aws-samples/pcluster-manager/blob/main/install/architecture.png)
 
+### Updating
+
+To update the underlying lambda to the latest, run the `./scripts/update.sh` script.
+
 ### Local Development
 
 To run Pcluster Manager locally, start by setting the following environment variables:
