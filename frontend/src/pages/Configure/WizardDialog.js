@@ -1,0 +1,195 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+//
+// Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance
+// with the License. A copy of the License is located at
+//
+// http://aws.amazon.com/apache2.0/
+//
+// or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
+// OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
+// limitations under the License.
+import * as React from 'react';
+
+import jsyaml from 'js-yaml';
+
+// UI Elements
+import {
+  Box,
+  Button,
+  Header,
+  Modal,
+  SpaceBetween,
+} from "@awsui/components-react";
+
+// SubPages
+import { Source, sourceValidate } from './Source';
+import { Cluster, clusterValidate } from './Cluster';
+import { HeadNode, headNodeValidate } from './HeadNode';
+import { Storage, storageValidate } from './Storage';
+import { Queues, queuesValidate } from './Queues'
+import { Create, createValidate, handleCreate as wizardHandleCreate, handleDryRun as wizardHandleDryRun } from './Create'
+
+// State
+import { setState, useState, getState, clearState } from '../../store'
+import { UpdateComputeFleet, LoadAwsConfig } from '../../model'
+
+// Icons
+import CancelIcon from '@mui/icons-material/Cancel';
+
+export default function WizardDialog(props) {
+  const open = useState(['app', 'wizard', 'dialog']);
+  const page = useState(['app', 'wizard', 'page']) || 'source';
+  const clusterName = useState(['app', 'wizard', 'clusterName']);
+  const [ refreshing, setRefreshing ] = React.useState(false);
+
+  const clusterPath = ['clusters', 'index', clusterName];
+  const fleetStatus = useState([...clusterPath, 'computeFleetStatus']);
+  const stopFleet = () => {
+    UpdateComputeFleet(clusterName, "STOP_REQUESTED")
+  }
+
+  const editing = useState(['app', 'wizard', 'editing']);
+
+  const pages = ['source', 'cluster', 'headNode', 'storage', 'queues', 'create'];
+
+  const handleClose = () => {
+    setState(['app', 'wizard', 'dialog'], false);
+    clearState(['app', 'wizard', 'errors']);
+  };
+
+  const validators = {
+    source: sourceValidate,
+    cluster: clusterValidate,
+    headNode: headNodeValidate,
+    storage: storageValidate,
+    queues: queuesValidate,
+    create: createValidate,
+  }
+
+  const handleNext = () => {
+    let config = getState(['app', 'wizard', 'config']);
+    let currentPage = getState(['app', 'wizard', 'page']);
+
+    // Run the validators corresponding to the page we are on
+    if(validators[currentPage] && !validators[currentPage]())
+      return;
+
+    if(currentPage === "create")
+    {
+      wizardHandleCreate(handleClose);
+      return;
+    }
+
+    for(let i = 0; i < pages.length; i++)
+      if(pages[i] === currentPage)
+      {
+        let nextPage = pages[i + 1];
+
+        if(nextPage === "create")
+        {
+          console.log(jsyaml.dump(config));
+          setState(['app', 'wizard', 'clusterConfigYaml'], jsyaml.dump(config));
+        }
+        setState(['app', 'wizard', 'page'], nextPage);
+        return;
+      }
+  }
+
+  const handlePrev = () => {
+    setState(['app', 'wizard', 'errors'], null);
+    let currentPage = getState(['app', 'wizard', 'page']);
+    let source = getState(['app', 'wizard', 'source', 'type']);
+
+    // Special case where the user uploaded a file, hitting "back"
+    // goes back to the upload screen rather than through the wizard
+    if(currentPage === "create" && source === "upload")
+    {
+      setState(['app', 'wizard', 'page'], "source");
+      return;
+    }
+
+    for(let i = 1; i < pages.length; i++)
+      if(pages[i] === currentPage)
+      {
+        let prevPage = pages[i - 1];
+        setState(['app', 'wizard', 'page'], prevPage);
+        return;
+      }
+  }
+
+  const handleDryRun = () => {
+    wizardHandleDryRun();
+  }
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    let region = getState(['wizard', 'region']);
+    let chosenRegion = region === "Default" ? null : region;
+    LoadAwsConfig(chosenRegion, () => setRefreshing(false));
+  }
+
+  const descriptionElementRef = React.useRef(null);
+  React.useEffect(() => {
+    if (open) {
+      const { current: descriptionElement } = descriptionElementRef;
+      if (descriptionElement !== null) {
+        descriptionElement.focus();
+      }
+    }
+  }, [open]);
+
+  React.useEffect(() => {
+    const close = (e) => {
+      if(e.key === 'Escape') {
+        handleClose()
+      }
+    }
+    window.addEventListener('keydown', close)
+    return () => window.removeEventListener('keydown', close)
+  },[])
+
+  return (
+      <Modal
+        className="wizard-dialog"
+        visible={open || false}
+        onDismiss={handleClose}
+        closeAriaLabel="Close modal"
+        size="large"
+        footer={
+          <Box float="right">
+            <SpaceBetween direction="horizontal" size="xs">
+              {editing && (fleetStatus === "RUNNING" || fleetStatus === "STOP_REQUESTED") && <Button className="action" variant="normal" loading={fleetStatus === "STOP_REQUESTED"} onClick={stopFleet}>
+                {fleetStatus !== "RUNNING" ? <span>Stop Compute Fleet</span>
+                : <div className="container"><CancelIcon /> Stop Compute Fleet</div>}
+              </Button>}
+              <Button onClick={handleClose} autoFocus>Cancel</Button>
+              <Button disabled={page === pages[0]} onClick={handlePrev}>Back</Button>
+              {page === "create" && <Button onClick={handleDryRun}>Dry Run</Button>}
+              <Button onClick={handleNext}>{page === "create" ? (editing ? "Update" : "Create") : "Next"}</Button>
+            </SpaceBetween>
+          </Box>
+        }
+        header={
+          <Header
+            variant="h2"
+            actions={page !== "source" && page !== "create" &&
+              <Button loading={refreshing} onClick={handleRefresh} iconName={"refresh"}>
+                Refresh AWS Config
+              </Button>
+            }
+          >Configuration &gt; {page.charAt(0).toUpperCase() + page.slice(1)}
+            {clusterName && ` (${clusterName})`}</Header>
+        }>
+        <Box className="wizard-container">
+          {{"source": <Source />,
+            "cluster": <Cluster />,
+            "headNode": <HeadNode />,
+            "storage": <Storage />,
+            "queues": <Queues />,
+            "create": <Create />,
+          }[page]}
+        </Box>
+      </Modal>
+  );
+}

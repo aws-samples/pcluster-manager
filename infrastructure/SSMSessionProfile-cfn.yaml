@@ -1,0 +1,102 @@
+Resources: 
+  CustomFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ZipFile: 
+          Fn::Sub: |
+            import os
+            import logging
+            import boto3
+            from datetime import datetime
+
+            import json
+            import boto3
+            import cfnresponse
+
+            logger = logging.getLogger()
+            logger.setLevel(logging.INFO)
+
+            client = boto3.client('ssm')
+
+            def lambda_handler(event, context):
+                mystr = {
+                    "schemaVersion": "1.0",
+                    "description": "Parameterized document for SSM Session Manager",
+                    "sessionType": "Standard_Stream",
+                    "parameters": {
+                      "linuxcmd": {
+                        "type": "String",
+                        "default": "if [ -d '/opt/parallelcluster' ]; then source /opt/parallelcluster/cfnconfig; sudo su - $cfn_cluster_user; fi; /bin/bash",
+                        "description": "The command to run on connection." + datetime.now().strftime("%H:%M:%S")
+                      }
+                    },
+                    "inputs": {
+                      "s3BucketName": "",
+                      "s3KeyPrefix": "",
+                      "s3EncryptionEnabled": False,
+                      "cloudWatchLogGroupName": "",
+                      "cloudWatchEncryptionEnabled": False,
+                      "kmsKeyId": "",
+                      "runAsEnabled": False,
+                      "runAsDefaultUser": "",
+                      "shellProfile": {
+                        "windows": "",
+                        "linux": "{{ linuxcmd }}"
+                      }
+                    }
+                 }
+                logger.info(json.dumps(mystr))
+                docName='SSM-SessionManagerRunShell'
+                try:
+                  response = client.update_document(
+                      Content=json.dumps(mystr),
+                      Name=docName,
+                      DocumentVersion='$LATEST',
+                      DocumentFormat='JSON')
+                except:
+                  response = client.create_document(
+                      Content=json.dumps(mystr),
+                      Name=docName,
+                      DocumentType='Session',
+                      DocumentFormat='JSON')
+                results = response['DocumentDescription']
+                logger.info(results)
+                responseData = {}
+                responseData['Data'] = results['Status']
+                cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData)
+      Handler: 'index.lambda_handler'
+      Role: !GetAtt 'LambdaExecutionRole.Arn'
+      Runtime: python3.8
+      Timeout: 30
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'ssm:*'
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - ec2:DescribeImages
+                Resource: '*'
+  CustomResource:
+    Type: Custom::CustomResource
+    Properties:
+      ServiceToken: !GetAtt 'CustomFunction.Arn'
+      ParameterOne: Parameter to pass into Custom Lambda Function

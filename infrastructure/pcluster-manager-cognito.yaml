@@ -1,0 +1,180 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Pcluster Manager Cognito User Pool Client Secret Provider
+
+Parameters:
+  CallbackURL:
+    Description: Allowed CallbackURL pointing back to the application.
+    Type: String
+    Default: https://apiid.execute-api.region.amazonaws.com/login
+  LogoutURL:
+    Description: Allowed LogoutURL pointing back to the application.
+    Type: String
+    Default: https://apiid.execute-api.region.amazonaws.com/index.html
+  AdminUserEmail:
+    Description: Email address of administrative user setup by default.
+    Type: String
+    Default: user@amazon.com
+
+Resources:
+
+  UserPoolClientSecret:
+    Type: "Custom::UserPoolClientSecret"
+    Properties:
+      ServiceToken: !GetAtt UserPoolClientSecretProvider.Arn
+      UserPoolId:  !Ref CognitoUserPool
+      AppClientId: !Ref CognitoAppClient
+
+  UserPoolClientSecretProvider:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs12.x
+      CodeUri: cognitolambda/
+      MemorySize: 128
+      Timeout: 20
+      Tracing: Active
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+          -
+            Sid: CognitoPermissions
+            Effect: Allow
+            Action:
+              - cognito-idp:DescribeUserPoolClient
+            Resource:
+              - !Sub
+                - arn:${AWS::Partition}:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}
+                - { UserPoolId: !Ref CognitoUserPool }
+          -
+            Sid: SecretsManagerPermissions
+            Effect: Allow
+            Action:
+              - secretsmanager:CreateSecret
+              - secretsmanager:TagResource
+              - secretsmanager:UpdateSecret
+              - secretsmanager:DeleteSecret
+            Resource:
+              - !Sub arn:${AWS::Partition}:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${AWS::StackName}*
+
+  UserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      UserPoolId: !Ref CognitoUserPool
+      Domain: !Join [ "-", ["pcluster-manager-auth", !Select [2, !Split [ "/", !Ref 'AWS::StackId']]]]
+
+  CognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      AutoVerifiedAttributes:
+        - 'email'
+      UserPoolName: !Sub ${AWS::StackName}-userpool
+      UsernameConfiguration:
+        CaseSensitive: false
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: false
+        InviteMessageTemplate:
+          EmailSubject: "[PclusterManager] Welcome to Pcluster Manager, please verify your account."
+          EmailMessage: "Thanks for installing PclusterManager on your AWS account. The following user has been created: {username}<br /><br />Please use this temporary password to login to your account: {####}"
+      UsernameAttributes:
+        - 'email'
+      VerificationMessageTemplate:
+        DefaultEmailOption: CONFIRM_WITH_CODE
+        EmailMessage: "Thanks for signing up to PclusterManager. Please the following code to verify your account: {####}"
+        EmailSubject: "[PclusterManager] Please verify your account"
+      EmailVerificationSubject: "[PclusterManager] Please verify your account."
+      EmailVerificationMessage: "Thanks for installing PclusterManager on your AWS account. Please click the link below to verify your email address. {####}"
+
+  CognitoAppClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      GenerateSecret: true
+      AllowedOAuthFlows:
+        - code
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthScopes:
+        - email
+        - openid
+      ExplicitAuthFlows:
+        - ALLOW_REFRESH_TOKEN_AUTH
+      DefaultRedirectURI: !Sub ${CallbackURL}
+      CallbackURLs:
+        - !Sub ${CallbackURL}
+      LogoutURLs:
+        - !Sub ${LogoutURL}
+      SupportedIdentityProviders:
+        - COGNITO
+      UserPoolId: !Ref CognitoUserPool
+      PreventUserExistenceErrors: ENABLED
+      RefreshTokenValidity: 7 #days
+      AccessTokenValidity: 1
+      IdTokenValidity: 1
+      TokenValidityUnits:
+        AccessToken: "days"
+        IdToken: "days"
+
+  CognitoUserGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      Description: User group that can view and manage clusters
+      GroupName: admin
+      Precedence: 1
+      UserPoolId: !Ref CognitoUserPool
+
+  CognitoAdminGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      Description: Administrator group that can promote users to be admins.
+      GroupName: user
+      Precedence: 2
+      UserPoolId: !Ref CognitoUserPool
+
+  CognitoAdminUser:
+    Type: AWS::Cognito::UserPoolUser
+    Properties:
+      DesiredDeliveryMediums:
+        - EMAIL
+      UserAttributes:
+        - Name: email
+          Value: !Sub ${AdminUserEmail}
+      Username: !Sub ${AdminUserEmail}
+      UserPoolId: !Ref CognitoUserPool
+
+  CognitoUserToAdminGroup:
+    Type: AWS::Cognito::UserPoolUserToGroupAttachment
+    Properties:
+      GroupName: !Ref CognitoAdminGroup
+      Username: !Ref CognitoAdminUser
+      UserPoolId: !Ref CognitoUserPool
+
+  CognitoUserToUserGroup:
+    Type: AWS::Cognito::UserPoolUserToGroupAttachment
+    Properties:
+      GroupName: !Ref CognitoUserGroup
+      Username: !Ref CognitoAdminUser
+      UserPoolId: !Ref CognitoUserPool
+
+Outputs:
+
+  UserPoolAuthPrefix:
+    Description: The prefix of the domain of the authorization server.
+    Value: !Ref UserPoolDomain
+
+  UserPoolAuthDomain:
+    Description: The domain of the authorization server.
+    Value: !Sub
+      - https://${Domain}.auth.${AWS::Region}.amazoncognito.com
+      - { Domain: !Ref UserPoolDomain }
+
+  UserPoolId:
+    Description: Cognito UserPool Id
+    Value:  !Ref CognitoUserPool
+
+  UserPoolClientSecretArn:
+    Description: The app client secret ARN for PclusterManager.
+    Value: !GetAtt UserPoolClientSecret.SecretArn
+
+  UserPoolClientSecretName:
+    Description: The app client secret name for PclusterManager.
+    Value: !GetAtt UserPoolClientSecret.SecretName

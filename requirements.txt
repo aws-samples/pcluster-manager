@@ -1,0 +1,5 @@
+flask_restful
+flask_cors
+boto3
+requests
+python-jose
