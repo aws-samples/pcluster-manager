@@ -24,13 +24,26 @@ Scroll down to the bottom of the Stage 3 page (Configure stack options) and clic
 
 Scroll down to the bottom of the Stage 4 page (Review) and click on the the two tick boxes to create new IAM resources. Once done, click on Create stack.
 
-![CloudFormation Settings](https://github.com/aws-samples/pcluster-manager/blob/main/install/pcmanager-deploy.png)
+![Deploy the Stack](https://github.com/aws-samples/pcluster-manager/blob/main/install/pcmanager-deploy.png)
 
 The setup for Pcluster Manager (and AWS ParallelCluster API) will take approximately 20 minutes.
 
+### Step 5 Login
+
+During the setup process you will receive an automated email with a temporary password which looks like the following (except the email you receive will have a code in the place of the `[REDACTED]` text below. You will use this temporary password to login to your administrator account along with the email you specified in `Step 2` above.
+
+![Admin Temporary Password](https://github.com/aws-samples/pcluster-manager/blob/main/install/welcome-email.png)
+
+Once the stack has been created (you should see `CREATE_COMPLETE` in green as the status next to the `pcluster-manager` stack) -- go to the `Outputs` tab and select the `PclusterManagerUrl` output to access the site. Use your administrator email from `Step 2` and the temporary password from your email to login to the site.
+
+![CloudFormation Outputs](https://github.com/aws-samples/pcluster-manager/blob/main/install/cfn-outputs.png)
 
 
+### Step 6
 
+Once you have logged in to the site you will be presented with a page that looks something like the following. Likely if this is your first time interacting with ParallelCluster your list of clusters will be empty. In that case, click the `Create Cluster` in the top right and follow the instructions in the wizard to create your first cluster.
+
+![Main Page](https://github.com/aws-samples/pcluster-manager/blob/main/install/main-page.png)
 
 ## Security
 
