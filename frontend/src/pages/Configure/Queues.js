@@ -113,7 +113,7 @@ function ComputeResource({index, queueIndex, computeResource}) {
   const instanceTypePath = [...path, "InstanceType"]
   const instanceType = useState(instanceTypePath);
 
-  const disableHTPath = [...path, "DisableSimultaneiousMultithreading"]
+  const disableHTPath = [...path, "DisableSimultaneousMultithreading"]
   const disableHT = useState(disableHTPath);
 
   const efaPath = [...path, "Efa"];
