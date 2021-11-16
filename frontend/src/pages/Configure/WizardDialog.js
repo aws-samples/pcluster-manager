@@ -53,7 +53,16 @@ export default function WizardDialog(props) {
 
   const pages = ['source', 'cluster', 'headNode', 'storage', 'queues', 'create'];
 
-  const handleClose = () => {
+  const handleClose = (clear) => {
+    if(clear)
+    {
+      clearState(['app', 'wizard', 'config']);
+      clearState(['app', 'wizard', 'clusterConfigYaml']);
+      clearState(['app', 'wizard', 'clusterName']);
+      clearState(['app', 'wizard', 'loaded']);
+      clearState(['app', 'wizard', 'page']);
+      clearState(['app', 'wizard', 'vpc']);
+    }
     setState(['app', 'wizard', 'dialog'], false);
     clearState(['app', 'wizard', 'errors']);
   };
@@ -77,7 +86,7 @@ export default function WizardDialog(props) {
 
     if(currentPage === "create")
     {
-      wizardHandleCreate(handleClose);
+      wizardHandleCreate(() => handleClose(true));
       return;
     }
 
@@ -142,7 +151,7 @@ export default function WizardDialog(props) {
   React.useEffect(() => {
     const close = (e) => {
       if(e.key === 'Escape') {
-        handleClose()
+        handleClose(true)
       }
     }
     window.addEventListener('keydown', close)
@@ -152,8 +161,8 @@ export default function WizardDialog(props) {
   return (
       <Modal
         className="wizard-dialog"
+        onDismiss={() => handleClose(false)}
         visible={open || false}
-        onDismiss={handleClose}
         closeAriaLabel="Close modal"
         size="large"
         footer={
@@ -163,7 +172,7 @@ export default function WizardDialog(props) {
                 {fleetStatus !== "RUNNING" ? <span>Stop Compute Fleet</span>
                 : <div className="container"><CancelIcon /> Stop Compute Fleet</div>}
               </Button>}
-              <Button onClick={handleClose} autoFocus>Cancel</Button>
+              <Button onClick={() => handleClose(true)} autoFocus>Cancel</Button>
               <Button disabled={page === pages[0]} onClick={handlePrev}>Back</Button>
               {page === "create" && <Button onClick={handleDryRun}>Dry Run</Button>}
               <Button onClick={handleNext}>{page === "create" ? (editing ? "Update" : "Create") : "Next"}</Button>
@@ -193,3 +202,21 @@ export default function WizardDialog(props) {
       </Modal>
   );
 }
+
+function WizardShow() {
+  const editing = getState(['app', 'wizard', 'editing']);
+  const page = getState(['app', 'wizard', 'page']);
+  if(editing) {
+    clearState(['app', 'wizard', 'config']);
+    clearState(['app', 'wizard', 'clusterConfigYaml']);
+    clearState(['app', 'wizard', 'loaded']);
+    setState(['app', 'wizard', 'editing'], false);
+    setState(['app', 'wizard', 'page'], 'source');
+  }
+  console.log("page: ", page);
+  if(!page)
+    setState(['app', 'wizard', 'page'], 'source');
+  setState(['app', 'wizard', 'dialog'], true);
+}
+
+export { WizardDialog, WizardShow }

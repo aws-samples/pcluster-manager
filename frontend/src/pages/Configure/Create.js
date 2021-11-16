@@ -95,9 +95,8 @@ function Create() {
   const editing = getState(['app', 'wizard', 'editing']);
   return (
     <>
-      <Header variant="h2"
-        description={`This is the cluster configuration that will be used to ${editing ? 'update' : 'create'} your cluster.`}
-      >Configuration Data</Header>
+      <Header description={`This is the cluster configuration that will be used to ${editing ? 'update' : 'create'} your cluster.`}
+      ></Header>
       <textarea
         disabled={ pending ? true : false}
         spellCheck="false"

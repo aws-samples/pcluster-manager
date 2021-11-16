@@ -12,7 +12,7 @@ import jsyaml from 'js-yaml';
 
 import { ListClusters, DescribeCluster, GetConfiguration } from '../../model'
 
-import { setState, useState, clearState } from '../../store'
+import { setState, useState } from '../../store'
 
 // UI Elements
 import {
@@ -36,7 +36,7 @@ import Status from "../../components/Status";
 import Loading from "../../components/Loading";
 import ClusterActions from './ClusterActions';
 import ClusterDetails from "./ClusterDetails";
-import WizardDialog from '../Configure/WizardDialog';
+import { WizardDialog, WizardShow } from '../Configure/WizardDialog';
 
 function ClusterList() {
   const[ selected, setSelected ] = React.useState([]);
@@ -58,12 +58,7 @@ function ClusterList() {
   }
 
   const wizard = () => {
-    clearState(['app', 'wizard', 'config']);
-    clearState(['app', 'wizard', 'configConfigYaml']);
-    clearState(['app', 'wizard', 'loaded']);
-    setState(['app', 'wizard', 'editing'], false);
-    setState(['app', 'wizard', 'page'], 'source');
-    setState(['app', 'wizard', 'dialog'], true);
+    WizardShow();
   }
 
   const { items, actions, filteredItemsCount, collectionProps, filterProps, paginationProps } = useCollection(
@@ -140,12 +135,7 @@ export default function Clusters () {
   const [ splitOpen, setSplitOpen ] = React.useState(true);
 
   const wizard = () => {
-    clearState(['app', 'wizard', 'config']);
-    clearState(['app', 'wizard', 'configConfigYaml']);
-    clearState(['app', 'wizard', 'loaded']);
-    setState(['app', 'wizard', 'editing'], false);
-    setState(['app', 'wizard', 'page'], 'source');
-    setState(['app', 'wizard', 'dialog'], true);
+    WizardShow();
   }
 
   React.useEffect(() => {
