@@ -40,6 +40,10 @@ const errorsPath = ['app', 'wizard', 'errors', 'headNode'];
 function headNodeValidate() {
   const subnetPath = [...headNodePath, 'Networking', 'SubnetId'];
   const subnetValue = getState(subnetPath);
+
+  const rootVolumePath = [...headNodePath, 'LocalStorage', 'RootVolume', 'Size'];
+  const rootVolumeValue = getState(rootVolumePath);
+
   let valid = true;
 
   if(!subnetValue)
@@ -48,6 +52,14 @@ function headNodeValidate() {
     valid = false;
   } else {
     clearState([...errorsPath, 'subnet']);
+  }
+
+  if(!rootVolumeValue || rootVolumeValue === '')
+  {
+    setState([...errorsPath, 'rootVolume'], 'You must set a RootVolume size.');
+    valid = false;
+  } else {
+    clearState([...errorsPath, 'rootVolume']);
   }
 
   setState([...errorsPath, 'validated'], true);
@@ -185,8 +197,12 @@ function HeadNode() {
 
   const subnetPath = [...headNodePath, 'Networking', 'SubnetId'];
   const subnetErrors = useState([...errorsPath, 'subnet']);
+  const rootVolumeErrors = useState([...errorsPath, 'rootVolume']);
   const subnetValue = useState(subnetPath) || "";
   const editing = useState(['app', 'wizard', 'editing']);
+
+  let validated = useState([...errorsPath, 'validated']);
+
   return (
     <SpaceBetween direction="vertical" size="xs">
       <ColumnLayout columns={2} borders="vertical">
@@ -205,12 +221,13 @@ function HeadNode() {
 
         <FormField
           label="Root Volume Size (GB)"
+          errorText={rootVolumeErrors}
           description="Typically users will use a shared storage option for application data so a smaller root volume size is suitable.">
           <Input
             disabled={editing}
-            value={rootVolumeSize || 35}
+            value={rootVolumeSize || ''}
             inputMode="decimal"
-            onChange={(({detail}) => setState(rootVolumePath, parseInt(detail.value)))} />
+            onChange={({detail}) => {setState(rootVolumePath, detail.value !== '' ? parseInt(detail.value) : null); validated && headNodeValidate();}} />
         </FormField>
         <DcvSettings />
         <SsmSettings />
