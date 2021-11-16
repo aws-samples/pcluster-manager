@@ -49,6 +49,7 @@ Start the React frontend by running:
 
 ```bash
 cd frontend/src
+npm install # if this is your first time starting the frontend
 npm start
 ```
 
