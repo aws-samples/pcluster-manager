@@ -201,8 +201,6 @@ function HeadNode() {
   const subnetValue = useState(subnetPath) || "";
   const editing = useState(['app', 'wizard', 'editing']);
 
-  let validated = useState([...errorsPath, 'validated']);
-
   const setRootVolume = (size) => {
     if(size === '')
       clearState([...headNodePath, 'LocalStorage']);
