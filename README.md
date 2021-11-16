@@ -1,28 +1,58 @@
-## PclusterManager
+PCluster Manager - Make HPC Easy
+================================
 
-### Installation Instructions
+## Quickstart (15 mins) 🚀
 
-Follow the [installation instructions](https://github.com/aws-samples/pcluster-manager/blob/main/install/README.md) to setup Pcluster Manager on your account.
+Launch the stack in your AWS account by clicking on one of the below regions:
 
-### Screen Shot
+| Region       | Launch                                                                                                                                                                                                                                                                                                              | 
+|--------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| North Virginia (us-east-1)   | [![Launch](https://samdengler.github.io/cloudformation-launch-stack-button-svg/images/us-east-1.svg)](https://us-east-1.console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/review?stackName=pcluster-manager&templateURL=https://pcluster-manager-us-east-1.s3.amazonaws.com/pcluster-manager.yaml)
+| Oregon (us-west-2)    | [![Launch](https://samdengler.github.io/cloudformation-launch-stack-button-svg/images/us-west-2.svg)](https://us-west-2.console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/create/review?stackName=pcluster-manager&templateURL=https://pcluster-manager-us-east-1.s3.amazonaws.com/pcluster-manager.yaml)       |
+| Ireland (eu-west-1)    | [![Launch](https://samdengler.github.io/cloudformation-launch-stack-button-svg/images/eu-west-1.svg)](https://eu-west-1.console.aws.amazon.com/cloudformation/home?region=eu-west-1#/stacks/create/review?stackName=pcluster-manager&templateURL=https://pcluster-manager-eu-west-1.s3.amazonaws.com/pcluster-manager.yaml)       |
+| Frankfurt (eu-central-1) | [![Launch](https://samdengler.github.io/cloudformation-launch-stack-button-svg/images/eu-west-1.svg)](https://eu-central-1.console.aws.amazon.com/cloudformation/home?region=eu-central-1#/stacks/create/review?stackName=pcluster-manager&templateURL=https://pcluster-manager-eu-central-1.s3.amazonaws.com/pcluster-manager.yaml) |
 
-![Main Page](https://github.com/aws-samples/pcluster-manager/blob/main/install/main-page.png)
+Enter your email and wait (~15 mins) for the stack to go into **CREATE_COMPLETE**. Using the code from your email login to the Web UI. 
 
-### System Architecture
+For more details see the [Install Instructions](install/README.md).
 
-![Architecture](https://github.com/aws-samples/pcluster-manager/blob/main/install/architecture.png)
+## Screen Shot
 
-### Local Development
+![Main Page](install/main-page.png)
+
+## System Architecture
+
+![Pcluster Manager Architecture](install/architecture.png)
+
+## Updating
+
+To update the underlying lambda to the latest, run the `./scripts/update.sh` script.
+
+## Local Development
 
 To run Pcluster Manager locally, start by setting the following environment variables:
-```
+
+```bash
 export AWS_ACCESS_KEY_ID=[...]
 export AWS_SECRET_ACCESS_KEY=[...]
 export AWS_DEFAULT_REGION=us-east-2
-export API_BASE_URL=https://[API_ID].execute-api.us-east-2.amazonaws.com/prod
+export API_BASE_URL=https://[API_ID].execute-api.us-east-2.amazonaws.com/prod  # get this from ParallelClusterApi stack outputs
 ```
 
-Then start the API backend by running `./scripts/run_flask.sh` and the React frontend by running `npm start` in the `frontend/src` directory. Then navigate to [http://localhost:3000](http://localhost:3000)
+Start the API backend by running:
+
+```bash
+scripts/run_flask.sh
+```
+
+Start the React frontend by running:
+
+```bash
+cd frontend/src
+npm start
+```
+
+Then navigate to [http://localhost:3000](http://localhost:3000)
 
 ## Security
 
