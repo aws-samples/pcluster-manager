@@ -42,7 +42,7 @@ function handleCreate(handleClose) {
   const clusterConfig = getState(configPath);
   const dryRun = false;
   const region = getState(['app', 'wizard', 'config', 'Region']);
-  var errHandler = (err) => {setState(['app', 'wizard', 'errors'], err); setState(['app', 'wizard','pending'], false);}
+  var errHandler = (err) => {setState(['app', 'wizard', 'errors', 'create'], err); setState(['app', 'wizard','pending'], false);}
   var successHandler = (resp) => {
     handleWarnings(resp);
     setState(['app', 'wizard', 'pending'], false);
