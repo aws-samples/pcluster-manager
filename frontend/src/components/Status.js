@@ -32,6 +32,7 @@ export default function Status(props) {
   </div>
     const statusMap = {"CREATE_IN_PROGRESS": aligned(<CircularProgress color='info' size={15} />, props.status, theme.palette.info.main),
       "CREATE_COMPLETE": aligned(<CheckCircleOutlineIcon />, props.status, theme.palette.success.main),
+      "CREATE_FAILED": aligned(<DangerousIcon />, props.status, theme.palette.error.main),
       "DELETE_IN_PROGRESS": aligned(<CircularProgress size={15} color='error' />, props.status, theme.palette.error.main),
       "DELETE_FAILED": aligned(<NotInterestedIcon />, props.status, theme.palette.error.main),
       "RUNNING": aligned(<CheckCircleOutlineIcon />, props.status, theme.palette.success.main),
