@@ -54,7 +54,7 @@ function headNodeValidate() {
     clearState([...errorsPath, 'subnet']);
   }
 
-  if(!rootVolumeValue || rootVolumeValue === '')
+  if(rootVolumeValue === '')
   {
     setState([...errorsPath, 'rootVolume'], 'You must set a RootVolume size.');
     valid = false;
@@ -203,6 +203,13 @@ function HeadNode() {
 
   let validated = useState([...errorsPath, 'validated']);
 
+  const setRootVolume = (size) => {
+    if(size === '')
+      clearState([...headNodePath, 'LocalStorage']);
+    else
+      setState(rootVolumePath, parseInt(size));
+  }
+
   return (
     <SpaceBetween direction="vertical" size="xs">
       <ColumnLayout columns={2} borders="vertical">
@@ -222,12 +229,13 @@ function HeadNode() {
         <FormField
           label="Root Volume Size (GB)"
           errorText={rootVolumeErrors}
-          description="Typically users will use a shared storage option for application data so a smaller root volume size is suitable.">
+          description="Typically users will use a shared storage option for application data so a smaller root volume size is suitable. Blank will use the default from the AMI.">
           <Input
             disabled={editing}
+            placeholder="Enter root volume size."
             value={rootVolumeSize || ''}
             inputMode="decimal"
-            onChange={({detail}) => {setState(rootVolumePath, detail.value !== '' ? parseInt(detail.value) : null); validated && headNodeValidate();}} />
+            onChange={({detail}) => setRootVolume(detail.value)} />
         </FormField>
         <DcvSettings />
         <SsmSettings />
