@@ -418,6 +418,10 @@ function Storage() {
     setState([...storageAppPath, 'useExisting'], value);
   }
 
+  const idToOption = (id) => {
+    return {label: id, value: id}
+  }
+
   return (
     <Box>
       <FormField label="Storage Type">
@@ -458,13 +462,13 @@ function Storage() {
                 onChange={(({detail}) => {setState(existingPath, detail.value)})} />,
               "FsxLustre": <FormField label="FSx Filesystem">
                 <Select
-                  selectedOption={existingId || ""} label="FSx Filesystem" onChange={({detail}) => {setState(existingPath, detail.selectedOption.value)}}
+                  selectedOption={idToOption(existingId || "")} label="FSx Filesystem" onChange={({detail}) => {setState(existingPath, detail.selectedOption.value)}}
                   options={fsxFilesystems.map((x, i) => {return {value: x.FileSystemId, label: (x.FileSystemId + (fsxName(x) ? ` (${fsxName(x)})` : ""))}})}
                 />
               </FormField>,
               "Efs": <FormField label="EFS Filesystem">
                 <Select
-                  selectedOption={existingId || ""} label="EFS Filesystem" onChange={({detail}) => {setState(existingPath, detail.selectedOption.value)}}
+                  selectedOption={idToOption(existingId || "")} label="EFS Filesystem" onChange={({detail}) => {setState(existingPath, detail.selectedOption.value)}}
                   options={efsFilesystems.map((x, i) => {return {value: x.FileSystemId, label: (x.FileSystemId + (x.Name ? ` (${x.Name})` : ""))}})}
                 />
               </FormField>}[storageType]
