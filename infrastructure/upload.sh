@@ -8,7 +8,7 @@ if [ ! -d ${SCRIPT_DIR}/cognitolambda/node_modules ]; then
     popd
 fi
 
-REGIONS=(us-east-1 us-east-2 us-west-1 us-west-2 eu-west-1 eu-west-2 eu-central-1)
+REGIONS=( $(aws ec2 describe-regions --query "Regions[*].RegionName" --output text) )
 #REGIONS=(us-east-1)
 
 for REGION in "${REGIONS[@]}"
