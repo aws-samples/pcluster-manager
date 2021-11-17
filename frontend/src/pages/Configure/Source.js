@@ -172,11 +172,6 @@ function Source() {
                 description: "Choose this to start a new cluster configuration."
               },
               {
-                value: "upload",
-                label: "Upload a file",
-                description: "Choose this if you already have a file you wish to upload. This will proceed directly to the creation step."
-              },
-              {
                 value: "template",
                 label: "Template",
                 description: "Choose this to use the wizard starting from an existing configuration or template file. This will proceed through the wizard process to allow you to customize any options before creating the cluster."
@@ -191,6 +186,11 @@ function Source() {
                     </FormField>
                   </SpaceBetween>
                 </Box>
+              },
+              {
+                value: "upload",
+                label: "Upload a file",
+                description: "Choose this if you already have a file you wish to upload. This will proceed directly to the creation step."
               },
             ]}
           />

@@ -12,7 +12,7 @@
 
 import { setState, getState } from '../../store'
 import { LoadAwsConfig } from '../../model'
-import { getIn } from '../../util'
+import { getIn, setIn } from '../../util'
 
 function loadTemplateLazy(config, callback)
 {
@@ -23,6 +23,15 @@ function loadTemplateLazy(config, callback)
   if(getIn(config, ['Image', 'CustomAmi']))
     setState(['app', 'wizard', 'customAMI', 'enabled'], true)
 
+  if(!getIn(config, ['Image', 'Os']) && !getIn(config, ['Image', 'CustomAmi']))
+    config = setIn(config, ['Image', 'Os'], 'alinux2');
+
+  if(!getIn(config, ['Scheduling', 'Scheduler']))
+    config = setIn(config, ['Scheduling', 'Scheduler'], 'slurm');
+
+  if(!getIn(config, ['HeadNode', 'InstanceType']))
+    config = setIn(config, ['HeadNode', 'InstanceType'], 't2.micro');
+
   const subnetIndex = subnets.reduce((acc, subnet) => {acc[subnet.SubnetId] = subnet.VpcId; return acc}, {});
 
   if(getIn(config, ['HeadNode', 'Networking', 'SubnetId']))
@@ -32,12 +41,33 @@ function loadTemplateLazy(config, callback)
       setState(['app', 'wizard', 'vpc'], vpc);
   }
 
+  if(getIn(config, ['Scheduling', 'SlurmQueues']))
+  {
+    let queues = getIn(config, ['Scheduling', 'SlurmQueues']);
+    for(let i = 0; i < queues.length; i++)
+    {
+      let computeResources = getIn(config, ['Scheduling', 'SlurmQueues', i, 'ComputeResources'])
+      for(let j = 0; j < computeResources.length; j++)
+      {
+        if(getIn(config, ['Scheduling', 'SlurmQueues', i, 'ComputeResources', j, 'Efa', 'Enabled']))
+        {
+          let gdr = getIn(config, ['Scheduling', 'SlurmQueues', i, 'ComputeResources', j, 'Efa', 'GdrSupport']);
+          if(gdr !== true && gdr !== false)
+            config = setIn(config, ['Scheduling', 'SlurmQueues', i, 'ComputeResources', j, 'Efa', 'GdrSupport'], true)
+        }
+      }
+    }
+  }
+
   // Don't override defaults
   setState(['app', 'wizard', 'loaded'], true);
   setState(['app', 'wizard', 'config'], config);
+
   if(keypairs.length > 0 && !keypairNames.has(getIn(config, keypairPath)))
     setState(['app', 'wizard', 'config', ...keypairPath], keypairs[0].KeyName);
   setState(['app', 'wizard', 'page'], 'cluster');
+
+  console.log("config: ", getState(['app', 'wizard', 'config']));
   callback && callback();
 }
 

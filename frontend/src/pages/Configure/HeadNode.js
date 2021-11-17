@@ -44,6 +44,9 @@ function headNodeValidate() {
   const rootVolumePath = [...headNodePath, 'LocalStorage', 'RootVolume', 'Size'];
   const rootVolumeValue = getState(rootVolumePath);
 
+  const instanceTypePath = [...headNodePath, 'InstanceType'];
+  const instanceTypeValue = getState(instanceTypePath);
+
   let valid = true;
 
   if(!subnetValue)
@@ -52,6 +55,14 @@ function headNodeValidate() {
     valid = false;
   } else {
     clearState([...errorsPath, 'subnet']);
+  }
+
+  if(!instanceTypeValue)
+  {
+    setState([...errorsPath, 'instanceType'], 'You must select an instance type.');
+    valid = false;
+  } else {
+    clearState([...errorsPath, 'instanceType']);
   }
 
   if(rootVolumeValue === '')
@@ -196,6 +207,7 @@ function HeadNode() {
   let rootVolumeSize = useState(rootVolumePath);
 
   const subnetPath = [...headNodePath, 'Networking', 'SubnetId'];
+  const instanceTypeErrors = useState([...errorsPath, 'instanceType'])
   const subnetErrors = useState([...errorsPath, 'subnet']);
   const rootVolumeErrors = useState([...errorsPath, 'rootVolume']);
   const subnetValue = useState(subnetPath) || "";
@@ -212,7 +224,9 @@ function HeadNode() {
     <SpaceBetween direction="vertical" size="xs">
       <ColumnLayout columns={2} borders="vertical">
         <Box>
-          <FormField label="Head Node Instance Type">
+          <FormField
+            errorText={instanceTypeErrors}
+            label="Head Node Instance Type">
             <InstanceSelect disabled={editing} selectId="head-node" path={[...headNodePath, 'InstanceType']} />
           </FormField>
         </Box>

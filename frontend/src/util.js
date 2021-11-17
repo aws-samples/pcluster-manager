@@ -38,16 +38,18 @@ function setIn(state, path, value) {
   if(path.length > 1)
   {
     const subState = state && path[0] in state ? state[path[0]] : {};
-    return setIn(subState, path.slice(1));
+    const updated = setIn(subState, path.slice(1), value);
+    return swapIn(state, path[0], updated);
   }
-  return swapIn(state, path[0], value)
+  return swapIn(state, path[0], value);
 }
 
 function updateIn(state, path, update, value) {
   if(path.length > 1)
   {
     const subState = state && path[0] in state ? state[path[0]] : {};
-    return updateIn(subState, path.slice(1));
+    const updated = updateIn(subState, path.slice(1), update, value);
+    return swapIn(state, path[0], updated);
   }
   const existing = path[0] in state ? {...state[path[0]]} : null
   return swapIn(state, path[0], update(existing));
