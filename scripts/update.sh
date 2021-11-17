@@ -1,6 +1,10 @@
 #!/bin/bash -e
 
-REGION=us-east-2
+if [ -z "$1" ]; then
+    echo "Error: Please provide a valid region, i.e. ./update.sh us-east-1";
+    exit;
+fi
+REGION=$1
 LAMBDA_ARN=$(aws lambda list-functions --query "Functions[?contains(FunctionName, 'PclusterManagerFunction')] | [0].FunctionArn" --output text)
 ECR_REPO=pcluster-manager-awslambda
 
