@@ -1,6 +1,11 @@
 #!/bin/bash -e
 
-REGION=us-east-2
+if [ -z "$1" ]; then
+    REGION=$(python -c 'import boto3; print(boto3.Session().region_name)')
+    echo "Warning: Using default region $REGION from your environment. Please ensure this is where pcluster manager is deployed.";
+else
+    REGION=$1
+fi
 LAMBDA_ARN=$(aws lambda list-functions --query "Functions[?contains(FunctionName, 'PclusterManagerFunction')] | [0].FunctionArn" --output text)
 ECR_REPO=pcluster-manager-awslambda
 
