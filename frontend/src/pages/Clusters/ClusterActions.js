@@ -28,8 +28,8 @@ import FeaturedPlayListIcon from '@mui/icons-material/FeaturedPlayList';
 import MonitorIcon from '@mui/icons-material/Monitor';
 
 // Components
-import ClusterEditDialog from './ClusterEditDialog'
 import ClusterDeleteDialog from './ClusterDeleteDialog'
+import { ClusterStopDialog, stopComputeFleet } from './ClusterStopDialog'
 
 export default function ClusterActions () {
   const clusterName = useState(['app', 'clusters', 'selected']);
@@ -43,9 +43,6 @@ export default function ClusterActions () {
   const clusterStatus = useState([...clusterPath, 'clusterStatus']);
   const dcvEnabled = useState([...clusterPath, 'config', 'HeadNode', 'Dcv', 'Enabled']);
 
-  const stopFleet = () => {
-    UpdateComputeFleet(clusterName, "STOP_REQUESTED")
-  }
   const startFleet = () => {
     UpdateComputeFleet(clusterName, "START_REQUESTED")
   }
@@ -81,12 +78,12 @@ export default function ClusterActions () {
   }
 
   return <div style={{marginLeft: "20px"}}>
-    <ClusterEditDialog clusterName={clusterName} />
     <ClusterDeleteDialog clusterName={clusterName} />
+    <ClusterStopDialog clusterName={clusterName} />
     <SpaceBetween direction="horizontal" size="xs">
       <Button className="action" disabled={clusterStatus === 'DELETE_IN_PROGRESS'} variant="normal" onClick={editConfiguration} iconName={"edit"}> Edit</Button>
       {fleetStatus === "STOPPED" && <Button className="action" variant="normal" onClick={startFleet} iconName={"caret-right-filled"}> Start</Button>}
-      {fleetStatus === "RUNNING" && <Button className="action" variant="normal" onClick={stopFleet}>
+      {fleetStatus === "RUNNING" && <Button className="action" variant="normal" onClick={stopComputeFleet}>
         <div className="container">
           <CancelIcon /> Stop
         </div>

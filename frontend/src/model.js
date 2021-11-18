@@ -176,6 +176,7 @@ function UpdateComputeFleet(clusterName, fleetStatus) {
     ).then(response => {
     //console.log("Configuration Success", response)
     if(response.status === 200) {
+      DescribeCluster(clusterName);
       //store.dispatch({type: 'clusters/configuration', payload: response.data})
     }
   }).catch(error => {

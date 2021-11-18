@@ -30,9 +30,12 @@ import { Storage, storageValidate } from './Storage';
 import { Queues, queuesValidate } from './Queues'
 import { Create, createValidate, handleCreate as wizardHandleCreate, handleDryRun as wizardHandleDryRun } from './Create'
 
+// Components
+import { stopComputeFleet } from '../Clusters/ClusterStopDialog'
+
 // State
 import { setState, useState, getState, clearState } from '../../store'
-import { UpdateComputeFleet, LoadAwsConfig } from '../../model'
+import { LoadAwsConfig } from '../../model'
 
 // Icons
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -45,9 +48,6 @@ export default function WizardDialog(props) {
 
   const clusterPath = ['clusters', 'index', clusterName];
   const fleetStatus = useState([...clusterPath, 'computeFleetStatus']);
-  const stopFleet = () => {
-    UpdateComputeFleet(clusterName, "STOP_REQUESTED")
-  }
 
   const editing = useState(['app', 'wizard', 'editing']);
 
@@ -168,7 +168,7 @@ export default function WizardDialog(props) {
         footer={
           <Box float="right">
             <SpaceBetween direction="horizontal" size="xs">
-              {editing && (fleetStatus === "RUNNING" || fleetStatus === "STOP_REQUESTED") && <Button className="action" variant="normal" loading={fleetStatus === "STOP_REQUESTED"} onClick={stopFleet}>
+              {editing && (fleetStatus === "RUNNING" || fleetStatus === "STOP_REQUESTED") && <Button className="action" variant="normal" loading={fleetStatus === "STOP_REQUESTED"} onClick={stopComputeFleet}>
                 {fleetStatus !== "RUNNING" ? <span>Stop Compute Fleet</span>
                 : <div className="container"><CancelIcon /> Stop Compute Fleet</div>}
               </Button>}

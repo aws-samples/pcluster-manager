@@ -9,12 +9,14 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import * as React from 'react';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
+
+// UI Elements
+import {
+  Box,
+  Button,
+  Modal,
+  SpaceBetween,
+} from "@awsui/components-react";
 
 import { DeleteCluster, DescribeCluster, ListClusters } from '../../model'
 import { setState, useState } from '../../store'
@@ -32,26 +34,22 @@ export default function ClusterDeleteDialog(props) {
   };
 
   return (
-      <Dialog
-        open={open || false}
-        onClose={cancel}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">
-          {"Delete Cluster?"}
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            Are you sure you want to delete cluster {props.clusterName}?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={cancel}>Cancel</Button>
-          <Button onClick={deleteCluster} autoFocus>
-            Delete!
-          </Button>
-        </DialogActions>
-      </Dialog>
+    <Modal
+      onDismiss={cancel}
+      visible={open}
+      closeAriaLabel="Close modal"
+      size="medium"
+      footer={
+        <Box float="right">
+          <SpaceBetween direction="horizontal" size="xs">
+            <Button onClick={cancel}>Cancel</Button>
+            <Button onClick={deleteCluster} autoFocus>Delete!</Button>
+          </SpaceBetween>
+        </Box>
+      }
+      header="Delete Cluster?"
+    >
+      Are you sure you want to delete cluster {props.clusterName}?
+    </Modal>
   );
 }
