@@ -448,7 +448,7 @@ function LoadAwsConfig(region = null, callback) {
 
 function GetDcvSession(instanceId, user, callback) {
   console.log("iid", instanceId)
-  const region = getState(['app', 'selectedRegion']);
+  const region = getState(['app', 'selectedRegion']) || getState(['aws', 'region']);
   let url = `manager/get_dcv_session?instance_id=${instanceId}&user=${user || 'ec2-user'}&region=${region}`
   request('get', url).then(response => {
     if(response.status === 200) {
