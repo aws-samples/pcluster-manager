@@ -48,7 +48,7 @@ export default function ClusterActions () {
   }
   const editConfiguration = () => {
     setState(['app', 'wizard', 'clusterName'], clusterName);
-    setState(['app', 'wizard', 'page'], 'headNode');
+    setState(['app', 'wizard', 'page'], 'cluster');
     setState(['app', 'wizard', 'dialog'], true);
     setState(['app', 'wizard', 'editing'], true);
 
