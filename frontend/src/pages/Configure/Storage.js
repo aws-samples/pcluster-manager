@@ -364,13 +364,16 @@ function EbsSettings() {
       </FormField>
 
       <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
-        <Toggle checked={encrypted} onChange={toggleEncrypted}>Encrypt Volume</Toggle>
+        <Toggle
+          disabled={editing}
+          checked={encrypted} onChange={toggleEncrypted}>Encrypt Volume</Toggle>
         <HelpTooltip>
           Specifies a custom AWS KMS key to use for encryption. See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EbsSettings-Encrypted'>EBS Encryption.</a>
         </HelpTooltip>
       </div>
       { encrypted &&
       <Input label="KMS ID"
+        disabled={editing}
         value={kmsId} onChange={(({detail}) => {setState(kmsPath, detail.value)})} />
       }
 
