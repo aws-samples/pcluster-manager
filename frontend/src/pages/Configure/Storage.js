@@ -35,6 +35,7 @@ import { LabeledIcon } from './Components'
 
 // Constants
 const storagePath = ['app', 'wizard', 'config', 'SharedStorage'];
+const errorsPath = ['app', 'wizard', 'errors', 'sharedStorage'];
 
 // Helper Functions
 function itemToIconOption([value, label, icon]){
@@ -50,9 +51,30 @@ function strToOption(str){
 }
 
 function storageValidate() {
+  const storageSettings = getState(storagePath);
+  let valid = true;
+
+  for(let i = 0; i < storageSettings.length; i++)
+  {
+    const settingsType = getState([...storagePath, i, 'StorageType']);
+    if(settingsType === 'Ebs')
+    {
+      const volumeSize = getState([...storagePath, i, 'EbsSettings', 'Size']);
+      if(volumeSize === null || volumeSize === '' || volumeSize < 35 || volumeSize > 2048)
+      {
+        setState([...errorsPath, i, 'EbsSettings', 'Size'], 'You must specify a valid Volume Size.');
+        valid = false;
+      } else {
+        clearState([...errorsPath, i, 'EbsSettings', 'Size']);
+      }
+    }
+  }
+
+  setState([...errorsPath, 'validated'], true);
+
   const config = getState(['app', 'wizard', 'config']);
   console.log(config);
-  return true;
+  return valid;
 }
 
 function FsxLustreSettings() {
@@ -283,9 +305,12 @@ function EbsSettings() {
   const encryptedPath = [...ebsPath, 'Encrypted'];
   const kmsPath = [...ebsPath, 'KmsKeyId'];
   const snapshotIdPath = [...ebsPath, 'SnapshotId'];
+  const editing = useState(['app', 'wizard', 'editing']);
 
   const deletionPolicyPath = [...ebsPath, 'DeletionPolicy'];
   const deletionPolicies = ['Delete', 'Retain', 'Snapshot'];
+
+  const volumeErrors = useState([...errorsPath, index, 'EbsSettings', 'Size']);
 
   let volumeType = useState(volumeTypePath);
   let volumeSize = useState(volumeSizePath);
@@ -293,6 +318,8 @@ function EbsSettings() {
   let kmsId = useState(kmsPath);
   let snapshotId = useState(snapshotIdPath);
   let deletionPolicy = useState(deletionPolicyPath);
+
+  let validated = useState([...errorsPath, 'validated']);
 
   React.useEffect(() => {
     const ebsPath = [...storagePath, index, 'EbsSettings'];
@@ -316,21 +343,24 @@ function EbsSettings() {
 
   return (
     <SpaceBetween direction="vertical" size="m">
-      <FormField label="Volume Type">
+      <FormField
+        label="Volume Type">
         <Select
+          disabled={editing}
           selectedOption={strToOption(volumeType || 'gp2')} label="Volume Type" onChange={({detail}) => {setState(volumeTypePath, detail.selectedOption.value)}}
           options={volumeTypes.map(strToOption)}
         />
       </FormField>
 
-      <FormField label="Volume Size (35-2048 in GB)">
+      <FormField
+        errorText = {volumeErrors}
+        label="Volume Size (35-2048 in GB)">
         <Input
+          disabled={editing}
           style={{marginTop: 10}}
-          type="number"
-          InputLabelProps={{
-            shrink: true,
-          }}
-          value={Math.max(Math.min(volumeSize, 2048), 35)} onChange={(({detail}) => {setState(volumeSizePath, Math.max(Math.min(detail.value, 2048), 35))})} />
+          type="decimal"
+          value={volumeSize}
+          onChange={({detail}) => {setState(volumeSizePath, detail.value); validated && storageValidate()}} />
       </FormField>
 
       <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
