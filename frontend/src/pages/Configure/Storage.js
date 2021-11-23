@@ -54,21 +54,22 @@ function storageValidate() {
   const storageSettings = getState(storagePath);
   let valid = true;
 
-  for(let i = 0; i < storageSettings.length; i++)
-  {
-    const settingsType = getState([...storagePath, i, 'StorageType']);
-    if(settingsType === 'Ebs')
+  if(storageSettings)
+    for(let i = 0; i < storageSettings.length; i++)
     {
-      const volumeSize = getState([...storagePath, i, 'EbsSettings', 'Size']);
-      if(volumeSize === null || volumeSize === '' || volumeSize < 35 || volumeSize > 2048)
+      const settingsType = getState([...storagePath, i, 'StorageType']);
+      if(settingsType === 'Ebs')
       {
-        setState([...errorsPath, i, 'EbsSettings', 'Size'], 'You must specify a valid Volume Size.');
-        valid = false;
-      } else {
-        clearState([...errorsPath, i, 'EbsSettings', 'Size']);
+        const volumeSize = getState([...storagePath, i, 'EbsSettings', 'Size']);
+        if(volumeSize === null || volumeSize === '' || volumeSize < 35 || volumeSize > 2048)
+        {
+          setState([...errorsPath, i, 'EbsSettings', 'Size'], 'You must specify a valid Volume Size.');
+          valid = false;
+        } else {
+          clearState([...errorsPath, i, 'EbsSettings', 'Size']);
+        }
       }
     }
-  }
 
   setState([...errorsPath, 'validated'], true);
 
@@ -439,7 +440,7 @@ function Storage() {
   const setStorageType = (type) => {
     if(type === 'none')
     {
-      clearState(path);
+      clearState(storagePath);
       return;
     }
     setState(storagePath, [{Name: `${type}${index}`, StorageType: type, MountDir: '/shared'}])
