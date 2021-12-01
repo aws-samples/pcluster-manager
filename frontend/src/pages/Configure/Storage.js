@@ -17,6 +17,7 @@ import { findFirst } from '../../util'
 // UI Elements
 import {
   Box,
+  Button,
   FormField,
   Input,
   Select,
@@ -406,7 +407,8 @@ function EbsSettings() {
   )
 }
 
-function Storage() {
+function StorageTypeInstance({index}) {
+
   const storageTypes = [
     ["none", "No Shared Storage", "/img/ebs.svg"],
     ["FsxLustre", "Amazon FSx for Lustre", "/img/fsx.svg"],
@@ -414,7 +416,6 @@ function Storage() {
     ["Ebs", "Amazon Elastic Block Store (EBS)", "/img/ebs.svg"],
   ];
 
-  const index = 0;
   const path = [...storagePath, index]
   const storageAppPath = ['wizard', 'storage', index];
   const storageType = useState([...path, 'StorageType']) || "none";
@@ -423,6 +424,7 @@ function Storage() {
   const settingsPath = [...path, `${storageType}Settings`]
   const existingPath = [...settingsPath, 'FileSystemId']
   const existingId = useState(existingPath) || "";
+  const storages = useState(storagePath);
 
   const fsxFilesystems = useState(['aws', 'fsx_filesystems']) || [];
   const efsFilesystems = useState(['aws', 'efs_filesystems']) || [];
@@ -440,10 +442,27 @@ function Storage() {
   const setStorageType = (type) => {
     if(type === 'none')
     {
-      clearState(storagePath);
+      if(index === 0 && storages.length === 1)
+        clearState(storagePath);
+      else
+        clearState(path);
+
+      // Rename storages to keep indices correct and names unique
+      const updatedStorages = getState(storagePath);
+      if(updatedStorages)
+        for(let i = 0; i < updatedStorages.length; i++)
+        {
+          const storage = getState([...storagePath, i]);
+          setState([...storagePath, i, 'Name'], `${storage.StorageType}${i}`);
+
+        }
       return;
     }
-    setState(storagePath, [{Name: `${type}${index}`, StorageType: type, MountDir: '/shared'}])
+
+    if(!storages)
+      setState(storagePath, [{Name: `${type}${index}`, StorageType: type, MountDir: '/shared'}]);
+    else
+      setState([...storagePath, index], {Name: `${type}${index}`, StorageType: type, MountDir: '/shared'});
   }
 
   const toggleUseExisting = () => {
@@ -514,6 +533,28 @@ function Storage() {
       }
     </Box>
   )
+}
+
+function Storage() {
+  const storages = useState(storagePath);
+
+  const addStorageType = () => {
+    console.log("st", storages);
+    const newIndex = storages ? storages.length + 1 : 1;
+    const type = 'Efs';
+    setState([...storagePath, newIndex], {Name: `${type}${newIndex}`, StorageType: type, MountDir: '/shared'});
+    console.log("sta", storages);
+  }
+
+  return <SpaceBetween direction="vertical" size="m">
+    {storages && storages.length > 1 ?
+        storages.map((_, i) => <StorageTypeInstance key={i} index={i} />)
+        : <StorageTypeInstance index={0} />
+    }
+    <Box float="right">
+      <Button onClick={addStorageType} disabled={!storages || (storages && storages.length >= 5)} iconName={"add-plus"}>Add New Storage</Button>
+    </Box>
+  </SpaceBetween>
 }
 
 export { Storage, storageValidate }
