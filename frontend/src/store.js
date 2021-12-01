@@ -52,8 +52,15 @@ function rootReducer(state, action) {
       if(path.length > 1)
         return recurseAction(state, action);
 
-      const ret = {...state};
-      delete ret[path[0]];
+      let ret = null;
+      if(Array.isArray(state))
+      {
+        ret = [...state];
+        ret.splice(path[0], 1)
+      } else {
+        ret = {...state};
+        delete ret[path[0]];
+      }
       return ret
     }
     case 'state/update':
