@@ -49,6 +49,14 @@ Resources:
       TemplateURL: !Sub https://${AWS::Region}-aws-parallelcluster.s3.${AWS::Region}.amazonaws.com/parallelcluster/${Version}/api/parallelcluster-api.yaml
       TimeoutInMinutes: 30
 
+  PclusterManagerEcr:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        PublicEcrImageUri: !Ref PublicEcrImageUri
+      TemplateURL: !Sub https://pcluster-manager-${AWS::Region}.s3.${AWS::Region}.amazonaws.com/pcluster-manager-ecr.yaml
+      TimeoutInMinutes: 10
+
   SSMDefaultUser:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -79,7 +87,7 @@ Resources:
       Code:
         ImageUri: !Sub
           - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/${Repository}:${Version}
-          - Repository: !Ref PrivateEcrRepository
+          - Repository: !GetAtt [ PclusterManagerEcr, Outputs.PrivateEcrRepository ]
             Version: !Join
               - '-'
               - [!Select [2, !Split ['/', !Ref EcrImage]], !Select [3, !Split ['/', !Ref EcrImage]]]
@@ -115,222 +123,6 @@ Resources:
         - { StackIdSuffix: !Select [2, !Split ['/', !Ref 'AWS::StackId']] }
       PayloadFormatVersion: 2.0
       TimeoutInMillis: 30000
-
-  PrivateEcrRepository:
-    Type: AWS::ECR::Repository
-    Properties:
-      RepositoryName: !Sub
-        - 'pcluster-manager-${StackIdSuffix}'
-        - { StackIdSuffix: !Select [2, !Split ['/', !Ref 'AWS::StackId']] }
-
-  ImageBuilderInstanceRole:
-    Type: AWS::IAM::Role
-    Properties:
-      ManagedPolicyArns:
-        - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore
-        - !Sub arn:${AWS::Partition}:iam::aws:policy/EC2InstanceProfileForImageBuilderECRContainerBuilds
-      AssumeRolePolicyDocument:
-        Statement:
-          - Action:
-              - sts:AssumeRole
-            Effect: Allow
-            Principal:
-              Service:
-                - !Sub ec2.${AWS::URLSuffix}
-        Version: '2012-10-17'
-      Path: /executionServiceEC2Role/
-
-  ImageBuilderInstanceProfile:
-    Type: AWS::IAM::InstanceProfile
-    Properties:
-      Path: /executionServiceEC2Role/
-      Roles:
-        - !Ref ImageBuilderInstanceRole
-
-  InfrastructureConfiguration:
-    Type: AWS::ImageBuilder::InfrastructureConfiguration
-    Properties:
-      Name: !Sub
-        - PclusterManagerImageBuilderInfrastructureConfiguration-${Version}-${StackIdSuffix}
-        - { Version: !Join ['_', !Split ['.', !FindInMap [PclusterManager, Constants, Version]]], StackIdSuffix: !Select [2, !Split ['/', !Ref 'AWS::StackId']] }
-      InstanceProfileName: !Ref ImageBuilderInstanceProfile
-      TerminateInstanceOnFailure: true
-      SnsTopicArn: !Ref EcrImageBuilderSNSTopic
-
-  EcrImageRecipe:
-    Type: AWS::ImageBuilder::ContainerRecipe
-    Properties:
-      Components:
-        - ComponentArn: !Sub arn:${AWS::Partition}:imagebuilder:${AWS::Region}:aws:component/update-linux/x.x.x
-      ContainerType: DOCKER
-      Name: !Sub
-        - 'pcluster-manager-${Version}-${StackIdSuffix}'
-        - { Version: !Join ['_', !Split ['.', !FindInMap [PclusterManager, Constants, Version]]], StackIdSuffix: !Select [2, !Split ['/', !Ref 'AWS::StackId']] }
-      Version: !FindInMap [PclusterManager, Constants, ShortVersion]
-      ParentImage: !Ref PublicEcrImageUri
-      PlatformOverride: Linux
-      TargetRepository:
-        Service: ECR
-        RepositoryName: !Ref PrivateEcrRepository
-      DockerfileTemplateData: 'FROM {{{ imagebuilder:parentImage }}}'
-      WorkingDirectory: '/tmp'
-
-  EcrImage:
-    Type: AWS::ImageBuilder::Image
-    Properties:
-      ContainerRecipeArn: !Ref EcrImageRecipe
-      EnhancedImageMetadataEnabled: true
-      InfrastructureConfigurationArn: !Ref InfrastructureConfiguration
-      ImageTestsConfiguration:
-        ImageTestsEnabled: false
-
-  EcrImagePipeline:
-    Type: AWS::ImageBuilder::ImagePipeline
-    Properties:
-      Name: !Sub
-        - 'EcrImagePipeline-${Version}-${StackIdSuffix}'
-        - { Version: !Join ['_', !Split ['.', !FindInMap [PclusterManager, Constants, Version]]], StackIdSuffix: !Select [2, !Split ['/', !Ref 'AWS::StackId']] }
-      Status: ENABLED
-      ContainerRecipeArn: !Ref EcrImageRecipe
-      InfrastructureConfigurationArn: !Ref InfrastructureConfiguration
-      ImageTestsConfiguration:
-        ImageTestsEnabled: false
-
-  EcrImageBuilderSNSTopic:
-    Type: AWS::SNS::Topic
-    Properties:
-      DisplayName: "PclusterManager ECR Image Builder SNS topic"
-
-  EcrImageDeletionLambda:
-    Type: AWS::Lambda::Function
-    Properties:
-      MemorySize: 128
-      Code:
-        ZipFile: |
-          import cfnresponse
-          import boto3
-          import random
-          import string
-
-          ecr = boto3.client('ecr')
-          imagebuilder = boto3.client('imagebuilder')
-
-          def get_image_ids(repository_name, version):
-              image_digests = set()
-              paginator = ecr.get_paginator('list_images')
-              response_iterator = paginator.paginate(repositoryName=repository_name, filter={'tagStatus': 'TAGGED'})
-              for response in response_iterator:
-                  image_digests.update([image_id['imageDigest'] for image_id in response['imageIds'] if f"{version}-" in image_id['imageTag']])
-              return list({'imageDigest': image_digest} for image_digest in image_digests)
-
-          def get_imagebuilder_images(ecr_image_pipeline_arn):
-              response = imagebuilder.list_image_pipeline_images(imagePipelineArn=ecr_image_pipeline_arn)
-              images = [image['arn'] for image in response['imageSummaryList']]
-              while 'nextToken' in response:
-                  response = imagebuilder.list_image_pipeline_images(imagePipelineArn=ecr_image_pipeline_arn, nextToken=response['nextToken'])
-                  images.extend([image['arn'] for image in response['imageSummaryList']])
-              return images
-
-          def create_physical_resource_id():
-              alnum = string.ascii_uppercase + string.ascii_lowercase + string.digits
-              return ''.join(random.choice(alnum) for _ in range(16))
-
-          def handler(event, context):
-              print(event)
-              print('boto version {}'.format(boto3.__version__))
-
-              response_data = {}
-              reason = None
-              response_status = cfnresponse.SUCCESS
-
-              if event['RequestType'] == 'Create':
-                  response_data['Message'] = 'Resource creation successful!'
-                  physical_resource_id = create_physical_resource_id()
-              else:
-                  physical_resource_id = event['PhysicalResourceId']
-
-              if event['RequestType'] == 'Update' or event['RequestType'] == 'Delete':
-                  try:
-                      resource_key = 'OldResourceProperties' if 'OldResourceProperties' in event else 'ResourceProperties'
-                      ecr_repository_name = event[resource_key]['EcrRepositoryName']
-                      ecr_image_pipeline_arn = event[resource_key]['EcrImagePipelineArn']
-                      version = event[resource_key]['Version']
-
-                      image_ids = get_image_ids(ecr_repository_name, version)
-                      if image_ids:
-                          ecr.batch_delete_image(repositoryName=ecr_repository_name, imageIds=image_ids)
-                          reason = 'Image deletion successful!'
-                      else:
-                          reason = 'No image found, considering image deletion successful'
-
-                      for imagebuilder_image in get_imagebuilder_images(ecr_image_pipeline_arn):
-                          imagebuilder.delete_image(imageBuildVersionArn=imagebuilder_image)
-
-                  except ecr.exceptions.RepositoryNotFoundException:
-                      reason = 'Repository was not found, considering image deletion successfull'
-                  except Exception as exception:
-                      response_status = cfnresponse.FAILED
-                      reason = 'Failed image deletion with error: {}'.format(exception)
-
-              cfnresponse.send(event, context, response_status, response_data, physical_resource_id, reason)
-
-      Handler: index.handler
-      Runtime: python3.7
-      Role: !GetAtt EcrImageDeletionLambdaRole.Arn
-
-  EcrImageDeletionLambdaLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Sub /aws/lambda/${EcrImageDeletionLambda}
-
-  EcrImageDeletionLambdaRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: lambda.amazonaws.com
-            Action:
-              - 'sts:AssumeRole'
-      Policies:
-        - PolicyName: LoggingPolicy
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource: !Sub arn:${AWS::Partition}:logs:*:*:*
-        - PolicyName: BatchDeletePolicy
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Effect: Allow
-                Action:
-                  - ecr:BatchDeleteImage
-                  - ecr:ListImages
-                Resource: !GetAtt PrivateEcrRepository.Arn
-              - Effect: Allow
-                Action:
-                  - imagebuilder:ListImagePipelineImages
-                Resource: !Ref EcrImagePipeline
-              - Effect: Allow
-                Action:
-                  - imagebuilder:DeleteImage
-                Resource: !Sub
-                  - arn:${AWS::Partition}:imagebuilder:${AWS::Region}:${AWS::AccountId}:image/*${StackIdSuffix}*
-                  - { StackIdSuffix: !Select [2, !Split ['/', !Ref 'AWS::StackId']] }
-
-  EcrImagesRemover:
-    Type: Custom::EcrImagesRemover
-    Properties:
-      ServiceToken: !GetAtt EcrImageDeletionLambda.Arn
-      EcrRepositoryName: !Ref PrivateEcrRepository
-      Version: !FindInMap [PclusterManager, Constants, ShortVersion]
-      EcrImagePipelineArn: !GetAtt EcrImagePipeline.Arn
 
   PclusterManagerLambdaLogGroup:
     Type: AWS::Logs::LogGroup

@@ -9,7 +9,7 @@ if [ ! -d ${SCRIPT_DIR}/cognitolambda/node_modules ]; then
 fi
 
 REGIONS=( $(aws ec2 describe-regions --query "Regions[*].RegionName" --output text) )
-#REGIONS=(us-east-1)
+#REGIONS=(us-east-2)
 
 for REGION in "${REGIONS[@]}"
 do
@@ -21,5 +21,6 @@ do
                 --output-template-file ${SCRIPT_DIR}/pcluster-manager-cognito-packaged.yaml
     aws s3 cp --acl public-read ${SCRIPT_DIR}/SSMSessionProfile-cfn.yaml s3://${BUCKET}/SSMSessionProfile-cfn.yaml
     aws s3 cp --acl public-read ${SCRIPT_DIR}/pcluster-manager-cognito-packaged.yaml s3://${BUCKET}/pcluster-manager-cognito.yaml
+    aws s3 cp --acl public-read ${SCRIPT_DIR}/pcluster-manager-ecr.yaml s3://${BUCKET}/pcluster-manager-ecr.yaml
     aws s3 cp --acl public-read ${SCRIPT_DIR}/pcluster-manager.yaml s3://${BUCKET}/pcluster-manager.yaml
 done
