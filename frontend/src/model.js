@@ -56,7 +56,6 @@ function CreateCluster(clusterName, clusterConfig, region, dryrun=false, success
   const selectedRegion = getState(['app', 'selectedRegion']);
   var url = 'api?path=/v3/clusters';
   url += dryrun ? "&dryrun=true" : ""
-  console.log('reg', region);
   url += region ? `&region=${region}` : ""
   var body = {clusterName: clusterName, clusterConfiguration: clusterConfig}
   request('post', url, body).then(response => {
