@@ -16,9 +16,11 @@ import { findFirst } from '../../util'
 
 // UI Elements
 import {
-  Box,
   Button,
+  ColumnLayout,
+  Container,
   FormField,
+  Header,
   Input,
   Select,
   SpaceBetween,
@@ -132,8 +134,8 @@ function FsxLustreSettings() {
   }
 
   return (
-    <SpaceBetween direction="vertical" size="s">
-      <Box>
+    <ColumnLayout columns={2} borders="vertical">
+      <div key="capacity" style={{display: "flex", flexDirection: "column"}}>
         Storage Capacity: {storageCapacity} GB
         <Slider
           disabled={editing}
@@ -147,13 +149,14 @@ function FsxLustreSettings() {
           min={1200}
           max={100800}
         />
-      </Box>
-      <div style={{display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
-        <FormField label="FSx Lustre Type">
+      </div>
+      <div key="lustre-type" style={{display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
+        <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
+          FSx Lustre Type:
           <Select
             disabled={editing}
             selectedOption={strToOption(lustreType || 'PERSISTENT_1')} label="FSx Lustre Type" onChange={({detail}) => {
-            setState(lustreTypePath, detail.selectedOption.value);
+              setState(lustreTypePath, detail.selectedOption.value);
               if(detail.selectedOption.value === 'PERSISTENT_1') {
                 setState(storageThroughputPath, 200);
               } else {
@@ -162,9 +165,33 @@ function FsxLustreSettings() {
             }}
             options={lustreTypes.map(strToOption)}
           />
-        </FormField>
+        </div>
         <HelpTooltip>
           Choose SCRATCH_1 and SCRATCH_2 deployment types when you need temporary storage and shorter-term processing of data. The SCRATCH_2 deployment type provides in-transit encryption of data and higher burst throughput capacity than SCRATCH_1. Choose PERSISTENT_1 deployment type for longer-term storage and workloads and encryption of data in transit. See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-DeploymentType'>DeploymentType</a>.
+        </HelpTooltip>
+      </div>
+
+      <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+        <FormField label="Import Path">
+          <Input
+            disabled={editing}
+            placeholder="s3://yourbucket"
+            value={importPath} onChange={({detail}) => setImportPath(detail.value)} />
+        </FormField>
+        <HelpTooltip>
+          Set Import Path to read files into your filesystem from an S3 bucket. See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-ImportPath'>ImportPath</a>.
+        </HelpTooltip>
+      </div>
+
+      <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+        <FormField label="Export Path">
+          <Input
+            disabled={editing}
+            placeholder="s3://yourbucket"
+            value={exportPath} onChange={({detail}) => {setExportPath(detail.value)}} />
+        </FormField>
+        <HelpTooltip>
+          Set Export Path to write files from your filesystem into an S3 bucket. See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-ExportPath'>ExportPath</a>.
         </HelpTooltip>
       </div>
 
@@ -183,38 +210,13 @@ function FsxLustreSettings() {
         </HelpTooltip>
       </div>
       }
-
-      <div style={{display: "flex", flexDirection: "row", alignItems: "center", marginTop: "10px", justifyContent: "space-between"}}>
-        <FormField label="Import Path">
-        <Input
-          disabled={editing}
-          placeholder="s3://yourbucket"
-          value={importPath} onChange={({detail}) => setImportPath(detail.value)} />
-        </FormField>
-        <HelpTooltip>
-            Set Import Path to read files into your filesystem from an S3 bucket. See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-ImportPath'>ImportPath</a>.
-        </HelpTooltip>
-      </div>
-
-      <div style={{display: "flex", flexDirection: "row", alignItems: "center", marginTop: "10px", justifyContent: "space-between"}}>
-        <FormField label="Export Path">
-          <Input
-            disabled={editing}
-            placeholder="s3://yourbucket"
-            value={exportPath} onChange={({detail}) => {setExportPath(detail.value)}} />
-        </FormField>
-        <HelpTooltip>
-            Set Export Path to write files from your filesystem into an S3 bucket. See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-ExportPath'>ExportPath</a>.
-        </HelpTooltip>
-      </div>
-
       <div style={{display: "flex", flexDirection: "row", alignItems: "center", marginTop: "10px", justifyContent: "space-between"}}>
         <Toggle checked={compression !== null} onChange={toggleCompression}>Compress Filesystem Data?</Toggle>
         <HelpTooltip>
           When data compression is enabled, Amazon FSx for Lustre automatically compresses newly written files before they are written to disk and automatically uncompresses them when they are read. See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-DataCompressionType'>DataCompressionType</a>.
         </HelpTooltip>
       </div>
-    </SpaceBetween>
+    </ColumnLayout>
   )
 }
 
@@ -231,7 +233,7 @@ function EfsSettings() {
 
   let encrypted = useState(encryptedPath);
   let kmsId = useState(kmsPath);
-  let performanceMode = useState(performancePath);
+  let performanceMode = useState(performancePath) || "generalPurpose";
   let throughputMode = useState(throughputModePath);
   let provisionedThroughput = useState(provisionedThroughputPath);
 
@@ -254,46 +256,63 @@ function EfsSettings() {
 
   return (
     <SpaceBetween direction="vertical" size="s">
-      <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
-        <Toggle checked={encrypted} onChange={toggleEncrypted}>Encrypt Volume</Toggle>
-        <HelpTooltip>
-          Specifies a custom AWS KMS key to use for encryption. See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EfsSettings-Encrypted'>EFS Encryption.</a>
-        </HelpTooltip>
-      </div>
-      { encrypted &&
-      <Input label="KMS ID"
-        value={kmsId} onChange={(({detail}) => {setState(kmsPath, detail.value)})} />
-      }
+      <ColumnLayout columns={2} borders="vertical">
+        <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+          <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
+            <div style={{display: "flex", flexGrow: 1, flexShrink: 0}}>
+              <Toggle checked={encrypted} onChange={toggleEncrypted}>Encrypted</Toggle>
+            </div>
+            { encrypted &&
+            <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
+              <div style={{display: "flex", flexGrow: 1, flexShrink: 0}}>
+                KMS ID:
+              </div>
+              <div style={{display: "flex", flexShrink: 1}}>
+                <Input value={kmsId} onChange={(({detail}) => {setState(kmsPath, detail.value)})} />
+              </div>
+            </div>
+            }
+          </div>
+          <HelpTooltip>
+            Specifies a custom AWS KMS key to use for encryption. See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EfsSettings-Encrypted'>EFS Encryption.</a>
+          </HelpTooltip>
+        </div>
 
-      <FormField label="Performance Mode">
-        <Select
-          selectedOption={strToOption(performanceMode)} onChange={({detail}) => {setState(performancePath, detail.selectedOption.value)}}
-          options={performanceModes.map(strToOption)}
-        />
-      </FormField>
-
-      <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
-        <Toggle checked={throughputMode !== 'bursting'} onChange={(event) => {
-          setState(throughputModePath, throughputMode === 'bursting' ? 'provisioned' : 'bursting' );
-          if(throughputMode === 'provisioned')
-            setState(provisionedThroughputPath, 128)
-        }}>Specify Provisioned Throughput</Toggle>
-        <HelpTooltip>
-          Defines the provisioned throughput (from 1-1024 in MiB/s) of the
-          Amazon EFS file system. If not provided filesystem will be created in
-        'bursting' mode. See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EfsSettings-ThroughputMode'>ThroughputMode
-      section.</a>
-        </HelpTooltip>
-      </div>
-
-      { throughputMode === 'provisioned' &&
-      <Input label="Throughput (1-1024 in MiB/s)"
-        type="number"
-        InputLabelProps={{
-          shrink: true,
-        }}
-        value={Math.max(Math.min(provisionedThroughput, 1024), 1)} onChange={(({detail}) => {setState(provisionedThroughputPath, Math.max(Math.min(detail.value, 1024), 1))})} />
-      }
+        <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
+          Performance Mode:
+          <Select
+            selectedOption={strToOption(performanceMode)} onChange={({detail}) => {setState(performancePath, detail.selectedOption.value)}}
+            options={performanceModes.map(strToOption)}
+          />
+        </div>
+        <div style={{display: "flex", flexDirection: "column", gap: "10px"}}>
+          <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+            <Toggle checked={throughputMode !== 'bursting'} onChange={(event) => {
+              setState(throughputModePath, throughputMode === 'bursting' ? 'provisioned' : 'bursting' );
+              if(throughputMode === 'provisioned')
+                setState(provisionedThroughputPath, 128)
+            }}>Provisioned Throughput</Toggle>
+            <HelpTooltip>
+              Defines the provisioned throughput (from 1-1024 in MiB/s) of the
+              Amazon EFS file system. If not provided filesystem will be created in
+              'bursting' mode. See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EfsSettings-ThroughputMode'>ThroughputMode
+                section.</a>
+            </HelpTooltip>
+          </div>
+          { throughputMode === 'provisioned' &&
+          <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
+            <div style={{display: "flex", flexGrow: 1, flexShrink: 0}}>
+              Throughput (1-1024 in MiB/s):
+            </div>
+            <div style={{display: "flex", flexShrink: 1}}>
+              <Input
+                type="number"
+                value={Math.max(Math.min(provisionedThroughput, 1024), 1)} onChange={(({detail}) => {setState(provisionedThroughputPath, Math.max(Math.min(detail.value, 1024), 1))})} />
+            </div>
+          </div>
+          }
+        </div>
+      </ColumnLayout>
     </SpaceBetween>
   )
 }
@@ -345,60 +364,80 @@ function EbsSettings() {
 
   return (
     <SpaceBetween direction="vertical" size="m">
-      <FormField
-        label="Volume Type">
-        <Select
-          disabled={editing}
-          selectedOption={strToOption(volumeType || 'gp2')} label="Volume Type" onChange={({detail}) => {setState(volumeTypePath, detail.selectedOption.value)}}
-          options={volumeTypes.map(strToOption)}
-        />
-      </FormField>
-
-      <FormField
-        errorText = {volumeErrors}
-        label="Volume Size (35-2048 in GB)">
-        <Input
-          disabled={editing}
-          style={{marginTop: 10}}
-          type="decimal"
-          value={volumeSize}
-          onChange={({detail}) => {setState(volumeSizePath, detail.value); validated && storageValidate()}} />
-      </FormField>
+      <ColumnLayout columns={2} borders="vertical">
+        <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
+          Volume Type:
+          <Select
+            disabled={editing}
+            placeholder="Default (gp2)"
+            selectedOption={volumeType && strToOption(volumeType)} label="Volume Type" onChange={({detail}) => {setState(volumeTypePath, detail.selectedOption.value)}}
+            options={volumeTypes.map(strToOption)}
+          />
+        </div>
+        <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
+          <div style={{display: "flex", flexGrow: 1, flexShrink: 0}}>
+            Volume Size (35-2048 in GB):
+          </div>
+          <div style={{display: "flex", flexShrink: 1}}>
+            <FormField errorText = {volumeErrors}>
+              <Input
+                disabled={editing}
+                style={{marginTop: 10}}
+                type="decimal"
+                value={volumeSize}
+                onChange={({detail}) => {setState(volumeSizePath, detail.value); validated && storageValidate()}} />
+            </FormField>
+          </div>
+        </div>
 
       <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
-        <Toggle
-          disabled={editing}
-          checked={encrypted} onChange={toggleEncrypted}>Encrypt Volume</Toggle>
+        <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
+          <div style={{display: "flex", flexGrow: 1, flexShrink: 0}}>
+            <Toggle
+              disabled={editing}
+              checked={encrypted} onChange={toggleEncrypted}>Encrypted</Toggle>
+          </div>
+          { encrypted &&
+          <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
+            <div style={{display: "flex", flexGrow: 1, flexShrink: 0}}>
+              KMS ID:
+            </div>
+            <div style={{display: "flex", flexShrink: 1}}>
+              <Input disabled={editing} value={kmsId} onChange={(({detail}) => {setState(kmsPath, detail.value)})} />
+            </div>
+          </div>
+          }
+        </div>
         <HelpTooltip>
           Specifies a custom AWS KMS key to use for encryption. See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EbsSettings-Encrypted'>EBS Encryption.</a>
         </HelpTooltip>
       </div>
-      { encrypted &&
-      <Input label="KMS ID"
-        disabled={editing}
-        value={kmsId} onChange={(({detail}) => {setState(kmsPath, detail.value)})} />
-      }
 
       <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
-        <Toggle checked={snapshotId !== null} onChange={(event) => {setState(snapshotIdPath, snapshotId === null ? '' : null )}}>Snapshot ID</Toggle>
+        <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
+          <Toggle checked={snapshotId !== null} onChange={(event) => {setState(snapshotIdPath, snapshotId === null ? '' : null )}}>Snapshot ID</Toggle>
+          { snapshotId !== null &&
+          <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
+            :
+            <Input style={{ marginBottom: 10}} value={snapshotId} onChange={(({detail}) => {setState(snapshotIdPath, detail.value)})} />
+          </div>
+          }
+        </div>
         <HelpTooltip>
-            Specifies the Amazon EBS snapshot ID if you're using a snapshot as the source for the volume. See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EbsSettings-SnapshotId'>SnapshotID</a>.
+          Specifies the Amazon EBS snapshot ID if you're using a snapshot as the source for the volume. See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EbsSettings-SnapshotId'>SnapshotID</a>.
         </HelpTooltip>
       </div>
 
-      { snapshotId !== null &&
-      <Input label="Snapshot ID"
-        style={{ marginBottom: 10}}
-        value={snapshotId} onChange={(({detail}) => {setState(snapshotIdPath, detail.value)})} />
-      }
+      </ColumnLayout>
 
       <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
-        <FormField label="Deletion Policy">
+        <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
+          Deletion Policy:
           <Select
             selectedOption={strToOption(deletionPolicy || "Delete")} label="Deletion Policy" onChange={({detail}) => {setState(deletionPolicyPath, detail.selectedOption.value)}}
             options={deletionPolicies.map(strToOption)}
           />
-        </FormField>
+        </div>
         <HelpTooltip>
           Specifies whether the volume should be retained, deleted, or snapshotted when the cluster is deleted. See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EbsSettings-DeletionPolicy'>DeletionPolicy</a>.
         </HelpTooltip>
@@ -407,18 +446,11 @@ function EbsSettings() {
   )
 }
 
-function StorageTypeInstance({index}) {
-
-  const storageTypes = [
-    ["none", "No Shared Storage", "/img/ebs.svg"],
-    ["FsxLustre", "Amazon FSx for Lustre", "/img/fsx.svg"],
-    ["Efs", "Amazon Elastic File System (EFS)", "/img/efs.svg"],
-    ["Ebs", "Amazon Elastic Block Store (EBS)", "/img/ebs.svg"],
-  ];
-
+function StorageInstance({index}) {
   const path = [...storagePath, index]
   const storageAppPath = ['wizard', 'storage', index];
   const storageType = useState([...path, 'StorageType']) || "none";
+  const storageName = useState([...path, 'Name']) || "";
   const mountPoint = useState([...path, 'MountDir']);
   const useExisting = useState([...storageAppPath, 'useExisting']) || false;
   const settingsPath = [...path, `${storageType}Settings`]
@@ -439,30 +471,21 @@ function StorageTypeInstance({index}) {
     return (tags.length > 0) ? tags[0].Value : null
   }
 
-  const setStorageType = (type) => {
-    if(type === 'none')
-    {
-      if(index === 0 && storages.length === 1)
-        clearState(storagePath);
-      else
-        clearState(path);
-
-      // Rename storages to keep indices correct and names unique
-      const updatedStorages = getState(storagePath);
-      if(updatedStorages)
-        for(let i = 0; i < updatedStorages.length; i++)
-        {
-          const storage = getState([...storagePath, i]);
-          setState([...storagePath, i, 'Name'], `${storage.StorageType}${i}`);
-
-        }
-      return;
-    }
-
-    if(!storages)
-      setState(storagePath, [{Name: `${type}${index}`, StorageType: type, MountDir: '/shared'}]);
+  const removeStorage = (type) => {
+    if(index === 0 && storages.length === 1)
+      clearState(storagePath);
     else
-      setState([...storagePath, index], {Name: `${type}${index}`, StorageType: type, MountDir: '/shared'});
+      clearState(path);
+
+    // Rename storages to keep indices correct and names unique
+    const updatedStorages = getState(storagePath);
+    if(updatedStorages)
+      for(let i = 0; i < updatedStorages.length; i++)
+      {
+        const storage = getState([...storagePath, i]);
+        setState([...storagePath, i, 'Name'], `${storage.StorageType}${i}`);
+
+      }
   }
 
   const toggleUseExisting = () => {
@@ -476,85 +499,134 @@ function StorageTypeInstance({index}) {
   }
 
   return (
-    <Box>
-      <FormField label="Storage Type">
-        <Select
-          disabled={editing}
-          selectedOption={itemToDisplayIconOption(findFirst(storageTypes, s => {return s[0] === storageType}))}
-          onChange={({detail}) => {setStorageType(detail.selectedOption.value)}}
-          options={storageTypes.map(itemToIconOption)}
-        />
-      </FormField>
-      {storageType !== "none" &&
+    <Container
+      header={<Header
+        variant="h3"
+        actions={<Button onClick={removeStorage}>Remove</Button>}>
+        Name: {storageName}
+      </Header>}
+    >
       <div style={{display: "flex", flexDirection: "column", gap: "10px"}}>
-        <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: "10px"}}>
-          <FormField label="Mount Point">
-          <Input
-            disabled={editing}
-            value={mountPoint}
-            onChange={(({detail}) => {setState([...storagePath, index, 'MountDir'], detail.value)})} />
-          </FormField>
-          <HelpTooltip>
-            Where to mount the shared storage on both the Head Node and Compute Fleet instances.
-          </HelpTooltip>
-        </div>
-        <div style={{marginTop: "10px", display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
-          <Toggle disabled={editing} checked={useExisting} onChange={toggleUseExisting}>Use Existing Filesystem</Toggle>
-          <HelpTooltip>
-              Specify an existing fileystem and mount it to all instances in the cluster.
-              See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-FileSystemId'>FSx Filesystem ID</a>
-              , <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EfsSettings-FileSystemId'>EFS Filesystem ID</a>
-              , <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EbsSettings-VolumeId'>EBS Volume ID</a>
-          </HelpTooltip>
-        </div>
-        { useExisting ?
-            {
-              "Ebs": <Input label="Existing Filesystem ID"
-                placeholder="i.e. fsx-1234 or efs-1234"
-                value={existingId}
-                onChange={(({detail}) => {setState(existingPath, detail.value)})} />,
-              "FsxLustre": <FormField label="FSx Filesystem">
-                <Select
-                  selectedOption={idToOption(existingId || "")} label="FSx Filesystem" onChange={({detail}) => {setState(existingPath, detail.selectedOption.value)}}
-                  options={fsxFilesystems.map((x, i) => {return {value: x.FileSystemId, label: (x.FileSystemId + (fsxName(x) ? ` (${fsxName(x)})` : ""))}})}
-                />
-              </FormField>,
-              "Efs": <FormField label="EFS Filesystem">
-                <Select
-                  selectedOption={idToOption(existingId || "")} label="EFS Filesystem" onChange={({detail}) => {setState(existingPath, detail.selectedOption.value)}}
-                  options={efsFilesystems.map((x, i) => {return {value: x.FileSystemId, label: (x.FileSystemId + (x.Name ? ` (${x.Name})` : ""))}})}
-                />
-              </FormField>}[storageType]
-           : {"FsxLustre": <FsxLustreSettings />,
-              "Efs": <EfsSettings />,
-              "Ebs": <EbsSettings />}[storageType]
+        <ColumnLayout columns={2} borders="vertical">
+          <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: "10px"}}>
+            <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
+              Mount Point:
+              <Input
+                disabled={editing}
+                value={mountPoint}
+                onChange={(({detail}) => {setState([...storagePath, index, 'MountDir'], detail.value)})} />
+            </div>
+            <HelpTooltip>
+              Where to mount the shared storage on both the Head Node and Compute Fleet instances.
+            </HelpTooltip>
+          </div>
+          <div style={{marginTop: "10px", display: "flex", flexDirection: "column" }}>
+            <div style={{marginTop: "10px", display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+              <Toggle disabled={editing} checked={useExisting} onChange={toggleUseExisting}>Use Existing Filesystem</Toggle>
+              <HelpTooltip>
+                Specify an existing fileystem and mount it to all instances in the cluster.
+                See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-FileSystemId'>FSx Filesystem ID</a>
+                , <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EfsSettings-FileSystemId'>EFS Filesystem ID</a>
+                , <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EbsSettings-VolumeId'>EBS Volume ID</a>
+              </HelpTooltip>
+            </div>
+            { useExisting &&
+                {
+                  "Ebs":
+                    <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px", marginTop: "10px"}}>
+                      Existing EBS ID:
+                      <Input
+                        placeholder="i.e. fsx-1234 or efs-1234"
+                        value={existingId}
+                        onChange={(({detail}) => {setState(existingPath, detail.value)})} />
+                    </div>,
+                  "FsxLustre": <FormField label="FSx Filesystem">
+                    <Select
+                      placeholder="Please Select"
+                      selectedOption={existingId && idToOption(existingId)} label="FSx Filesystem" onChange={({detail}) => {setState(existingPath, detail.selectedOption.value)}}
+                      options={fsxFilesystems.map((x, i) => {return {value: x.FileSystemId, label: (x.FileSystemId + (fsxName(x) ? ` (${fsxName(x)})` : ""))}})}
+                    />
+                  </FormField>,
+                  "Efs": <FormField label="EFS Filesystem">
+                    <Select
+                      selectedOption={idToOption(existingId || "")} label="EFS Filesystem" onChange={({detail}) => {setState(existingPath, detail.selectedOption.value)}}
+                      options={efsFilesystems.map((x, i) => {return {value: x.FileSystemId, label: (x.FileSystemId + (x.Name ? ` (${x.Name})` : ""))}})}
+                    />
+                  </FormField>}[storageType]
+            }
+          </div>
+        </ColumnLayout>
+        { ! useExisting && {"FsxLustre": <FsxLustreSettings />,
+          "Efs": <EfsSettings />,
+          "Ebs": <EbsSettings />}[storageType]
         }
       </div>
-      }
-    </Box>
+    </Container>
   )
 }
 
 function Storage() {
   const storages = useState(storagePath);
+  const editing = useState(['app', 'wizard', 'editing']);
+  const storageType = useState(['app', 'wizard', 'storage', 'type']);
 
-  const addStorageType = () => {
-    console.log("st", storages);
-    const newIndex = storages ? storages.length + 1 : 1;
-    const type = 'Efs';
-    setState([...storagePath, newIndex], {Name: `${type}${newIndex}`, StorageType: type, MountDir: '/shared'});
-    console.log("sta", storages);
+  const storageMaxes = {"FsxLustre": 1, "Efs": 1, "Ebs": 5}
+
+  const storageTypesSource = [
+    ["FsxLustre", "Amazon FSx for Lustre (FSX)", "/img/fsx.svg"],
+    ["Efs", "Amazon Elastic File System (EFS)", "/img/efs.svg"],
+    ["Ebs", "Amazon Elastic Block Store (EBS)", "/img/ebs.svg"],
+  ];
+
+  const defaultCounts = {"FsxLustre": 0, "Efs": 0, "Ebs": 0}
+
+  const storageReducer = (eax, item) => {
+    let ret = {...eax}
+    ret[item.StorageType] += 1
+    return ret;
+  }
+  const storageCounts = storages ? storages.reduce(storageReducer, defaultCounts) : defaultCounts;
+
+  const storageTypes = storageTypesSource.reduce((newStorages, storageType) => {
+    const st = storageType[0];
+    return storageCounts[st] >= storageMaxes[st] ? newStorages : [...newStorages, storageType];
+  }, [])
+
+  const addStorage = () => {
+    const newIndex = storages ? storages.length : 0;
+    if(!storages)
+      setState(storagePath, [{Name: `${storageType}${newIndex}`, StorageType: storageType, MountDir: '/shared'}]);
+    else
+      setState([...storagePath, newIndex], {Name: `${storageType}${newIndex}`, StorageType: storageType, MountDir: '/shared'});
+    clearState(['app', 'wizard', 'storage', 'type']);
   }
 
-  return <SpaceBetween direction="vertical" size="m">
-    {storages && storages.length > 1 ?
-        storages.map((_, i) => <StorageTypeInstance key={i} index={i} />)
-        : <StorageTypeInstance index={0} />
-    }
-    <Box float="right">
-      <Button onClick={addStorageType} disabled={!storages || (storages && storages.length >= 5)} iconName={"add-plus"}>Add New Storage</Button>
-    </Box>
-  </SpaceBetween>
+  const setStorageType = (newStorageType) => {
+    setState(['app', 'wizard', 'storage', 'type'], newStorageType);
+  }
+
+  return (
+    <div style={{display: "flex", flexDirection: "column", gap: "20px"}}>
+      {storages ? storages.map((_, i) => <StorageInstance key={i} index={i} />)
+      : <div>No shared storage options selected.</div>}
+
+      {!editing && storageTypes.length > 0 &&
+        <div style={{display: "flex", flexDirection: "row", justifyContent: "flex-end"}}>
+          <div style={{display: "flex", flexDirection: "row", gap: "16px", alignItems: "center", marginTop: "10px"}}>
+            Storage Type:
+            <Select
+              disabled={editing}
+              placeholder="Please Select a Filesystem Type"
+              selectedOption={storageType && itemToDisplayIconOption(findFirst(storageTypes, s => {return s[0] === storageType}))}
+              onChange={({detail}) => {setStorageType(detail.selectedOption.value)}}
+              options={storageTypes.map(itemToIconOption)}
+            />
+            <Button onClick={addStorage} disabled={!storageType || (storages && storages.length >= 5)} iconName={"add-plus"}>Add Storage</Button>
+          </div>
+        </div>
+      }
+    </div>
+  );
 }
 
 export { Storage, storageValidate }
