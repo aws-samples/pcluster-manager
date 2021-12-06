@@ -37,12 +37,18 @@ import HelpTooltip from '../../components/HelpTooltip'
 const headNodePath = ['app', 'wizard', 'config', 'HeadNode'];
 const errorsPath = ['app', 'wizard', 'errors', 'headNode'];
 
+// Helper Functions
+function strToOption(str){
+  return {value: str, label: str}
+}
+
+
 function headNodeValidate() {
   const subnetPath = [...headNodePath, 'Networking', 'SubnetId'];
   const subnetValue = getState(subnetPath);
 
-  const rootVolumePath = [...headNodePath, 'LocalStorage', 'RootVolume', 'Size'];
-  const rootVolumeValue = getState(rootVolumePath);
+  const rootVolumeSizePath = [...headNodePath, 'LocalStorage', 'RootVolume', 'Size'];
+  const rootVolumeValue = getState(rootVolumeSizePath);
 
   const instanceTypePath = [...headNodePath, 'InstanceType'];
   const instanceTypeValue = getState(instanceTypePath);
@@ -203,8 +209,19 @@ function DcvSettings() {
 }
 
 function HeadNode() {
-  const rootVolumePath = [...headNodePath, 'LocalStorage', 'RootVolume', 'Size'];
-  let rootVolumeSize = useState(rootVolumePath);
+  const rootVolumeSizePath = [...headNodePath, 'LocalStorage', 'RootVolume', 'Size'];
+  const rootVolumeSize = useState(rootVolumeSizePath);
+
+  const rootVolumeEncryptedPath = [...headNodePath, 'LocalStorage', 'RootVolume', 'Encrypted'];
+  const rootVolumeEncrypted = useState(rootVolumeEncryptedPath);
+
+  const rootVolumeTypePath = [...headNodePath, 'LocalStorage', 'RootVolume', 'VolumeType'];
+  const rootVolumeType = useState(rootVolumeTypePath);
+  const volumeTypes = ['gp2', 'gp3', 'io1', 'io2', 'sc1', 'stl', 'standard'];
+
+  const imdsSecuredPath = [...headNodePath, 'Imds', 'Secured'];
+  const imdsSecured = useState(imdsSecuredPath);
+
 
   const subnetPath = [...headNodePath, 'Networking', 'SubnetId'];
   const instanceTypeErrors = useState([...errorsPath, 'instanceType'])
@@ -213,11 +230,36 @@ function HeadNode() {
   const subnetValue = useState(subnetPath) || "";
   const editing = useState(['app', 'wizard', 'editing']);
 
+  const clearEmpty = () => {
+    const headStorage = getState([...headNodePath, 'LocalStorage', 'RootVolume']) || {};
+    if(Object.keys(headStorage).length === 0)
+      clearState([...headNodePath, 'LocalStorage']);
+    console.log("config: ", getState(headNodePath));
+  }
+
   const setRootVolume = (size) => {
     if(size === '')
-      clearState([...headNodePath, 'LocalStorage']);
+      clearState(rootVolumeSizePath);
     else
-      setState(rootVolumePath, parseInt(size));
+      setState(rootVolumeSizePath, parseInt(size));
+    clearEmpty();
+  }
+
+  const toggleEncrypted = () => {
+    const setEncrypted = !rootVolumeEncrypted;
+    if(setEncrypted)
+      setState(rootVolumeEncryptedPath, setEncrypted);
+    else
+      clearState(rootVolumeEncryptedPath);
+    clearEmpty();
+  }
+
+  const toggleImdsSecured = () => {
+    const setImdsSecured = !imdsSecured;
+    if(setImdsSecured)
+      setState(imdsSecuredPath, setImdsSecured);
+    else
+      clearState(imdsSecuredPath);
   }
 
   return (
@@ -249,8 +291,27 @@ function HeadNode() {
             inputMode="decimal"
             onChange={({detail}) => setRootVolume(detail.value)} />
         </FormField>
-        <DcvSettings />
         <SsmSettings />
+        <DcvSettings />
+        <Toggle
+          disabled={editing}
+          checked={rootVolumeEncrypted || false} onChange={toggleEncrypted}>Encrypted Root Volume</Toggle>
+        <div key="volume-type" style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
+          Volume Type:
+          <Select
+            disabled={editing}
+            placeholder="Default (gp2)"
+            selectedOption={rootVolumeType && strToOption(rootVolumeType)} label="Volume Type" onChange={({detail}) => {setState(rootVolumeTypePath, detail.selectedOption.value)}}
+            options={volumeTypes.map(strToOption)}
+          />
+        </div>
+        <div key="imds-secured" style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+          <Toggle
+            checked={imdsSecured || false} onChange={toggleImdsSecured}>IMDS Secured</Toggle>
+          <HelpTooltip>
+            If enabled, restrict access to IMDS (and thus instance credentials) to users with superuser permissions. For more information, see <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html#instance-metadata-v2-how-it-works'>How instance metadata service version 2 works</a> in the <i>Amazon EC2 User Guide for Linux Instances</i>.
+          </HelpTooltip>
+        </div>
       </ColumnLayout>
     </SpaceBetween>
   )
