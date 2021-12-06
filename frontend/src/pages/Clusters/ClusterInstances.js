@@ -11,7 +11,7 @@
 import React from 'react';
 
 import { GetClusterInstances, Ec2Action } from '../../model'
-import { useState, getState } from '../../store'
+import { setState, clearState, useState, getState } from '../../store'
 
 // UI Elements
 import {
@@ -52,20 +52,31 @@ function Status(props) {
 }
 
 function InstanceActions({fleetStatus, instance}) {
+
+  const pending = useState(['app', 'clusters', 'action', 'pending']);
+
+  const refresh = () => {
+    const clusterName = getState(['app', 'clusters', 'selected']);
+    clusterName && GetClusterInstances(clusterName);
+    clearState(['app', 'clusters', 'action', 'pending']);
+  }
+
   const stopInstance = (instance) => {
-    Ec2Action([instance.instanceId], "stop_instances");
+    setState(['app', 'clusters', 'action', 'pending'], true);
+    Ec2Action([instance.instanceId], "stop_instances", refresh);
   }
 
   const startInstance = (instance) => {
-    Ec2Action([instance.instanceId], "start_instances");
+    setState(['app', 'clusters', 'action', 'pending'], true);
+    Ec2Action([instance.instanceId], "start_instances", refresh);
   }
 
   return (
     <div>
       {fleetStatus === "STOPPED" &&
       <div>
-        {instance.nodeType === 'HeadNode' &&  instance.state === 'running' && <Button onClick={() => {stopInstance(instance)}}>Stop</Button>}
-        {instance.nodeType === 'HeadNode' &&  instance.state === 'stopped' && <Button onClick={() => {startInstance(instance)}}>Start</Button>}
+        {instance.nodeType === 'HeadNode' &&  instance.state === 'running' && <Button loading={pending} onClick={() => {stopInstance(instance)}}>Stop</Button>}
+        {instance.nodeType === 'HeadNode' &&  instance.state === 'stopped' && <Button loading={pending} onClick={() => {startInstance(instance)}}>Start</Button>}
       </div>
       }
     </div>
