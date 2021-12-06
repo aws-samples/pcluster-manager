@@ -81,8 +81,7 @@ function storageValidate() {
   return valid;
 }
 
-function FsxLustreSettings() {
-  const index = 0;
+function FsxLustreSettings({index}) {
   const fsxPath = [...storagePath, index, 'FsxLustreSettings']
   const storageCapacityPath = [...fsxPath, 'StorageCapacity'];
   const lustreTypePath = [...fsxPath, 'DeploymentType'];
@@ -220,8 +219,7 @@ function FsxLustreSettings() {
   )
 }
 
-function EfsSettings() {
-  const index = 0;
+function EfsSettings({index}) {
   const efsPath = [...storagePath, index, 'EfsSettings'];
   const encryptedPath = [...efsPath, 'Encrypted'];
   const kmsPath = [...efsPath, 'KmsKeyId'];
@@ -317,8 +315,7 @@ function EfsSettings() {
   )
 }
 
-function EbsSettings() {
-  const index = 0;
+function EbsSettings({index}) {
   const ebsPath = [...storagePath, index, 'EbsSettings'];
   const volumeTypePath = [...ebsPath, 'VolumeType'];
   const volumeTypes = ['gp2', 'gp3', 'io1', 'io2', 'sc1', 'stl', 'standard']
@@ -353,7 +350,7 @@ function EbsSettings() {
       setState(deletionPolicyPath, 'Delete');
     if(volumeSize === null)
       setState(volumeSizePath, 35);
-  }, [volumeType, volumeSize, deletionPolicy]);
+  }, [volumeType, volumeSize, deletionPolicy, index]);
 
   const toggleEncrypted = () => {
     const setEncrypted = !encrypted;
@@ -556,9 +553,9 @@ function StorageInstance({index}) {
             }
           </div>
         </ColumnLayout>
-        { ! useExisting && {"FsxLustre": <FsxLustreSettings />,
-          "Efs": <EfsSettings />,
-          "Ebs": <EbsSettings />}[storageType]
+        { ! useExisting && {"FsxLustre": <FsxLustreSettings index={index}/>,
+          "Efs": <EfsSettings index={index}/>,
+          "Ebs": <EbsSettings index={index}/>}[storageType]
         }
       </div>
     </Container>
