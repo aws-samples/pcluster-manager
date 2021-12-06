@@ -185,12 +185,13 @@ function UpdateComputeFleet(clusterName, fleetStatus) {
   })
 }
 
-function GetClusterInstances(clusterName) {
+function GetClusterInstances(clusterName, callback) {
   request('get', `api?path=/v3/clusters/${clusterName}/instances`
     ).then(response => {
     //console.log("Instances Success", response)
     if(response.status === 200)
     {
+      callback && callback(response.data)
       setState(['clusters', 'index', clusterName, 'instances'], response.data.instances);
     }
   }).catch(error => {

@@ -57,8 +57,7 @@ function InstanceActions({fleetStatus, instance}) {
 
   const refresh = () => {
     const clusterName = getState(['app', 'clusters', 'selected']);
-    clusterName && GetClusterInstances(clusterName);
-    clearState(['app', 'clusters', 'action', 'pending']);
+    clusterName && GetClusterInstances(clusterName, () => clearState(['app', 'clusters', 'action', 'pending']));
   }
 
   const stopInstance = (instance) => {
