@@ -81,7 +81,7 @@ export default function ClusterActions () {
     <ClusterDeleteDialog clusterName={clusterName} />
     <ClusterStopDialog clusterName={clusterName} />
     <SpaceBetween direction="horizontal" size="xs">
-      <Button className="action" disabled={clusterStatus === 'DELETE_IN_PROGRESS'} variant="normal" onClick={editConfiguration} iconName={"edit"}> Edit</Button>
+      <Button className="action" disabled={clusterStatus === 'DELETE_IN_PROGRESS' || clusterStatus === 'CREATE_FAILED'} variant="normal" onClick={editConfiguration} iconName={"edit"}> Edit</Button>
       {fleetStatus === "STOPPED" && <Button className="action" variant="normal" onClick={startFleet} iconName={"caret-right-filled"}> Start</Button>}
       {fleetStatus === "RUNNING" && <Button className="action" variant="normal" onClick={stopComputeFleet}>
         <div className="container">

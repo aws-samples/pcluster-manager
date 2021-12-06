@@ -94,6 +94,7 @@ export default function ClusterProperties () {
           <ValueWithLabel label="clusterConfiguration">
             <Button
               iconName="download"
+              disabled={cluster && cluster.clusterStatus === 'CREATE_FAILED'}
               onClick={() => {
                 GetConfiguration(clusterName, (configuration) => {
                   const blob = new Blob([configuration], {type: 'text/yaml'});
