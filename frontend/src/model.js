@@ -185,12 +185,13 @@ function UpdateComputeFleet(clusterName, fleetStatus) {
   })
 }
 
-function GetClusterInstances(clusterName) {
+function GetClusterInstances(clusterName, callback) {
   request('get', `api?path=/v3/clusters/${clusterName}/instances`
     ).then(response => {
     //console.log("Instances Success", response)
     if(response.status === 200)
     {
+      callback && callback(response.data)
       setState(['clusters', 'index', clusterName, 'instances'], response.data.instances);
     }
   }).catch(error => {
@@ -446,8 +447,25 @@ function LoadAwsConfig(region = null, callback) {
   })
 }
 
+function Ec2Action(instanceIds, action, callback) {
+  let url = `manager/ec2_action?instance_ids=${instanceIds.join(',')}&action=${action}`
+
+  request('post', url).then(response => {
+    if(response.status === 200) {
+      console.log("ec2_action", response.data);
+    }
+    callback && callback(response.data);
+  }).catch(error => {
+    if(error.response)
+    {
+      console.log(error.response)
+      notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
+    }
+    console.log(error)
+  })
+}
+
 function GetDcvSession(instanceId, user, callback) {
-  console.log("iid", instanceId)
   const region = getState(['app', 'selectedRegion']) || getState(['aws', 'region']);
   let url = `manager/get_dcv_session?instance_id=${instanceId}&user=${user || 'ec2-user'}&region=${region}`
   request('get', url).then(response => {
@@ -503,5 +521,5 @@ export {CreateCluster, UpdateCluster, ListClusters, DescribeCluster,
   GetClusterStackEvents, ListClusterLogStreams, GetClusterLogEvents,
   ListCustomImages, DescribeCustomImage, GetCustomImageConfiguration,
   BuildImage, GetCustomImageStackEvents, ListCustomImageLogStreams,
-  GetCustomImageLogEvents, ListOfficialImages, LoadInitialState, LoadAwsConfig,
-  GetDcvSession, ListUsers, SetUserRole, notify}
+  GetCustomImageLogEvents, ListOfficialImages, LoadInitialState,
+  Ec2Action,LoadAwsConfig, GetDcvSession, ListUsers, SetUserRole, notify}

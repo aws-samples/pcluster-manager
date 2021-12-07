@@ -20,6 +20,7 @@ from api.PclusterApiHandler import (
     PclusterApiHandler,
     authenticate,
     authenticated,
+    ec2_action,
     get_cluster_config,
     get_custom_image_config,
     get_dcv_session,
@@ -64,6 +65,11 @@ def run():
     @authenticated()
     def serve(path):
         return send_from_directory(app.static_folder, "index.html")
+
+    @app.route("/manager/ec2_action", methods=["POST"])
+    @authenticated()
+    def ec2_action_():
+        return ec2_action()
 
     @app.route("/manager/get_cluster_configuration")
     @authenticated()

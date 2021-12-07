@@ -421,6 +421,16 @@ Resources:
               - '*'
             Effect: Allow
             Sid: EC2Policy
+          - Action:
+            - ec2:StartInstances
+            - ec2:StopInstances
+            Resource:
+              - arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:instance/*
+            Condition:
+              StringLike:
+                ec2:ResourceTag/parallelcluster:version: "*"
+            Effect: Allow
+            Sid: EC2ManagePolicy
 
   PclusterManagerFsxLustrePolicy:
     Type: AWS::IAM::ManagedPolicy

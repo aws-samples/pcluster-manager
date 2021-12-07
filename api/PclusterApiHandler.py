@@ -128,6 +128,36 @@ def authenticated(group="user", redirect=True):
 # Local Endpoints
 
 
+def ec2_action():
+    parser = reqparse.RequestParser()
+    parser.add_argument("instance_ids", type=str)
+    parser.add_argument("action", type=str)
+    parser.add_argument("region", type=str)
+    args = parser.parse_args()
+
+    if args.get("region"):
+        config = botocore.config.Config(region_name=args.get("region"))
+        ec2 = boto3.client("ec2", config=config)
+    else:
+        ec2 = boto3.client("ec2")
+
+    try:
+        instance_ids = args.get("instance_ids").split(",")
+    except:
+        abort(400, description="You must specify instances.")
+
+    if args.get("action") == "stop_instances":
+        resp = ec2.stop_instances(InstanceIds=instance_ids)
+    elif args.get("action") == "start_instances":
+        resp = ec2.start_instances(InstanceIds=instance_ids)
+    else:
+        abort(400, description="You must specify an action.")
+
+    print(resp)
+    ret = {"message": "success"}
+    return ret
+
+
 def get_cluster_config():
     parser = reqparse.RequestParser()
     parser.add_argument("cluster_name", type=str)
