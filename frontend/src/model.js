@@ -115,9 +115,10 @@ function DescribeCluster(clusterName) {
   }).catch(error => {
     if(error.response)
     {
-      var selected = store.getState().clusters.selected
+      var selected = getState(['app', 'clusters', 'selected'])
       if(selected === clusterName) {
         clearState(['app', 'clusters', 'selected']);
+        return;
       } else {
         console.log(error.response)
         notify(`Error (${clusterName}): ${error.response.data.message}`, 'error');
