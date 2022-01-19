@@ -20,7 +20,7 @@ Parameters:
 Resources:
 
   UserPoolClientSecret:
-    Type: "Custom::UserPoolClientSecret"
+    Type: Custom::UserPoolClientSecret
     Properties:
       ServiceToken: !GetAtt UserPoolClientSecretProvider.Arn
       UserPoolId:  !Ref CognitoUserPool
@@ -137,8 +137,8 @@ Resources:
         - EMAIL
       UserAttributes:
         - Name: email
-          Value: !Sub ${AdminUserEmail}
-      Username: !Sub ${AdminUserEmail}
+          Value: !Ref AdminUserEmail
+      Username: !Ref AdminUserEmail
       UserPoolId: !Ref CognitoUserPool
 
   CognitoUserToAdminGroup:
