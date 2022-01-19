@@ -53,8 +53,10 @@ function SubnetSelect({value, onChange, disabled}) {
     return (tags.length > 0) ? tags[0].Value : null
   }
 
-  const itemToOption = item => {return {value: item.SubnetId, label: item.SubnetId,
-    description: item.AvailabilityZone + (SubnetName(item) ? ` (${SubnetName(item)})` : "")
+  const itemToOption = item => {
+    console.log(item);
+    return {value: item.SubnetId, label: item.SubnetId,
+    description: item.AvailabilityZone + ` - ${item.AvailabilityZoneId}` + (SubnetName(item) ? ` (${SubnetName(item)})` : "")
   }}
 
   return (
