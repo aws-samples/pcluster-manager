@@ -117,6 +117,7 @@ Resources:
       TimeoutInMillis: 30000
 
   PrivateEcrRepository:
+    DependsOn: ParallelClusterApi
     Type: AWS::ECR::Repository
     Properties:
       RepositoryName: !Sub
@@ -425,7 +426,7 @@ Resources:
             - ec2:StartInstances
             - ec2:StopInstances
             Resource:
-              - arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:instance/*
+              - !Sub arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:instance/*
             Condition:
               StringLike:
                 ec2:ResourceTag/parallelcluster:version: "*"
