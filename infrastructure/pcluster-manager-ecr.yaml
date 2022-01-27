@@ -15,6 +15,155 @@ Mappings:
       ShortVersion: 3.0.2
 
 Resources:
+
+  PipLayerLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+      Policies:
+        - PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+                Effect: Allow
+                Resource:
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/PipLayer-${AWS::StackName}:*
+              - Action:
+                - lambda:PublishLayerVersion
+                - lambda:DeleteLayerVersion
+                Effect: Allow
+                Resource:
+                  - "*"
+          PolicyName: lambda
+
+  PipLayerLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: Create layers based on pip
+      FunctionName: !Sub "PipLayer-${AWS::StackName}"
+      Handler: index.handler
+      MemorySize: 1024
+      Role: !GetAtt PipLayerLambdaRole.Arn
+      Runtime: python3.8
+      Timeout: 300
+      Code:
+        ZipFile: |
+          import json
+          import logging
+          import pathlib
+          import re
+          import subprocess
+          import sys
+          import tempfile
+          import typing as t
+          import shutil
+          import cfnresponse
+          import boto3
+          logger = logging.getLogger()
+          logger.setLevel(logging.INFO)
+          class PipLayerException(Exception):
+              pass
+          def _create(properties) -> t.Tuple[str, t.Mapping[str, str]]:
+              try:
+                  layername = properties["LayerName"]
+                  description = properties.get("Description", "PipLayer")
+                  packages = properties["Packages"]
+              except KeyError as e:
+                  raise PipLayerException("Missing parameter: %s" % e.args[0])
+              description += " ({})".format(", ".join(packages))
+              if not isinstance(layername, str):
+                  raise PipLayerException("LayerName must be a string")
+              if not isinstance(description, str):
+                  raise PipLayerException("Description must be a string")
+              if not isinstance(packages, list) or not all(isinstance(p, str) for p in packages):
+                  raise PipLayerException("Packages must be a list of strings")
+              tempdir = pathlib.Path(tempfile.TemporaryDirectory().name) / "python"
+              try:
+                  subprocess.check_call([
+                      sys.executable, "-m", "pip", "install", *packages, "-t", tempdir])
+              except subprocess.CalledProcessError:
+                  raise PipLayerException("Error while installing %s" % str(packages))
+              zipfilename = pathlib.Path(tempfile.NamedTemporaryFile(suffix=".zip").name)
+              shutil.make_archive(
+                  zipfilename.with_suffix(""), format="zip", root_dir=tempdir.parent)
+              client = boto3.client("lambda")
+              layer = client.publish_layer_version(
+                  LayerName=layername,
+                  Description=description,
+                  Content={"ZipFile": zipfilename.read_bytes()},
+                  CompatibleRuntimes=["python%d.%d" % sys.version_info[:2]],
+              )
+              logger.info("Created layer %s", layer["LayerVersionArn"])
+              return (layer["LayerVersionArn"], {})
+          def _delete(physical_id):
+              match = re.fullmatch(
+                  r"arn:aws:lambda:(?P<region>[^:]+):(?P<account>\d+):layer:"
+                  r"(?P<layername>[^:]+):(?P<version_number>\d+)", physical_id)
+              if not match:
+                  logger.warning("Cannot parse physical id %s, not deleting", physical_id)
+                  return
+              layername = match.group("layername")
+              version_number = int(match.group("version_number"))
+              logger.info("Now deleting layer %s:%d", layername, version_number)
+              client = boto3.client("lambda")
+              deletion = client.delete_layer_version(
+                  LayerName=layername,
+                  VersionNumber=version_number)
+              logger.info("Done")
+          def handler(event, context):
+              logger.info('{"event": %s}', json.dumps(event))
+              try:
+                  if event["RequestType"].upper() in ("CREATE", "UPDATE"):
+                      # Note: treat UPDATE as CREATE; it will create a new physical ID,
+                      # signalling CloudFormation that it's a replace and the old should be
+                      # deleted
+                      physicalId, attributes = _create(event["ResourceProperties"])
+                      cfnresponse.send(
+                          event=event,
+                          context=context,
+                          responseData=attributes,
+                          responseStatus=cfnresponse.SUCCESS,
+                          physicalResourceId=physicalId,
+                      )
+                  else:
+                      assert event["RequestType"].upper() == "DELETE"
+                      _delete(event["PhysicalResourceId"])
+                      cfnresponse.send(
+                          event=event,
+                          context=context,
+                          responseData={},
+                          responseStatus=cfnresponse.SUCCESS,
+                          physicalResourceId=event["PhysicalResourceId"],
+                      )
+              except Exception as e:
+                  logger.exception("Internal Error")
+                  cfnresponse.send(
+                      event=event,
+                      context=context,
+                      responseData=None,
+                      responseStatus=cfnresponse.FAILED,
+                      reason=str(e))
+
+  PyRequirementsLayer:
+    Type: Custom::PipLayer
+    Properties:
+      ServiceToken: !GetAtt PipLayerLambda.Arn
+      Region: !Ref AWS::Region
+      LayerName: botolayer
+      Packages:
+        - boto3>=1.20.44
+
   PclusterManagerEcrPullThroughFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
@@ -41,6 +190,16 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource: !Sub arn:${AWS::Partition}:logs:*:*:*
+        - PolicyName: PullThroughCachePolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ecr:CreatePullThroughCacheRule
+                  - ecr:DeletePullThroughCacheRule
+                Resource:
+                  - "*"
         - PolicyName: BatchDeletePolicy
           PolicyDocument:
             Version: 2012-10-17
@@ -48,11 +207,10 @@ Resources:
               - Effect: Allow
                 Action:
                   - ecr:BatchDeleteImage
+                  - ecr:BatchGetImage
                   - ecr:ListImages
-                  - ecr:CreatePullThroughCacheRule
-                  - ecr:DeletePullThroughCacheRule
                   - ecr:DeleteRepository
-                Resource: !Sub arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/${AWS::StackId}*
+                Resource: !Sub arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/*
 
   PclusterManagerEcrPullThroughFunction:
     Type: AWS::Lambda::Function
@@ -98,20 +256,49 @@ Resources:
                   upstream_repository = event['ResourceProperties']['PublicEcrImageUri']
                   upstream_url, public_repo = upstream_repository.split("/")[:2]
                   registry_id = event['ResourceProperties']['AccountId']
-                  prefix = event['ResourceProperties']['StackId']
+                  prefix = event['ResourceProperties']['StackId'].split("/")[-1].split("-")[0]
+                  version = event['ResourceProperties']['Version']
 
                   repository_name = f"{prefix}/{public_repo}/pcluster-manager-awslambda"
+                  response_data['PrivateRepository'] = repository_name
 
                   ecr.create_pull_through_cache_rule(
                       ecrRepositoryPrefix=prefix,
                       upstreamRegistryUrl=upstream_url,
                       registryId=registry_id)
+
+                  ecr.batch_get_image(
+                      registryId=registry_id,
+                      repositoryName=repository_name,
+                      imageIds=[{'imageTag':version}])
               else:
                   physical_resource_id = event['PhysicalResourceId']
 
-              if event['RequestType'] == 'Update' or event['RequestType'] == 'Delete':
+              if event['RequestType'] == 'Update':
+                  response_data['Message'] = 'Resource update successful!'
+                  prefix = event['ResourceProperties']['StackId'].split("/")[-1].split("-")[0]
+                  upstream_repository = event['ResourceProperties']['PublicEcrImageUri']
+                  upstream_url, public_repo = upstream_repository.split("/")[:2]
+                  registry_id = event['ResourceProperties']['AccountId']
+                  repository_name = f"{prefix}/{public_repo}/pcluster-manager-awslambda"
+                  version = event['ResourceProperties']['Version']
+                  ecr.batch_get_image(
+                      registryId=registry_id,
+                      repositoryName=repository_name,
+                      imageIds=[{'imageTag':version}])
+
+              if event['RequestType'] == 'Delete':
+                  stack_id = event['StackId']
+                  registry_id = event['ResourceProperties']['AccountId']
+                  prefix = event['ResourceProperties']['StackId'].split("/")[-1].split("-")[0]
+                  upstream_repository = event['ResourceProperties']['PublicEcrImageUri']
+                  upstream_url, public_repo = upstream_repository.split("/")[:2]
+                  registry_id = event['ResourceProperties']['AccountId']
+                  repository_name = f"{prefix}/{public_repo}/pcluster-manager-awslambda"
+                  version = event['ResourceProperties']['Version']
+
+                  repository_name = f"{prefix}/{public_repo}/pcluster-manager-awslambda"
                   try:
-                      resource_key = 'OldResourceProperties' if 'OldResourceProperties' in event else 'ResourceProperties'
                       version = event[resource_key]['Version']
 
                       image_ids = get_image_ids(repository_name, version)
@@ -148,6 +335,8 @@ Resources:
       Handler: index.handler
       Runtime: python3.9
       Role: !GetAtt PclusterManagerEcrPullThroughFunctionRole.Arn
+      Layers:
+        - !Ref PyRequirementsLayer
 
   PclusterManagerEcrPullThroughCache:
     Type: Custom::PclusterManagerEcrPullThroughCache
@@ -156,3 +345,9 @@ Resources:
       AccountId: !Ref 'AWS::AccountId'
       StackId: !Ref 'AWS::StackId'
       PublicEcrImageUri: !Ref PublicEcrImageUri
+      Version: latest
+
+Outputs:
+  PrivateEcrRepository:
+    Description: The repository of the pull-through cache.
+    Value: !GetAtt PclusterManagerEcrPullThroughCache.PrivateRepository

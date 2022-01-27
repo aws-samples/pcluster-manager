@@ -88,9 +88,10 @@ Resources:
         ImageUri: !Sub
           - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/${Repository}:${Version}
           - Repository: !GetAtt [ PclusterManagerEcr, Outputs.PrivateEcrRepository ]
-            Version: !Join
-              - '-'
-              - [!Select [2, !Split ['/', !Ref EcrImage]], !Select [3, !Split ['/', !Ref EcrImage]]]
+            Version: latest
+              # !Join
+              # - '-'
+              # - [!Select [2, !Split ['/', !Ref EcrImage]], !Select [3, !Split ['/', !Ref EcrImage]]]
 
   ApiGateway:
     Type: AWS::ApiGatewayV2::Api
