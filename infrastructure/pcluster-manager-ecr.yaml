@@ -55,7 +55,7 @@ Resources:
       Handler: index.handler
       MemorySize: 1024
       Role: !GetAtt PipLayerLambdaRole.Arn
-      Runtime: python3.8
+      Runtime: python3.9
       Timeout: 300
       Code:
         ZipFile: |
@@ -198,6 +198,7 @@ Resources:
                 Action:
                   - ecr:CreatePullThroughCacheRule
                   - ecr:DeletePullThroughCacheRule
+                  - ecr:BatchGetImage
                 Resource:
                   - "*"
         - PolicyName: BatchDeletePolicy
@@ -207,7 +208,6 @@ Resources:
               - Effect: Allow
                 Action:
                   - ecr:BatchDeleteImage
-                  - ecr:BatchGetImage
                   - ecr:ListImages
                   - ecr:DeleteRepository
                 Resource: !Sub arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/*
@@ -218,13 +218,18 @@ Resources:
       TracingConfig:
         Mode: Active
       MemorySize: 256
-      Timeout: 30
+      Timeout: 600
       Code:
         ZipFile: |
           import cfnresponse
           import boto3
           import random
           import string
+          import logging
+          import pprint
+          import time
+          logger = logging.getLogger()
+          logger.setLevel(logging.INFO)
 
           ecr = boto3.client('ecr')
 
@@ -242,95 +247,106 @@ Resources:
               alnum = string.ascii_uppercase + string.ascii_lowercase + string.digits
               return ''.join(random.choice(alnum) for _ in range(16))
 
+          def create(properties):
+              response_data = {}
+              response_data['Message'] = 'Resource creation successful!'
+              physical_resource_id = create_physical_resource_id()
+              upstream_repository = properties['PublicEcrImageUri']
+              upstream_url, public_repo = upstream_repository.split('/')[:2]
+              registry_id = properties['AccountId']
+              prefix = properties['StackId'].split('/')[-1].split('-')[0]
+              version = properties['Version']
+
+              repository_name = f"{prefix}/{public_repo}/pcluster-manager-awslambda"
+              response_data['PrivateRepository'] = repository_name
+
+              ecr.create_pull_through_cache_rule(
+                  ecrRepositoryPrefix=prefix,
+                  upstreamRegistryUrl=upstream_url,
+                  registryId=registry_id)
+
+              retrieved = False
+              while not retrieved:
+                try:
+                  ecr.batch_get_image(
+                      repositoryName=repository_name,
+                      imageIds=[{'imageTag':version}])
+                  retrieved = True
+                except ecr.exceptions.RepositoryNotFoundException:
+                  time.sleep(15)
+                except Exception as e:
+                  print(str(e))
+
+              return physical_resource_id, response_data
+
+          def delete(properties):
+              registry_id = properties['AccountId']
+              prefix = properties['StackId'].split("/")[-1].split("-")[0]
+              upstream_repository = properties['PublicEcrImageUri']
+              upstream_url, public_repo = upstream_repository.split("/")[:2]
+              registry_id = properties['AccountId']
+              repository_name = f"{prefix}/{public_repo}/pcluster-manager-awslambda"
+              version = properties['Version']
+
+              repository_name = f"{prefix}/{public_repo}/pcluster-manager-awslambda"
+              try:
+                  image_ids = get_image_ids(repository_name, version)
+                  if image_ids:
+                      ecr.batch_delete_image(repositoryName=repository_name, imageIds=image_ids)
+                      reason = 'Image deletion successful!'
+                  else:
+                      reason = 'No image found, considering image deletion successful'
+
+              except ecr.exceptions.RepositoryNotFoundException:
+                  reason = 'Repository was not found, considering image deletion successful'
+              except Exception as exception:
+                  response_status = cfnresponse.FAILED
+                  reason = 'Failed image deletion with error: {}'.format(exception)
+
+              try:
+                  ecr.delete_pull_through_cache_rule(ecrRepositoryPrefix=prefix, registryId=registry_id)
+              except ecr.exceptions.PullThroughCacheRuleNotFoundException:
+                  reason = 'Cache Rule was not found, considering pull throguh cache deletion successful'
+              except Exception as exception:
+                  response_status = cfnresponse.FAILED
+                  reason = 'Failed image deletion with error: {}'.format(exception)
+
+              try:
+                  ecr.delete_repository(registryId=registry_id, repositoryName=repository_name)
+              except ecr.exceptions.RepositoryNotFoundException:
+                  reason = 'Repository was not found, considering pull throguh cache deletion successful'
+              except Exception as exception:
+                  response_status = cfnresponse.FAILED
+                  reason = 'Failed repository deletion with error: {}'.format(exception)
+
           def handler(event, context):
               print(event)
               print('boto version {}'.format(boto3.__version__))
+              try:
+                  response_data = {}
+                  status = cfnresponse.SUCCESS
+                  if event["RequestType"].upper() in ("CREATE", "UPDATE"):
+                    physical_id, response_data = create(event["ResourceProperties"])
+                  else:
+                    assert event["RequestType"].upper() == "DELETE"
+                    delete(event["ResourceProperties"])
+                    physical_id = event["PhysicalResourceId"]
 
-              response_data = {}
-              reason = None
-              response_status = cfnresponse.SUCCESS
-
-              if event['RequestType'] == 'Create':
-                  response_data['Message'] = 'Resource creation successful!'
-                  physical_resource_id = create_physical_resource_id()
-                  upstream_repository = event['ResourceProperties']['PublicEcrImageUri']
-                  upstream_url, public_repo = upstream_repository.split("/")[:2]
-                  registry_id = event['ResourceProperties']['AccountId']
-                  prefix = event['ResourceProperties']['StackId'].split("/")[-1].split("-")[0]
-                  version = event['ResourceProperties']['Version']
-
-                  repository_name = f"{prefix}/{public_repo}/pcluster-manager-awslambda"
-                  response_data['PrivateRepository'] = repository_name
-
-                  ecr.create_pull_through_cache_rule(
-                      ecrRepositoryPrefix=prefix,
-                      upstreamRegistryUrl=upstream_url,
-                      registryId=registry_id)
-
-                  ecr.batch_get_image(
-                      registryId=registry_id,
-                      repositoryName=repository_name,
-                      imageIds=[{'imageTag':version}])
-              else:
-                  physical_resource_id = event['PhysicalResourceId']
-
-              if event['RequestType'] == 'Update':
-                  response_data['Message'] = 'Resource update successful!'
-                  prefix = event['ResourceProperties']['StackId'].split("/")[-1].split("-")[0]
-                  upstream_repository = event['ResourceProperties']['PublicEcrImageUri']
-                  upstream_url, public_repo = upstream_repository.split("/")[:2]
-                  registry_id = event['ResourceProperties']['AccountId']
-                  repository_name = f"{prefix}/{public_repo}/pcluster-manager-awslambda"
-                  version = event['ResourceProperties']['Version']
-                  ecr.batch_get_image(
-                      registryId=registry_id,
-                      repositoryName=repository_name,
-                      imageIds=[{'imageTag':version}])
-
-              if event['RequestType'] == 'Delete':
-                  stack_id = event['StackId']
-                  registry_id = event['ResourceProperties']['AccountId']
-                  prefix = event['ResourceProperties']['StackId'].split("/")[-1].split("-")[0]
-                  upstream_repository = event['ResourceProperties']['PublicEcrImageUri']
-                  upstream_url, public_repo = upstream_repository.split("/")[:2]
-                  registry_id = event['ResourceProperties']['AccountId']
-                  repository_name = f"{prefix}/{public_repo}/pcluster-manager-awslambda"
-                  version = event['ResourceProperties']['Version']
-
-                  repository_name = f"{prefix}/{public_repo}/pcluster-manager-awslambda"
-                  try:
-                      version = event[resource_key]['Version']
-
-                      image_ids = get_image_ids(repository_name, version)
-                      if image_ids:
-                          ecr.batch_delete_image(repositoryName=repository_name, imageIds=image_ids)
-                          reason = 'Image deletion successful!'
-                      else:
-                          reason = 'No image found, considering image deletion successful'
-
-                  except ecr.exceptions.RepositoryNotFoundException:
-                      reason = 'Repository was not found, considering image deletion successful'
-                  except Exception as exception:
-                      response_status = cfnresponse.FAILED
-                      reason = 'Failed image deletion with error: {}'.format(exception)
-
-                  try:
-                      ecr.delete_pull_through_cache_rule(ecrRepositoryPrefix=prefix, registryId=registry_id)
-                  except ecr.exceptions.PullThroughCacheRuleNotFoundException:
-                      reason = 'Cache Rule was not found, considering pull throguh cache deletion successful'
-                  except Exception as exception:
-                      response_status = cfnresponse.FAILED
-                      reason = 'Failed image deletion with error: {}'.format(exception)
-
-                  try:
-                      ecr.delete_repository(registryId=registry_id, repositoryName=repository_name)
-                  except ecr.exceptions.RepositoryNotFoundException:
-                      reason = 'Repository was not found, considering pull throguh cache deletion successful'
-                  except Exception as exception:
-                      response_status = cfnresponse.FAILED
-                      reason = 'Failed repository deletion with error: {}'.format(exception)
-
-              cfnresponse.send(event, context, response_status, response_data, physical_resource_id, reason)
+                  cfnresponse.send(
+                      event=event,
+                      context=context,
+                      responseData=response_data,
+                      responseStatus=cfnresponse.SUCCESS,
+                      physicalResourceId=physical_id,
+                  )
+              except Exception as e:
+                  logger.exception("Internal Error")
+                  cfnresponse.send(
+                      event=event,
+                      context=context,
+                      responseData=None,
+                      responseStatus=cfnresponse.FAILED,
+                      reason=str(e))
 
       Handler: index.handler
       Runtime: python3.9
@@ -346,6 +362,36 @@ Resources:
       StackId: !Ref 'AWS::StackId'
       PublicEcrImageUri: !Ref PublicEcrImageUri
       Version: latest
+
+###### DELETE AFTER TESTING
+  PclusterManagerFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Role: !GetAtt PclusterManagerUserRole.Arn
+      PackageType: Image
+      MemorySize: 512
+      Timeout: 30
+      TracingConfig:
+        Mode: Active
+      FunctionName: !Sub
+        - PclusterManagerFunction-${StackIdSuffix}
+        - { StackIdSuffix: !Select [2, !Split ['/', !Ref 'AWS::StackId']] }
+      Code:
+        ImageUri: !Sub
+          - ${AWS::AccountId}.dkr.ecr.${AWS::Region}.${AWS::URLSuffix}/${Repository}:${Version}
+          - Repository: !GetAtt PclusterManagerEcrPullThroughCache.PrivateRepository
+            Version: latest
+  PclusterManagerUserRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action: sts:AssumeRole
+            Principal:
+              Service: lambda.amazonaws.com
+      ManagedPolicyArns:
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
 
 Outputs:
   PrivateEcrRepository:
