@@ -85,10 +85,11 @@ export default function ClusterProperties () {
                 >
                   <Button variant="inline-icon" iconName="copy" ariaLabel="Copy ARN"
                     onClick={() => {navigator.clipboard.writeText(cluster.cloudformationStackArn)}}
-                  />
+                  >copy</Button>
                 </Popover>
               </Box>
-              {cluster.cloudformationStackArn}
+              <a href={`https://${cluster.region}.console.aws.amazon.com/cloudformation/home?region=${cluster.region}#/stacks/events?filteringStatus=active&filteringText=&viewNested=true&hideStacks=false&stackId=${cluster.cloudformationStackArn}`}
+                target="_blank">{cluster.cloudformationStackArn}</a>
             </div>
           </ValueWithLabel>
           <ValueWithLabel label="clusterConfiguration">
