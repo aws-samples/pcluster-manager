@@ -78,6 +78,11 @@ function InstanceActions({fleetStatus, instance}) {
         {instance.nodeType === 'HeadNode' &&  instance.state === 'stopped' && <Button loading={pending} onClick={() => {startInstance(instance)}}>Start</Button>}
       </div>
       }
+      {fleetStatus !== "STOPPED" &&
+        <div title="Compute Fleet must be stopped.">
+          {instance.nodeType === 'HeadNode' &&  instance.state === 'running' && <Button disabled={true}>Stop</Button>}
+        </div>
+      }
     </div>
   )
 }
