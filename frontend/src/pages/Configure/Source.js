@@ -47,6 +47,8 @@ function copyFrom(sourceClusterName)
 
 function sourceValidate(suppressUpload = false) {
   let clusterName = getState(['app', 'wizard', 'clusterName']);
+  const clusters = getState(['clusters', 'list']) ||  [];
+  let clusterNames = new Set(clusters.map((c) => c.clusterName))
   let sourceClusterName = getState(['app', 'wizard', 'source', 'selectedCluster']);
   let upload = getState([...sourcePath, 'upload']);
   let source = getState([...sourcePath, 'type']);
@@ -55,9 +57,13 @@ function sourceValidate(suppressUpload = false) {
 
   setState([...sourceErrorsPath, 'validated'], true);
 
+
   if(!clusterName || clusterName === "")
   {
     setState([...sourceErrorsPath, 'clusterName'], 'Cluster name must not be blank.');
+    valid = false;
+  } else if(clusterNames.has(clusterName)) {
+    setState([...sourceErrorsPath, 'clusterName'], `Cluster with name ${clusterName} already exists. Please choose a unique name.`);
     valid = false;
   } else {
     clearState([...sourceErrorsPath, 'clusterName']);
