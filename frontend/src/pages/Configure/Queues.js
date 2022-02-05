@@ -98,7 +98,8 @@ const efaInstances = new Set(["m5dn.24xlarge", "m5dn.metal", "m5n.24xlarge", "m5
   "c5n.18xlarge", "c5n.metal", "c6gn.16xlarge", "c6i.32xlarge",
   "r5dn.24xlarge", "r5dn.metal", "r5n.24xlarge", "r5n.metal",
   "i3en.24xlarge", "i3en.metal",
-  "dl1.24xlarge", "g4dn.8xlarge", "g4dn.metal", "inf1.24xlarge", "p3dn.24xlarge", "p4d.24xlarge"]);
+  "dl1.24xlarge", "g4dn.8xlarge", "g4dn.metal", "inf1.24xlarge", "p3dn.24xlarge", "p4d.24xlarge",
+  "hpc6a.48xlarge"]);
 
 function ComputeResource({index, queueIndex, computeResource}) {
   const parentPath = [...queuesPath, queueIndex];
