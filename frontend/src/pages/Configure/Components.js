@@ -94,6 +94,20 @@ function InstanceSelect({path, selectId, callback, disabled}) {
     ["c5.12xlarge", "48 vcpus, 96GB memory", "/img/c5.svg"],
     ["c5.18xlarge", "72 vcpus, 144GB memory", "/img/c5.svg"],
     ["c5.24xlarge", "96 vcpus, 192GB memory", "/img/c5.svg"],
+    ["c6i.large", "2 vcpus, 4GB memory", "/img/od.svg"],
+    ["c6i.xlarge", "4 vcpus, 8GB memory", "/img/od.svg"],
+    ["c6i.2xlarge", "8 vcpus, 16GB memory", "/img/od.svg"],
+    ["c6i.4xlarge", "16 vcpus, 32GB memory", "/img/od.svg"],
+    ["c6i.8xlarge", "36 vcpus, 64GB memory", "/img/od.svg"],
+    ["c6i.12xlarge", "48 vcpus, 96GB memory", "/img/od.svg"],
+    ["c6i.16xlarge", "64 vcpus, 128GB memory", "/img/od.svg"],
+    ["c6i.24xlarge", "96 vcpus, 192GB memory", "/img/od.svg"],
+    ["c6i.32xlarge", "128 vcpus, 256GB memory", "/img/od.svg"],
+    ["c6i.metal", "128 vcpus, 256GB memory", "/img/od.svg"],
+  ];
+
+  const hpcInstances = [
+    ["hpc6a.48xlarge", "96 cores, 384GB memory", "/img/od.svg"]
   ];
 
   const mixedInstances = [
@@ -126,6 +140,7 @@ function InstanceSelect({path, selectId, callback, disabled}) {
   const groups = [
     ["General Purpose", generalPurposeInstances],
     ["Compute", computeInstances],
+    ["HPC", hpcInstances],
     ["Mixed", mixedInstances],
     ["GPU", gpuInstances]
   ];
