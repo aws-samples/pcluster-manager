@@ -42,7 +42,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       Parameters:
-        ApiDefinitionS3Uri: s3://pcluster-manager-stacks-001/api/ParallelCluster.openapi.yaml
+        ApiDefinitionS3Uri: !Sub s3://${AWS::Region}-aws-parallelcluster/parallelcluster/${Version}/api/ParallelCluster.openapi.yaml
         CreateApiUserRole: False
         EnableIamAdminAccess: True
         PublicEcrImageUri: !Sub public.ecr.aws/parallelcluster/pcluster-api:${Version}
@@ -91,7 +91,7 @@ Resources:
       Description: PclusterManager Lambda Proxy
       ProtocolType: HTTP
       Target: !Sub
-        - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:PclusterManagerFunction-${StackIdSuffix}/invocations
+        - arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:PclusterManagerFunction-${StackIdSuffix}/invocations
         - { StackIdSuffix: !Select [2, !Split ['/', !Ref 'AWS::StackId']] }
 
   ApiGatewayRoute:
@@ -111,7 +111,7 @@ Resources:
       Description: 'ANY integration'
       IntegrationType: AWS_PROXY
       IntegrationUri: !Sub
-        - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:PclusterManagerFunction-${StackIdSuffix}/invocations
+        - arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:PclusterManagerFunction-${StackIdSuffix}/invocations
         - { StackIdSuffix: !Select [2, !Split ['/', !Ref 'AWS::StackId']] }
       PayloadFormatVersion: 2.0
       TimeoutInMillis: 30000
