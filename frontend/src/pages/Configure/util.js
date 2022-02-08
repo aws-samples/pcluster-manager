@@ -16,6 +16,7 @@ import { getIn, setIn } from '../../util'
 
 function loadTemplateLazy(config, callback)
 {
+  const loadingPath = ['app', 'wizard', 'source', 'loading'];
   const subnets = getState(['aws', 'subnets']) || [];
   const keypairs = getState(['aws', 'keypairs']) || [];
   const keypairNames = new Set(keypairs.map((kp) => kp.KeyName));
@@ -39,6 +40,23 @@ function loadTemplateLazy(config, callback)
     const vpc = getIn(subnetIndex, [getIn(config, ['HeadNode', 'Networking', 'SubnetId'])]);
     if(vpc)
       setState(['app', 'wizard', 'vpc'], vpc);
+  }
+
+  // Support existing filesystems
+  const storages = getIn(config, ['SharedStorage']) || [];
+  for(let i = 0; i < storages.length; i++)
+  {
+    const storage = storages[i];
+    if(storage.StorageType === 'FsxLustre')
+    {
+      let fsid = getIn(storage, ['FsxLustreSettings', 'FileSystemId']);
+      if(fsid)
+      {
+        console.log("found fsid: ", fsid);
+        setState(['app', 'wizard', 'storage', i, 'useExisting'], true);
+      }
+    }
+
   }
 
   if(getIn(config, ['Scheduling', 'SlurmQueues']))
@@ -68,14 +86,19 @@ function loadTemplateLazy(config, callback)
   setState(['app', 'wizard', 'page'], 'cluster');
 
   console.log("config: ", getState(['app', 'wizard', 'config']));
+
+  setState(loadingPath, false);
   callback && callback();
 }
 
 export default function loadTemplate(config, callback) {
+  const loadingPath = ['app', 'wizard', 'source', 'loading'];
   let defaultRegion = getState(['aws', 'region']) || "";
   const region = getState(['app', 'selectedRegion']) || defaultRegion;
 
-  if(!getIn(config, ['Region']))
+  setState(loadingPath, true);
+
+  if(!getIn(config, ['Region']) || region === getIn(config, ['Region']))
   {
     config['Region'] = region;
     loadTemplateLazy(config);

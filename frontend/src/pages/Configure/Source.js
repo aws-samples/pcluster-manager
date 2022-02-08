@@ -139,6 +139,8 @@ function Source() {
     if(source === 'upload') {
       setState(['app', 'wizard', 'page'], 'create');
       setState(['app', 'wizard', 'clusterConfigYaml'], data);
+      setState(loadingPath, false);
+
     } else if(source === 'template')
     {
       loadTemplate(jsyaml.load(data))
