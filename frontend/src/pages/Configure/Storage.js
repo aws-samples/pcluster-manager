@@ -82,6 +82,10 @@ function storageValidate() {
 }
 
 function FsxLustreSettings({index}) {
+
+  const storageAppPath = ['app', 'wizard', 'storage', index];
+  const useExisting = useState([...storageAppPath, 'useExisting']) || false;
+
   const fsxPath = [...storagePath, index, 'FsxLustreSettings']
   const storageCapacityPath = [...fsxPath, 'StorageCapacity'];
   const lustreTypePath = [...fsxPath, 'DeploymentType'];
@@ -105,9 +109,9 @@ function FsxLustreSettings({index}) {
     const fsxPath = [...storagePath, index, 'FsxLustreSettings']
     const storageCapacityPath = [...fsxPath, 'StorageCapacity'];
     const lustreTypePath = [...fsxPath, 'DeploymentType'];
-    if(storageCapacity === null)
+    if(storageCapacity === null && !useExisting)
       setState(storageCapacityPath, 1200);
-    if(lustreType === null)
+    if(lustreType === null && !useExisting)
       setState(lustreTypePath, "SCRATCH_2");
   }, [storageCapacity, lustreType, storageThroughput]);
 
@@ -445,7 +449,7 @@ function EbsSettings({index}) {
 
 function StorageInstance({index}) {
   const path = [...storagePath, index]
-  const storageAppPath = ['wizard', 'storage', index];
+  const storageAppPath = ['app', 'wizard', 'storage', index];
   const storageType = useState([...path, 'StorageType']) || "none";
   const storageName = useState([...path, 'Name']) || "";
   const mountPoint = useState([...path, 'MountDir']);

@@ -124,8 +124,11 @@ function ComputeResource({index, queueIndex, computeResource}) {
 
   const enablePlacementGroupPath = [parentPath, 'Networking', "PlacementGroup", "Enabled"]
 
-  const enableGPUDirectPath = [...path, "Efa", "GdrSupport"]
+  const enableGPUDirectPath = [...path, "Efa", "GdrSupport"] || false;
   const enableGPUDirect = useState(enableGPUDirectPath);
+  console.log("enable gpudirect", enableGPUDirect);
+
+  const instanceSupportsGdr = (instanceType === "p4d.24xlarge");
 
   const minCount = useState([...path, 'MinCount']);
   const maxCount = useState([...path, 'MaxCount']);
@@ -210,7 +213,7 @@ function ComputeResource({index, queueIndex, computeResource}) {
           <Toggle disabled={tInstances.has(instanceType) || gravitonInstances.has(instanceType)} checked={disableHT} onChange={(event) => {setDisableHT(!disableHT)}}>Disable Hyperthreading</Toggle>
           <Toggle disabled={!efaInstances.has(instanceType)} checked={enableEFA} onChange={(event) => {setEnableEFA(!enableEFA)}}>Enable EFA</Toggle>
           <div style={{display: "flex", flexDirection: "row", alignItems: "center"}}>
-            <Toggle disabled={instanceType !== "p4d.24xlarge"} checked={enableGPUDirect} onChange={(event) => {setEnableGPUDirect(!enableGPUDirect)}}>Enable EFA GPUDirect RDMA</Toggle>
+            <Toggle disabled={!instanceSupportsGdr } checked={enableGPUDirect} onChange={(event) => {setEnableGPUDirect(!enableGPUDirect)}}>Enable EFA GPUDirect RDMA</Toggle>
             <HelpTooltip>
               Only for p4d.24xlarge, See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/Scheduling-v3.html#yaml-Scheduling-SlurmQueues-ComputeResources-Efa-GdrSupport'>GdrSupport</a>.
             </HelpTooltip>

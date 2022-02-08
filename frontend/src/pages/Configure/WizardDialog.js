@@ -42,6 +42,8 @@ import CancelIcon from '@mui/icons-material/Cancel';
 
 export default function WizardDialog(props) {
   const open = useState(['app', 'wizard', 'dialog']);
+  const loadingPath = ['app', 'wizard', 'source', 'loading'];
+  const loading = useState(loadingPath);
   const page = useState(['app', 'wizard', 'page']) || 'source';
   const clusterName = useState(['app', 'wizard', 'clusterName']);
   const [ refreshing, setRefreshing ] = React.useState(false);
@@ -62,6 +64,7 @@ export default function WizardDialog(props) {
       clearState(['app', 'wizard', 'loaded']);
       clearState(['app', 'wizard', 'page']);
       clearState(['app', 'wizard', 'vpc']);
+      clearState(loadingPath);
     }
     setState(['app', 'wizard', 'dialog'], false);
     clearState(['app', 'wizard', 'errors']);
@@ -175,7 +178,7 @@ export default function WizardDialog(props) {
               <Button onClick={() => handleClose(true)} autoFocus>Cancel</Button>
               <Button disabled={page === pages[0]} onClick={handlePrev}>Back</Button>
               {page === "create" && <Button onClick={handleDryRun}>Dry Run</Button>}
-              <Button onClick={handleNext}>{page === "create" ? (editing ? "Update" : "Create") : "Next"}</Button>
+              <Button disabled={loading} onClick={handleNext}>{page === "create" ? (editing ? "Update" : "Create") : "Next"}</Button>
             </SpaceBetween>
           </Box>
         }
