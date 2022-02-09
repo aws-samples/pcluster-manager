@@ -233,7 +233,7 @@ def queue_status():
         args.get("region"),
         instance_id,
         user,
-        "squeue --json | jq .jobs\\|\\map\\({name,nodes,partition,job_state,job_id,time\\}\\)",
+        "squeue --json | jq .jobs\\|\\map\\({name,nodes,partition,job_state,job_id,submit_time,start_time,end_time\\}\\)",
     )
 
     return {"jobs": []} if jobs == "" else {"jobs": json.loads(jobs)}
@@ -250,6 +250,36 @@ def cancel_job():
     instance_id = args.get("instance_id")
     job_id = args.get("job_id")
     ssm_command(args.get("region"), instance_id, user, f"scancel {job_id}")
+    return {"status": "success"}
+
+
+def submit_job():
+    parser = reqparse.RequestParser()
+    parser.add_argument("instance_id", type=str)
+    parser.add_argument("user", type=str)
+    parser.add_argument("region", type=str)
+    args = parser.parse_args()
+    user = args.get("user", "ec2-user")
+    instance_id = args.get("instance_id")
+    job = request.json
+
+    wrap = job.get("wrap")
+    command = job.get("command").replace(" ", "\\ ")
+
+    try:
+        del job["wrap"]
+    except KeyError:
+        pass
+    except Exception as e:
+        print(e)
+
+    del job["command"]
+
+    slurm_args = " ".join(f"--{k}={v}" for k, v in job.items())
+    if wrap:
+        slurm_args += " --wrap"
+
+    ret = ssm_command(args.get("region"), instance_id, user, f"sbatch {slurm_args} {command}")
     return {"status": "success"}
 
 

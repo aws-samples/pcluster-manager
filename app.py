@@ -27,6 +27,7 @@ from api.PclusterApiHandler import (
     get_aws_config,
     get_identity,
     queue_status,
+    submit_job,
     cancel_job,
     get_version,
     list_users,
@@ -122,6 +123,11 @@ def run():
     @authenticated()
     def cancel_job_():
         return cancel_job()
+
+    @app.route("/manager/submit_job", methods=["POST"])
+    @authenticated()
+    def submit_job_():
+        return submit_job()
 
     @app.route("/login")
     def login_():

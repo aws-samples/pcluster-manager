@@ -527,6 +527,25 @@ function QueueStatus(clusterName, instanceId, user, callback) {
   })
 }
 
+function SubmitJob(instanceId, user, jobDefinition, callback, failure_callback) {
+  const region = getState(['app', 'selectedRegion']) || getState(['aws', 'region']);
+  let url = `manager/submit_job?instance_id=${instanceId}&user=${user || 'ec2-user'}&region=${region}`
+  request('post', url, jobDefinition).then(response => {
+    if(response.status === 200) {
+      console.log(response.data)
+      callback && callback(response.data)
+    }
+  }).catch(error => {
+    if(error.response)
+    {
+      console.log(error.response)
+      notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
+    }
+    console.log(error);
+    failure_callback && failure_callback(error.response);
+  })
+}
+
 function CancelJob(instanceId, user, jobId, callback) {
   const region = getState(['app', 'selectedRegion']) || getState(['aws', 'region']);
   let url = `manager/cancel_job?instance_id=${instanceId}&user=${user || 'ec2-user'}&region=${region}&job_id=${jobId}`
@@ -585,4 +604,4 @@ export {CreateCluster, UpdateCluster, ListClusters, DescribeCluster,
   ListCustomImages, DescribeCustomImage, GetCustomImageConfiguration,
   BuildImage, GetCustomImageStackEvents, ListCustomImageLogStreams,
   GetCustomImageLogEvents, ListOfficialImages, LoadInitialState,
-  Ec2Action,LoadAwsConfig, GetDcvSession, QueueStatus, CancelJob, ListUsers, SetUserRole, notify}
+  Ec2Action,LoadAwsConfig, GetDcvSession, QueueStatus, CancelJob, SubmitJob, ListUsers, SetUserRole, notify}

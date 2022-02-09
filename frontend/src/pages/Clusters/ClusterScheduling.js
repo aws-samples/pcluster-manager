@@ -20,6 +20,7 @@ import { useTheme } from '@mui/material/styles';
 // UI Elements
 import {
   Button,
+  Header,
   Pagination,
   Table,
   TextFilter
@@ -32,6 +33,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 // Components
 import EmptyState from '../../components/EmptyState';
+import JobSubmitDialog from './JobSubmitDialog'
 
 
 function refreshQueues(callback) {
@@ -57,7 +59,7 @@ function Status(props) {
     <span style={{display: 'inline-block', paddingLeft: '10px'}}> {text}</span>
   </div>
   const statusMap = {"CANCELLED": aligned(<CancelIcon />, props.status, theme.palette.error.main),
-      "CONFIGURING": aligned(<CircularProgress size={15} color='info' />, props.status, theme.palette.error.main),
+      "CONFIGURING": aligned(<CircularProgress size={15} color='info' />, props.status, theme.palette.info.main),
     "RUNNING": aligned(<CheckCircleOutlineIcon />, props.status, theme.palette.success.main),};
   return props.status in statusMap ? statusMap[props.status] : <span>{props.status}</span>;
 }
@@ -128,8 +130,15 @@ export default function ClusterScheduling() {
     }
   );
 
-
   return <>
+    <JobSubmitDialog />
+    <Header
+      variant="h3"
+      description=""
+      counter={ jobs && `(${jobs.length})` }
+      actions={<div><Button onClick={() => setState(['app', 'clusters', 'jobSubmit', 'dialog'], true)}>Submit Job</Button></div>}>
+      Jobs
+    </Header>
     {cluster_minor > 0 &&
     <Table
       {...collectionProps}
@@ -143,13 +152,13 @@ export default function ClusterScheduling() {
         },
         {
           id: "name",
-          header: "name",
+          header: "Name",
           cell: item => item.name,
           sortingField: "name"
         },
         {
           id: "partition",
-          header: "partition",
+          header: "Queue",
           cell: item => item.partition,
           sortingField: "partition"
         },
@@ -161,13 +170,13 @@ export default function ClusterScheduling() {
         },
         {
           id: "state",
-          header: "state",
+          header: "State",
           cell: item => <Status status={item.job_state} />,
           sortingField: "job_state"
         },
         {
           id: "time",
-          header: "time",
+          header: "Time",
           cell: item => item.time,
           sortingField: "time"
         },
