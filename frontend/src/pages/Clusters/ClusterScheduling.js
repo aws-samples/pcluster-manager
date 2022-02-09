@@ -183,6 +183,6 @@ export default function ClusterScheduling() {
       }
     />
     }
-    {cluster_minor === 0 && <div>Scheduling not available for 3.0.x clusters</div>}
+    {cluster_minor === 0 && <div>Scheduling is only available in clusters with version 3.1.x and greater.</div>}
   </>
 }
