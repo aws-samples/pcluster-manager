@@ -507,6 +507,44 @@ function GetDcvSession(instanceId, user, callback) {
   })
 }
 
+// Queue Operations
+function QueueStatus(clusterName, instanceId, user, callback) {
+  const region = getState(['app', 'selectedRegion']) || getState(['aws', 'region']);
+  let url = `manager/queue_status?instance_id=${instanceId}&user=${user || 'ec2-user'}&region=${region}`
+  request('get', url).then(response => {
+    if(response.status === 200) {
+      console.log(response.data)
+      setState(['clusters', 'index', clusterName, 'jobs'], response.data.jobs);
+      callback && callback(response.data)
+    }
+  }).catch(error => {
+    if(error.response)
+    {
+      console.log(error.response)
+      notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
+    }
+    console.log(error)
+  })
+}
+
+function CancelJob(instanceId, user, jobId, callback) {
+  const region = getState(['app', 'selectedRegion']) || getState(['aws', 'region']);
+  let url = `manager/cancel_job?instance_id=${instanceId}&user=${user || 'ec2-user'}&region=${region}&job_id=${jobId}`
+  request('get', url).then(response => {
+    if(response.status === 200) {
+      console.log(response.data)
+      callback && callback(response.data)
+    }
+  }).catch(error => {
+    if(error.response)
+    {
+      console.log(error.response)
+      notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
+    }
+    console.log(error)
+  })
+}
+
 function GetIdentity(callback) {
   const url = "manager/get_identity"
   axios.get(getHost() + url).then(response => {
@@ -547,4 +585,4 @@ export {CreateCluster, UpdateCluster, ListClusters, DescribeCluster,
   ListCustomImages, DescribeCustomImage, GetCustomImageConfiguration,
   BuildImage, GetCustomImageStackEvents, ListCustomImageLogStreams,
   GetCustomImageLogEvents, ListOfficialImages, LoadInitialState,
-  Ec2Action,LoadAwsConfig, GetDcvSession, ListUsers, SetUserRole, notify}
+  Ec2Action,LoadAwsConfig, GetDcvSession, QueueStatus, CancelJob, ListUsers, SetUserRole, notify}

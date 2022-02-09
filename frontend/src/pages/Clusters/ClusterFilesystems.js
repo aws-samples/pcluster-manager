@@ -11,11 +11,13 @@
 import React from 'react';
 
 import { useState } from '../../store'
+import { getIn } from '../../util'
 import { useCollection } from '@awsui/collection-hooks';
 
 // UI Elements
 import {
   Button,
+  Link,
   Pagination,
   Table,
   TextFilter
@@ -24,6 +26,27 @@ import {
 // Components
 import EmptyState from '../../components/EmptyState';
 
+function StorageId({storage}){
+  const settingsKey = `${storage.StorageType}Settings`
+  const fs_id = getIn(storage, [settingsKey, 'FileSystemId'])
+  const defaultRegion = useState(['aws', 'region']);
+  const region = useState(['app', 'selectedRegion']) || defaultRegion;
+
+  return <>
+    {fs_id && storage.StorageType === 'FsxLustre' && <Link external externalIconAriaLabel="Opens a new tab"
+      href={`https://${region}.console.aws.amazon.com/fsx/home?region=${region}#file-system-details/${fs_id}`}
+    >{fs_id}</Link>}
+    {fs_id && storage.StorageType === 'Ebs' && <Link external externalIconAriaLabel="Opens a new tab"
+      href={`https://${region}.console.aws.amazon.com/efs/home?region=${region}#/file-systems/${fs_id}`}
+    >{fs_id}</Link>}
+    {fs_id && storage.StorageType === 'Efs' && <Link external externalIconAriaLabel="Opens a new tab"
+      href={`https://${region}.console.aws.amazon.com/ec2/v2/home?region=${region}#VolumeDetails:volumeId=${fs_id}`}
+    >{fs_id}</Link>}
+    {!fs_id && "internal"}
+  </>
+
+}
+
 export default function ClusterFilesystems() {
   const clusterName = useState(['app', 'clusters', 'selected']);
   const clusterPath = ['clusters', 'index', clusterName];
@@ -31,7 +54,6 @@ export default function ClusterFilesystems() {
   const headNode = useState([...clusterPath, 'headNode']);
   const defaultRegion = useState(['aws', 'region']);
   const region = useState(['app', 'selectedRegion']) || defaultRegion;
-  console.log("storage: ", storage)
 
   const { items, actions, filteredItemsCount, collectionProps, filterProps, paginationProps } = useCollection(
     storage,
@@ -83,6 +105,11 @@ export default function ClusterFilesystems() {
           header: "Type",
           cell: item => item.StorageType,
           sortingField: "StorageType"
+        },
+        {
+          id: "id",
+          header: "id",
+          cell: item => <StorageId storage={item} />,
         },
       ]}
       items={items}

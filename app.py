@@ -26,6 +26,8 @@ from api.PclusterApiHandler import (
     get_dcv_session,
     get_aws_config,
     get_identity,
+    queue_status,
+    cancel_job,
     get_version,
     list_users,
     login,
@@ -110,6 +112,16 @@ def run():
     @authenticated("admin")
     def set_user_role_():
         return set_user_role()
+
+    @app.route("/manager/queue_status")
+    @authenticated()
+    def queue_status_():
+        return queue_status()
+
+    @app.route("/manager/cancel_job")
+    @authenticated()
+    def cancel_job_():
+        return cancel_job()
 
     @app.route("/login")
     def login_():

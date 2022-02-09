@@ -14,7 +14,7 @@ import jsyaml from 'js-yaml';
 
 import { UpdateComputeFleet, GetConfiguration, GetDcvSession } from '../../model'
 import { setState, useState } from '../../store'
-import { findFirst, getIn } from '../../util'
+import { findFirst, getIn, clusterDefaultUser } from '../../util'
 import { loadTemplate } from '../Configure/util'
 
 // UI Elements
@@ -75,24 +75,16 @@ export default function ClusterActions () {
 
   const ssmFilesystem = (instanceId) => {
     const useRegion = region || defaultRegion;
-    let os = getIn(cluster.config, ['Image', 'Os'])
-    let user = {"alinux2": "ec2-user",
-      "ubuntu2004": "ubuntu",
-      "ubuntu1804": "ubuntu",
-      "centos7": "centos"}[os]
+    let user = clusterDefaultUser(cluster);
     const path = encodeURIComponent(`/home/${user}/`)
     window.open(`https://${useRegion}.console.aws.amazon.com/systems-manager/managed-instances/${instanceId}/file-system?region=${useRegion}&osplatform=Linux#%7B%22path%22%3A%22${path}%22%7D`);
   }
 
   const dcvConnect = (instance) => {
-    let os = getIn(cluster.config, ['Image', 'Os'])
-    let user = {"alinux2": "ec2-user",
-      "ubuntu2004": "ubuntu",
-      "ubuntu1804": "ubuntu",
-      "centos7": "centos"}[os]
     let callback = (dcvInfo) => {
       window.open(`https://${instance.publicIpAddress}:${dcvInfo.port}?authToken=${dcvInfo.session_token}#${dcvInfo.session_id}`);
     }
+    let user = clusterDefaultUser(cluster);
     GetDcvSession(instance.instanceId, user, callback);
   }
 

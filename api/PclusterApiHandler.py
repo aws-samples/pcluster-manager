@@ -181,6 +181,78 @@ def get_cluster_config():
     return configuration.text
 
 
+def ssm_command(region, instance_id, user, run_command):
+    start = time.time()
+
+    if region:
+        config = botocore.config.Config(region_name=region)
+        ssm = boto3.client("ssm", config=config)
+    else:
+        ssm = boto3.client("ssm")
+
+    command = f"runuser -l {user} -c '{run_command}'"
+
+    ssm_resp = ssm.send_command(
+        InstanceIds=[instance_id],
+        DocumentName="AWS-RunShellScript",
+        Comment=f"Run ssm command.",
+        Parameters={"commands": [command]},
+    )
+
+    command_id = ssm_resp["Command"]["CommandId"]
+
+    # Wait for command to complete
+    time.sleep(0.75)
+    while time.time() - start < 60:
+        status = ssm.get_command_invocation(CommandId=command_id, InstanceId=instance_id)
+        print("status: ", status)
+        if status["Status"] != "InProgress":
+            break
+        time.sleep(0.75)
+
+    if time.time() - start > 60:
+        abort(500, description="Timed out waiting for command to complete.")
+
+    if status["Status"] != "Success":
+        abort(500, description=status["StandardErrorContent"])
+
+    output = status["StandardOutputContent"]
+    return output
+
+
+def queue_status():
+    parser = reqparse.RequestParser()
+    parser.add_argument("instance_id", type=str)
+    parser.add_argument("user", type=str)
+    parser.add_argument("region", type=str)
+    args = parser.parse_args()
+    user = args.get("user", "ec2-user")
+    instance_id = args.get("instance_id")
+
+    jobs = ssm_command(
+        args.get("region"),
+        instance_id,
+        user,
+        "squeue --json | jq .jobs\\|\\map\\({name,nodes,partition,job_state,job_id,time\\}\\)",
+    )
+
+    return {"jobs": []} if jobs == "" else {"jobs": json.loads(jobs)}
+
+
+def cancel_job():
+    parser = reqparse.RequestParser()
+    parser.add_argument("instance_id", type=str)
+    parser.add_argument("job_id", type=str)
+    parser.add_argument("user", type=str)
+    parser.add_argument("region", type=str)
+    args = parser.parse_args()
+    user = args.get("user", "ec2-user")
+    instance_id = args.get("instance_id")
+    job_id = args.get("job_id")
+    ssm_command(args.get("region"), instance_id, user, f"scancel {job_id}")
+    return {"status": "success"}
+
+
 def get_dcv_session():
     parser = reqparse.RequestParser()
     parser.add_argument("instance_id", type=str)

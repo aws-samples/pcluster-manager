@@ -19,6 +19,7 @@ import Tabs from "@awsui/components-react/tabs"
 import ClusterStackEvents from './ClusterStackEvents'
 import ClusterInstances from './ClusterInstances'
 import ClusterFilesystems from './ClusterFilesystems'
+import ClusterScheduling from './ClusterScheduling'
 import ClusterProperties from './ClusterProperties'
 import ClusterLogs from './ClusterLogs'
 import Loading from '../../components/Loading'
@@ -33,6 +34,7 @@ export default function ClusterTabs() {
         {label: "Details", id: "details", content: <ClusterProperties />},
         {label: "Instances", id: "instances", content: <ClusterInstances />},
         {label: "Filesystems", id: "filesytems", content: <ClusterFilesystems />},
+        {label: "Scheduling", id: "scheduling", content: <ClusterScheduling />},
         {label: "Stack Events", id: "stack-events", content: <ClusterStackEvents />},
         {label: "Logs", id: "logs", content: <ClusterLogs />}
       ]} />
