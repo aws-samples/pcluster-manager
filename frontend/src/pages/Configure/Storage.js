@@ -503,7 +503,7 @@ function StorageInstance({index}) {
     <Container
       header={<Header
         variant="h3"
-        actions={<Button onClick={removeStorage}>Remove</Button>}>
+        actions={<Button disabled={editing} onClick={removeStorage}>Remove</Button>}>
         Name: {storageName}
       </Header>}
     >

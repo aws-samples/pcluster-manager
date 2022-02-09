@@ -91,6 +91,7 @@ function KeypairSelect() {
   const keypairs = useState(['aws', 'keypairs']);
   const keypairPath = [...headNodePath, 'Ssh', 'KeyName']
   const keypair = useState(keypairPath) || "";
+  const editing = useState(['app', 'wizard', 'editing']);
   const keypairToOption = kp => {
     if(kp)
       return {label: kp.KeyName, value: kp.KeyName}
@@ -102,6 +103,7 @@ function KeypairSelect() {
     label="Keypair"
     description="Keypair used to connect to HeadNode via SSH.">
     <Select
+      disabled={editing}
       selectedOption={keypairToOption(findFirst(keypairs, x => {return x.KeyName === keypair}))}
       onChange={({detail}) => {setState(keypairPath, detail.selectedOption.value)}}
       selectedAriaLabel="Selected"

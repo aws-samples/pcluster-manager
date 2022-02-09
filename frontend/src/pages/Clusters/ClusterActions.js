@@ -14,7 +14,7 @@ import jsyaml from 'js-yaml';
 
 import { UpdateComputeFleet, GetConfiguration, GetDcvSession } from '../../model'
 import { setState, useState } from '../../store'
-import { getIn } from '../../util'
+import { findFirst, getIn } from '../../util'
 import { loadTemplate } from '../Configure/util'
 
 // UI Elements
@@ -25,6 +25,7 @@ import SpaceBetween from "@awsui/components-react/space-between"
 import CancelIcon from '@mui/icons-material/Cancel';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FeaturedPlayListIcon from '@mui/icons-material/FeaturedPlayList';
+import FolderIcon from '@mui/icons-material/Folder';
 import MonitorIcon from '@mui/icons-material/Monitor';
 
 // Components
@@ -42,6 +43,13 @@ export default function ClusterActions () {
   const fleetStatus = useState([...clusterPath, 'computeFleetStatus']);
   const clusterStatus = useState([...clusterPath, 'clusterStatus']);
   const dcvEnabled = useState([...clusterPath, 'config', 'HeadNode', 'Dcv', 'Enabled']);
+
+  const ssmPolicy = 'arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore';
+  function isSsmPolicy(p) {
+    return p.hasOwnProperty('Policy') && p.Policy === ssmPolicy;
+  }
+  const iamPolicies = useState([...clusterPath, 'config', 'HeadNode', 'Iam', 'AdditionalIamPolicies']);
+  const ssmEnabled = iamPolicies && findFirst(iamPolicies, isSsmPolicy);
 
   const startFleet = () => {
     UpdateComputeFleet(clusterName, "START_REQUESTED")
@@ -63,6 +71,17 @@ export default function ClusterActions () {
   const shellCluster = (instanceId) => {
     const useRegion = region || defaultRegion;
     window.open(`https://${useRegion}.console.aws.amazon.com/systems-manager/session-manager/${instanceId}?region=${useRegion}`);
+  }
+
+  const ssmFilesystem = (instanceId) => {
+    const useRegion = region || defaultRegion;
+    let os = getIn(cluster.config, ['Image', 'Os'])
+    let user = {"alinux2": "ec2-user",
+      "ubuntu2004": "ubuntu",
+      "ubuntu1804": "ubuntu",
+      "centos7": "centos"}[os]
+    const path = encodeURIComponent(`/home/${user}/`)
+    window.open(`https://${useRegion}.console.aws.amazon.com/systems-manager/managed-instances/${instanceId}/file-system?region=${useRegion}&osplatform=Linux#%7B%22path%22%3A%22${path}%22%7D`);
   }
 
   const dcvConnect = (instance) => {
@@ -93,7 +112,14 @@ export default function ClusterActions () {
           <DeleteIcon /> Delete
         </div>
       </Button>
-      {headNode && headNode.publicIpAddress && headNode.publicIpAddress !== "" &&
+      {headNode && headNode.publicIpAddress && headNode.publicIpAddress !== "" && ssmEnabled &&
+      <Button className="action" disabled={clusterStatus === 'DELETE_IN_PROGRESS'} onClick={() => {ssmFilesystem(headNode.instanceId)}}>
+        <div className="container">
+          <FolderIcon />
+          Filesystem
+        </div>
+      </Button>}
+      {headNode && headNode.publicIpAddress && headNode.publicIpAddress !== "" && 
       <Button className="action" disabled={clusterStatus === 'DELETE_IN_PROGRESS'} onClick={() => {shellCluster(headNode.instanceId)}}>
         <div className="container">
           <FeaturedPlayListIcon />
