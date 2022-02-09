@@ -205,7 +205,6 @@ def ssm_command(region, instance_id, user, run_command):
     time.sleep(0.75)
     while time.time() - start < 60:
         status = ssm.get_command_invocation(CommandId=command_id, InstanceId=instance_id)
-        print("status: ", status)
         if status["Status"] != "InProgress":
             break
         time.sleep(0.75)
@@ -340,6 +339,13 @@ def get_aws_config():
     vpcs = ec2.describe_vpcs()["Vpcs"]
     subnets = ec2.describe_subnets()["Subnets"]
 
+    efa_filters = [{"Name": "network-info.efa-supported", "Values": ["true"]}]
+    instance_paginator = ec2.get_paginator("describe_instance_types")
+    efa_instances_paginator = instance_paginator.paginate(Filters=efa_filters)
+    efa_instance_types = []
+    for efa_instances in efa_instances_paginator:
+        efa_instance_types += [e["InstanceType"] for e in efa_instances["InstanceTypes"]]
+
     fsx_filesystems = []
     try:
         fsx_filesystems = fsx.describe_file_systems()["FileSystems"]
@@ -365,6 +371,7 @@ def get_aws_config():
         "region": region,
         "fsx_filesystems": fsx_filesystems,
         "efs_filesystems": efs_filesystems,
+        "efa_instance_types": efa_instance_types,
     }
 
 
