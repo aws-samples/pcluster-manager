@@ -89,6 +89,8 @@ function JobActions({job}) {
 
 export default function ClusterScheduling() {
   const clusterName = useState(['app', 'clusters', 'selected']);
+  const cluster = useState(['clusters', 'index', clusterName]);
+  const cluster_minor = parseInt(cluster.version.split(".")[1]);
   const jobs = useState(['clusters', 'index', clusterName, 'jobs']) || []
 
   React.useEffect(() => {
@@ -128,7 +130,7 @@ export default function ClusterScheduling() {
 
 
   return <>
-    {jobs &&
+    {cluster_minor > 0 &&
     <Table
       {...collectionProps}
       trackBy="job_id"
@@ -181,5 +183,6 @@ export default function ClusterScheduling() {
       }
     />
     }
+    {cluster_minor === 0 && <div>Scheduling not available for 3.0.x clusters</div>}
   </>
 }
