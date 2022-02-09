@@ -67,6 +67,7 @@ Resources:
       Environment:
         Variables:
           API_BASE_URL: !GetAtt [ ParallelClusterApi, Outputs.ParallelClusterApiInvokeUrl ]
+          API_VERSION: !Ref Version
           SITE_URL: !Sub
            - https://${Api}.execute-api.${AWS::Region}.${AWS::URLSuffix}
            - Api: !Ref ApiGateway

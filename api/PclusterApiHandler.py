@@ -24,6 +24,7 @@ from jose import jwt
 USER_POOL_ID = os.getenv("USER_POOL_ID")
 AUTH_PATH = os.getenv("AUTH_PATH")
 API_BASE_URL = os.getenv("API_BASE_URL")
+API_VERSION = os.getenv("API_VERSION", "3.1.0")
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 SECRET_ID = os.getenv("SECRET_ID")
@@ -126,6 +127,10 @@ def authenticated(group="user", redirect=True):
 
 
 # Local Endpoints
+
+
+def get_version():
+    return {"version": API_VERSION}
 
 
 def ec2_action():
@@ -331,7 +336,7 @@ def list_users():
         users = cognito.list_users(UserPoolId=USER_POOL_ID)["Users"]
         return {"users": [_augment_user(cognito, user) for user in users]}
     except Exception as e:
-        return {"exceptoion": str(e)}
+        return {"exception": str(e)}
 
 
 def set_user_role():
