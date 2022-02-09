@@ -28,6 +28,7 @@ from api.PclusterApiHandler import (
     get_identity,
     queue_status,
     cancel_job,
+    get_version,
     list_users,
     login,
     logout,
@@ -97,6 +98,10 @@ def run():
     @authenticated("guest")
     def get_identity_():
         return get_identity()
+
+    @app.route("/manager/get_version")
+    def get_version_():
+        return get_version()
 
     @app.route("/manager/list_users")
     @authenticated("admin")

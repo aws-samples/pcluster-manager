@@ -448,6 +448,29 @@ function LoadAwsConfig(region = null, callback) {
   })
 }
 
+function GetVersion() {
+  var url = `manager/get_version`
+  request('get', url).then(response => {
+    if(response.status === 200) {
+      console.log("api_version", response.data);
+      var [major, minor, patch] = response.data.version.split(".");
+      var major_int = parseInt(major);
+      var minor_int = parseInt(minor);
+      setState(['app', 'version'], {"full": response.data.version,
+        "major": major_int,
+        "minor": minor_int,
+        "patch": patch});
+    }
+  }).catch(error => {
+    if(error.response)
+    {
+      console.log(error.response)
+      notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
+    }
+    console.log(error)
+  })
+}
+
 function Ec2Action(instanceIds, action, callback) {
   let url = `manager/ec2_action?instance_ids=${instanceIds.join(',')}&action=${action}`
 
@@ -543,6 +566,7 @@ function LoadInitialState() {
   const region = getState(['app', 'selectedRegion']);
   clearState(['app', 'aws']);
   clearAllState();
+  GetVersion();
   GetIdentity((identity) => {
     let groups = identity['cognito:groups'];
     if((groups.includes("admin")) || (groups.includes("user")))
