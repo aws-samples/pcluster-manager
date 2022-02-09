@@ -55,4 +55,12 @@ function updateIn(state, path, update) {
   return swapIn(state, path[0], update(existing));
 }
 
-export { getIn, swapIn, setIn, updateIn, findFirst }
+function clusterDefaultUser(cluster) {
+  let os = getIn(cluster.config, ['Image', 'Os'])
+  return {"alinux2": "ec2-user",
+    "ubuntu2004": "ubuntu",
+    "ubuntu1804": "ubuntu",
+    "centos7": "centos"}[os]
+}
+
+export { getIn, swapIn, setIn, updateIn, findFirst, clusterDefaultUser }
