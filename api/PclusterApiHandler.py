@@ -233,7 +233,7 @@ def queue_status():
         args.get("region"),
         instance_id,
         user,
-        "squeue --json | jq .jobs\\|\\map\\({name,nodes,partition,job_state,job_id\\}\\)",
+        "squeue --json | jq .jobs\\|\\map\\({name,nodes,partition,job_state,job_id,time\\}\\)",
     )
 
     return {"jobs": []} if jobs == "" else {"jobs": json.loads(jobs)}

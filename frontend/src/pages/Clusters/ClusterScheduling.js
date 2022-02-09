@@ -166,6 +166,12 @@ export default function ClusterScheduling() {
           sortingField: "job_state"
         },
         {
+          id: "time",
+          header: "time",
+          cell: item => item.time,
+          sortingField: "time"
+        },
+        {
           id: "actions",
           header: "Actions",
           cell: item => <JobActions job={item} />,
