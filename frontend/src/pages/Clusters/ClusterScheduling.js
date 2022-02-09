@@ -80,7 +80,7 @@ function JobActions({job}) {
     <div>
       {job.job_state !== "COMPLETED" &&
       <div>
-        <Button loading={pending} onClick={() => {cancelJob(job.job_id)}}>Stop</Button>
+        <Button loading={pending} onClick={() => {cancelJob(job.job_id)}}>Cancel</Button>
       </div>
       }
     </div>
