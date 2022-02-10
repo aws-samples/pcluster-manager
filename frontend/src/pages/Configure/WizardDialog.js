@@ -98,12 +98,19 @@ export default function WizardDialog(props) {
       return;
     }
 
+    if(currentPage === 'cluster' && multiUserEnabled)
+    {
+      setState(['app', 'wizard', 'page'], 'multiUser');
+      return;
+    }
+
+    if(currentPage === 'multiUser') {
+      setState(['app', 'wizard', 'page'], 'headNode');
+      return;
+    }
+
     for(let i = 0; i < pages.length; i++)
-      if(currentPage === 'cluster' && multiUserEnabled)
-      {
-        setState(['app', 'wizard', 'page'], 'multiUser');
-        return;
-      } else {
+       if(pages[i] === currentPage) {
         let nextPage = pages[i + 1];
 
         if(nextPage === "create")
@@ -132,6 +139,12 @@ export default function WizardDialog(props) {
     if(currentPage === 'multiUser')
     {
       setState(['app', 'wizard', 'page'], 'cluster');
+      return;
+    }
+
+    if(currentPage === 'headNode' && multiUserEnabled)
+    {
+      setState(['app', 'wizard', 'page'], 'multiUser');
       return;
     }
 

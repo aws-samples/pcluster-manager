@@ -18,6 +18,7 @@ import {
   ExpandableSection,
   ColumnLayout,
   FormField,
+  Link,
   SpaceBetween,
   Input,
   Toggle,
@@ -58,7 +59,7 @@ function multiUserValidate() {
 
 function HelpTextInput({name, configKey, description, help, placeholder})
 {
-  let editing = useState(['app', 'wizard', 'editing']);
+  //let editing = useState(['app', 'wizard', 'editing']);
   let dsPath = ['app', 'wizard', 'config', 'DirectoryService'];
   let value = useState([...dsPath, configKey]);
   let error = useState([...errorsPath, configKey]);
@@ -72,7 +73,6 @@ function HelpTextInput({name, configKey, description, help, placeholder})
     <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
       <div style={{flexGrow: 1}}>
         <Input
-          disabled={editing}
           placeholder={placeholder}
           value={value}
           onChange={({detail}) => {setState([...dsPath, configKey], detail.value); multiUserValidate();}} />
@@ -84,7 +84,7 @@ function HelpTextInput({name, configKey, description, help, placeholder})
 
 function HelpToggle({name, configKey, description, help, placeholder, defaultValue})
 {
-  let editing = useState(['app', 'wizard', 'editing']);
+  //let editing = useState(['app', 'wizard', 'editing']);
   let dsPath = ['app', 'wizard', 'config', 'DirectoryService'];
   let value = useState([...dsPath, configKey]);
   let error = useState([...errorsPath, configKey]);
@@ -96,7 +96,6 @@ function HelpToggle({name, configKey, description, help, placeholder, defaultVal
     <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
       <div style={{flexGrow: 1}}>
         <Toggle
-          disabled={editing}
           checked={value === null ? defaultValue : value}
           onChange={({detail}) => setState([...dsPath, configKey], !value)} />
       </div>
@@ -158,6 +157,13 @@ function AdditionalSssdOptions() {
 function MultiUser() {
   return <>
     <SpaceBetween direction="vertical" size="xs">
+      <span>
+        If you don’t have an exisitng Active Directory you can create an AWS managed one following &nbsp;
+        <Link
+          external
+          externalIconAriaLabel="Opens in a new tab"
+          href={"https://docs.aws.amazon.com/parallelcluster/latest/ug/tutorials_05_multi-user-ad.html"}>this tutorial</Link>.
+      </span>
       <ColumnLayout columns={2} borders="vertical">
         <HelpTextInput name={'Domain Name*'} configKey={'DomainName'} description={'The Active Directory (AD) domain that you use for identity information.'}
           placeholder={'dc=corp,dc=pcluster,dc=com'} help={'This property corresponds to the sssd-ldap parameter that\'s called ldap_search_base.'} />

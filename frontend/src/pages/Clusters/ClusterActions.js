@@ -14,7 +14,7 @@ import jsyaml from 'js-yaml';
 
 import { UpdateComputeFleet, GetConfiguration, GetDcvSession } from '../../model'
 import { setState, useState } from '../../store'
-import { findFirst, getIn, clusterDefaultUser } from '../../util'
+import { findFirst, clusterDefaultUser } from '../../util'
 import { loadTemplate } from '../Configure/util'
 
 // UI Elements
