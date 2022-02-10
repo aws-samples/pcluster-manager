@@ -22,6 +22,7 @@ import {
   Header,
   Select,
   SpaceBetween,
+  Toggle,
 } from "@awsui/components-react";
 
 // State / Model
@@ -248,13 +249,17 @@ function VpcSelect() {
 }
 
 function Cluster() {
+  const editing = useState(['app', 'wizard', 'editing']);
   const configPath = ['app', 'wizard', 'config'];
   let config = useState(configPath);
   let clusterConfig = useState(['app', 'wizard', 'clusterConfigYaml']) || "";
   let wizardLoaded = useState(['app', 'wizard', 'loaded']);
+  let multiUserEnabled = useState(['app', 'wizard', 'multiUser']) || false;
   let awsConfig = useState(['aws']);
   let defaultRegion = useState(['aws', 'region']) || "";
   const region = useState(['app', 'selectedRegion']) || defaultRegion;
+
+  let versionMinor = useState(['app', 'version', 'minor']);
 
   React.useEffect(() => {
     const configPath = ['app', 'wizard', 'config'];
@@ -298,6 +303,12 @@ function Cluster() {
           <SchedulerSelect />
           <OsSelect />
           <VpcSelect />
+          {versionMinor && versionMinor >= 1 && true &&
+          <FormField>
+            <Header variant="h4" description="Enable Multi-User cluster through Active Directory integration.">Multi User</Header>
+            <Toggle disabled={editing} checked={multiUserEnabled} onChange={() => setState(['app', 'wizard', 'multiUser'], !multiUserEnabled)}>Multi User Cluster</Toggle>
+          </FormField>
+          }
           <CustomAMISettings basePath={configPath} appPath={['app', 'wizard']} errorsPath={errorsPath} validate={clusterValidate}/>
         </ColumnLayout>
       </SpaceBetween>

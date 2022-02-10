@@ -42,6 +42,9 @@ function loadTemplateLazy(config, callback)
       setState(['app', 'wizard', 'vpc'], vpc);
   }
 
+  if(getIn(config, ['DirectoryServices']))
+      setState(['app', 'wizard', 'multiUser'], true);
+
   // Support existing filesystems
   const storages = getIn(config, ['SharedStorage']) || [];
   for(let i = 0; i < storages.length; i++)
