@@ -33,8 +33,8 @@ export default function ClusterTabs() {
       <Tabs tabs={[
         {label: "Details", id: "details", content: <ClusterProperties />},
         {label: "Instances", id: "instances", content: <ClusterInstances />},
-        {label: "Filesystems", id: "filesytems", content: <ClusterFilesystems />},
-        {label: "Scheduling", id: "scheduling", content: <ClusterScheduling />},
+        {label: "Storage", id: "storage", content: <ClusterFilesystems />},
+        {label: "Job Scheduling", id: "scheduling", content: <ClusterScheduling />},
         {label: "Stack Events", id: "stack-events", content: <ClusterStackEvents />},
         {label: "Logs", id: "logs", content: <ClusterLogs />}
       ]} />
