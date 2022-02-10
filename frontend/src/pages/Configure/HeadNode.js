@@ -1,5 +1,4 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
 //
 // Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance
 // with the License. A copy of the License is located at
@@ -19,6 +18,7 @@ import { findFirst, getIn } from '../../util'
 import {
   Box,
   ColumnLayout,
+  ExpandableSection,
   FormField,
   Input,
   Select,
@@ -30,7 +30,7 @@ import {
 import { setState, getState, useState, clearState, updateState } from '../../store'
 
 // Components
-import { SubnetSelect, InstanceSelect } from './Components'
+import { SubnetSelect, InstanceSelect, ActionsEditor } from './Components'
 import HelpTooltip from '../../components/HelpTooltip'
 
 // Constants
@@ -52,6 +52,14 @@ function headNodeValidate() {
 
   const instanceTypePath = [...headNodePath, 'InstanceType'];
   const instanceTypeValue = getState(instanceTypePath);
+
+  const actionsPath = [...headNodePath, 'CustomActions'];
+
+  const onStartPath = [...actionsPath, 'OnNodeStart'];
+  const onStart = getState(onStartPath);
+
+  const onConfiguredPath = [...actionsPath, 'OnNodeConfigured'];
+  const onConfigured = getState(onConfiguredPath);
 
   let valid = true;
 
@@ -79,7 +87,24 @@ function headNodeValidate() {
     clearState([...errorsPath, 'rootVolume']);
   }
 
+  if(onStart && getState([...onStartPath, 'Args']) && !getState([...onStartPath, 'Script']))
+  {
+    setState([...errorsPath, 'onStart'], 'You must specify a script path if you specify args.');
+    valid = false;
+  } else {
+    clearState([...errorsPath, 'onStart']);
+  }
+
+  if(onConfigured && getState([...onConfiguredPath, 'Args']) && !getState([...onConfiguredPath, 'Script']))
+  {
+    setState([...errorsPath, 'onConfigured'], 'You must specify a script path if you specify args.');
+    valid = false;
+  } else {
+    clearState([...errorsPath, 'onConfigured']);
+  }
+
   setState([...errorsPath, 'validated'], true);
+
 
   const config = getState(['app', 'wizard', 'config']);
   console.log(config);
@@ -87,8 +112,9 @@ function headNodeValidate() {
   return valid;
 }
 
+
 function KeypairSelect() {
-  const keypairs = useState(['aws', 'keypairs']);
+  const keypairs = useState(['aws', 'keypairs']) || [];
   const keypairPath = [...headNodePath, 'Ssh', 'KeyName']
   const keypair = useState(keypairPath) || "";
   const editing = useState(['app', 'wizard', 'editing']);
@@ -315,6 +341,9 @@ function HeadNode() {
           </HelpTooltip>
         </div>
       </ColumnLayout>
+      <ExpandableSection header="Advanced options">
+        <ActionsEditor basePath={headNodePath} errorsPath={errorsPath}/>
+      </ExpandableSection>
     </SpaceBetween>
   )
 }

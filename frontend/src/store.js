@@ -68,7 +68,8 @@ function rootReducer(state, action) {
       const {path, update} = action.payload
       if(path.length > 1)
         return recurseAction(state, action);
-      const existing = path[0] in state ? {...state[path[0]]} : null
+
+      const existing = path[0] in state ? (Array.isArray(state[path[0]]) ? [...state[path[0]]] : {...state[path[0]]}) : null
       return swapIn(state, path[0], update(existing));
     }
     default:

@@ -32,6 +32,7 @@ import { Create, createValidate, handleCreate as wizardHandleCreate, handleDryRu
 
 // Components
 import { stopComputeFleet } from '../Clusters/ClusterStopDialog'
+import Loading from '../../components/Loading'
 
 // State
 import { setState, useState, getState, clearState } from '../../store'
@@ -47,6 +48,7 @@ export default function WizardDialog(props) {
   const page = useState(['app', 'wizard', 'page']) || 'source';
   const clusterName = useState(['app', 'wizard', 'clusterName']);
   const [ refreshing, setRefreshing ] = React.useState(false);
+  const aws = useState(['aws']);
 
   const clusterPath = ['clusters', 'index', clusterName];
   const fleetStatus = useState([...clusterPath, 'computeFleetStatus']);
@@ -193,13 +195,14 @@ export default function WizardDialog(props) {
           >Configuration &gt; {page.charAt(0).toUpperCase() + page.slice(1)}
             {clusterName && ` (${clusterName})`}</Header>
         }>
+
         <Box className="wizard-container">
           {{"source": <Source />,
-            "cluster": <Cluster />,
-            "headNode": <HeadNode />,
-            "storage": <Storage />,
-            "queues": <Queues />,
-            "create": <Create />,
+            "cluster": aws ? <Cluster /> : <Loading />,
+            "headNode": aws ? <HeadNode /> : <Loading />,
+            "storage": aws ? <Storage /> : <Loading />,
+            "queues": aws ? <Queues /> : <Loading />,
+            "create": aws ? <Create /> : <Loading />,
           }[page]}
         </Box>
       </Modal>
