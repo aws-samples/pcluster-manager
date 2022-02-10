@@ -26,6 +26,7 @@ import {
 import { Source, sourceValidate } from './Source';
 import { Cluster, clusterValidate } from './Cluster';
 import { HeadNode, headNodeValidate } from './HeadNode';
+import { MultiUser, multiUserValidate } from './MultiUser';
 import { Storage, storageValidate } from './Storage';
 import { Queues, queuesValidate } from './Queues'
 import { Create, createValidate, handleCreate as wizardHandleCreate, handleDryRun as wizardHandleDryRun } from './Create'
@@ -49,6 +50,7 @@ export default function WizardDialog(props) {
   const clusterName = useState(['app', 'wizard', 'clusterName']);
   const [ refreshing, setRefreshing ] = React.useState(false);
   const aws = useState(['aws']);
+  let multiUserEnabled = useState(['app', 'wizard', 'multiUser']);
 
   const clusterPath = ['clusters', 'index', clusterName];
   const fleetStatus = useState([...clusterPath, 'computeFleetStatus']);
@@ -76,6 +78,7 @@ export default function WizardDialog(props) {
     source: sourceValidate,
     cluster: clusterValidate,
     headNode: headNodeValidate,
+    multiUser: multiUserValidate,
     storage: storageValidate,
     queues: queuesValidate,
     create: createValidate,
@@ -96,8 +99,11 @@ export default function WizardDialog(props) {
     }
 
     for(let i = 0; i < pages.length; i++)
-      if(pages[i] === currentPage)
+      if(currentPage === 'cluster' && multiUserEnabled)
       {
+        setState(['app', 'wizard', 'page'], 'multiUser');
+        return;
+      } else {
         let nextPage = pages[i + 1];
 
         if(nextPage === "create")
@@ -117,9 +123,15 @@ export default function WizardDialog(props) {
 
     // Special case where the user uploaded a file, hitting "back"
     // goes back to the upload screen rather than through the wizard
-    if(currentPage === "create" && source === "upload")
+    if(currentPage === 'create' && source === 'upload')
     {
-      setState(['app', 'wizard', 'page'], "source");
+      setState(['app', 'wizard', 'page'], 'source');
+      return;
+    }
+
+    if(currentPage === 'multiUser')
+    {
+      setState(['app', 'wizard', 'page'], 'cluster');
       return;
     }
 
@@ -200,6 +212,7 @@ export default function WizardDialog(props) {
           {{"source": <Source />,
             "cluster": aws ? <Cluster /> : <Loading />,
             "headNode": aws ? <HeadNode /> : <Loading />,
+            "multiUser": aws ? <MultiUser /> : <Loading />,
             "storage": aws ? <Storage /> : <Loading />,
             "queues": aws ? <Queues /> : <Loading />,
             "create": aws ? <Create /> : <Loading />,
