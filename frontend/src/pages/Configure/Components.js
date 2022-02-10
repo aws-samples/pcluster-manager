@@ -234,9 +234,9 @@ function CustomAMISettings({basePath, appPath, errorsPath, validate}) {
         <FormField label="Custom AMI ID"
           errorText={error}>
           <Autosuggest
-            onChange={({ detail }) => {setState(customAmiPath, detail.value); validate()}}
+            onChange={({ detail }) => {if(detail.value !== customAmi){setState(customAmiPath, detail.value);}}}
             value={customAmi || ""}
-            enteredTextLabel={value => {setState(customAmiPath, value); validate()}}
+            enteredTextLabel={value => {if(value !== customAmi){setState(customAmiPath, value);}}}
             ariaLabel="Custom AMI Selector"
             placeholder="AMI ID"
             empty="No matches found"
