@@ -15,14 +15,22 @@ import * as React from 'react';
 import { useSelector } from 'react-redux'
 import { findFirst } from '../../util'
 
+// State / Model
+import { setState, getState, useState, updateState, clearState } from '../../store'
+
 // UI Elements
 import {
   Autosuggest,
+  Button,
+  FormField,
+  Input,
+  SpaceBetween,
+  Toggle,
   Select,
 } from "@awsui/components-react";
 
-// State / Model
-import { setState, getState, useState } from '../../store'
+// Components
+import HelpTooltip from '../../components/HelpTooltip'
 
 // Selectors
 const selectVpc = state => getState(state, ['app', 'wizard', 'vpc']);
@@ -54,7 +62,6 @@ function SubnetSelect({value, onChange, disabled}) {
   }
 
   const itemToOption = item => {
-    console.log(item);
     return {value: item.SubnetId, label: item.SubnetId,
     description: item.AvailabilityZone + ` - ${item.AvailabilityZoneId}` + (SubnetName(item) ? ` (${SubnetName(item)})` : "")
   }}
@@ -180,4 +187,164 @@ function InstanceSelect({path, selectId, callback, disabled}) {
   )
 }
 
-export { SubnetSelect, InstanceSelect, LabeledIcon }
+function CustomAMISettings({basePath, appPath, errorsPath, validate}) {
+  const editing = useState(['app', 'wizard', 'editing']);
+  const customImages = useState(['app', 'wizard', 'customImages']) || [];
+  const officialImages = useState(['app', 'wizard', 'officialImages']) || [];
+  const error = useState([...errorsPath, 'customAmi']);
+
+  const customAmiPath = [...basePath, 'Image', 'CustomAmi'];
+  const customAmi = useState(customAmiPath);
+  const customAmiEnabled = useState([...appPath, 'customAMI', 'enabled']) || false;
+
+  const osPath = ['app', 'wizard', 'config', 'Image', 'Os'];
+  const os = useState(osPath) || "alinux2";
+
+  var suggestions = [];
+  for(let image of customImages)
+  {
+    suggestions.push({
+      value: image.ec2AmiInfo.amiId,
+      description: `${image.ec2AmiInfo.amiId} (${image.imageId})`
+    })
+  }
+
+  for(let image of officialImages)
+    if(image.os === os)
+    {
+      suggestions.push({
+        value: image.amiId,
+        description: `${image.amiId} (${image.name})`
+      })
+    }
+
+  const toggleCustomAmi = (event) => {
+    const value = !customAmiEnabled;
+    setState([...appPath, 'customAMI', 'enabled'], value);
+    if(!value)
+      clearState(customAmiPath);
+  }
+  return (
+    <>
+      <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+        <Toggle disabled={editing} checked={customAmiEnabled} onChange={toggleCustomAmi}>Use Custom AMI?</Toggle>
+        <HelpTooltip>Custom AMI's provide a way to customize the cluster. See the <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/pcluster.build-image-v3.html'>Image section</a> of the documentation for more information.</HelpTooltip>
+      </div>
+      {customAmiEnabled &&
+        <FormField label="Custom AMI ID"
+          errorText={error}>
+          <Autosuggest
+            onChange={({ detail }) => {setState(customAmiPath, detail.value); validate()}}
+            value={customAmi || ""}
+            enteredTextLabel={value => {setState(customAmiPath, value); validate()}}
+            ariaLabel="Custom AMI Selector"
+            placeholder="AMI ID"
+            empty="No matches found"
+            options={suggestions}
+          />
+        </FormField>
+      }
+     </>
+  )
+}
+
+function cleanEmptyNest(path, depth){
+  if(depth === 0)
+    return;
+
+  let parentPath = path.slice(0, -1)
+  if(Object.keys(getState(parentPath)).length === 0)
+  {
+    clearState(parentPath);
+    cleanEmptyNest(parentPath, depth - 1)
+  }
+}
+
+function ArgEditor({path, i}) {
+  const args = useState(path);
+  const arg = useState([...path, i]);
+  const remove = () => {
+    if(args.length > 1)
+      setState([...path], [...args.slice(0, i), ...args.slice(i + 1)]);
+    else
+      clearState(path);
+
+    cleanEmptyNest(path, 3);
+  }
+  return <div>
+    <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
+      <span>Arg {i}: </span>
+      <Input value={arg} onChange={({detail}) => {setState([...path, i], detail.value)}} />
+      <Button onClick={remove}>Remove</Button>
+    </div>
+  </div>;
+}
+
+function ActionsEditor({basePath, errorsPath}) {
+  const actionsPath = [...basePath, 'CustomActions'];
+  const onStartPath = [...actionsPath, 'OnNodeStart'];
+  const onConfiguredPath = [...actionsPath, 'OnNodeConfigured'];
+
+  const onStart = useState([...onStartPath, 'Script']) || '';
+  const onStartArgs = useState([...onStartPath, 'Args']) || [];
+  const onStartErrors = useState([...errorsPath, 'onStart']);
+
+  const onConfigured = useState([...onConfiguredPath, 'Script']) || '';
+  const onConfiguredArgs = useState([...onConfiguredPath, 'Args']) || [];
+  const onConfiguredErrors = useState([...errorsPath, 'onConfigured']);
+
+  const addArg = (path) => {
+    updateState(path, (old) => [...(old || []), '']);
+  }
+
+  const editScript = (path, val) => {
+    if(val !== '')
+      setState(path, val);
+    else
+      clearState(path);
+    cleanEmptyNest(path, 3);
+  }
+
+  return <>
+    <SpaceBetween direction="vertical" size="xs">
+      <FormField label="On Start" errorText={onStartErrors}>
+        <SpaceBetween direction="vertical" size="xs">
+          <div key="on-configured" style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
+            <div style={{flexGrow: 1}}>
+              <Input
+                placeholder="/home/ec2-user/start.sh"
+                value={onStart}
+                onChange={({detail}) => editScript([...onStartPath, 'Script'], detail.value)} />
+            </div>
+            <div style={{flexShrink: 1}}>
+              <Button onClick={() => addArg([...onStartPath, 'Args'])}>+ Arg</Button>
+            </div>
+          </div>
+          <SpaceBetween direction="vertical" size="xxs">
+            {onStartArgs.map((a, i) => <ArgEditor key={`osa${i}`}arg={a} i={i} path={[...onStartPath, 'Args']} />)}
+          </SpaceBetween>
+        </SpaceBetween>
+      </FormField>
+      <FormField label="On Configured" errorText={onConfiguredErrors}>
+        <SpaceBetween direction="vertical" size="xs">
+          <div key="on-start" style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
+            <div style={{flexGrow: 1}}>
+              <Input
+                placeholder="/home/ec2-user/start.sh"
+                value={onConfigured}
+                onChange={({detail}) => {editScript([...onConfiguredPath, 'Script'], detail.value)}} />
+            </div>
+            <div style={{flexShrink: 1}}>
+              <Button onClick={() => addArg([...onConfiguredPath, 'Args'])}>+ Arg</Button>
+            </div>
+          </div>
+          <SpaceBetween direction="vertical" size="xxs">
+            {onConfiguredArgs.map((a, i) => <ArgEditor key={`oca${i}`} arg={a} i={i} path={[...onConfiguredPath, 'Args']} />)}
+          </SpaceBetween>
+        </SpaceBetween>
+      </FormField>
+    </SpaceBetween>
+  </>
+}
+
+export { SubnetSelect, InstanceSelect, LabeledIcon, ActionsEditor, CustomAMISettings }

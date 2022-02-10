@@ -51,7 +51,7 @@ function updateIn(state, path, update) {
     const updated = updateIn(subState, path.slice(1), update);
     return swapIn(state, path[0], updated);
   }
-  const existing = path[0] in state ? {...state[path[0]]} : null
+  const existing = path[0] in state ? (Array.isArray(state[path[0]]) ? [...state[path[0]]] : {...state[path[0]]}) : null
   return swapIn(state, path[0], update(existing));
 }
 

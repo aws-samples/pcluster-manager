@@ -17,13 +17,11 @@ import { findFirst, getIn } from '../../util'
 
 // UI Elements
 import {
-  Autosuggest,
   ColumnLayout,
   FormField,
   Header,
   Select,
   SpaceBetween,
-  Toggle,
 } from "@awsui/components-react";
 
 // State / Model
@@ -31,8 +29,7 @@ import { getState, setState, useState, clearState } from '../../store'
 import { LoadAwsConfig } from '../../model'
 
 // Components
-import HelpTooltip from '../../components/HelpTooltip'
-import { LabeledIcon } from './Components'
+import { LabeledIcon, CustomAMISettings } from './Components'
 
 // Constants
 const errorsPath = ['app', 'wizard', 'errors', 'cluster'];
@@ -187,66 +184,6 @@ function OsSelect() {
   );
 }
 
-function CustomAMISettings() {
-  const editing = useState(['app', 'wizard', 'editing']);
-  const customImages = useState(['app', 'wizard', 'customImages']) || [];
-  const officialImages = useState(['app', 'wizard', 'officialImages']) || [];
-  const error = useState([...errorsPath, 'customAmi']);
-
-  const customAmiPath = ['app', 'wizard', 'config', 'Image', 'CustomAmi'];
-  const customAmi = useState(customAmiPath);
-  const customAmiEnabled = useState(['app', 'wizard', 'customAMI', 'enabled']) || false;
-
-  const osPath = ['app', 'wizard', 'config', 'Image', 'Os'];
-  const os = useState(osPath) || "alinux2";
-
-  var suggestions = [];
-  for(let image of customImages)
-  {
-    suggestions.push({
-      value: image.ec2AmiInfo.amiId,
-      description: `${image.ec2AmiInfo.amiId} (${image.imageId})`
-    })
-  }
-
-  for(let image of officialImages)
-    if(image.os === os)
-    {
-      suggestions.push({
-        value: image.amiId,
-        description: `${image.amiId} (${image.name})`
-      })
-    }
-
-  const toggleCustomAmi = (event) => {
-    const value = !customAmiEnabled;
-    setState(['app', 'wizard', 'customAMI', 'enabled'], value);
-    if(!value)
-      clearState(customAmiPath);
-  }
-  return (
-    <>
-      <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
-        <Toggle disabled={editing} checked={customAmiEnabled} onChange={toggleCustomAmi}>Use Custom AMI?</Toggle>
-        <HelpTooltip>Custom AMI's provide a way to customize the cluster. See the <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/pcluster.build-image-v3.html'>Image section</a> of the documentation for more information.</HelpTooltip>
-      </div>
-      {customAmiEnabled &&
-        <FormField label="Custom AMI ID"
-          errorText={error}>
-          <Autosuggest
-            onChange={({ detail }) => {setState(customAmiPath, detail.value); clusterValidate()}}
-            value={customAmi || ""}
-            enteredTextLabel={value => {setState(customAmiPath, value); clusterValidate()}}
-            ariaLabel="Custom AMI Selector"
-            placeholder="AMI ID"
-            empty="No matches found"
-            options={suggestions}
-          />
-        </FormField>
-      }
-     </>
-  )
-}
 
 function VpcSelect() {
   const vpcs = useState(['aws', 'vpcs']);
@@ -311,7 +248,8 @@ function VpcSelect() {
 }
 
 function Cluster() {
-  let config = useState(['app', 'wizard', 'config']);
+  const configPath = ['app', 'wizard', 'config'];
+  let config = useState(configPath);
   let clusterConfig = useState(['app', 'wizard', 'clusterConfigYaml']) || "";
   let wizardLoaded = useState(['app', 'wizard', 'loaded']);
   let awsConfig = useState(['aws']);
@@ -319,6 +257,7 @@ function Cluster() {
   const region = useState(['app', 'selectedRegion']) || defaultRegion;
 
   React.useEffect(() => {
+    const configPath = ['app', 'wizard', 'config'];
     // Don't overwrite the config if we go back, still gets overwritten
     // after going forward so need to consider better way of handling this
     if(clusterConfig)
@@ -331,11 +270,11 @@ function Cluster() {
       {
         const customAMIEnabled = getIn(config, ['Image', 'CustomAmi']) ? true : false;
         setState(['app', 'wizard', 'customAMI', 'enabled'], customAMIEnabled);
-        setState(['app', 'wizard', 'config', 'HeadNode', 'InstanceType'], 't2.micro');
-        setState(['app', 'wizard', 'config', 'Scheduling', 'Scheduler'], 'slurm');
-        setState(['app', 'wizard', 'config', 'Region'], region);
-        setState(['app', 'wizard', 'config', 'Image', 'Os'], 'alinux2');
-        setState(['app', 'wizard', 'config', 'Scheduling', 'SlurmQueues'], [{Name: 'queue0', ComputeResources: [{Name: "queue0-t2-micro", MinCount: 0, MaxCount: 4, InstanceType: 't2.micro'}]}]);
+        setState([...configPath, 'HeadNode', 'InstanceType'], 't2.micro');
+        setState([...configPath, 'Scheduling', 'Scheduler'], 'slurm');
+        setState([...configPath, 'Region'], region);
+        setState([...configPath, 'Image', 'Os'], 'alinux2');
+        setState([...configPath, 'Scheduling', 'SlurmQueues'], [{Name: 'queue0', ComputeResources: [{Name: "queue0-t2-micro", MinCount: 0, MaxCount: 4, InstanceType: 't2.micro'}]}]);
       }
     }
 
@@ -344,7 +283,7 @@ function Cluster() {
     {
       const keypairs = getState(['aws', 'keypairs']) || []
       const keypairNames = new Set(keypairs.map((kp) => kp.KeyName));
-      const headNodeKPPath = ['app', 'wizard', 'config', 'HeadNode', 'Ssh', 'KeyName'];
+      const headNodeKPPath = [...configPath, 'HeadNode', 'Ssh', 'KeyName'];
       if(keypairs.length > 0 && !keypairNames.has(getState(headNodeKPPath)))
       {
         setState(headNodeKPPath, awsConfig.keypairs[0].KeyName);
@@ -359,7 +298,7 @@ function Cluster() {
           <SchedulerSelect />
           <OsSelect />
           <VpcSelect />
-          <CustomAMISettings />
+          <CustomAMISettings basePath={configPath} appPath={['app', 'wizard']} errorsPath={errorsPath} validate={clusterValidate}/>
         </ColumnLayout>
       </SpaceBetween>
   )

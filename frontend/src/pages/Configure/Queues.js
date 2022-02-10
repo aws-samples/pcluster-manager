@@ -18,6 +18,7 @@ import {
   Box,
   Container,
   ColumnLayout,
+  ExpandableSection,
   FormField,
   Header,
   Input,
@@ -30,7 +31,7 @@ import {
 import { setState, getState, useState, clearState } from '../../store'
 
 // Components
-import { SubnetSelect, InstanceSelect, LabeledIcon } from './Components'
+import { SubnetSelect, InstanceSelect, LabeledIcon, ActionsEditor, CustomAMISettings } from './Components'
 import HelpTooltip from '../../components/HelpTooltip'
 
 // Constants
@@ -51,12 +52,49 @@ function queueValidate(queueIndex) {
   const queueSubnet = getState([...queuesPath, queueIndex, 'Networking', 'SubnetIds', 0]);
   const computeResources = getState([...queuesPath, queueIndex, 'ComputeResources'])
 
-  if(!queueSubnet)
+  const errorsPath = [...queuesErrorsPath, queueIndex]
+
+  const actionsPath = [...queuesPath, queueIndex, 'CustomActions'];
+
+  const onStartPath = [...actionsPath, 'OnNodeStart'];
+  const onStart = getState(onStartPath);
+
+  const onConfiguredPath = [...actionsPath, 'OnNodeConfigured'];
+  const onConfigured = getState(onConfiguredPath);
+
+  const customAmiEnabled = getState(['app', 'wizard', 'queues', queueIndex, 'customAMI', 'enabled']);
+  const customAmi = getState([...queuesPath, queueIndex, 'Image', 'CustomAmi']);
+
+  if(onStart && getState([...onStartPath, 'Args']) && !getState([...onStartPath, 'Script']))
   {
-    setState([...queuesErrorsPath, queueIndex, 'subnet'], "You must select a subnet.");
+    setState([...errorsPath, 'onStart'], 'You must specify a script path if you specify args.');
     valid = false;
   } else {
-    setState([...queuesErrorsPath, queueIndex, 'subnet'], null);
+    clearState([...errorsPath, 'onStart']);
+  }
+
+  if(onConfigured && getState([...onConfiguredPath, 'Args']) && !getState([...onConfiguredPath, 'Script']))
+  {
+    setState([...errorsPath, 'onConfigured'], 'You must specify a script path if you specify args.');
+    valid = false;
+  } else {
+    clearState([...errorsPath, 'onConfigured']);
+  }
+
+  if(customAmiEnabled && !customAmi)
+  {
+    setState([...errorsPath, 'customAmi'], 'You must select an AMI ID if you enable Custom AMI.');
+    valid = false;
+  } else {
+    clearState([...errorsPath, 'customAmi']);
+  }
+
+  if(!queueSubnet)
+  {
+    setState([...errorsPath, 'subnet'], "You must select a subnet.");
+    valid = false;
+  } else {
+    setState([...errorsPath, 'subnet'], null);
   }
 
   let seenInstances = new Set();
@@ -65,11 +103,11 @@ function queueValidate(queueIndex) {
     let computeResource = computeResources[i];
     if(seenInstances.has(computeResource.InstanceType))
     {
-      setState([...queuesErrorsPath, queueIndex, 'computeResource', i, 'type'], "Instance types must be unique within a Queue.");
+      setState([...errorsPath, 'computeResource', i, 'type'], "Instance types must be unique within a Queue.");
       valid = false;
     } else {
       seenInstances.add(computeResource.InstanceType);
-      setState([...queuesErrorsPath, queueIndex, 'computeResource', i, 'type'], null);
+      setState([...errorsPath, 'computeResource', i, 'type'], null);
     }
   }
 
@@ -93,14 +131,13 @@ function queuesValidate() {
   return valid;
 }
 
-
-
 function ComputeResource({index, queueIndex, computeResource}) {
   const parentPath = [...queuesPath, queueIndex];
   const queue = useState(parentPath);
   const computeResources = useState([...parentPath, 'ComputeResources']);
   const path = [...parentPath, 'ComputeResources', index];
-  const typeError = useState([...queuesErrorsPath, queueIndex, 'computeResource', index, 'type']);
+  const errorsPath = [...queuesErrorsPath, queueIndex, 'computeResource', index];
+  const typeError = useState([...errorsPath, 'type']);
 
   const tInstances = new Set(["t2.micro", "t2.medium"]);
   const gravitonInstances = new Set([]);
@@ -233,7 +270,8 @@ function Queue({index}) {
   const enablePlacementGroupPath = [...queuesPath, index, 'Networking', 'PlacementGroup', 'Enabled'];
   const enablePlacementGroup = useState(enablePlacementGroupPath);
 
-  const subnetError = useState([...queuesErrorsPath, index, 'subnet']);
+  const errorsPath = [...queuesErrorsPath, index];
+  const subnetError = useState([...errorsPath, 'subnet']);
 
   const capacityTypes = [
     ["ONDEMAND", "On-Demand", "/img/od.svg"],
@@ -277,21 +315,21 @@ function Queue({index}) {
     <div className="queue">
       <div className="queue-properties">
         <Box margin={{bottom: "xs"}} >
-        <Header variant="h4"
-          actions={<SpaceBetween direction="horizontal" size="xs">
-            <Button disabled={queue.ComputeResources.length >= 3} onClick={addComputeResource}>Add Resource</Button>
-            {index > 0 && <Button onClick={remove}>Remove Queue</Button>}
-          </SpaceBetween>}>
-          <SpaceBetween direction="horizontal" size="xs" style={{alignItems: "center"}}>
-          { editingName ?
-              <Input
-                value={queue.Name}
-                onKeyDown={(e) => {if(e.detail.key === 'Enter' || e.detail.key === 'Escape'){setEditingName(false); e.stopPropagation()}}}
-                onChange={({detail}) => renameQueue(detail.value)} />
-                : <span>Queue: {queue.Name} <Button variant="icon" onClick={(e) => setEditingName(true)} iconName={"edit"} ></Button></span>
-          }
-          </SpaceBetween>
-        </Header>
+          <Header variant="h4"
+            actions={<SpaceBetween direction="horizontal" size="xs">
+              <Button disabled={queue.ComputeResources.length >= 3} onClick={addComputeResource}>Add Resource</Button>
+              {index > 0 && <Button onClick={remove}>Remove Queue</Button>}
+            </SpaceBetween>}>
+            <SpaceBetween direction="horizontal" size="xs" style={{alignItems: "center"}}>
+              { editingName ?
+                <Input
+                  value={queue.Name}
+                  onKeyDown={(e) => {if(e.detail.key === 'Enter' || e.detail.key === 'Escape'){setEditingName(false); e.stopPropagation()}}}
+                  onChange={({detail}) => renameQueue(detail.value)} />
+                  : <span>Queue: {queue.Name} <Button variant="icon" onClick={(e) => setEditingName(true)} iconName={"edit"} ></Button></span>
+              }
+            </SpaceBetween>
+          </Header>
         </Box>
         <ColumnLayout columns={2}>
           <FormField label="Subnet ID" errorText={subnetError}>
@@ -306,8 +344,12 @@ function Queue({index}) {
           <Toggle checked={enablePlacementGroup} onChange={(event) => {setEnablePG(!enablePlacementGroup)}}>Enable Placement Group</Toggle>
           <div className="spacer">
           </div>
-      </ColumnLayout>
-      <ComputeResources queue={queue} index={index }/>
+        </ColumnLayout>
+        <ComputeResources queue={queue} index={index}/>
+        <ExpandableSection header="Advanced options">
+          <ActionsEditor basePath={[...queuesPath, index]} errorsPath={errorsPath}/>
+          <CustomAMISettings basePath={[...queuesPath, index]} appPath={['app', 'wizard', 'queues', index]} errorsPath={errorsPath} validate={queuesValidate}/>
+        </ExpandableSection>
       </div>
     </div>
   );
