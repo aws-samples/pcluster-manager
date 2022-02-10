@@ -64,8 +64,6 @@ function HelpTextInput({name, configKey, description, help, placeholder})
   let value = useState([...dsPath, configKey]);
   let error = useState([...errorsPath, configKey]);
 
-  console.log("checking: ", [...errorsPath, configKey], error);
-
   return <FormField
     label={name}
     errorText={error}
@@ -148,7 +146,7 @@ function AdditionalSssdOptions() {
         </div>
       </FormField>
       <SpaceBetween direction="vertical" size="xs">
-        {Object.keys(additionalSssdConfigs).map((key, index) => <div style={{display: "flex", flexDirection: "row", gap: "16px", alignItems: "center"}}><div>{key}: {additionalSssdConfigs[key]}</div><Button onClick={() => removeConfig(key)}>Remove</Button></div>)}
+        {Object.keys(additionalSssdConfigs).map((key, index) => <div style={{display: "flex", flexDirection: "row", gap: "16px", alignItems: "center"}}><div>{key}: {String(additionalSssdConfigs[key])}</div><Button onClick={() => removeConfig(key)}>Remove</Button></div>)}
       </SpaceBetween>
     </SpaceBetween>
   </>
