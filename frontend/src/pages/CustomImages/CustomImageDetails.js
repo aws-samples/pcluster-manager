@@ -70,10 +70,12 @@ function CustomImageProperties() {
             <DateView date={image.creationTime} />
           </ValueWithLabel>
           <ValueWithLabel label="architecture">
-            {image.ec2AmiInfo.architecture}
+            {image.ec2AmiInfo && image.ec2AmiInfo.architecture}
+            {!image.ec2AmiInfo && "Loading..."}
           </ValueWithLabel>
           <ValueWithLabel label="state">
-            {image.ec2AmiInfo.state}
+            {image.ec2AmiInfo && image.ec2AmiInfo.state}
+            {!image.ec2AmiInfo && "Loading..."}
           </ValueWithLabel>
         </SpaceBetween>
         <SpaceBetween size="l">
@@ -86,8 +88,9 @@ function CustomImageProperties() {
           <ValueWithLabel label="amiId">
             <SpaceBetween size="s" direction="horizontal">
               <div>
-                {image.ec2AmiInfo.amiId}
+                {image.ec2AmiInfo && image.ec2AmiInfo.amiId}
               </div>
+              {image.ec2AmiInfo && 
               <Popover
                 size="medium"
                 position="top"
@@ -102,6 +105,8 @@ function CustomImageProperties() {
                   }}
                 >copy</Button>
               </Popover>
+              }
+              {!image.ec2AmiInfo && "Loading..."}
             </SpaceBetween>
           </ValueWithLabel>
           </SpaceBetween>
@@ -132,7 +137,7 @@ export default function CustomImageDetails() {
           <table>
             <thead><tr><th>Key</th><th>Value</th></tr></thead>
             <tbody>
-              {image.ec2AmiInfo.tags.map((tag, i) => <tr key={i.toString() + tag.key}><td>{tag.key}</td><td>{tag.value}</td></tr>)}
+              {image.ec2AmiInfo && image.ec2AmiInfo.tags.map((tag, i) => <tr key={i.toString() + tag.key}><td>{tag.key}</td><td>{tag.value}</td></tr>)}
             </tbody>
           </table>
           : <Loading />
@@ -147,11 +152,11 @@ export default function CustomImageDetails() {
         id: "stack-events",
         content: <CustomImageStackEvents imageId={selected} />
       },
-      {
-        label: "Logs",
-        id: "logs",
-        content: <CustomImageLogs imageId={selected} />
-      }
+      // {
+      //   label: "Logs",
+      //   id: "logs",
+      //   content: <CustomImageLogs imageId={selected} />
+      // }
     ]} />
   );
 }
