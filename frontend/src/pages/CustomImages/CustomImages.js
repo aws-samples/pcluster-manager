@@ -100,6 +100,11 @@ function CustomImagesList(props) {
           sortingField: "imageId"
         },
         {
+          id: "ami-id",
+          header: "AMI ID",
+          cell: item => item.ec2AmiInfo ? item.ec2AmiInfo.amiId : "",
+        },
+        {
           id: "status",
           header: "Status",
           cell: item => item.imageBuildStatus || "-",
