@@ -48,10 +48,12 @@ def lambda_handler(event: Dict[str, Any], context: LambdaContext) -> Dict[str, A
         if not pcluster_manager_api:
             logger.info("Initializing Flask Application")
             pcluster_manager_api = _init_flask_app()
+            # X-Ray doesn't work in GovCloud per https://docs.aws.amazon.com/govcloud-us/latest/UserGuide/govcloud-xray.html
+            # as of 2022.02.11 - cg3
             # Instrument X-Ray recorder to trace requests served by the Flask application
-            if event.get("version") == "2.0":
-                xray_recorder.configure(service="PclusterManager Flask App")
-                XRayMiddleware(pcluster_manager_api, xray_recorder)
+            # if event.get("version") == "2.0":
+            #    xray_recorder.configure(service="PclusterManager Flask App")
+            #    XRayMiddleware(pcluster_manager_api, xray_recorder)
         # Setting default region to region where lambda function is executed
         os.environ["AWS_DEFAULT_REGION"] = os.environ["AWS_REGION"]
         return handle_request(pcluster_manager_api, event, context)
