@@ -6,13 +6,13 @@ Parameters:
   PublicEcrImageUri:
     Description: When specified, the URI of the Docker image for the Lambda of the PclusterManager container
     Type: String
-    Default: public.ecr.aws/n0x0o5k1/pcluster-manager-awslambda:latest
+    Default: public.ecr.aws/n0x0o5k1/pcluster-manager:latest
 
 Mappings:
   PclusterManager:
     Constants:
-      Version: 3.0.2
-      ShortVersion: 3.0.2
+      Version: 3.1.1
+      ShortVersion: 3.1.1
 
 Resources:
 
@@ -163,6 +163,7 @@ Resources:
       LayerName: botolayer
       Packages:
         - boto3>=1.20.44
+        - docker
 
   PclusterManagerEcrPullThroughFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -196,9 +197,10 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - ecr:CreatePullThroughCacheRule
-                  - ecr:DeletePullThroughCacheRule
-                  - ecr:BatchGetImage
+                  # - ecr:CreatePullThroughCacheRule
+                  # - ecr:DeletePullThroughCacheRule
+                  # - ecr:BatchGetImage
+                  - ecr:*
                 Resource:
                   - "*"
         - PolicyName: BatchDeletePolicy
@@ -218,7 +220,7 @@ Resources:
       TracingConfig:
         Mode: Active
       MemorySize: 256
-      Timeout: 600
+      Timeout: 60
       Code:
         ZipFile: |
           import cfnresponse
@@ -230,6 +232,8 @@ Resources:
           import time
           logger = logging.getLogger()
           logger.setLevel(logging.INFO)
+
+          import docker
 
           ecr = boto3.client('ecr')
 
@@ -257,7 +261,11 @@ Resources:
               prefix = properties['StackId'].split('/')[-1].split('-')[0]
               version = properties['Version']
 
-              repository_name = f"{prefix}/{public_repo}/pcluster-manager-awslambda"
+              account_id = properties['AccountId']
+              region = properties['Region']
+              url_suffix = properties['UrlSuffix']
+
+              repository_name = f"{prefix}/{public_repo}/pcluster-manager"
               response_data['PrivateRepository'] = repository_name
 
               ecr.create_pull_through_cache_rule(
@@ -265,17 +273,20 @@ Resources:
                   upstreamRegistryUrl=upstream_url,
                   registryId=registry_id)
 
-              retrieved = False
-              while not retrieved:
-                try:
-                  ecr.batch_get_image(
-                      repositoryName=repository_name,
-                      imageIds=[{'imageTag':version}])
-                  retrieved = True
-                except ecr.exceptions.RepositoryNotFoundException:
-                  time.sleep(15)
-                except Exception as e:
-                  print(str(e))
+
+              # pull the image so that it is available to the lambda function
+              full_repo = f"{account_id}.dkr.ecr.{region}.{url_suffix}/{repository_name}:{version}"
+              print(full_repo)
+
+              #token = ecr.get_authorization_token(registryIds=[registry_id])
+
+              #username = 'AWS'
+              #password = token['authorizationData'][0]['authorizationToken']
+              #registry = token['authorizationData'][0]['proxyEndpoint']
+
+              #docker_client = docker.from_env()
+              #docker_client.login(username, password, registry=registry)
+              #docker_client.images.pull(full_repo)
 
               return physical_resource_id, response_data
 
@@ -358,6 +369,8 @@ Resources:
     Type: Custom::PclusterManagerEcrPullThroughCache
     Properties:
       ServiceToken: !GetAtt PclusterManagerEcrPullThroughFunction.Arn
+      Region: !Ref 'AWS::Region'
+      UrlSuffix: !Ref 'AWS::URLSuffix'
       AccountId: !Ref 'AWS::AccountId'
       StackId: !Ref 'AWS::StackId'
       PublicEcrImageUri: !Ref PublicEcrImageUri
