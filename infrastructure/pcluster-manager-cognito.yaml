@@ -17,6 +17,10 @@ Parameters:
     Type: String
     Default: user@amazon.com
 
+
+Conditions:
+  GovCloud: !Equals [!Ref AWS::Region, 'us-gov-west-1']
+
 Resources:
 
   UserPoolClientSecret:
@@ -164,8 +168,8 @@ Outputs:
   UserPoolAuthDomain:
     Description: The domain of the authorization server.
     Value: !Sub
-      - https://${Domain}.auth.${AWS::Region}.amazoncognito.com
-      - { Domain: !Ref UserPoolDomain }
+      - https://${Domain}.${Auth}.${AWS::Region}.amazoncognito.com
+      - {Domain: !Ref UserPoolDomain, Auth: !If [GovCloud, 'auth-fips', 'auth']}
 
   UserPoolId:
     Description: Cognito UserPool Id
