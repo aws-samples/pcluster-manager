@@ -112,46 +112,6 @@ function headNodeValidate() {
   return valid;
 }
 
-
-function KeypairSelect() {
-  const keypairs = useState(['aws', 'keypairs']) || [];
-  const keypairPath = [...headNodePath, 'Ssh', 'KeyName']
-  const keypair = useState(keypairPath) || "";
-  const editing = useState(['app', 'wizard', 'editing']);
-  const keypairToOption = kp => {
-    if(kp === 'None' || kp === null || kp === undefined)
-      return {label: "None", value: null}
-    else
-      return {label: kp.KeyName, value: kp.KeyName}
-  }
-
-  const keypairsWithNone = ['None', ...keypairs]
-
-  const setKeyPair = (kpValue) => {
-    if(kpValue)
-      setState(keypairPath, kpValue);
-    else
-      clearState([...headNodePath, 'Ssh']);
-  }
-
-  return (<FormField
-    label="Keypair"
-    description="Keypair used to connect to HeadNode via SSH. If you don't specify an SSH keypair you can still connect to the cluster using SSM, make sure to turn on 'Remote Console' in order to do so.">
-    <Select
-      disabled={editing}
-      selectedOption={keypairToOption(findFirst(keypairs, x => {return x.KeyName === keypair}))}
-      onChange={({detail}) => {setKeyPair(detail.selectedOption.value);}}
-      selectedAriaLabel="Selected"
-      options={keypairsWithNone.map(keypairToOption)}
-    />
-  </FormField>);
-}
-
-const ssmPolicy = 'arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore';
-function isSsmPolicy(p) {
-  return p.hasOwnProperty('Policy') && p.Policy === ssmPolicy;
-}
-
 function enableSsm(enable) {
   const iamPolicies = getState([...headNodePath, 'Iam', 'AdditionalIamPolicies']);
   if(enable) {
@@ -172,6 +132,49 @@ function enableSsm(enable) {
     }
   }
 }
+
+function KeypairSelect() {
+  const keypairs = useState(['aws', 'keypairs']) || [];
+  const keypairPath = [...headNodePath, 'Ssh', 'KeyName']
+  const keypair = useState(keypairPath) || "";
+  const editing = useState(['app', 'wizard', 'editing']);
+  const keypairToOption = kp => {
+    if(kp === 'None' || kp === null || kp === undefined)
+      return {label: "None", value: null}
+    else
+      return {label: kp.KeyName, value: kp.KeyName}
+  }
+
+  const keypairsWithNone = ['None', ...keypairs]
+
+  const setKeyPair = (kpValue) => {
+    if(kpValue)
+      setState(keypairPath, kpValue);
+    else
+    {
+      clearState([...headNodePath, 'Ssh']);
+      enableSsm(true);
+    }
+  }
+
+  return (<FormField
+    label="Keypair"
+    description="Keypair used to connect to HeadNode via SSH. If you don't specify an SSH keypair you can still connect to the cluster using SSM, make sure to turn on 'Remote Console' in order to do so.">
+    <Select
+      disabled={editing}
+      selectedOption={keypairToOption(findFirst(keypairs, x => {return x.KeyName === keypair}))}
+      onChange={({detail}) => {setKeyPair(detail.selectedOption.value);}}
+      selectedAriaLabel="Selected"
+      options={keypairsWithNone.map(keypairToOption)}
+    />
+  </FormField>);
+}
+
+const ssmPolicy = 'arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore';
+function isSsmPolicy(p) {
+  return p.hasOwnProperty('Policy') && p.Policy === ssmPolicy;
+}
+
 
 function SsmSettings() {
   const dcvEnabled = useState([...headNodePath, 'Dcv', 'Enabled']) || false;
