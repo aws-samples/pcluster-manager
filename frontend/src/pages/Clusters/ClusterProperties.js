@@ -29,6 +29,7 @@ import {
 // Components
 import DateView from '../../components/DateView'
 import Status from '../../components/Status'
+import HelpTooltip from '../../components/HelpTooltip'
 
 // Key:Value pair (label / children)
 const ValueWithLabel = ({ label, children }) => (
@@ -146,6 +147,9 @@ export default function ClusterProperties () {
                   onClick={() => {navigator.clipboard.writeText(`mssh -r ${cluster.region} ${clusterDefaultUser(cluster)}@${headNode.instanceId}`)}}
                 >copy</Button>
               </Popover>
+              <HelpTooltip>
+                This copies the command to connect to the instances using mSSH. See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-connect-set-up.html'>EC2 Instance Connect</a> documentation for more information.
+              </HelpTooltip>
             </Box>
           </ValueWithLabel>
           }
