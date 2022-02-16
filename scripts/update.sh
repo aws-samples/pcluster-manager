@@ -6,7 +6,7 @@ if [ -z "$1" ]; then
 else
     REGION=$1
 fi
-LAMBDA_ARN=$(aws lambda list-functions --query "Functions[?contains(FunctionName, 'PclusterManagerFunction')] | [0].FunctionArn" --output text)
+LAMBDA_ARN=$(aws lambda list-functions --query "Functions[?contains(FunctionName, 'PclusterManagerFunction')] | [0].FunctionArn" | xargs echo)
 ECR_REPO=pcluster-manager-awslambda
 
 PUBLIC_ECR_ENDPOINT="public.ecr.aws/n0x0o5k1"
