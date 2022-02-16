@@ -136,7 +136,7 @@ function KeypairSelect() {
 
   return (<FormField
     label="Keypair"
-    description="Keypair used to connect to HeadNode via SSH.">
+    description="Keypair used to connect to HeadNode via SSH. If you don't specify an SSH keypair you can still connect to the cluster using SSM, make sure to turn on 'Remote Console' in order to do so.">
     <Select
       disabled={editing}
       selectedOption={keypairToOption(findFirst(keypairs, x => {return x.KeyName === keypair}))}
