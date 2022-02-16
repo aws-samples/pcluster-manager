@@ -133,7 +133,7 @@ export default function ClusterProperties () {
           <ValueWithLabel label="region">{cluster.region}</ValueWithLabel>
           <ValueWithLabel label="version">{cluster.version}</ValueWithLabel>
           {headNode && headNode.publicIpAddress && headNode.publicIpAddress !== "" && ssmEnabled &&
-          <ValueWithLabel label="mSSH Command">
+          <ValueWithLabel label="EC2 Instance Connect">
             <Box margin={{ right: 'xxs' }} display="inline-block">
               <Popover
                 size="small"
@@ -148,7 +148,7 @@ export default function ClusterProperties () {
                 >copy</Button>
               </Popover>
               <HelpTooltip>
-                This copies the command to connect to the instances using mSSH. See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-connect-set-up.html'>EC2 Instance Connect</a> documentation for more information.
+                This copies the command to connect to the HeadNode using <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-connect-set-up.html'>EC2 Instance Connect</a>. You will need to <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-connect-set-up.html'>install mSSH helper</a> locally before running this command.
               </HelpTooltip>
             </Box>
           </ValueWithLabel>
