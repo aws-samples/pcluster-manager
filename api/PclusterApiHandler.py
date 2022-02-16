@@ -497,6 +497,9 @@ class PclusterApiHandler(Resource):
         return response.json(), response.status_code
 
     def post(self):
+        auth_response = authenticate("admin")
+        if auth_response:
+            abort(401)
         parser = reqparse.RequestParser()
         parser.add_argument("path", type=str)
         args = parser.parse_args()
@@ -504,6 +507,9 @@ class PclusterApiHandler(Resource):
         return resp.json(), resp.status_code
 
     def put(self):
+        auth_response = authenticate("admin")
+        if auth_response:
+            abort(401)
         parser = reqparse.RequestParser()
         parser.add_argument("path", type=str)
         args = parser.parse_args()
@@ -511,6 +517,9 @@ class PclusterApiHandler(Resource):
         return resp.json(), resp.status_code
 
     def delete(self):
+        auth_response = authenticate("admin")
+        if auth_response:
+            abort(401)
         parser = reqparse.RequestParser()
         parser.add_argument("path", type=str)
         args = parser.parse_args()
@@ -518,6 +527,9 @@ class PclusterApiHandler(Resource):
         return resp.json(), resp.status_code
 
     def patch(self):
+        auth_response = authenticate("admin")
+        if auth_response:
+            abort(401)
         parser = reqparse.RequestParser()
         parser.add_argument("path", type=str)
         args = parser.parse_args()
