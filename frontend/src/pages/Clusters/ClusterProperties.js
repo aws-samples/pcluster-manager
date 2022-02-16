@@ -10,6 +10,7 @@
 // limitations under the License.
 import React from 'react';
 
+import { findFirst, clusterDefaultUser } from '../../util'
 import { getState, useState } from '../../store'
 import { GetConfiguration, DescribeCluster } from '../../model'
 
@@ -59,6 +60,15 @@ export default function ClusterProperties () {
 
   const clusterName = useState(['app', 'clusters', 'selected']);
   const cluster = useState(['clusters', 'index', clusterName]);
+  const clusterPath = ['clusters', 'index', clusterName];
+  const headNode = useState([...clusterPath, 'headNode']);
+
+  const ssmPolicy = 'arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore';
+  function isSsmPolicy(p) {
+    return p.hasOwnProperty('Policy') && p.Policy === ssmPolicy;
+  }
+  const iamPolicies = useState([...clusterPath, 'config', 'HeadNode', 'Iam', 'AdditionalIamPolicies']);
+  const ssmEnabled = iamPolicies && findFirst(iamPolicies, isSsmPolicy);
 
   React.useEffect(() => {
     const tick = () => {
@@ -89,7 +99,7 @@ export default function ClusterProperties () {
                 </Popover>
               </Box>
               <a href={`https://${cluster.region}.console.aws.amazon.com/cloudformation/home?region=${cluster.region}#/stacks/events?filteringStatus=active&filteringText=&viewNested=true&hideStacks=false&stackId=${cluster.cloudformationStackArn}`}
-                target="_blank">{cluster.cloudformationStackArn}</a>
+                target="_blank" rel="noreferrer">{cluster.cloudformationStackArn}</a>
             </div>
           </ValueWithLabel>
           <ValueWithLabel label="clusterConfiguration">
@@ -121,6 +131,24 @@ export default function ClusterProperties () {
           </ValueWithLabel>
           <ValueWithLabel label="region">{cluster.region}</ValueWithLabel>
           <ValueWithLabel label="version">{cluster.version}</ValueWithLabel>
+          {headNode && headNode.publicIpAddress && headNode.publicIpAddress !== "" && ssmEnabled &&
+          <ValueWithLabel label="mSSH Command">
+            <Box margin={{ right: 'xxs' }} display="inline-block">
+              <Popover
+                size="small"
+                position="top"
+                dismissButton={false}
+                triggerType="custom"
+                content={<StatusIndicator type="success">mSSH command copied</StatusIndicator>}
+              >
+                {`mssh -r ${cluster.region} ${clusterDefaultUser(cluster)}@${headNode.instanceId}`}
+                <Button variant="inline-icon" iconName="copy" ariaLabel="Copy mSSH command"
+                  onClick={() => {navigator.clipboard.writeText(`mssh -r ${cluster.region} ${clusterDefaultUser(cluster)}@${headNode.instanceId}`)}}
+                >copy</Button>
+              </Popover>
+            </Box>
+          </ValueWithLabel>
+          }
         </SpaceBetween>
       </ColumnLayout>
     </Container>
