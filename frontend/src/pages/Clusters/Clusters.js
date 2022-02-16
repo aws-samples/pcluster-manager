@@ -12,7 +12,7 @@ import jsyaml from 'js-yaml';
 
 import { ListClusters, DescribeCluster, GetConfiguration } from '../../model'
 
-import { setState, useState } from '../../store'
+import { setState, useState, isAdmin } from '../../store'
 
 // UI Elements
 import {
@@ -69,7 +69,7 @@ function ClusterList() {
           <EmptyState
             title="No clusters"
             subtitle="No clusters to display."
-            action={<Button onClick={wizard}>Create Cluster</Button>}
+            action={<Button onClick={wizard} disabled={!isAdmin()}>Create Cluster</Button>}
           />
         ),
         noMatch: (
@@ -190,7 +190,7 @@ export default function Clusters () {
                 counter={ clusters && `(${clusters.length})` }
                 actions={
                   <SpaceBetween direction="horizontal" size="xs">
-                    {clusters && <Button onClick={wizard} variant="primary" iconName={"add-plus"}>Create Cluster</Button>}
+                    {clusters && <Button onClick={wizard} variant="primary" iconName={"add-plus"} disabled={!isAdmin()}>Create Cluster</Button>}
                   </SpaceBetween>}>
                 Clusters
               </Header>

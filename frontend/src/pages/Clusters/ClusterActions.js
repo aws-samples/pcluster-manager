@@ -13,7 +13,7 @@ import React from 'react';
 import jsyaml from 'js-yaml';
 
 import { UpdateComputeFleet, GetConfiguration, GetDcvSession } from '../../model'
-import { setState, useState } from '../../store'
+import { setState, useState, isAdmin } from '../../store'
 import { findFirst, clusterDefaultUser } from '../../util'
 import { loadTemplate } from '../Configure/util'
 
@@ -92,14 +92,14 @@ export default function ClusterActions () {
     <ClusterDeleteDialog clusterName={clusterName} />
     <ClusterStopDialog clusterName={clusterName} />
     <SpaceBetween direction="horizontal" size="xs">
-      <Button className="action" disabled={clusterStatus === 'DELETE_IN_PROGRESS' || clusterStatus === 'CREATE_FAILED'} variant="normal" onClick={editConfiguration} iconName={"edit"}> Edit</Button>
+      <Button className="action" disabled={clusterStatus === 'DELETE_IN_PROGRESS' || clusterStatus === 'CREATE_FAILED' || !isAdmin()} variant="normal" onClick={editConfiguration} iconName={"edit"}> Edit</Button>
       {fleetStatus === "STOPPED" && <Button className="action" variant="normal" onClick={startFleet} iconName={"caret-right-filled"}> Start</Button>}
       {fleetStatus === "RUNNING" && <Button className="action" variant="normal" onClick={stopComputeFleet}>
         <div className="container">
           <CancelIcon /> Stop
         </div>
       </Button>}
-      <Button className="action" disabled={clusterStatus === 'DELETE_IN_PROGRESS'} color="default" onClick={deleteCluster}>
+      <Button className="action" disabled={clusterStatus === 'DELETE_IN_PROGRESS' || !isAdmin()} color="default" onClick={deleteCluster}>
         <div className="container">
           <DeleteIcon /> Delete
         </div>

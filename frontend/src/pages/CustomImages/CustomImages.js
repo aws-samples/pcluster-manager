@@ -13,7 +13,7 @@ import { useSelector } from 'react-redux'
 
 import { ListCustomImages, DescribeCustomImage } from '../../model'
 
-import { setState, useState, getState, clearState } from '../../store'
+import { setState, useState, getState, clearState, isAdmin } from '../../store'
 
 import { useCollection } from '@awsui/collection-hooks';
 
@@ -239,7 +239,7 @@ export default function CustomImages() {
                   <SpaceBetween direction="horizontal" size="xs">
                     <Button className="action" onClick={refreshImages} iconName={"refresh"}>Refresh</Button>
                     <StatusSelect />
-                    <Button className="action" onClick={buildImage} iconName={"add-plus"}>Build Image</Button>
+                    <Button className="action" onClick={buildImage} iconName={"add-plus"} disabled={!isAdmin()}>Build Image</Button>
                   </SpaceBetween>}>
                 Custom Images
               </Header>
