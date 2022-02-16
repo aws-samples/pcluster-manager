@@ -119,10 +119,19 @@ function KeypairSelect() {
   const keypair = useState(keypairPath) || "";
   const editing = useState(['app', 'wizard', 'editing']);
   const keypairToOption = kp => {
-    if(kp)
-      return {label: kp.KeyName, value: kp.KeyName}
+    if(kp === 'None' || kp === null || kp === undefined)
+      return {label: "None", value: null}
     else
-      return {label: "Please select a Keypair."}
+      return {label: kp.KeyName, value: kp.KeyName}
+  }
+
+  const keypairsWithNone = ['None', ...keypairs]
+
+  const setKeyPair = (kpValue) => {
+    if(kpValue)
+      setState(keypairPath, kpValue);
+    else
+      clearState([...headNodePath, 'Ssh']);
   }
 
   return (<FormField
@@ -131,9 +140,9 @@ function KeypairSelect() {
     <Select
       disabled={editing}
       selectedOption={keypairToOption(findFirst(keypairs, x => {return x.KeyName === keypair}))}
-      onChange={({detail}) => {setState(keypairPath, detail.selectedOption.value)}}
+      onChange={({detail}) => {setKeyPair(detail.selectedOption.value);}}
       selectedAriaLabel="Selected"
-      options={keypairs.map(keypairToOption)}
+      options={keypairsWithNone.map(keypairToOption)}
     />
   </FormField>);
 }

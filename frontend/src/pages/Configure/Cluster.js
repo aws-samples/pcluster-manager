@@ -239,7 +239,7 @@ function VpcSelect() {
         <Select
           disabled={editing}
           selectedOption={vpcToDisplayOption(findFirst(vpcs, x => {return x.VpcId === vpc}))}
-          onChange={({detail}) => {console.log(detail); setVpc(detail.selectedOption.value)}}
+          onChange={({detail}) => {setVpc(detail.selectedOption.value)}}
           options={vpcs.map(vpcToOption)}
           selectedAriaLabel="Selected"
         />
