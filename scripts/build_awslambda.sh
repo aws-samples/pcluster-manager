@@ -15,9 +15,11 @@ docker build -f Dockerfile.awslambda -t ${ECR_REPO} .
 
 # These upload the container to the public repo
 ECR_ENDPOINT="public.ecr.aws/n0x0o5k1"
+ECR_IMAGE=${ECR_ENDPOINT}/${ECR_REPO}:latest
 aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin "${ECR_ENDPOINT}"
-docker tag ${ECR_REPO}:latest ${ECR_ENDPOINT}/${ECR_REPO}:latest
-docker push ${ECR_ENDPOINT}/${ECR_REPO}:latest
+docker tag ${ECR_REPO}:latest ${ECR_IMAGE}
+docker push ${ECR_IMAGE}
+echo "Uploaded: " ${ECR_IMAGE}
 
 GIT_SHA=$(git rev-parse --short HEAD)
 docker tag ${ECR_REPO}:latest ${ECR_ENDPOINT}/${ECR_REPO}:${GIT_SHA}
