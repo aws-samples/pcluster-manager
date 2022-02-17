@@ -79,9 +79,10 @@ function CreateCluster(clusterName, clusterConfig, region, dryrun=false, success
   })
 }
 
-function UpdateCluster(clusterName, clusterConfig, dryrun=false, successCallback=null, errorCallback=null) {
+function UpdateCluster(clusterName, clusterConfig, dryrun=false, forceUpdate, successCallback=null, errorCallback=null) {
   var url = `api?path=/v3/clusters/${clusterName}`;
   url += dryrun ? "&dryrun=true" : ""
+  url += forceUpdate ? "&forceUpdate=true" : ""
   var body = {clusterConfiguration: clusterConfig}
   request('put', url, body).then(response => {
     if(response.status === 202) {
