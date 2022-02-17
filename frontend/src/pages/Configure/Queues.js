@@ -367,7 +367,7 @@ function QueuesView(props) {
 function Queues() {
   let queues = useState(queuesPath) || [];
   const addQueue = () => {
-    setState([...queuesPath], [...(queues || []), {"Name": `queue${queues.length}`, "ComputeResources": [{'MinCount': 0, "MaxCount": 4, 'InstanceType': 'c5n.large'}]}])
+    setState([...queuesPath], [...(queues || []), {"Name": `queue${queues.length}`, "ComputeResources": [{'Name': `queue${queues.length}-c5nlarge`, 'MinCount': 0, "MaxCount": 4, 'InstanceType': 'c5n.large'}]}])
   }
 
   return (<div>
