@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  Pcluster Manager Cognito User Pool Client Secret Provider
+  Pcluster Manager Cognito User Pool
 
 Parameters:
   CallbackURL:
@@ -17,7 +17,6 @@ Parameters:
     Type: String
     Default: user@amazon.com
 
-
 Conditions:
   GovCloud: !Equals [!Ref AWS::Region, 'us-gov-west-1']
 
@@ -26,18 +25,92 @@ Resources:
   UserPoolClientSecret:
     Type: Custom::UserPoolClientSecret
     Properties:
-      ServiceToken: !GetAtt UserPoolClientSecretProvider.Arn
+      ServiceToken: !GetAtt UserPoolClientSecretFunction.Arn
       UserPoolId:  !Ref CognitoUserPool
       AppClientId: !Ref CognitoAppClient
 
-  UserPoolClientSecretProvider:
+  UserPoolClientSecretFunction:
     Type: AWS::Serverless::Function
     Properties:
       Handler: index.handler
-      Runtime: nodejs12.x
-      CodeUri: cognitolambda/
+      Runtime: python3.9
       MemorySize: 128
       Timeout: 20
+      Code:
+        ZipFile: |
+      import cfnresponse
+      import boto3
+      import random
+      import string
+      import json
+
+      cognito = boto3.client("cognito-idp")
+      secretsmanager = boto3.client("secretsmanager")
+
+      def generate_secret(stack_name, resource_id):
+          alnum = string.ascii_uppercase + string.digits
+          return f"{stack_name}-{resource_id}-" + "".join(random.choice(alnum) for _ in range(12))
+
+      def create_physical_resource_id():
+          alnum = string.ascii_uppercase + string.ascii_lowercase + string.digits
+          return "".join(random.choice(alnum) for _ in range(16))
+
+      def handler(event, context):
+          print(event)
+          print("boto version {}".format(boto3.__version__))
+
+          stack_name = event["StackId"].split("/")[1]
+          user_pool_id = event["ResourceProperties"]["UserPoolId"]
+          app_client_id = event["ResourceProperties"]["AppClientId"]
+          logical_resource_id = event["LogicalResourceId"]
+
+          response_data = {}
+          reason = None
+          response_status = cfnresponse.SUCCESS
+          try:
+              if event["RequestType"] == "Create":
+                  response_data["Message"] = "Resource creation successful!"
+
+                  user_pool_client = cognito.describe_user_pool_client(UserPoolId=user_pool_id, ClientId=app_client_id)
+                  client_secret = user_pool_client["UserPoolClient"]["ClientSecret"]
+                  secret_name = generate_secret(stack_name, logical_resource_id)
+
+                  secret = json.dumps({"userPoolId": user_pool_id, "clientId": app_client_id, "clientSecret": client_secret})
+
+                  resp = secretsmanager.create_secret(
+                      Name=secret_name,
+                      Description=f"Client Secret for {app_client_id} / user pool {user_pool_id}",
+                      SecretString=secret,
+                      Tags=[
+                          {"Key": "custom:cloudformation:stack-name", "Value": stack_name},
+                          {"Key": "custom:cloudformation:logical-id", "Value": logical_resource_id},
+                      ],
+                  )
+                  response_data = {"SecretArn": resp["ARN"], "SecretName": resp["Name"], "SecretVersionId": resp["VersionId"]}
+
+              elif event["RequestType"] == "Update":
+                  user_pool_client = cognito.describe_user_pool_client(UserPoolId=user_pool_id, ClientId=app_client_id)
+                  client_secret = user_pool_client["UserPoolClient"]["ClientSecret"]
+                  secret_name = event["PhysicalResourceId"]
+                  secret = json.dumps({"userPoolId": user_pool_id, "clientId": app_client_id, "clientSecret": client_secret})
+                  resp = secretsmanager.update_secret(
+                      SecretId=secret_name,
+                      Description=f"Client Secret for {app_client_id} / user pool {user_pool_id}",
+                      SecretString=secret,
+                  )
+                  response_data = {"SecretArn": resp["ARN"], "SecretName": resp["Name"], "SecretVersionId": resp["VersionId"]}
+
+              else:
+                  secret_name = event["PhysicalResourceId"]
+                  resp = secretsmanager.delete_secret(SecretId=secret_name, ForceDeleteWithoutRecovery=True)
+                  response_data = {"SecretArn": resp["ARN"], "SecretName": resp["Name"]}
+
+          except Exception as exception:
+              response_status = cfnresponse.FAILED
+              reason = "Failed {}: {}".format(event["RequestType"], exception)
+
+          cfnresponse.send(event, context, response_status, response_data, secret_name, reason)
+
       Tracing: Active
       Policies:
         - Version: '2012-10-17'
