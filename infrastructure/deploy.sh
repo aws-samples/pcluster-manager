@@ -17,7 +17,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 ${SCRIPT_DIR}/upload.sh
 
-# # deploy just the cognito portion of the stack
+# deploy just the cognito portion of the stack
 cognito_infrastructure_file=${SCRIPT_DIR}/pcluster-manager-cognito-packaged.yaml
 echo "Deploying: " ${cognito_infrastructure_file} "->" ${STACK_NAME}
 
