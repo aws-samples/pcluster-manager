@@ -30,12 +30,15 @@ Resources:
       AppClientId: !Ref CognitoAppClient
 
   UserPoolClientSecretFunction:
-    Type: AWS::Serverless::Function
+    Type: AWS::Lambda::Function
     Properties:
       Handler: index.handler
       Runtime: python3.9
       MemorySize: 128
       Timeout: 20
+      TracingConfig:
+        Mode: Active
+      Role: !GetAtt UserPoolClientSecretRole.Arn
       Code:
         ZipFile: |
           import cfnresponse
@@ -111,29 +114,41 @@ Resources:
 
               cfnresponse.send(event, context, response_status, response_data, secret_name, reason)
 
-      Tracing: Active
+  UserPoolClientSecretRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
       Policies:
-        - Version: '2012-10-17'
-          Statement:
-          -
-            Sid: CognitoPermissions
-            Effect: Allow
-            Action:
-              - cognito-idp:DescribeUserPoolClient
-            Resource:
-              - !Sub
-                - arn:${AWS::Partition}:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}
-                - { UserPoolId: !Ref CognitoUserPool }
-          -
-            Sid: SecretsManagerPermissions
-            Effect: Allow
-            Action:
-              - secretsmanager:CreateSecret
-              - secretsmanager:TagResource
-              - secretsmanager:UpdateSecret
-              - secretsmanager:DeleteSecret
-            Resource:
-              - !Sub arn:${AWS::Partition}:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${AWS::StackName}*
+        - PolicyName: CognitoPermissions
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cognito-idp:DescribeUserPoolClient
+                Resource:
+                  - !Sub
+                    - arn:${AWS::Partition}:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}
+                    - { UserPoolId: !Ref CognitoUserPool }
+        - PolicyName: SecretsManagerPermissions
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:CreateSecret
+                  - secretsmanager:TagResource
+                  - secretsmanager:UpdateSecret
+                  - secretsmanager:DeleteSecret
+                Resource:
+                  - !Sub arn:${AWS::Partition}:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${AWS::StackName}*
 
   UserPoolDomain:
     Type: AWS::Cognito::UserPoolDomain
