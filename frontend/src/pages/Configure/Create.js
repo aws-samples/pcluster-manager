@@ -15,6 +15,7 @@ import { CreateCluster, UpdateCluster, ListClusters, DescribeCluster, notify } f
 // UI Elements
 import {
   Header,
+  Toggle,
   Spinner,
 } from "@awsui/components-react";
 
@@ -39,6 +40,7 @@ function handleWarnings(resp) {
 function handleCreate(handleClose) {
   const clusterName = getState(['app', 'wizard', 'clusterName']);
   const editing = getState(['app', 'wizard', 'editing']);
+  const forceUpdate = getState(['app', 'wizard', 'forceUpdate']);
   const clusterConfig = getState(configPath) || "";
   const dryRun = false;
   const region = getState(['app', 'wizard', 'config', 'Region']);
@@ -56,7 +58,7 @@ function handleCreate(handleClose) {
   if(editing)
   {
     setState(['app', 'wizard', 'pending'], "Update");
-    UpdateCluster(clusterName, clusterConfig, dryRun, successHandler, errHandler);
+    UpdateCluster(clusterName, clusterConfig, dryRun, forceUpdate, successHandler, errHandler);
   }
   else
   {
@@ -68,6 +70,7 @@ function handleCreate(handleClose) {
 function handleDryRun(handleClose) {
   const clusterName = getState(['app', 'wizard', 'clusterName']);
   const editing = getState(['app', 'wizard', 'editing']);
+  const forceUpdate = getState(['app', 'wizard', 'forceUpdate']);
   const clusterConfig = getState(configPath);
   const region = getState(['app', 'wizard', 'config', 'Region']);
   const dryRun = true;
@@ -79,7 +82,7 @@ function handleDryRun(handleClose) {
   setState(['app', 'wizard', 'pending'], "Dry Run");
   setState(['app', 'wizard', 'errors', "create"], null);
   if(editing)
-    UpdateCluster(clusterName, clusterConfig, dryRun, successHandler, errHandler);
+    UpdateCluster(clusterName, clusterConfig, dryRun, forceUpdate, successHandler, errHandler);
   else
     CreateCluster(clusterName, clusterConfig, region, dryRun, successHandler, errHandler);
 }
@@ -90,6 +93,7 @@ function createValidate() {
 
 function Create() {
   const clusterConfig = useState(configPath);
+  const forceUpdate = getState(['app', 'wizard', 'forceUpdate']);
   const errors = useState(['app', 'wizard', 'errors', 'create']);
   const pending = useState(['app', 'wizard', 'pending']);
   const editing = getState(['app', 'wizard', 'editing']);
@@ -104,6 +108,7 @@ function Create() {
         onChange={(e) => {setState(configPath, e.target.value)}} />
       {errors && <ValidationErrors errors={errors} /> }
       {pending && <div><Spinner size="normal" /> {pending} request pending...</div>}
+      {editing && <Toggle checked={forceUpdate} onChange={() => setState(['app', 'wizard', 'forceUpdate'], !forceUpdate)}>Force Update: Enable this to perform an update while the ComputeFleet is still running.</Toggle>}
     </>
   );
 }
