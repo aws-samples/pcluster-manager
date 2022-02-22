@@ -32,6 +32,8 @@ import {
 // Components
 import HelpTooltip from '../../components/HelpTooltip'
 
+const multiRunner = 'runner.py'
+
 // Selectors
 const selectVpc = state => getState(state, ['app', 'wizard', 'vpc']);
 const selectAwsSubnets = state => getState(state, ['aws', 'subnets']);
@@ -260,7 +262,7 @@ function cleanEmptyNest(path, depth){
   }
 }
 
-function ArgEditor({path, i}) {
+function ArgEditor({path, i, multi}) {
   const args = useState(path);
   const arg = useState([...path, i]);
   const remove = () => {
@@ -271,27 +273,57 @@ function ArgEditor({path, i}) {
 
     cleanEmptyNest(path, 3);
   }
-  return <div>
-    <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
-      <span>Arg {i}: </span>
-      <Input value={arg} onChange={({detail}) => {setState([...path, i], detail.value)}} />
-      <Button onClick={remove}>Remove</Button>
-    </div>
+  return <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px", marginLeft: "16px"}}>
+    <span>Arg: </span>
+    <Input value={multi? arg.slice(1) : arg} onChange={({detail}) => {setState([...path, i], multi? '-' + detail.value : detail.value)}} />
+    <Button onClick={remove}>Remove</Button>
   </div>;
 }
 
-function ActionsEditor({basePath, errorsPath}) {
-  const actionsPath = [...basePath, 'CustomActions'];
-  const onStartPath = [...actionsPath, 'OnNodeStart'];
-  const onConfiguredPath = [...actionsPath, 'OnNodeConfigured'];
+function MultiRunnerScriptEditor({path, i}) {
+  const args = useState(path);
+  const arg = useState([...path, i]);
+  const remove = () => {
+    if(args.length > 1)
+      setState([...path], [...args.slice(0, i), ...args.slice(i + 1)]);
+    else
+      clearState(path);
+    cleanEmptyNest(path, 3);
+  }
 
-  const onStart = useState([...onStartPath, 'Script']) || '';
-  const onStartArgs = useState([...onStartPath, 'Args']) || [];
-  const onStartErrors = useState([...errorsPath, 'onStart']);
+  const addArg = () => {
+    let insertPoint = 0;
+    for(insertPoint = i + 1; insertPoint < args.length; insertPoint++)
+    {
+      let arg = getState([...path, insertPoint]) || '';
+      if((arg.length > 0 && arg[0] !== '-') || arg.length === 0)
+        break;
+    }
+    setState([...path], [...args.slice(0, insertPoint), '-', ...args.slice(insertPoint)]);
+  }
 
-  const onConfigured = useState([...onConfiguredPath, 'Script']) || '';
-  const onConfiguredArgs = useState([...onConfiguredPath, 'Args']) || [];
-  const onConfiguredErrors = useState([...errorsPath, 'onConfigured']);
+  return <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
+    <span>Path:</span>
+    <Input value={arg} onChange={({detail}) => {setState([...path, i], detail.value)}} />
+    <Button onClick={remove}>Remove</Button>
+    <Button onClick={addArg}>Add Arg</Button>
+  </div>
+}
+
+function MultiRunnerEditor({path}) {
+  const data = useState(path) || [];
+  const addScript = () => {
+    setState(path, [...data, '']);
+  }
+  return <SpaceBetween direction="vertical" size="xs">
+    <Button onClick={addScript}>Add Script</Button>
+    {data.map((a, i) => a.length > 0 && a[0] === '-' ? <ArgEditor key={`osa${i}`} arg={a} i={i} path={path} multi={true}/> : <MultiRunnerScriptEditor path={path} i={i} />)}
+  </SpaceBetween>
+}
+
+function ActionEditor({label, actionKey, errorPath, path}) {
+  const script = useState([...path, 'Script']) || '';
+  const args = useState([...path, 'Args']) || [];
 
   const addArg = (path) => {
     updateState(path, (old) => [...(old || []), '']);
@@ -305,44 +337,56 @@ function ActionsEditor({basePath, errorsPath}) {
     cleanEmptyNest(path, 3);
   }
 
+  var useMultiRunner = script === multiRunner;
+
+  const toggleUseMultiRunner = () => {
+    if(useMultiRunner)
+    {
+      editScript([...path, 'Script'], '');
+      clearState([...path, 'Args']);
+    } else {
+      editScript([...path, 'Script'], multiRunner);
+    }
+    console.log(script, args);
+  }
+
+  return <>
+      <FormField label={<div>{label} <Toggle checked={useMultiRunner} onChange={toggleUseMultiRunner}>Use Multi-Script Runner?</Toggle></div>} errorText={errorPath}>
+        {useMultiRunner && <MultiRunnerEditor path={[...path, 'Args']}/>}
+        {!useMultiRunner &&
+        <SpaceBetween direction="vertical" size="xs">
+          <div key={actionKey} style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
+            <div style={{flexGrow: 1}}>
+              <Input
+                placeholder="/home/ec2-user/start.sh"
+                value={script}
+                onChange={({detail}) => editScript([...path, 'Script'], detail.value)} />
+            </div>
+            <div style={{flexShrink: 1}}>
+              <Button onClick={() => addArg([...path, 'Args'])}>+ Arg</Button>
+            </div>
+          </div>
+          <SpaceBetween direction="vertical" size="xxs">
+            {args.map((a, i) => <ArgEditor key={`osa${i}`}arg={a} i={i} path={[...path, 'Args']} />)}
+          </SpaceBetween>
+        </SpaceBetween>
+        }
+      </FormField>
+  </>
+}
+
+function ActionsEditor({basePath, errorsPath}) {
+  const actionsPath = [...basePath, 'CustomActions'];
+  const onStartPath = [...actionsPath, 'OnNodeStart'];
+  const onConfiguredPath = [...actionsPath, 'OnNodeConfigured'];
+
+  const onStartErrors = useState([...errorsPath, 'onStart']);
+  const onConfiguredErrors = useState([...errorsPath, 'onConfigured']);
+
   return <>
     <SpaceBetween direction="vertical" size="xs">
-      <FormField label="On Start" errorText={onStartErrors}>
-        <SpaceBetween direction="vertical" size="xs">
-          <div key="on-configured" style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
-            <div style={{flexGrow: 1}}>
-              <Input
-                placeholder="/home/ec2-user/start.sh"
-                value={onStart}
-                onChange={({detail}) => editScript([...onStartPath, 'Script'], detail.value)} />
-            </div>
-            <div style={{flexShrink: 1}}>
-              <Button onClick={() => addArg([...onStartPath, 'Args'])}>+ Arg</Button>
-            </div>
-          </div>
-          <SpaceBetween direction="vertical" size="xxs">
-            {onStartArgs.map((a, i) => <ArgEditor key={`osa${i}`}arg={a} i={i} path={[...onStartPath, 'Args']} />)}
-          </SpaceBetween>
-        </SpaceBetween>
-      </FormField>
-      <FormField label="On Configured" errorText={onConfiguredErrors}>
-        <SpaceBetween direction="vertical" size="xs">
-          <div key="on-start" style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
-            <div style={{flexGrow: 1}}>
-              <Input
-                placeholder="/home/ec2-user/start.sh"
-                value={onConfigured}
-                onChange={({detail}) => {editScript([...onConfiguredPath, 'Script'], detail.value)}} />
-            </div>
-            <div style={{flexShrink: 1}}>
-              <Button onClick={() => addArg([...onConfiguredPath, 'Args'])}>+ Arg</Button>
-            </div>
-          </div>
-          <SpaceBetween direction="vertical" size="xxs">
-            {onConfiguredArgs.map((a, i) => <ArgEditor key={`oca${i}`} arg={a} i={i} path={[...onConfiguredPath, 'Args']} />)}
-          </SpaceBetween>
-        </SpaceBetween>
-      </FormField>
+      <ActionEditor label="On Start" errorPath={onStartErrors} path={onStartPath}/>
+      <ActionEditor label="On Configured" errorPath={onConfiguredErrors} path={onConfiguredPath}/>
     </SpaceBetween>
   </>
 }
