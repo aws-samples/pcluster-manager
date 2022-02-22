@@ -32,7 +32,7 @@ import {
 // Components
 import HelpTooltip from '../../components/HelpTooltip'
 
-const multiRunner = 'runner.py'
+const multiRunner = 'https://raw.githubusercontent.com/aws-samples/pcluster-manager/post-install-scripts/resources/scripts/multi-runner.py'
 
 // Selectors
 const selectVpc = state => getState(state, ['app', 'wizard', 'vpc']);
@@ -273,7 +273,7 @@ function ArgEditor({path, i, multi}) {
 
     cleanEmptyNest(path, 3);
   }
-  return <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px", marginLeft: "16px"}}>
+  return <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px", marginLeft: "20px"}}>
     <span>Arg: </span>
     <Input value={multi? arg.slice(1) : arg} onChange={({detail}) => {setState([...path, i], multi? '-' + detail.value : detail.value)}} />
     <Button onClick={remove}>Remove</Button>
@@ -281,6 +281,10 @@ function ArgEditor({path, i, multi}) {
 }
 
 function MultiRunnerScriptEditor({path, i}) {
+  const knownScripts = ['cloud9.sh']
+  const basePath = path.slice(0, -1);
+  const script = useState([...basePath, 'Script']) || '';
+  const baseScriptPath = script.slice(0, script.lastIndexOf('/') + 1);
   const args = useState(path);
   const arg = useState([...path, i]);
   const remove = () => {
@@ -303,10 +307,28 @@ function MultiRunnerScriptEditor({path, i}) {
   }
 
   return <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
-    <span>Path:</span>
-    <Input value={arg} onChange={({detail}) => {setState([...path, i], detail.value)}} />
-    <Button onClick={remove}>Remove</Button>
-    <Button onClick={addArg}>Add Arg</Button>
+    <span style={{whiteSpace: "nowrap"}}>Path:</span>
+    <Autosuggest
+      value={arg}
+      onChange={({ detail }) => {
+        if(detail.value !== arg)
+        {
+          if(knownScripts.includes(detail.value))
+            setState([...path, i], baseScriptPath + detail.value);
+          else
+            setState([...path, i], detail.value);
+        }
+      }}
+      enteredTextLabel={(newValue) => {
+        if(newValue !== arg)
+          setState([...path, i], newValue);
+      }}
+      ariaLabel="Script Selector"
+      placeholder="http://path/to/script"
+      empty="No matches found"
+      options={knownScripts.map((scriptname => {return {label: scriptname, value: scriptname}}))}/>
+    <Button style={{whiteSpace: "nowrap"}} onClick={remove}><span style={{whiteSpace: "nowrap", marginRight: "40px"}}>Remove</span></Button>
+    <Button style={{whiteSpace: "nowrap"}} onClick={addArg}><span style={{whiteSpace: "nowrap", marginRight: "40px"}}>Add Arg</span></Button>
   </div>
 }
 
@@ -347,7 +369,6 @@ function ActionEditor({label, actionKey, errorPath, path}) {
     } else {
       editScript([...path, 'Script'], multiRunner);
     }
-    console.log(script, args);
   }
 
   return <>
