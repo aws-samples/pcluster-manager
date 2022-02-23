@@ -34,7 +34,8 @@ import HelpTooltip from '../../components/HelpTooltip'
 
 const multiRunner = 'https://raw.githubusercontent.com/aws-samples/pcluster-manager/post-install-scripts/resources/scripts/multi-runner.py'
 const knownExtensions = [{name: 'Cloud9', path: 'cloud9.sh', description: 'Cloud9 Install', args: [{name: 'Output File'}]},
-  {name: 'Slurm Accounting', path: 'slurm_accounting.sh', description: 'Slurm Accounting', args: [{name: 'Secret ARN'}, {name: 'DB Name'}, {name: 'DB Port', default: '3449'}]}]
+  {name: 'Slurm Accounting', path: 'slurm_accounting.sh', description: 'Slurm Accounting', args: [{name: 'Secret ARN'}, {name: 'RDS Endpoint'}, {name: 'RDS Port', default: '3306'}]},
+  {name: 'Spack', path: "spack.sh", description: 'Install Spack package manager.', args:[{name: 'Spack Root'}]}]
 
 // Selectors
 const selectVpc = state => getState(state, ['app', 'wizard', 'vpc']);
