@@ -182,6 +182,7 @@ def get_cluster_config():
 
 
 def ssm_command(region, instance_id, user, run_command):
+    # working_directory |= f"/home/{user}"
     start = time.time()
 
     if region:
@@ -217,6 +218,29 @@ def ssm_command(region, instance_id, user, run_command):
 
     output = status["StandardOutputContent"]
     return output
+
+
+def submit_job():
+    parser = reqparse.RequestParser()
+    parser.add_argument("instance_id", type=str)
+    parser.add_argument("user", type=str)
+    parser.add_argument("region", type=str)
+    args = parser.parse_args()
+    user = args.get("user", "ec2-user")
+    instance_id = args.get("instance_id")
+    body = request.json
+
+    wrap = body.pop("wrap", False)
+    command = body.pop("command")
+
+    job_cmd = " ".join(f"--{k} {v}" for k, v in body.items())
+    job_cmd += f' --wrap "{command}"' if wrap else f" {command}"
+
+    print(job_cmd)
+
+    resp = ssm_command(args.get("region"), instance_id, user, f"sbatch {job_cmd}")
+
+    return {"success": "true"}
 
 
 def queue_status():

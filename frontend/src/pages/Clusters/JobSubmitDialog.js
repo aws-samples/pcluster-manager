@@ -40,7 +40,7 @@ function itemToOption(item) {
 function QueueSelect() {
   const clusterName = getState(['app', 'clusters', 'selected']);
   const clusterPath = ['clusters', 'index', clusterName];
-  const queues = getState([...clusterPath, 'config', 'Scheduling', 'SlurmQueues'])
+  const queues = getState([...clusterPath, 'config', 'Scheduling', 'SlurmQueues']) || []
 
   const jobPath = [...submitPath, 'job'];
   let partition = useState([...jobPath, 'partition']);
@@ -158,7 +158,7 @@ export default function JobSubmitDialog(props) {
             <Input
               onChange={({ detail }) => {setState([...jobPath, 'nodes'], detail.value);}}
               value={nodes}
-              placeholder="/home/ec2-user/"
+              placeholder="0"
             />
           </FormField>
         </SpaceBetween>
@@ -172,7 +172,7 @@ export default function JobSubmitDialog(props) {
             <Input
               onChange={({ detail }) => {setState([...jobPath, 'ntasks'], detail.value);}}
               value={ntasks}
-              placeholder="/home/ec2-user/"
+              placeholder="0"
             />
           </FormField>
         </SpaceBetween>
