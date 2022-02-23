@@ -33,6 +33,8 @@ import {
 import HelpTooltip from '../../components/HelpTooltip'
 
 const multiRunner = 'https://raw.githubusercontent.com/aws-samples/pcluster-manager/post-install-scripts/resources/scripts/multi-runner.py'
+const knownExtensions = [{name: 'Cloud9', path: 'cloud9.sh', description: 'Cloud9 Install', args: [{name: 'Output File'}]},
+  {name: 'Slurm Accounting', path: 'slurm_accounting.sh', description: 'Slurm Accounting', args: [{name: 'Secret ARN'}, {name: 'DB Name'}, {name: 'DB Port', default: '3449'}]}]
 
 // Selectors
 const selectVpc = state => getState(state, ['app', 'wizard', 'vpc']);
@@ -262,7 +264,7 @@ function cleanEmptyNest(path, depth){
   }
 }
 
-function ArgEditor({path, i, multi}) {
+function ArgEditor({path, i, multi, scriptIndex}) {
   const args = useState(path);
   const arg = useState([...path, i]);
   const remove = () => {
@@ -273,20 +275,44 @@ function ArgEditor({path, i, multi}) {
 
     cleanEmptyNest(path, 3);
   }
+
+  let argName = 'Arg';
+  if(multi && scriptIndex > -1 && scriptIndex < args.length - 1)
+  {
+    const basePath = path.slice(0, -1);
+    const script = getState([...basePath, 'Script']) || '';
+    const baseScriptPath = script.slice(0, script.lastIndexOf('/') + 1);
+    let multiScriptPath = args[scriptIndex];
+    if(multiScriptPath.startsWith(baseScriptPath))
+    {
+      let multiScriptShortPath = multiScriptPath.slice(baseScriptPath.length);
+      let knownExtension = findFirst(knownExtensions, (e) => e.path === multiScriptShortPath);
+      if(knownExtension && i - scriptIndex <= knownExtension.args.length)
+      {
+        argName = knownExtension.args[i - scriptIndex - 1].name;
+      } else {
+        argName = `Arg ${i - scriptIndex}`;
+      }
+    } else {
+      argName = `Arg ${i - scriptIndex}`;
+    }
+  }
+
   return <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px", marginLeft: "20px"}}>
-    <span>Arg: </span>
+    <span>{argName}: </span>
     <Input value={multi? arg.slice(1) : arg} onChange={({detail}) => {setState([...path, i], multi? '-' + detail.value : detail.value)}} />
     <Button onClick={remove}>Remove</Button>
   </div>;
 }
 
 function MultiRunnerScriptEditor({path, i}) {
-  const knownScripts = ['cloud9.sh']
   const basePath = path.slice(0, -1);
   const script = useState([...basePath, 'Script']) || '';
   const baseScriptPath = script.slice(0, script.lastIndexOf('/') + 1);
   const args = useState(path);
   const arg = useState([...path, i]);
+  const knownScripts = knownExtensions.map(({path}) => path);
+  const knownScriptNames = knownExtensions.map(({name}) => name.toLowerCase());
   const remove = () => {
     if(args.length > 1)
       setState([...path], [...args.slice(0, i), ...args.slice(i + 1)]);
@@ -306,15 +332,43 @@ function MultiRunnerScriptEditor({path, i}) {
     setState([...path], [...args.slice(0, insertPoint), '-', ...args.slice(insertPoint)]);
   }
 
+  const setKnownScript = (scriptPath) => {
+    let end = 0;
+    for(end = i + 1; end < args.length; end++)
+    {
+      let arg = getState([...path, end]) || '';
+      if((arg.length > 0 && arg[0] !== '-') || arg.length === 0)
+        break;
+    }
+
+    let knownExtension = findFirst(knownExtensions, e => e.path === scriptPath);
+    let scriptArgs = knownExtension ? knownExtension.args.map(a => `-${a.default || ''}`) : []
+
+    let currentArgs = getState(path);
+    setState(path, [...currentArgs.slice(0, i), baseScriptPath + scriptPath, ...scriptArgs, ...currentArgs.slice(end)]);
+
+  }
+
+  const scriptToName = (script) => {
+    if(script.startsWith(baseScriptPath) && knownScripts.includes(script.slice(baseScriptPath.length)))
+    {
+      const path = script.slice(baseScriptPath.length);
+      const extension = findFirst(knownExtensions, (e) => e.path === path)
+      return extension.name;
+    } else {
+      return script;
+    }
+  }
+
   return <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
     <span style={{whiteSpace: "nowrap"}}>Path:</span>
     <Autosuggest
-      value={arg}
+      value={scriptToName(arg)}
       onChange={({ detail }) => {
-        if(detail.value !== arg)
+        if(detail.value !== arg && baseScriptPath + detail.value !== arg)
         {
           if(knownScripts.includes(detail.value))
-            setState([...path, i], baseScriptPath + detail.value);
+            setKnownScript(detail.value)
           else
             setState([...path, i], detail.value);
         }
@@ -326,7 +380,7 @@ function MultiRunnerScriptEditor({path, i}) {
       ariaLabel="Script Selector"
       placeholder="http://path/to/script"
       empty="No matches found"
-      options={knownScripts.map((scriptname => {return {label: scriptname, value: scriptname}}))}/>
+      options={knownExtensions.map((({name, path, description}) => {return {label: name, value: path, description: description}}))}/>
     <Button style={{whiteSpace: "nowrap"}} onClick={remove}><span style={{whiteSpace: "nowrap", marginRight: "40px"}}>Remove</span></Button>
     <Button style={{whiteSpace: "nowrap"}} onClick={addArg}><span style={{whiteSpace: "nowrap", marginRight: "40px"}}>Add Arg</span></Button>
   </div>
@@ -337,9 +391,10 @@ function MultiRunnerEditor({path}) {
   const addScript = () => {
     setState(path, [...data, '']);
   }
+  let scriptIndex = -1;
   return <SpaceBetween direction="vertical" size="xs">
     <Button onClick={addScript}>Add Script</Button>
-    {data.map((a, i) => a.length > 0 && a[0] === '-' ? <ArgEditor key={`osa${i}`} arg={a} i={i} path={path} multi={true}/> : <MultiRunnerScriptEditor path={path} i={i} />)}
+    {data.map((a, i) => a.length > 0 && a[0] === '-' ? <ArgEditor key={`osa${i}`} arg={a} i={i} path={path} multi={true} scriptIndex={scriptIndex}/> : (() => {scriptIndex = i; return <MultiRunnerScriptEditor key={`msa${i}`} path={path} i={i} />})())}
   </SpaceBetween>
 }
 
