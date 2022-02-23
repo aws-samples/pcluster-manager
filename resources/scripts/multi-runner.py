@@ -30,11 +30,10 @@ def main():
 
     sub_env = os.environ.copy()
 
-    with open('/opt/parallelcluster/cfnconfig', 'r') as file:
+    with open("/opt/parallelcluster/cfnconfig", "r") as file:
         for line in file.readlines():
             env_key, env_val = line.split("=")
             sub_env[env_key] = env_val
-
 
     for script in scripts:
         path = script[0]
@@ -42,7 +41,7 @@ def main():
         req = requests.get(path)
 
         tmp = tempfile.NamedTemporaryFile(delete=True)
-        with open(tmp.name, "w") as file:
+        with open(tmp.name, "wb") as file:
             file.write(req.content)
 
         os.chmod(tmp.name, 0o777)
