@@ -4,6 +4,7 @@
 export USER=$cfn_cluster_user
 export SPACK_ROOT=${1}
 
+echo spack_root: -${SPACK_ROOT}-
 echo user: $USER
 
 mkdir -p $SPACK_ROOT
