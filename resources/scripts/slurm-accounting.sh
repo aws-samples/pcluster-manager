@@ -29,7 +29,7 @@ sed -i "s|@SLURM_DBD_HOST@|${slurm_dbd_host}|g" ${slurm_etc}/slurm_sacct.conf
 sed -i "s|@SLURM_DBD_USER@|${slurm_db_user}|g" ${slurm_etc}/slurm_sacct.conf
 sed -i "s|@SLURM_DBD_HOST@|${slurm_dbd_host}|g" ${slurm_etc}/slurmdbd.conf
 sed -i "s|@RDS_USER@|${slurm_db_user}|g" ${slurm_etc}/slurmdbd.conf
-sed -i "s|@RDS_PASS@|${slurm_db_password}|g" ${slurm_etc}/slurmdbd.conf
+sed -i "s|@RDS_PASS@|${slurm_db_password//|/\\|}|g" ${slurm_etc}/slurmdbd.conf
 sed -i "s|@RDS_ENDPOINT@|${rds_endpoint}|g" ${slurm_etc}/slurmdbd.conf
 sed -i "s|@RDS_PORT@|${rds_port}|g" ${slurm_etc}/slurmdbd.conf
 
