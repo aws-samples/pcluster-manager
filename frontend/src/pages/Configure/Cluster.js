@@ -187,7 +187,7 @@ function OsSelect() {
 
 
 function VpcSelect() {
-  const vpcs = useState(['aws', 'vpcs']);
+  const vpcs = useState(['aws', 'vpcs']) || [];
   const vpc = useSelector(selectVpc) || "";
   const error = useState([...errorsPath, 'vpc']);
   const subnets = useSelector(selectAwsSubnets);
@@ -284,7 +284,7 @@ function Cluster() {
     }
 
     // Load these values when we get a new config as well (e.g. changing region)
-    if(awsConfig.keypairs.length > 0)
+    if(awsConfig && awsConfig.keypairs.length > 0)
     {
       const keypairs = getState(['aws', 'keypairs']) || []
       const keypairNames = new Set(keypairs.map((kp) => kp.KeyName));
