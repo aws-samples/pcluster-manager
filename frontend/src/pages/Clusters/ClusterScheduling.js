@@ -21,9 +21,12 @@ import { useTheme } from '@mui/material/styles';
 import {
   Button,
   Pagination,
+  SpaceBetween,
   Table,
   TextFilter
 } from "@awsui/components-react";
+
+import JobSubmitDialog from './JobSubmitDialog'
 
 // Icons
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -102,8 +105,6 @@ export default function ClusterScheduling() {
     return () => { clearInterval(timerId); }
   }, [])
 
-  console.log("jobs: ", jobs)
-
   const { items, actions, filteredItemsCount, collectionProps, filterProps, paginationProps } = useCollection(
     jobs,
     {
@@ -129,7 +130,9 @@ export default function ClusterScheduling() {
   );
 
 
-  return <>
+  return <SpaceBetween direction="vertical" size="s" >
+    <JobSubmitDialog />
+    <Button variant="primary" onClick={() => setState(['app', 'clusters', 'jobSubmit', 'dialog'], true)}>Submit Job</Button>
     {cluster_minor > 0 &&
     <Table
       {...collectionProps}
@@ -190,5 +193,5 @@ export default function ClusterScheduling() {
     />
     }
     {cluster_minor === 0 && <div>Scheduling is only available in clusters with version 3.1.x and greater.</div>}
-  </>
+  </SpaceBetween>
 }
