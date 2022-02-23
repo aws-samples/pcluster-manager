@@ -7,9 +7,9 @@ set -e
 yum install -y mysql
 
 # Set variables from post-install args
-secret_id=$2
-rds_endpoint=$3
-rds_port=$4
+secret_id=$1
+rds_endpoint=$2
+rds_port=$3
 
 # Get Slurm database credentials
 slurm_db_user=$(aws secretsmanager get-secret-value --secret-id ${secret_id} --region ${cfn_region} | jq --raw-output '.SecretString' | jq -r .username)
