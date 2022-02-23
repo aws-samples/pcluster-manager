@@ -42,7 +42,7 @@ def main():
 
         tmp = tempfile.NamedTemporaryFile(delete=True)
         with open(tmp.name, "w") as file:
-            file.write(script_data)
+            file.write(script_data.stdout)
 
         os.chmod(tmp.name, 0o777)
         tmp.file.close()
