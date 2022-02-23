@@ -28,6 +28,14 @@ def main():
             scripts.append([args[-1]])
         args.pop()
 
+    sub_env = os.environ.copy()
+
+    with open('/opt/parallelcluster/cfnconfig', 'r') as file:
+        for line in file.readlines():
+            env_key, env_val = line.split("=")
+            sub_env[env_key] = env_val
+
+
     for script in scripts:
         path = script[0]
         args = script[1:]
@@ -39,7 +47,7 @@ def main():
 
         os.chmod(tmp.name, 0o777)
         tmp.file.close()
-        subprocess.run([tmp.name, *args], check=True)
+        subprocess.run([tmp.name, *args], check=True, env=sub_env)
 
 
 if __name__ == "__main__":
