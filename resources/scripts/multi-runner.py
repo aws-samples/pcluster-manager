@@ -30,7 +30,7 @@ def main():
     sub_env = os.environ.copy()
 
     with open("/opt/parallelcluster/cfnconfig", "r") as file:
-        for line in file.readlines():
+        for line in file.read().splitlines():
             env_key, env_val = line.split("=")
             sub_env[env_key] = env_val
 
