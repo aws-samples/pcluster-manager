@@ -1,0 +1,286 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: >-
+  Creates an RDS instance running MySQL or MariaDB for Slurm job accounting in AWS ParallelCluster.
+
+Parameters:
+  EnvironmentName:
+    Description: "Used to qualify resource names (max 20 characters)"
+    Type: String
+    AllowedPattern: ^[a-zA-Z0-9-_]{1,20}$
+    Default: test
+
+  DbAllocatedStorage:
+    Description: "Database instance storage size (GiB)"
+    Type: Number
+    Default: 50
+
+  DbEngine:
+    Description: "Database engine"
+    Type: String
+    AllowedValues:
+      - mariadb
+      - mysql
+    Default: mariadb
+
+  DbEngineVersion:
+    Description: "Database engine version"
+    Type: String
+    AllowedValues:
+      - 8.0.11
+      - 8.0.13
+      - 8.0.15
+      - 8.0.16
+      - 8.0.17
+      - 8.0.19
+      - 8.0.20
+      - 8.0.21
+      - 8.0.23
+      - 8.0.25
+      - 8.0.26
+      - 8.0.27
+      - 8.0.28
+      - 10.2.32
+      - 10.2.37
+      - 10.2.39
+      - 10.2.40
+      - 10.2.41
+      - 10.3.23
+      - 10.3.28
+      - 10.3.31
+      - 10.3.32
+      - 10.4.13
+      - 10.4.18
+      - 10.4.21
+      - 10.4.22
+      - 10.5.12
+      - 10.5.13
+      - 10.6.5
+    Default: 10.4.22
+
+  DbInstanceClass:
+    Description: "Database instance class"
+    Type: String
+    AllowedValues:
+      - db.t3.micro
+      - db.t3.small
+      - db.t3.medium
+      - db.t3.large
+      - db.t3.xlarge
+      - db.t3.2xlarge
+      - db.t4g.micro
+      - db.t4g.small
+      - db.t4g.medium
+      - db.t4g.large
+      - db.t4g.xlarge
+      - db.t4g.2xlarge
+    Default: db.t4g.medium
+
+  DbInstanceIdentifier:
+    Description: "Database instance name"
+    Type: String
+    Default: db-instance
+
+  DbName:
+    Description: "Database name"
+    Type: String
+    Default: testdb
+
+  DbPasswordSecret:
+    Description: >-
+      Name of a secret in AWS Secrets Manager storing the Slurm database password
+      Must be in the key-value form 'password:<value>'
+      Leave as AUTO to automatically generate a new secret
+    Type: String
+    Default: AUTO
+
+  DbPort:
+    Description: "Database port accepting connections"
+    Type: Number
+    Default: 3306
+
+  DbUsername:
+    Description: "Username for database instance (required if generating a new database password secret)"
+    Type: String
+    Default: admin
+
+  Subnet1Cidr:
+    Description: "Subnet 1 IP range (CIDR notation)"
+    Type: String
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.7.224/28
+
+  Subnet1Id:
+    Description: "RDS subnet 1 (Leave as AUTO to create subnet automatically)"
+    Type: String
+    AllowedPattern: ^(AUTO|subnet-[0-9a-z]+)$
+    Default: AUTO
+
+  Subnet2Cidr:
+    Description: "Subnet 2 IP range (CIDR notation)"
+    Type: String
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.7.240/28
+
+  Subnet2Id:
+    Description: "RDS subnet 2 (Leave as AUTO to create subnet automatically)"
+    Type: String
+    AllowedPattern: ^(AUTO|subnet-[0-9a-z]+)$
+    Default: AUTO
+
+  VpcId:
+    Type: "String"
+    Description: Existing VPC ID
+
+Conditions:
+  CreateSubnet1: !Equals [!Ref Subnet1Id, AUTO]
+  CreateSubnet2: !Equals [!Ref Subnet2Id, AUTO]
+  CreateSubnetsOr: !Or [!Equals [!Ref Subnet1Id, AUTO], !Equals [!Ref Subnet2Id, AUTO]]
+
+Resources:
+  DbInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      AllocatedStorage: !Ref DbAllocatedStorage
+      DBInstanceClass: !Ref DbInstanceClass
+      DBInstanceIdentifier: !Ref DbInstanceIdentifier
+      DBName: !Ref DbName
+      DBSubnetGroupName: !Ref DbSubnetGroup
+      Engine: !Ref DbEngine
+      EngineVersion: !Ref DbEngineVersion
+      MasterUserPassword: !Join
+        - ""
+        - - "{{resolve:secretsmanager:"
+          - Ref: DbPasswordSecret
+          - ":SecretString:password}}"
+      MasterUsername: !Ref DbUsername
+      MultiAZ: false
+      PubliclyAccessible: false
+      VPCSecurityGroups:
+        - Ref: SecurityGroup
+
+  DbSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Database Subnet Group
+      DBSubnetGroupName: !Sub ${EnvironmentName}-db-subnetgroup
+      SubnetIds:
+        - !If [CreateSubnet1, !Ref Subnet1, !Ref Subnet1Id]
+        - !If [CreateSubnet2, !Ref Subnet2, !Ref Subnet2Id]
+
+  RouteTable:
+    Type: AWS::EC2::RouteTable
+    Condition: CreateSubnetsOr
+    Properties:
+      VpcId: !Ref VpcId
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-rtb
+        - Key: StackName
+          Value: !Ref AWS::StackName
+
+  SecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      FromPort: !Ref DbPort
+      GroupId: !GetAtt SecurityGroup.GroupId
+      IpProtocol: tcp
+      SourceSecurityGroupId: !GetAtt SecurityGroup.GroupId
+      ToPort: !Ref DbPort
+
+  SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Database access security group
+      VpcId: !Ref VpcId
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-sg
+        - Key: StackName
+          Value: !Ref AWS::StackName
+
+  Subnet1:
+    Type: AWS::EC2::Subnet
+    Condition: CreateSubnet1
+    Properties:
+      AvailabilityZone: !Select
+        - 0
+        - Fn::GetAZs: ""
+      CidrBlock: !Ref Subnet1Cidr
+      VpcId: !Ref VpcId
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-subnet1
+        - Key: StackName
+          Value: !Ref AWS::StackName
+
+  Subnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: CreateSubnet1
+    Properties:
+      RouteTableId: !Ref RouteTable
+      SubnetId: !Ref Subnet1
+
+  Subnet2:
+    Type: AWS::EC2::Subnet
+    Condition: CreateSubnet2
+    Properties:
+      AvailabilityZone: !Select
+        - 1
+        - Fn::GetAZs: ""
+      CidrBlock: !Ref Subnet2Cidr
+      VpcId: !Ref VpcId
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-subnet2
+        - Key: StackName
+          Value: !Ref AWS::StackName
+
+  Subnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: CreateSubnet2
+    Properties:
+      RouteTableId: !Ref RouteTable
+      SubnetId: !Ref Subnet2
+
+Outputs:
+  DbEndpoint:
+    Description: Database endpoint address
+    Value: !GetAtt DbInstance.Endpoint.Address
+    Export:
+      Name: !Sub ${AWS::StackName}-DbEndpoint
+
+  DbInstanceId:
+    Description: RDS instance ID
+    Value: !Ref DbInstance
+    Export:
+      Name: !Sub ${AWS::StackName}-DbInstanceId
+
+  DbPasswordSecretArn:
+    Description: Database username and password secret ARN
+    Value: !Ref DbPasswordSecret
+    Export:
+      Name: !Sub ${AWS::StackName}-DbPasswordSecretArn
+
+  DbSecurityGroupId:
+    Description: The secrity group ID for the RDS instance
+    Value: !Ref SecurityGroup
+    Export:
+      Name: !Sub ${AWS::StackName}-SecurityGroupId
+
+  DbSubnet1Id:
+    Description: Database subnet 1
+    Condition: CreateSubnet1
+    Value: !Ref Subnet1
+    Export:
+      Name: !Sub ${AWS::StackName}-DbSubnet1
+
+  DbSubnet2Id:
+    Description: Database subnet 2
+    Condition: CreateSubnet2
+    Value: !Ref Subnet2
+    Export:
+      Name: !Sub ${AWS::StackName}-DbSubnet2

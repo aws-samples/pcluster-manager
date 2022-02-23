@@ -1,0 +1,388 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description: >-
+  Template for creating the basic infrastructure required for AWS ParallelCluster with Slurm job accounting enabled
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: "Stack Settings"
+        Parameters:
+          - EnvironmentName
+          - TemplateRootUrl
+      - Label:
+          default: "ParalleCluster VPC"
+        Parameters:
+          - ClusterVpcId
+          - ClusterVpcCidr
+          - ClusterPublicSubnetAvailabilityZone
+          - ClusterPublicSubnetCidr
+          - ClusterPrivateSubnetAvailabilityZone
+          - ClusterPrivateSubnetCidr
+      - Label:
+          default: "Slurm Database Settings"
+        Parameters:
+          - SlurmDbVpcId
+          - SlurmDbSubnet1Id
+          - SlurmDbSubnet1Cidr
+          - SlurmDbSubnet2Id
+          - SlurmDbSubnet2Cidr
+          - SlurmDbInstanceClass
+          - SlurmDbInstanceIdentifier
+          - SlurmDbAllocatedStorage
+          - SlurmDbPort
+          - SlurmDbEngine
+          - SlurmDbEngineVersion
+          - SlurmDbName
+          - SlurmDbPasswordSecret
+          - SlurmDbUsername
+    ParameterLabels:
+      EnvironmentName:
+        default: "Prefix added to resource names"
+      TemplateRootUrl:
+        default: "URL for Cloudformation templates"
+      ClusterVpcId:
+        default: "Cluster VPC ID"
+      ClusterVpcCidr:
+        default: "Cluster VPC CIDR range"
+      ClusterPublicSubnetAvailabilityZone:
+        default: "Public subnet AZ"
+      ClusterPublicSubnetCidr:
+        default: "Public subnet CIDR range"
+      ClusterPrivateSubnetAvailabilityZone:
+        default: "Private subnet AZ"
+      ClusterPrivateSubnetCidr:
+        default: "Private subnet CIDR range"
+      SlurmDbVpcId:
+        default: "Database VPC"
+      SlurmDbSubnet1Id:
+        default: "Database subnet 1"
+      SlurmDbSubnet1Cidr:
+        default: "Database subnet 1 CIDR range"
+      SlurmDbSubnet2Id:
+        default: "Database subnet 2"
+      SlurmDbSubnet2Cidr:
+        default: "Database subnet 2 CIDR range"
+      SlurmDbInstanceClass:
+        default: "Database instance class"
+      SlurmDbInstanceIdentifier:
+        default: "Database instance name"
+      SlurmDbAllocatedStorage:
+        default: "Database instance storage"
+      SlurmDbPort:
+        default: "Database port"
+      SlurmDbEngine:
+        default: "Database engine"
+      SlurmDbEngineVersion:
+        default: "Database engine version"
+      SlurmDbName:
+        default: "Database name"
+      SlurmDbPasswordSecret:
+        default: "Database password"
+      SlurmDbUsername:
+        default: "Database username"
+
+
+Parameters:
+  EnvironmentName:
+    Description: "15 characters max"
+    Type: String
+    AllowedPattern: ^[a-zA-Z0-9-_]{1,15}$
+    Default: test-cluster
+
+  TemplateRootUrl:
+    Description: "Example: https://bucket-name.s3.eu-west-1.amazonaws.com"
+    Type: String
+    Default: https://cluster-accounting-demo.s3.eu-west-1.amazonaws.com
+
+  ClusterVpcId:
+    Description: "Leave as AUTO if you want a VPC to be automatically created"
+    Type: String
+    AllowedPattern: ^(AUTO|vpc-[0-9a-z]+)$
+    Default: AUTO
+
+  ClusterVpcCidr:
+    Description: "CIDR notation (e.g. 10.0.0.0/16)"
+    Type: String
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Default: 10.0.0.0/16
+
+  ClusterPublicSubnetAvailabilityZone:
+    Description: "Must be a valid AWS availability zone"
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: eu-west-1a
+
+  ClusterPublicSubnetCidr:
+    Description: "CIDR notation (e.g. 10.0.0.0/24)"
+    Type: String
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.0.0/26
+
+  ClusterPrivateSubnetAvailabilityZone:
+    Description: "Must be a valid AWS availability zone"
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: eu-west-1a
+
+  ClusterPrivateSubnetCidr:
+    Description: "CIDR notation (e.g. 10.0.0.0/24)"
+    Type: String
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.8.0/21
+
+  SlurmDbVpcId:
+    Description: "Leave as AUTO if you want a VPC to be automatically created (defaults to the cluster VPC specified above)"
+    Type: String
+    AllowedPattern: ^(AUTO|vpc-[0-9a-z]+)$
+    Default: AUTO
+
+  SlurmDbSubnet1Cidr:
+    Description: "CIDR notation (e.g. 10.0.0.0/24)"
+    Type: String
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.7.224/28
+
+  SlurmDbSubnet1Id:
+    Description: >-
+      Used to create database subnet group
+      Leave as AUTO if you want a subnet to be automatically created
+    Type: String
+    AllowedPattern: ^(AUTO|subnet-[0-9a-z]+)$
+    Default: AUTO
+
+  SlurmDbSubnet2Cidr:
+    Description: "CIDR notation (e.g. 10.0.0.0/24)"
+    Type: String
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.7.240/28
+
+  SlurmDbSubnet2Id:
+    Description: >-
+      Used to create database subnet group
+      Leave as AUTO if you want a subnet to be automatically created
+    Type: String
+    AllowedPattern: ^(AUTO|subnet-[0-9a-z]+)$
+    Default: AUTO
+
+  SlurmDbAllocatedStorage:
+    Description: "Specify size in GiB"
+    Type: Number
+    Default: 50
+
+  SlurmDbEngine:
+    Type: String
+    AllowedValues:
+      - mariadb
+      - mysql
+    Default: mariadb
+
+  SlurmDbEngineVersion:
+    Description: "MySQL version 8 or MariaDB version 10"
+    Type: String
+    AllowedValues:
+      - 8.0.11
+      - 8.0.13
+      - 8.0.15
+      - 8.0.16
+      - 8.0.17
+      - 8.0.19
+      - 8.0.20
+      - 8.0.21
+      - 8.0.23
+      - 8.0.25
+      - 8.0.26
+      - 8.0.27
+      - 8.0.28
+      - 10.2.32
+      - 10.2.37
+      - 10.2.39
+      - 10.2.40
+      - 10.2.41
+      - 10.3.23
+      - 10.3.28
+      - 10.3.31
+      - 10.3.32
+      - 10.4.13
+      - 10.4.18
+      - 10.4.21
+      - 10.4.22
+      - 10.5.12
+      - 10.5.13
+      - 10.6.5
+    Default: 10.4.22
+
+  SlurmDbInstanceClass:
+    Description: "Burstable instance classes"
+    Type: String
+    AllowedValues:
+      - db.t3.micro
+      - db.t3.small
+      - db.t3.medium
+      - db.t3.large
+      - db.t3.xlarge
+      - db.t3.2xlarge
+      - db.t4g.micro
+      - db.t4g.small
+      - db.t4g.medium
+      - db.t4g.large
+      - db.t4g.xlarge
+      - db.t4g.2xlarge
+    Default: db.t4g.medium
+
+  SlurmDbInstanceIdentifier:
+    Type: String
+    Default: slurmdb-rds-instance
+
+  SlurmDbPasswordSecret:
+    Description: >-
+       Name of a secret in AWS Secrets Manager storing the Slurm database username and password
+       Must be in the key-value form 'password:<value>'
+       Leave as AUTO to automatically generate a new secret
+    Type: String
+    Default: AUTO
+
+  SlurmDbPort:
+    Type: Number
+    Default: 3306
+
+  SlurmDbName:
+    Type: String
+    Default: slurmdb
+
+  SlurmDbUsername:
+    Type: String
+    Default: admin
+
+
+Conditions:
+  CreateClusterVpc: !Equals [!Ref ClusterVpcId, AUTO]
+  CreateSlurmDbPasswordSecret: !Equals [!Ref SlurmDbPasswordSecret, AUTO]
+  CreateSlurmDbVpc: !Equals [!Ref SlurmDbVpcId, AUTO]
+
+Resources:
+  ClusterVpcStack:
+    Type: AWS::CloudFormation::Stack
+    Condition: CreateClusterVpc
+    Properties:
+      Parameters:
+        PrivateSubnetAvailabilityZone: !Ref ClusterPrivateSubnetAvailabilityZone
+        PublicSubnetAvailabilityZone: !Ref ClusterPublicSubnetAvailabilityZone
+        EnvironmentName: !Sub ${EnvironmentName}
+        PrivateSubnetCidr: !Ref ClusterPrivateSubnetCidr
+        PublicSubnetCidr: !Ref ClusterPublicSubnetCidr
+        VpcCidr: !Ref ClusterVpcCidr
+      TemplateURL: !Sub ${TemplateRootUrl}/vpc-template.yaml
+      TimeoutInMinutes: 30
+
+  DbPasswordSecret:
+    Type: AWS::SecretsManager::Secret
+    Condition: CreateSlurmDbPasswordSecret
+    Properties:
+      Name: !Sub DbPasswdSecret-${AWS::StackName}
+      Description: Slurm database password secret
+      GenerateSecretString:
+        ExcludeCharacters: "\"@/\\"
+        GenerateStringKey: password
+        PasswordLength: 15
+        SecretStringTemplate: !Sub '{"username": "${SlurmDbUsername}"}'
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName}-db-secret
+        - Key: StackName
+          Value: !Ref AWS::StackName
+
+  SlurmDbStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        DbAllocatedStorage: !Ref SlurmDbAllocatedStorage
+        DbEngine: !Ref SlurmDbEngine
+        DbEngineVersion: !Ref SlurmDbEngineVersion
+        DbInstanceClass: !Ref SlurmDbInstanceClass
+        DbInstanceIdentifier: !Ref SlurmDbInstanceIdentifier
+        DbName: !Ref SlurmDbName
+        DbPasswordSecret: !If [CreateSlurmDbPasswordSecret, !Ref DbPasswordSecret, !Ref SlurmDbPasswordSecret]
+        DbPort: !Ref SlurmDbPort
+        DbUsername: !Ref SlurmDbUsername
+        EnvironmentName: !Sub ${EnvironmentName}
+        Subnet1Id: !Ref SlurmDbSubnet1Id
+        Subnet1Cidr: !Ref SlurmDbSubnet1Cidr
+        Subnet2Id: !Ref SlurmDbSubnet2Id
+        Subnet2Cidr: !Ref SlurmDbSubnet2Cidr
+        VpcId: !If [CreateSlurmDbVpc, !Sub "${ClusterVpcStack.Outputs.VpcId}", !Ref SlurmDbVpcId]
+      TemplateURL: !Sub ${TemplateRootUrl}/slurmdb-template.yaml
+      TimeoutInMinutes: 30
+
+
+Outputs:
+  PClusterNatEip:
+    Description: NAT gateway IP address
+    Value: !Sub "${ClusterVpcStack.Outputs.NatEip}"
+
+  PClusterNatGatewayId:
+    Description: NAT gateway ID
+    Value: !Sub "${ClusterVpcStack.Outputs.NatGatewayId}"
+
+  PClusterPrivateRouteTable:
+    Description: Private subnet route table
+    Value: !Sub "${ClusterVpcStack.Outputs.PrivateRouteTable}"
+
+  PClusterPrivateSubnetCidr:
+    Description: Private subnet CIDR
+    Value: !Sub "${ClusterVpcStack.Outputs.PrivateSubnetCidr}"
+
+  PClusterPrivateSubnetId:
+    Description: Private subnet
+    Value: !Sub "${ClusterVpcStack.Outputs.PrivateSubnetId}"
+
+  PClusterPublicRouteTable:
+    Description: Public subnet route table
+    Value: !Sub "${ClusterVpcStack.Outputs.PublicRouteTable}"
+
+  PClusterPublicSubnetCidr:
+    Description: Public subnet CIDR
+    Value: !Sub "${ClusterVpcStack.Outputs.PublicSubnetCidr}"
+
+  PClusterPublicSubnetId:
+    Description: Public subnet
+    Value: !Sub "${ClusterVpcStack.Outputs.PublicSubnetId}"
+
+  PClusterVpcCidr:
+    Description: VPC CIDR
+    Value: !Sub "${ClusterVpcStack.Outputs.VpcCidr}"
+
+  PClusterVpcId:
+    Description: VPC ID
+    Value: !Sub "${ClusterVpcStack.Outputs.VpcId}"
+
+  SlurmDbEndpoint:
+    Description: Database endpoint address
+    Value: !Sub "${SlurmDbStack.Outputs.DbEndpoint}"
+
+  SlurmDbInstanceId:
+    Description: RDS instance ID
+    Value: !Sub "${SlurmDbStack.Outputs.DbInstanceId}"
+
+  SlurmDbPasswordSecretArn:
+    Description: Database username and password secret ARN
+    Condition: CreateSlurmDbPasswordSecret
+    Value: !Sub "${SlurmDbStack.Outputs.DbPasswordSecretArn}"
+
+  SlurmDbSecurityGroupId:
+    Description: The secrity group ID for the RDS instance
+    Value: !Sub "${SlurmDbStack.Outputs.DbSecurityGroupId}"
+
+  SlurmDbSubnet1Id:
+    Description: Database subnet 1
+    Condition: CreateSlurmDbVpc
+    Value: !Sub "${SlurmDbStack.Outputs.DbSubnet1Id}"
+
+  SlurmDbSubnet2Id:
+    Description: Database subnet 2
+    Condition: CreateSlurmDbVpc
+    Value: !Sub "${SlurmDbStack.Outputs.DbSubnet2Id}"
