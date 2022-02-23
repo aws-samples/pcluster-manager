@@ -34,6 +34,8 @@ def main():
             env_key, env_val = line.split("=")
             sub_env[env_key] = env_val
 
+    print(sub_env)
+
     for script in scripts:
         path = script[0]
         args = script[1:]
