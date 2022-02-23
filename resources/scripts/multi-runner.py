@@ -39,9 +39,8 @@ def main():
         args = script[1:]
 
         script_data = subprocess.run(["wget", "-O-", path], capture_output=True, check=True)
-
         tmp = tempfile.NamedTemporaryFile(delete=True)
-        with open(tmp.name, "w") as file:
+        with open(tmp.name, "wb") as file:
             file.write(script_data.stdout)
 
         os.chmod(tmp.name, 0o777)
