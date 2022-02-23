@@ -95,7 +95,7 @@ Parameters:
   TemplateRootUrl:
     Description: "Example: https://bucket-name.s3.eu-west-1.amazonaws.com"
     Type: String
-    Default: https://cluster-accounting-demo.s3.eu-west-1.amazonaws.com
+    Default: https://pcluster-manager-us-east-1.s3.amazonaws.com/slurm-accounting
 
   ClusterVpcId:
     Description: "Leave as AUTO if you want a VPC to be automatically created"
