@@ -16,7 +16,7 @@ import { useSelector } from 'react-redux'
 import { findFirst } from '../../util'
 
 // State / Model
-import { setState, getState, useState, updateState, clearState } from '../../store'
+import { setState, getState, useState, updateState, clearState, clearEmptyNest } from '../../store'
 
 // UI Elements
 import {
@@ -34,7 +34,7 @@ import HelpTooltip from '../../components/HelpTooltip'
 
 const multiRunner = 'https://raw.githubusercontent.com/aws-samples/pcluster-manager/post-install-scripts/resources/scripts/multi-runner.py'
 const knownExtensions = [{name: 'Cloud9', path: 'cloud9.sh', description: 'Cloud9 Install', args: [{name: 'Output File'}]},
-  {name: 'Slurm Accounting', path: 'slurm_accounting.sh', description: 'Slurm Accounting', args: [{name: 'Secret ARN'}, {name: 'RDS Endpoint'}, {name: 'RDS Port', default: '3306'}]},
+  {name: 'Slurm Accounting', path: 'slurm-accounting.sh', description: 'Slurm Accounting', args: [{name: 'Secret ARN'}, {name: 'RDS Endpoint'}, {name: 'RDS Port', default: '3306'}]},
   {name: 'Spack', path: "spack.sh", description: 'Install Spack package manager.', args:[{name: 'Spack Root'}]}]
 
 // Selectors
@@ -253,18 +253,6 @@ function CustomAMISettings({basePath, appPath, errorsPath, validate}) {
   )
 }
 
-function cleanEmptyNest(path, depth){
-  if(depth === 0)
-    return;
-
-  let parentPath = path.slice(0, -1)
-  if(Object.keys(getState(parentPath)).length === 0)
-  {
-    clearState(parentPath);
-    cleanEmptyNest(parentPath, depth - 1)
-  }
-}
-
 function ArgEditor({path, i, multi, scriptIndex}) {
   const args = useState(path);
   const arg = useState([...path, i]);
@@ -274,7 +262,7 @@ function ArgEditor({path, i, multi, scriptIndex}) {
     else
       clearState(path);
 
-    cleanEmptyNest(path, 3);
+    clearEmptyNest(path, 3);
   }
 
   let argName = 'Arg';
@@ -319,7 +307,7 @@ function MultiRunnerScriptEditor({path, i}) {
       setState([...path], [...args.slice(0, i), ...args.slice(i + 1)]);
     else
       clearState(path);
-    cleanEmptyNest(path, 3);
+    clearEmptyNest(path, 3);
   }
 
   const addArg = () => {
@@ -412,7 +400,7 @@ function ActionEditor({label, actionKey, errorPath, path}) {
       setState(path, val);
     else
       clearState(path);
-    cleanEmptyNest(path, 3);
+    clearEmptyNest(path, 3);
   }
 
   var useMultiRunner = script === multiRunner;
