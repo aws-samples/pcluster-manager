@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Copyright 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance
@@ -46,7 +46,7 @@ def main():
 
         os.chmod(tmp.name, 0o777)
         tmp.file.close()
-        subprocess.run([tmp.name] + args, check=True, env=sub_env)
+        subprocess.run([tmp.name, *args], check=True, env=sub_env)
 
 
 if __name__ == "__main__":
