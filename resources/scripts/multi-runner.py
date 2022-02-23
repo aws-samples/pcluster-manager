@@ -46,7 +46,7 @@ def main():
 
         os.chmod(tmp.name, 0o777)
         tmp.file.close()
-        subprocess.run([tmp.name, *args], check=True, env=sub_env)
+        subprocess.run([tmp.name] + args, check=True, env=sub_env)
 
 
 if __name__ == "__main__":
