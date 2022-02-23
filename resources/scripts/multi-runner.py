@@ -1,4 +1,4 @@
-#!/opt/parallelcluster/pyenv/shims/python
+#!/usr/bin/env python3
 # Copyright 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance
@@ -13,7 +13,6 @@ import sys
 import tempfile
 import os
 import subprocess
-import requests
 
 
 def main():
@@ -38,11 +37,12 @@ def main():
     for script in scripts:
         path = script[0]
         args = script[1:]
-        req = requests.get(path)
+
+        script_data = subprocess.run(["wget", "-O-", path], capture_output=True, check=True)
 
         tmp = tempfile.NamedTemporaryFile(delete=True)
-        with open(tmp.name, "wb") as file:
-            file.write(req.content)
+        with open(tmp.name, "w") as file:
+            file.write(script_data)
 
         os.chmod(tmp.name, 0o777)
         tmp.file.close()
