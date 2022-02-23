@@ -41,7 +41,7 @@ function refreshQueues(callback) {
     const cluster = getState(clusterPath);
     let user = clusterDefaultUser(cluster);
     const headNode = getState([...clusterPath, 'headNode']);
-    QueueStatus(clusterName, headNode.instanceId, user, callback);
+    headNode && QueueStatus(clusterName, headNode.instanceId, user, callback);
   }
 }
 
