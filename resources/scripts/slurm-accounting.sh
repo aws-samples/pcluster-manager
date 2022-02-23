@@ -7,22 +7,22 @@ set -e
 yum install -y mysql
 
 # Set variables from post-install args
-config_bucket=$1
 secret_id=$2
 rds_endpoint=$3
 rds_port=$4
 
 # Get Slurm database credentials
-slurm_db_user=$(aws secretsmanager get-secret-value --secret-id ${secret_id} --region eu-west-1 | jq --raw-output '.SecretString' | jq -r .username)
-slurm_db_password=$(aws secretsmanager get-secret-value --secret-id ${secret_id} --region eu-west-1 | jq --raw-output '.SecretString' | jq -r .password)
+slurm_db_user=$(aws secretsmanager get-secret-value --secret-id ${secret_id} --region ${cfn_region} | jq --raw-output '.SecretString' | jq -r .username)
+slurm_db_password=$(aws secretsmanager get-secret-value --secret-id ${secret_id} --region ${cfn_region} | jq --raw-output '.SecretString' | jq -r .password)
 
 # Other variables needed for configuring Slurm
 slurm_dbd_host=$(hostname)
 slurm_etc=/opt/slurm/etc
 
 # Copy Slurm configuration files
-aws s3 cp --quiet ${config_bucket}/sacct/slurm_sacct.conf ${slurm_etc}/slurm_sacct.conf
-aws s3 cp --quiet ${config_bucket}/sacct/slurmdbd.conf ${slurm_etc}/slurmdbd.conf
+source_path=https://raw.githubusercontent.com/aws-samples/pcluster-manager/post-install-scripts/resources/files
+wget -qO- ${source_path}/sacct/slurm_sacct.conf > ${slurm_etc}/slurm_sacct.conf
+wget -qO- ${source_path}/sacct/slurmdbd.conf > ${slurm_etc}/slurmdbd.conf
 
 # Modify Slurm configuration files
 sed -i "s|@SLURM_DBD_HOST@|${slurm_dbd_host}|g" ${slurm_etc}/slurm_sacct.conf
