@@ -58,18 +58,26 @@ function refreshAccounting(args, callback, list) {
   const startTime = getState(['app', 'clusters', 'accounting', 'startTime']);
   const endTime = getState(['app', 'clusters', 'accounting', 'endTime']);
   const queue = getState(['app', 'clusters', 'accounting', 'queue']);
+  const nodes = getState(['app', 'clusters', 'accounting', 'nodes']);
+  const jobName = getState(['app', 'clusters', 'accounting', 'jobName']);
 
   const clusterName = getState(['app', 'clusters', 'selected']);
   const defaultArgs = (!args || Object.keys(args).length === 0) ? {} : args;
 
   if(startTime && startTime !== "")
-    defaultArgs['S'] = startTime;
+    defaultArgs['starttime'] = startTime;
 
   if(endTime && endTime !== "")
-    defaultArgs['E'] = endTime;
+    defaultArgs['endtime'] = endTime;
 
   if(queue)
-    defaultArgs['r'] = queue;
+    defaultArgs['partition'] = queue;
+
+  if(nodes && nodes !== "")
+    defaultArgs['nodelist'] = nodes;
+
+  if(jobName && jobName !== "")
+    defaultArgs['name'] = jobName;
 
   setState(['app', 'clusters', 'accounting', 'pending'], true);
   const defaultCallback = (data) => {
@@ -204,6 +212,8 @@ export default function ClusterAccounting() {
   const pending = useState(['app', 'clusters', 'accounting', 'pending']);
   const startTime = useState(['app', 'clusters', 'accounting', 'startTime']);
   const endTime = useState(['app', 'clusters', 'accounting', 'endTime']);
+  const nodes = useState(['app', 'clusters', 'accounting', 'nodes']) || []
+  const jobName = useState(['app', 'clusters', 'accounting', 'jobName']) || []
   const jobs = useState(['clusters', 'index', clusterName, 'accounting', 'jobs']) || []
 
   React.useEffect(() => {
@@ -235,7 +245,7 @@ export default function ClusterAccounting() {
   );
 
   const selectJob = (job_id) => {
-    refreshAccounting({j: job_id}, (ret) => {
+    refreshAccounting({jobs: job_id}, (ret) => {
       setState(['clusters', 'index', clusterName, 'accounting', 'dialog'], true);
       setState(['clusters', 'index', clusterName, 'accounting', 'selectedJob'], job_id);
       setState(['clusters', 'index', clusterName, 'accounting', 'job', job_id], ret.jobs[0]);
@@ -262,6 +272,18 @@ export default function ClusterAccounting() {
         </FormField>
         <FormField label="Queue">
           <QueueSelect />
+        </FormField>
+        <FormField label="Nodes">
+          <Input
+            value={nodes}
+            placeholder="queue0-c5n-large-1"
+            onChange={(({detail}) => {setState(['app', 'clusters', 'accounting', 'nodes'], detail.value)})} />
+        </FormField>
+        <FormField label="Job Name">
+          <Input
+            value={jobName}
+            placeholder="job0"
+            onChange={(({detail}) => {setState(['app', 'clusters', 'accounting', 'jobName'], detail.value)})} />
         </FormField>
       </SpaceBetween>
       <SpaceBetween direction="vertical" size="s">

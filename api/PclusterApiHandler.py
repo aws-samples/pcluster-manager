@@ -255,9 +255,9 @@ def sacct():
     instance_id = args.get("instance_id")
     body = request.json
 
-    sacct_args = " ".join(f"-{k} {v}" for k, v in body.items())
+    sacct_args = " ".join(f"--{k} {v}" for k, v in body.items())
     print(f"sacct {sacct_args} --json " + "| jq -c .jobs\\|\\map\\({name,nodes,partition,state,job_id,exit_code\\}\\)")
-    if "J" not in sacct_args:
+    if "jobs" not in sacct_args:
         accounting = ssm_command(
             args.get("region"),
             instance_id,
