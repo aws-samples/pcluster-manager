@@ -287,7 +287,7 @@ function Cluster() {
     // Load these values when we get a new config as well (e.g. changing region)
     if(awsConfig && awsConfig.keypairs && awsConfig.keypairs.length > 0)
     {
-      let keypairs = useState(['aws', 'keypairs']) || [];
+      const keypairs = getState(['aws', 'keypairs']) || [];
       const keypairNames = new Set(keypairs.map((kp) => kp.KeyName));
       const headNodeKPPath = [...configPath, 'HeadNode', 'Ssh', 'KeyName'];
       if(keypairs.length > 0 && !keypairNames.has(getState(headNodeKPPath)))
