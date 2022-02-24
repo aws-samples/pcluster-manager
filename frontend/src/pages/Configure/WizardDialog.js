@@ -68,6 +68,7 @@ export default function WizardDialog(props) {
       clearState(['app', 'wizard', 'loaded']);
       clearState(['app', 'wizard', 'page']);
       clearState(['app', 'wizard', 'vpc']);
+      clearState(['app', 'wizard', 'multiUser']);
       clearState(loadingPath);
     }
     setState(['app', 'wizard', 'dialog'], false);
