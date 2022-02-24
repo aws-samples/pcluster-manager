@@ -34,6 +34,7 @@ import {
   ColumnLayout,
   Container,
   FormField,
+  Header,
   Input,
   Link,
   Modal,
@@ -255,8 +256,9 @@ export default function ClusterAccounting() {
   return <>
     <JobModal />
     <SpaceBetween direction="vertical" size="s">
-      <Button loading={pending} onClick={() => refreshAccounting({}, null, true)}>Refresh</Button>
-
+      <Container
+        header={<Header variant="h2"
+          actions={<Button loading={pending} onClick={() => refreshAccounting({}, null, true)}>Refresh</Button>}>Filters</Header>}>
       <SpaceBetween direction="horizontal" size="s">
         <FormField label="Start Time">
           <Input
@@ -286,9 +288,9 @@ export default function ClusterAccounting() {
             onChange={(({detail}) => {setState(['app', 'clusters', 'accounting', 'jobName'], detail.value)})} />
         </FormField>
       </SpaceBetween>
-      <SpaceBetween direction="vertical" size="s">
-        {errors.map((e) => <div>{e.error}</div>)}
-      </SpaceBetween>
+      </Container>
+
+
 
       <SpaceBetween direction="vertical" size="s" >
         <Table
