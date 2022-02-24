@@ -187,7 +187,7 @@ function OsSelect() {
 
 
 function VpcSelect() {
-  const vpcs = useState(['aws', 'vpcs']);
+  const vpcs = useState(['aws', 'vpcs']) || [];
   const vpc = useSelector(selectVpc) || "";
   const error = useState([...errorsPath, 'vpc']);
   const subnets = useSelector(selectAwsSubnets);
@@ -256,6 +256,7 @@ function Cluster() {
   let wizardLoaded = useState(['app', 'wizard', 'loaded']);
   let multiUserEnabled = useState(['app', 'wizard', 'multiUser']) || false;
   let awsConfig = useState(['aws']);
+  let keypairs = useState(['aws', 'keypairs']) || [];
   let defaultRegion = useState(['aws', 'region']) || "";
   const region = useState(['app', 'selectedRegion']) || defaultRegion;
 
@@ -284,9 +285,8 @@ function Cluster() {
     }
 
     // Load these values when we get a new config as well (e.g. changing region)
-    if(awsConfig.keypairs.length > 0)
+    if(keypairs.length > 0)
     {
-      const keypairs = getState(['aws', 'keypairs']) || []
       const keypairNames = new Set(keypairs.map((kp) => kp.KeyName));
       const headNodeKPPath = [...configPath, 'HeadNode', 'Ssh', 'KeyName'];
       if(keypairs.length > 0 && !keypairNames.has(getState(headNodeKPPath)))
