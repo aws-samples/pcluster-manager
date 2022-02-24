@@ -11,11 +11,13 @@
 import React from 'react';
 
 import { useState } from '../../store'
+import { getIn } from '../../util'
 
 // UI Elements
 import Tabs from "@awsui/components-react/tabs"
 
 // Components
+import ClusterAccounting from './ClusterAccounting'
 import ClusterStackEvents from './ClusterStackEvents'
 import ClusterInstances from './ClusterInstances'
 import ClusterFilesystems from './ClusterFilesystems'
@@ -27,7 +29,28 @@ import Loading from '../../components/Loading'
 export default function ClusterTabs() {
 
   const clusterName = useState(['app', 'clusters', 'selected']);
-  const cluster = useState(['clusters', 'index', clusterName]);
+  const clusterPath = ['clusters', 'index', clusterName];
+  const cluster = useState(clusterPath);
+  const customActions = useState([...clusterPath, 'config', 'HeadNode', 'CustomActions']);
+
+  let allScripts = [];
+  const scriptName = (script) => {
+    let suffix = script.slice(script.lastIndexOf('/') + 1);
+    return suffix.slice(0, suffix.lastIndexOf('.'));
+  }
+
+  for(let actionName of ['OnNodeStart', 'OnNodeConfigured'])
+  {
+    if(getIn(customActions, [actionName, 'Script']))
+      allScripts.push(scriptName(getIn(customActions, [actionName, 'Script'])));
+    for(let arg of (getIn(customActions, [actionName, 'Args']) || []))
+    {
+      if(arg.length > 0 && arg[0] !== '-')
+        allScripts.push(scriptName(arg));
+    }
+  }
+
+  let accountingEnabled = allScripts.includes('slurm-accounting');
 
   return cluster ?
       <Tabs tabs={[
@@ -35,6 +58,7 @@ export default function ClusterTabs() {
         {label: "Instances", id: "instances", content: <ClusterInstances />},
         {label: "Storage", id: "storage", content: <ClusterFilesystems />},
         {label: "Job Scheduling", id: "scheduling", content: <ClusterScheduling />},
+        ...(accountingEnabled ? [{label: "Accounting", id: "accounting", content: <ClusterAccounting />}] : []),
         {label: "Stack Events", id: "stack-events", content: <ClusterStackEvents />},
         {label: "Logs", id: "logs", content: <ClusterLogs />}
       ]} />

@@ -287,11 +287,15 @@ function ArgEditor({path, i, multi, scriptIndex}) {
     }
   }
 
-  return <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px", marginLeft: "20px"}}>
-    <span>{argName}: </span>
-    <Input value={multi? arg.slice(1) : arg} onChange={({detail}) => {setState([...path, i], multi? '-' + detail.value : detail.value)}} />
-    <Button onClick={remove}>Remove</Button>
-  </div>;
+  return <tr>
+    <td>
+      <span>{argName}: </span>
+    </td><td>
+      <Input value={multi? arg.slice(1) : arg} onChange={({detail}) => {setState([...path, i], multi? '-' + detail.value : detail.value)}} />
+    </td><td>
+      <Button onClick={remove}>Remove</Button>
+    </td>
+  </tr>;
 }
 
 function MultiRunnerScriptEditor({path, i}) {
@@ -383,7 +387,11 @@ function MultiRunnerEditor({path}) {
   let scriptIndex = -1;
   return <SpaceBetween direction="vertical" size="xs">
     <Button onClick={addScript}>Add Script</Button>
+    <table>
+      <tbody>
     {data.map((a, i) => a.length > 0 && a[0] === '-' ? <ArgEditor key={`osa${i}`} arg={a} i={i} path={path} multi={true} scriptIndex={scriptIndex}/> : (() => {scriptIndex = i; return <MultiRunnerScriptEditor key={`msa${i}`} path={path} i={i} />})())}
+      </tbody>
+    </table>
   </SpaceBetween>
 }
 

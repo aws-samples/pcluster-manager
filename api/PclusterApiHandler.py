@@ -214,6 +214,7 @@ def ssm_command(region, instance_id, user, run_command):
         abort(500, description="Timed out waiting for command to complete.")
 
     if status["Status"] != "Success":
+        print(status)
         abort(500, description=status["StandardErrorContent"])
 
     output = status["StandardOutputContent"]
@@ -238,9 +239,37 @@ def submit_job():
 
     print(job_cmd)
 
-    resp = ssm_command(args.get("region"), instance_id, user, f"sbatch {job_cmd}")
+    ret = ssm_command(args.get("region"), instance_id, user, f"sbatch {job_cmd}")
+    print(ret)
 
     return {"success": "true"}
+
+
+def sacct():
+    parser = reqparse.RequestParser()
+    parser.add_argument("instance_id", type=str)
+    parser.add_argument("user", type=str)
+    parser.add_argument("region", type=str)
+    args = parser.parse_args()
+    user = args.get("user", "ec2-user")
+    instance_id = args.get("instance_id")
+    body = request.json
+
+    sacct_args = " ".join(f"-{k} {v}" for k, v in body.items())
+    if not sacct_args:
+        accounting = ssm_command(
+            args.get("region"),
+            instance_id,
+            user,
+            "sacct --json | jq -c .jobs\\|\\map\\({name,nodes,partition,state,job_id,exit_code\\}\\)",
+        )
+    else:
+        accounting = ssm_command(args.get("region"), instance_id, user, f"sacct {sacct_args} --json | jq -c .jobs")
+    try:
+        return {} if accounting == "" else {"jobs": json.loads(accounting)}
+    except Exception as e:
+        print(accounting)
+        raise e
 
 
 def queue_status():
