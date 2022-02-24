@@ -20,19 +20,20 @@ from api.PclusterApiHandler import (
     PclusterApiHandler,
     authenticate,
     authenticated,
+    cancel_job,
     ec2_action,
+    get_aws_config,
     get_cluster_config,
     get_custom_image_config,
     get_dcv_session,
-    get_aws_config,
     get_identity,
-    queue_status,
-    cancel_job,
     get_version,
     list_users,
     login,
     logout,
+    queue_status,
     set_user_role,
+    submit_job,
 )
 
 
@@ -122,6 +123,10 @@ def run():
     @authenticated()
     def cancel_job_():
         return cancel_job()
+
+    @app.route("/manager/submit_job", methods=["POST"])
+    def submit_job_():
+        return submit_job()
 
     @app.route("/login")
     def login_():
