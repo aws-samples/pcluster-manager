@@ -256,12 +256,14 @@ def sacct():
     body = request.json
 
     sacct_args = " ".join(f"-{k} {v}" for k, v in body.items())
-    if not sacct_args:
+    print(f"sacct {sacct_args} --json " + "| jq -c .jobs\\|\\map\\({name,nodes,partition,state,job_id,exit_code\\}\\)")
+    if "J" not in sacct_args:
         accounting = ssm_command(
             args.get("region"),
             instance_id,
             user,
-            "sacct --json | jq -c .jobs\\|\\map\\({name,nodes,partition,state,job_id,exit_code\\}\\)",
+            f"sacct {sacct_args} --json "
+            + "| jq -c .jobs[0:120]\\|\\map\\({name,nodes,partition,state,job_id,exit_code\\}\\)",
         )
     else:
         accounting = ssm_command(args.get("region"), instance_id, user, f"sacct {sacct_args} --json | jq -c .jobs")

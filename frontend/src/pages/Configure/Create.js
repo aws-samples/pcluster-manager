@@ -71,7 +71,7 @@ function handleDryRun(handleClose) {
   const clusterName = getState(['app', 'wizard', 'clusterName']);
   const editing = getState(['app', 'wizard', 'editing']);
   const forceUpdate = getState(['app', 'wizard', 'forceUpdate']);
-  const clusterConfig = getState(configPath);
+  const clusterConfig = getState(configPath) || '';
   const region = getState(['app', 'wizard', 'config', 'Region']);
   const dryRun = true;
   var errHandler = (err) => {setState(['app', 'wizard', 'errors', 'create'], err); setState(['app', 'wizard','pending'], false);}

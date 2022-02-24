@@ -60,12 +60,12 @@ function Status(props) {
     <span style={{display: 'inline-block', paddingLeft: '10px'}}> {text}</span>
   </div>
   const statusMap = {"CANCELLED": aligned(<CancelIcon />, props.status, theme.palette.error.main),
-      "CONFIGURING": aligned(<CircularProgress size={15} color='info' />, props.status, theme.palette.error.main),
+    "CONFIGURING": aligned(<CircularProgress size={15} color='info' />, props.status, theme.palette.info.main),
     "RUNNING": aligned(<CheckCircleOutlineIcon />, props.status, theme.palette.success.main),};
   return props.status in statusMap ? statusMap[props.status] : <span>{props.status}</span>;
 }
 
-function JobActions({job}) {
+function JobActions({job, disabled}) {
   let pendingPath = ['app', 'clusters', 'queue', 'action', job.job_id, 'pending'];
   const pending = useState(pendingPath);
 
@@ -83,7 +83,7 @@ function JobActions({job}) {
     <div>
       {job.job_state !== "COMPLETED" &&
       <div>
-        <Button loading={pending} onClick={() => {cancelJob(job.job_id)}}>Cancel</Button>
+        <Button loading={pending} disabled={disabled} onClick={() => {cancelJob(job.job_id)}}>Cancel</Button>
       </div>
       }
     </div>
@@ -92,7 +92,9 @@ function JobActions({job}) {
 
 export default function ClusterScheduling() {
   const clusterName = useState(['app', 'clusters', 'selected']);
+  const clusterPath = ['clusters', 'index', clusterName];
   const cluster = useState(['clusters', 'index', clusterName]);
+  const fleetStatus = useState([...clusterPath, 'computeFleetStatus']);
   const cluster_minor = parseInt(cluster.version.split(".")[1]);
   const jobs = useState(['clusters', 'index', clusterName, 'jobs']) || []
 
@@ -132,7 +134,7 @@ export default function ClusterScheduling() {
 
   return <SpaceBetween direction="vertical" size="s" >
     <JobSubmitDialog />
-    <Button variant="primary" onClick={() => setState(['app', 'clusters', 'jobSubmit', 'dialog'], true)}>Submit Job</Button>
+    <Button variant="primary" disabled={fleetStatus !== "RUNNING"} onClick={() => setState(['app', 'clusters', 'jobSubmit', 'dialog'], true)}>Submit Job</Button>
     {cluster_minor > 0 &&
     <Table
       {...collectionProps}
@@ -177,7 +179,7 @@ export default function ClusterScheduling() {
         {
           id: "actions",
           header: "Actions",
-          cell: item => <JobActions job={item} />,
+          cell: item => <JobActions disabled={fleetStatus !== "RUNNING"} job={item} />,
         },
       ]}
       items={items}
