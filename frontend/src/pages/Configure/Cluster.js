@@ -256,7 +256,6 @@ function Cluster() {
   let wizardLoaded = useState(['app', 'wizard', 'loaded']);
   let multiUserEnabled = useState(['app', 'wizard', 'multiUser']) || false;
   let awsConfig = useState(['aws']);
-  let keypairs = useState(['aws', 'keypairs']) || [];
   let defaultRegion = useState(['aws', 'region']) || "";
   const region = useState(['app', 'selectedRegion']) || defaultRegion;
 
