@@ -10,7 +10,7 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { setState, getState } from '../../store'
+import { setState, getState, clearState } from '../../store'
 import { LoadAwsConfig } from '../../model'
 import { getIn, setIn } from '../../util'
 
@@ -42,8 +42,10 @@ function loadTemplateLazy(config, callback)
       setState(['app', 'wizard', 'vpc'], vpc);
   }
 
-  if(getIn(config, ['DirectoryServices']))
+  if(getIn(config, ['DirectoryService']))
       setState(['app', 'wizard', 'multiUser'], true);
+  else
+      clearState(['app', 'wizard', 'multiUser']);
 
   // Support existing filesystems
   const storages = getIn(config, ['SharedStorage']) || [];
@@ -54,10 +56,7 @@ function loadTemplateLazy(config, callback)
     {
       let fsid = getIn(storage, ['FsxLustreSettings', 'FileSystemId']);
       if(fsid)
-      {
-        console.log("found fsid: ", fsid);
         setState(['app', 'wizard', 'storage', i, 'useExisting'], true);
-      }
     }
 
   }
