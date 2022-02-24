@@ -198,7 +198,7 @@ function JobModal() {
           </SpaceBetween>
         </Box>
       }
-      header="Job Info">
+      header={`Job Info: ${job ? job.name : ""}`}>
       {job && <JobProperties job={job} />}
       {!job && <div>Loading...</div>}
     </Modal>
