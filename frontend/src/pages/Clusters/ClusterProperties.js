@@ -63,9 +63,11 @@ export default function ClusterProperties () {
   const cluster = useState(['clusters', 'index', clusterName]);
   const clusterPath = ['clusters', 'index', clusterName];
   const headNode = useState([...clusterPath, 'headNode']);
+  const defaultRegion = useState(['aws', 'region']);
+  const region = useState(['app', 'selectedRegion']) || defaultRegion;
 
   function isSsmPolicy(p) {
-    return p.hasOwnProperty('Policy') && p.Policy === ssmPolicy();
+    return p.hasOwnProperty('Policy') && p.Policy === ssmPolicy(region);
   }
   const iamPolicies = useState([...clusterPath, 'config', 'HeadNode', 'Iam', 'AdditionalIamPolicies']);
   const ssmEnabled = iamPolicies && findFirst(iamPolicies, isSsmPolicy);

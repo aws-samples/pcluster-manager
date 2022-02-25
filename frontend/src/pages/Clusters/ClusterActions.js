@@ -36,8 +36,8 @@ export default function ClusterActions () {
   const clusterName = useState(['app', 'clusters', 'selected']);
   const clusterPath = ['clusters', 'index', clusterName];
   const cluster = useState(clusterPath);
-  const region = useState(['app', 'selectedRegion']);
   const defaultRegion = useState(['aws', 'region']);
+  const region = useState(['app', 'selectedRegion']) || defaultRegion;
   const headNode = useState([...clusterPath, 'headNode']);
 
   const fleetStatus = useState([...clusterPath, 'computeFleetStatus']);
@@ -45,7 +45,7 @@ export default function ClusterActions () {
   const dcvEnabled = useState([...clusterPath, 'config', 'HeadNode', 'Dcv', 'Enabled']);
 
   function isSsmPolicy(p) {
-    return p.hasOwnProperty('Policy') && p.Policy === ssmPolicy();
+    return p.hasOwnProperty('Policy') && p.Policy === ssmPolicy(region);
   }
   const iamPolicies = useState([...clusterPath, 'config', 'HeadNode', 'Iam', 'AdditionalIamPolicies']);
   const ssmEnabled = iamPolicies && findFirst(iamPolicies, isSsmPolicy);
@@ -53,6 +53,7 @@ export default function ClusterActions () {
   const startFleet = () => {
     UpdateComputeFleet(clusterName, "START_REQUESTED")
   }
+
   const editConfiguration = () => {
     setState(['app', 'wizard', 'clusterName'], clusterName);
     setState(['app', 'wizard', 'page'], 'cluster');
@@ -68,8 +69,7 @@ export default function ClusterActions () {
   }
 
   const shellCluster = (instanceId) => {
-    const useRegion = region || defaultRegion;
-    window.open(`https://${useRegion}.console.aws.amazon.com/systems-manager/session-manager/${instanceId}?region=${useRegion}`);
+    window.open(`https://${region}.console.aws.amazon.com/systems-manager/session-manager/${instanceId}?region=${region}`);
   }
 
   const ssmFilesystem = (instanceId) => {

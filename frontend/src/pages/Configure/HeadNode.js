@@ -114,11 +114,14 @@ function headNodeValidate() {
 
 function enableSsm(enable) {
   const iamPolicies = getState([...headNodePath, 'Iam', 'AdditionalIamPolicies']);
+  const defaultRegion = getState(['aws', 'region']);
+  const region = getState(['app', 'selectedRegion']) || defaultRegion;
+
   if(enable) {
     if(iamPolicies && findFirst(iamPolicies, isSsmPolicy))
       return;
     updateState([...headNodePath, 'Iam', 'AdditionalIamPolicies'], (existing) =>
-      {return [...(existing || []), {Policy: ssmPolicy()}]}
+      {return [...(existing || []), {Policy: ssmPolicy(region)}]}
     )
   } else {
     if(!iamPolicies || (iamPolicies && !findFirst(iamPolicies, isSsmPolicy)))
@@ -171,7 +174,8 @@ function KeypairSelect() {
 }
 
 function isSsmPolicy(p) {
-  return p.hasOwnProperty('Policy') && p.Policy === ssmPolicy();
+  const region = getState(['app', 'selectedRegion']) || getState(['aws', 'region']);
+  return p.hasOwnProperty('Policy') && p.Policy === ssmPolicy(region);
 }
 
 function SsmSettings() {

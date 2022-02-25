@@ -122,17 +122,11 @@ function isGuest() {
   return identity && (!isAdmin() && !isUser());
 }
 
-function awsPartition() {
-  console.log("lookup.")
-  const region = getState(['app', 'selectedRegion']) || getState(['aws', 'region']) || '';
-  console.log("getting partition", region, region.startsWith('us-gov') ? 'aws-us-gov' : 'aws');
-  return region.startsWith('us-gov') ? 'aws-us-gov' : 'aws';
-}
-
-function ssmPolicy() {
-  return `arn:${awsPartition()}:iam::aws:policy/AmazonSSMManagedInstanceCore`;
+function ssmPolicy(region) {
+  const partition = region.startsWith('us-gov') ? 'aws-us-gov' : 'aws';
+  return `arn:${partition}:iam::aws:policy/AmazonSSMManagedInstanceCore`;
 }
 
 export {store as default, store, setState, getState, clearState,
   clearAllState, useState, updateState, isAdmin, isUser, isGuest,
-  awsPartition, ssmPolicy}
+  ssmPolicy}
