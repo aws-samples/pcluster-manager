@@ -11,7 +11,7 @@
 import React from 'react';
 
 import { findFirst, clusterDefaultUser } from '../../util'
-import { getState, useState, ssmPolicy } from '../../store'
+import { getState, useState, ssmPolicy, consoleDomain } from '../../store'
 import { GetConfiguration, DescribeCluster } from '../../model'
 
 // UI Elements
@@ -21,6 +21,7 @@ import {
   ColumnLayout,
   Container,
   Header,
+  Link,
   Popover,
   SpaceBetween,
   StatusIndicator
@@ -100,8 +101,7 @@ export default function ClusterProperties () {
                   >copy</Button>
                 </Popover>
               </Box>
-              <a href={`https://${cluster.region}.console.aws.amazon.com/cloudformation/home?region=${cluster.region}#/stacks/events?filteringStatus=active&filteringText=&viewNested=true&hideStacks=false&stackId=${cluster.cloudformationStackArn}`}
-                target="_blank" rel="noreferrer">{cluster.cloudformationStackArn}</a>
+              <Link external href={`${consoleDomain(cluster.region)}/cloudformation/home?region=${cluster.region}#/stacks/events?filteringStatus=active&filteringText=&viewNested=true&hideStacks=false&stackId=${cluster.cloudformationStackArn}`}>{cluster.cloudformationStackArn}</Link>
             </div>
           </ValueWithLabel>
           <ValueWithLabel label="clusterConfiguration">

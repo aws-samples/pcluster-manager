@@ -69,14 +69,13 @@ export default function ClusterActions () {
   }
 
   const shellCluster = (instanceId) => {
-    window.open(`${consoleDomain()}/systems-manager/session-manager/${instanceId}?region=${region}`);
+    window.open(`${consoleDomain(region)}/systems-manager/session-manager/${instanceId}?region=${region}`);
   }
 
   const ssmFilesystem = (instanceId) => {
-    const useRegion = region || defaultRegion;
     let user = clusterDefaultUser(cluster);
     const path = encodeURIComponent(`/home/${user}/`)
-    window.open(`${consoleDomain()}/systems-manager/managed-instances/${instanceId}/file-system?region=${useRegion}&osplatform=Linux#%7B%22path%22%3A%22${path}%22%7D`);
+    window.open(`${consoleDomain(region)}/systems-manager/managed-instances/${instanceId}/file-system?region=${region}&osplatform=Linux#%7B%22path%22%3A%22${path}%22%7D`);
   }
 
   const dcvConnect = (instance) => {
