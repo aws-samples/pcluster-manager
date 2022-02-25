@@ -67,7 +67,7 @@ function QueueSelect() {
   );
 }
 
-export default function JobSubmitDialog(props) {
+export default function JobSubmitDialog({submitCallback}) {
   const open = useState([...submitPath, 'dialog']);
   const jobPath = [...submitPath, 'job'];
   const job = useState(jobPath);
@@ -88,6 +88,7 @@ export default function JobSubmitDialog(props) {
     const success_callback = () => {
       setState([...submitPath, 'dialog'], false);
       setState([...submitPath, 'pending'], false);
+      submitCallback && submitCallback();
     }
     const failure_callback = () => {
       setState([...submitPath, 'pending'], false);

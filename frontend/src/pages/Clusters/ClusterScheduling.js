@@ -40,6 +40,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 // Components
 import EmptyState from '../../components/EmptyState';
+import Loading from '../../components/Loading'
 
 // Key:Value pair (label / children)
 const ValueWithLabel = ({ label, children }) => (
@@ -177,14 +178,13 @@ function JobModal() {
       footer={
         <Box float="right">
           <SpaceBetween direction="horizontal" size="xs">
-            <JobActions job={{job_id: job.JobId, job_state: job.JobState}} disabled={fleetStatus !== "RUNNING"} cancelCallback={close}/>
+            {job && <JobActions job={{job_id: job.JobId, job_state: job.JobState}} disabled={fleetStatus !== "RUNNING"} cancelCallback={close}/>}
             <Button onClick={close} autoFocus>Close</Button>
           </SpaceBetween>
         </Box>
       }
       header={`Job Info: ${job ? job.JobName : ""}`}>
-      {job && <JobProperties job={job} />}
-      {!job && <div>Loading...</div>}
+      {job ? <JobProperties job={job} /> : <div style={{textAlign: "center", paddingTop: "40px"}}><Loading /></div>}
     </Modal>
   );
 }
@@ -195,7 +195,7 @@ export default function ClusterScheduling() {
   const cluster = useState(clusterPath);
   const fleetStatus = useState([...clusterPath, 'computeFleetStatus']);
   const cluster_minor = parseInt(cluster.version.split(".")[1]);
-  const jobs = useState(['clusters', 'index', clusterName, 'jobs']) || []
+  const jobs = useState(['clusters', 'index', clusterName, 'jobs']);
 
   React.useEffect(() => {
     const tick = () => {
@@ -207,7 +207,6 @@ export default function ClusterScheduling() {
   }, [])
 
   const selectJobCallback = (jobInfo) => {
-    setState(['app', 'clusters', 'jobInfo', 'dialog'], true);
     setState(['app', 'clusters', 'jobInfo', 'data'], jobInfo);
   }
 
@@ -218,12 +217,14 @@ export default function ClusterScheduling() {
       const cluster = getState(clusterPath);
       let user = clusterDefaultUser(cluster);
       const headNode = getState([...clusterPath, 'headNode']);
-      headNode && JobInfo(clusterName, headNode.instanceId, user, jobId, selectJobCallback)
+      clearState(['app', 'clusters', 'jobInfo', 'data']);
+      headNode && setState(['app', 'clusters', 'jobInfo', 'dialog'], true);
+      headNode && JobInfo(clusterName, headNode.instanceId, user, jobId, selectJobCallback);
     }
   }
 
   const { items, actions, filteredItemsCount, collectionProps, filterProps, paginationProps } = useCollection(
-    jobs,
+    jobs || [],
     {
       filtering: {
         empty: (
@@ -249,10 +250,10 @@ export default function ClusterScheduling() {
 
   return <SpaceBetween direction="vertical" size="s" >
     <JobModal />
-    <JobSubmitDialog />
+    <JobSubmitDialog submitCallback={refreshQueues} />
     <Button variant="primary" disabled={fleetStatus !== "RUNNING"} onClick={() => setState(['app', 'clusters', 'jobSubmit', 'dialog'], true)}>Submit Job</Button>
     {cluster_minor > 0 &&
-    <Table
+    (jobs ? <Table
       {...collectionProps}
       trackBy="job_id"
       columnDefinitions={[
@@ -308,7 +309,7 @@ export default function ClusterScheduling() {
           filteringAriaLabel="Filter jobs"
         />
       }
-    />
+    /> : <div style={{textAlign: "center", paddingTop: "40px"}}><Loading /></div>)
     }
     {cluster_minor === 0 && <div>Scheduling is only available in clusters with version 3.1.x and greater.</div>}
   </SpaceBetween>

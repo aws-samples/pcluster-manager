@@ -284,21 +284,14 @@ function IamPoliciesEditor() {
   const policy = useState(policyPath) || '';
 
   const addPolicy = () => {
-    console.log(getState([...headNodePath, 'Iam', 'AdditionalIamPolicies']))
-    updateState(policiesPath, (existing) => {
-      console.log("existing: ", existing);
-      return [...(existing || []), {Policy: policy}]
-    }
-    )
+    updateState(policiesPath, (existing) => [...(existing || []), {Policy: policy}])
     setState(policyPath, "");
-    console.log(getState(policiesPath))
   }
 
   const removePolicy = (index) => {
     setState(policiesPath, [...policies.slice(0, index), ...policies.slice(index + 1)]);
     if(policies.length === 0)
       clearState(policiesPath)
-    console.log(getState(policiesPath))
   }
 
   return <SpaceBetween direction="vertical" size="s">
@@ -313,7 +306,7 @@ function IamPoliciesEditor() {
         <Button onClick={addPolicy} disabled={policy.length === 0 || findFirst(policies, x => x.Policy === policy)}>Add</Button>
       </SpaceBetween>
     </FormField>
-    {policies.map((p, i) => p.Policy !== ssmPolicy && <SpaceBetween direction="horizontal" size="s">
+    {policies.map((p, i) => p.Policy !== ssmPolicy && <SpaceBetween key={p.Policy} direction="horizontal" size="s">
       <div style={{width: "400px"}}>{p.Policy}</div>
       <Button onClick={() => removePolicy(i)}>Remove</Button>
     </SpaceBetween>)}

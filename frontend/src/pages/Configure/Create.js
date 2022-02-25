@@ -93,7 +93,7 @@ function createValidate() {
 
 function Create() {
   const clusterConfig = useState(configPath);
-  const forceUpdate = getState(['app', 'wizard', 'forceUpdate']);
+  const forceUpdate = getState(['app', 'wizard', 'forceUpdate']) || false;
   const errors = useState(['app', 'wizard', 'errors', 'create']);
   const pending = useState(['app', 'wizard', 'pending']);
   const editing = getState(['app', 'wizard', 'editing']);
