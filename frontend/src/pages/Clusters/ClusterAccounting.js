@@ -153,6 +153,7 @@ function QueueSelect() {
 }
 
 function JobProperties({job}) {
+  console.log(job);
   return <Container>
       <ColumnLayout columns={3} variant="text-grid">
         <SpaceBetween direction="vertical" size="l">
