@@ -171,15 +171,15 @@ function ComputeResource({index, queueIndex, computeResource}) {
   const setMinCount = (staticCount) => {
     const dynamicCount = maxCount - minCount;
     if(staticCount > 0)
-      setState([...path, 'MinCount'], staticCount);
+      setState([...path, 'MinCount'], (!isNaN(staticCount) ? staticCount : 0));
     else
       clearState([...path, 'MinCount']);
-    setState([...path, 'MaxCount'], staticCount + dynamicCount);
+    setState([...path, 'MaxCount'], (!isNaN(staticCount) ? staticCount : 0) + (!isNaN(dynamicCount) ? dynamicCount : 0));
   }
 
   const setMaxCount = (dynamicCount) => {
     const staticCount = minCount;
-    setState([...path, 'MaxCount'], staticCount + dynamicCount);
+    setState([...path, 'MaxCount'], (!isNaN(staticCount) ? staticCount : 0) + (!isNaN(dynamicCount) ? dynamicCount : 0));
   }
 
   const setDisableHT = (disable) => {
