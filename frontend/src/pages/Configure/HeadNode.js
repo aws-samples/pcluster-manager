@@ -25,6 +25,7 @@ import {
   Select,
   SpaceBetween,
   Toggle,
+  TokenGroup,
 } from "@awsui/components-react";
 
 // State
@@ -220,7 +221,10 @@ function SecurityGroups() {
       />
       <Button disabled={!sgSelected} onClick={() => setState(sgPath, [...selectedSgs, sgSelected.value])}>Add</Button>
     </div>
-    {selectedSgs.map((s, i) => <div key={`sg${i}`} style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap:"16px"}}><div>{s}</div><Button onClick={() => removeSg(i)}>Remove</Button></div>)}
+    <TokenGroup
+      onDismiss={({ detail: { itemIndex } }) => {removeSg(itemIndex)}}
+      items={selectedSgs.map((s) => {return {label: s, dismissLabel: `Remove ${s}`}})}
+    />
   </SpaceBetween>
 }
 
