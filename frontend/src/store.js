@@ -99,7 +99,7 @@ function getState(state, path) {
   // Don't pass the state in if running outside of a component and we can pull
   // directly from the store
   if(path === undefined)
-    return getState(store.getState(), state)
+    return getState(store.getState(), state);
   return getIn(state, path);
 }
 
@@ -123,6 +123,7 @@ function isGuest() {
 }
 
 function awsPartition() {
+  console.log("lookup.")
   const region = getState(['app', 'selectedRegion']) || getState(['aws', 'region']) || '';
   console.log("getting partition", region, region.startsWith('us-gov') ? 'aws-us-gov' : 'aws');
   return region.startsWith('us-gov') ? 'aws-us-gov' : 'aws';
