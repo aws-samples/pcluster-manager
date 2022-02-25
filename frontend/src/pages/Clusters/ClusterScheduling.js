@@ -112,13 +112,11 @@ function FileLink({path, isFile}) {
   const headNode = useState([...clusterPath, 'headNode']);
 
   const linkPath = isFile ? path.slice(0, path.lastIndexOf('/')) : path;
-  console.log("lp: ", linkPath);
 
   return <a href={`https://${region}.console.aws.amazon.com/systems-manager/managed-instances/${headNode.instanceId}/file-system?region=${region}&osplatform=Linux#%7B%22path%22%3A%22${linkPath}%22%7D`} rel="noreferrer" target="_blank">{path}</a>
 }
 
 function JobProperties({job}) {
-  console.log(job);
   return <Container>
       <ColumnLayout columns={3} variant="text-grid">
         <SpaceBetween direction="vertical" size="l">
