@@ -11,7 +11,7 @@
 import React from 'react';
 
 import { findFirst, clusterDefaultUser } from '../../util'
-import { getState, useState } from '../../store'
+import { getState, useState, ssmPolicy } from '../../store'
 import { GetConfiguration, DescribeCluster } from '../../model'
 
 // UI Elements
@@ -64,9 +64,8 @@ export default function ClusterProperties () {
   const clusterPath = ['clusters', 'index', clusterName];
   const headNode = useState([...clusterPath, 'headNode']);
 
-  const ssmPolicy = 'arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore';
   function isSsmPolicy(p) {
-    return p.hasOwnProperty('Policy') && p.Policy === ssmPolicy;
+    return p.hasOwnProperty('Policy') && p.Policy === ssmPolicy();
   }
   const iamPolicies = useState([...clusterPath, 'config', 'HeadNode', 'Iam', 'AdditionalIamPolicies']);
   const ssmEnabled = iamPolicies && findFirst(iamPolicies, isSsmPolicy);

@@ -13,7 +13,7 @@ import React from 'react';
 import jsyaml from 'js-yaml';
 
 import { UpdateComputeFleet, GetConfiguration, GetDcvSession } from '../../model'
-import { setState, useState, isAdmin } from '../../store'
+import { setState, useState, isAdmin, ssmPolicy } from '../../store'
 import { findFirst, clusterDefaultUser } from '../../util'
 import { loadTemplate } from '../Configure/util'
 
@@ -44,9 +44,8 @@ export default function ClusterActions () {
   const clusterStatus = useState([...clusterPath, 'clusterStatus']);
   const dcvEnabled = useState([...clusterPath, 'config', 'HeadNode', 'Dcv', 'Enabled']);
 
-  const ssmPolicy = 'arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore';
   function isSsmPolicy(p) {
-    return p.hasOwnProperty('Policy') && p.Policy === ssmPolicy;
+    return p.hasOwnProperty('Policy') && p.Policy === ssmPolicy();
   }
   const iamPolicies = useState([...clusterPath, 'config', 'HeadNode', 'Iam', 'AdditionalIamPolicies']);
   const ssmEnabled = iamPolicies && findFirst(iamPolicies, isSsmPolicy);

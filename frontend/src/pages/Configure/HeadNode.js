@@ -27,7 +27,7 @@ import {
 } from "@awsui/components-react";
 
 // State
-import { setState, getState, useState, clearState, updateState } from '../../store'
+import { setState, getState, useState, clearState, updateState, ssmPolicy } from '../../store'
 
 // Components
 import { SubnetSelect, InstanceSelect, ActionsEditor } from './Components'
@@ -118,7 +118,7 @@ function enableSsm(enable) {
     if(iamPolicies && findFirst(iamPolicies, isSsmPolicy))
       return;
     updateState([...headNodePath, 'Iam', 'AdditionalIamPolicies'], (existing) =>
-      {return [...(existing || []), {Policy: ssmPolicy}]}
+      {return [...(existing || []), {Policy: ssmPolicy()}]}
     )
   } else {
     if(!iamPolicies || (iamPolicies && !findFirst(iamPolicies, isSsmPolicy)))
@@ -170,11 +170,9 @@ function KeypairSelect() {
   </FormField>);
 }
 
-const ssmPolicy = 'arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore';
 function isSsmPolicy(p) {
-  return p.hasOwnProperty('Policy') && p.Policy === ssmPolicy;
+  return p.hasOwnProperty('Policy') && p.Policy === ssmPolicy();
 }
-
 
 function SsmSettings() {
   const dcvEnabled = useState([...headNodePath, 'Dcv', 'Enabled']) || false;

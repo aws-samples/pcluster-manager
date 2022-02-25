@@ -122,5 +122,15 @@ function isGuest() {
   return identity && (!isAdmin() && !isUser());
 }
 
+function awsPartition() {
+  const region = getState(['app', 'selectedRegion']) || getState(['aws', 'region']) || '';
+  return region.startsWith('us-gov') ? 'aws-us-gov' : 'aws';
+}
+
+function ssmPolicy() {
+  return `arn:${awsPartition()}:iam::aws:policy/AmazonSSMManagedInstanceCore`;
+}
+
 export {store as default, store, setState, getState, clearState,
-  clearAllState, useState, updateState, isAdmin, isUser, isGuest}
+  clearAllState, useState, updateState, isAdmin, isUser, isGuest,
+  awsPartition, ssmPolicy}
