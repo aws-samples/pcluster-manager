@@ -124,6 +124,7 @@ function isGuest() {
 
 function awsPartition() {
   const region = getState(['app', 'selectedRegion']) || getState(['aws', 'region']) || '';
+  console.log("getting partition", region, region.startsWith('us-gov') ? 'aws-us-gov' : 'aws');
   return region.startsWith('us-gov') ? 'aws-us-gov' : 'aws';
 }
 
