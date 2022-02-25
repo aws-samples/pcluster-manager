@@ -287,15 +287,13 @@ function ArgEditor({path, i, multi, scriptIndex}) {
     }
   }
 
-  return <tr>
-    <td>
-      <span>{argName}: </span>
-    </td><td>
-      <Input value={multi? arg.slice(1) : arg} onChange={({detail}) => {setState([...path, i], multi? '-' + detail.value : detail.value)}} />
-    </td><td>
-      <Button onClick={remove}>Remove</Button>
-    </td>
-  </tr>;
+  return <SpaceBetween direction="horizontal" size="s">
+    <div style={{marginLeft: "25px", width: "120px"}}>{argName}: </div>
+    <div style={{width: "240px"}}>
+      <Input value={multi? arg.slice(1) : arg} onChange={({detail}) => {setState([...path, i], multi? '-' + detail.value : detail.value)}} InputStyle={{width: "200px"}}/>
+    </div>
+    <Button onClick={remove}>Remove</Button>
+  </SpaceBetween>;
 }
 
 function MultiRunnerScriptEditor({path, i}) {
@@ -354,7 +352,7 @@ function MultiRunnerScriptEditor({path, i}) {
   }
 
   return <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
-    <span style={{whiteSpace: "nowrap"}}>Path:</span>
+    <span style={{whiteSpace: "nowrap"}}>Script:</span>
     <Autosuggest
       value={scriptToName(arg)}
       onChange={({ detail }) => {
@@ -387,11 +385,7 @@ function MultiRunnerEditor({path}) {
   let scriptIndex = -1;
   return <SpaceBetween direction="vertical" size="xs">
     <Button onClick={addScript}>Add Script</Button>
-    <table>
-      <tbody>
     {data.map((a, i) => a.length > 0 && a[0] === '-' ? <ArgEditor key={`osa${i}`} arg={a} i={i} path={path} multi={true} scriptIndex={scriptIndex}/> : (() => {scriptIndex = i; return <MultiRunnerScriptEditor key={`msa${i}`} path={path} i={i} />})())}
-      </tbody>
-    </table>
   </SpaceBetween>
 }
 

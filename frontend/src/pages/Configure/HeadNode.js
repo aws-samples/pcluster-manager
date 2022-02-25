@@ -108,7 +108,7 @@ function headNodeValidate() {
 
 
   const config = getState(['app', 'wizard', 'config']);
-  console.log(config);
+  //console.log(config);
 
   return valid;
 }
@@ -202,8 +202,7 @@ function SecurityGroups() {
   const sgSelected = useState(['app', 'wizard', 'sg-selected']);
 
   const sgs = useState(['aws', 'security_groups']) || [];
-  const sgMap = sgs.reduce((acc, s) => {acc[s.GroupId] = s.GroupName; return acc}, {})
-
+  // const sgMap = sgs.reduce((acc, s) => {acc[s.GroupId] = s.GroupName; return acc}, {})
   console.log(useState(headNodePath));
 
   const itemToOption = item => {return {value: item.GroupId, label: item.GroupId, description: item.GroupName}}
