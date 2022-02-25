@@ -127,6 +127,10 @@ function ssmPolicy(region) {
   return `arn:${partition}:iam::aws:policy/AmazonSSMManagedInstanceCore`;
 }
 
+function consoleDomain(region) {
+  return region.startsWith('us-gov') ? 'https://console.amazonaws-us-gov.com' : `https://${region}.console.aws.amazon.com`
+}
+
 export {store as default, store, setState, getState, clearState,
   clearAllState, useState, updateState, isAdmin, isUser, isGuest,
-  ssmPolicy}
+  ssmPolicy, consoleDomain}
