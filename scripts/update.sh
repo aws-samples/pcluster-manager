@@ -1,11 +1,42 @@
 #!/bin/bash -e
 
-if [ -z "$1" ]; then
-    REGION=$(python -c 'import boto3; print(boto3.Session().region_name)')
+REGION=$(python -c 'import boto3; print(boto3.Session().region_name)')
+REGION_SET=false
+TAG=latest
+
+USAGE="$(basename "$0") [-h] [--region REGION] [--tag TAG]"
+
+while [[ $# -gt 0 ]]
+do
+key="$1"
+
+case $key in
+    -h)
+    echo "$USAGE" >&2
+    exit 1
+    ;;
+    --region)
+    REGION=$2
+    REGION_SET=true
+    shift # past argument
+    shift # past value
+    ;;
+    --tag)
+    TAG=$2
+    shift # past argument
+    shift # past value
+    ;;
+    *)    # unknown option
+    echo "$usage" >&2
+    exit 1
+    ;;
+esac
+done
+
+if [ "$REGION_SET" == "false" ]; then
     echo "Warning: Using default region $REGION from your environment. Please ensure this is where pcluster manager is deployed.";
-else
-    REGION=$1
 fi
+
 LAMBDA_ARN=$(aws lambda list-functions --query "Functions[?contains(FunctionName, 'PclusterManagerFunction')] | [0].FunctionArn" | xargs echo)
 ECR_REPO=pcluster-manager-awslambda
 
@@ -17,7 +48,7 @@ IMAGE=${ECR_ENDPOINT}/${PRIVATE_ECR_REPO}:latest
 echo "Logging in to docker..."
 aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin "${PUBLIC_ECR_ENDPOINT}"
 echo "Getting public version of Pcluster Manager docker container..."
-docker pull ${PUBLIC_ECR_ENDPOINT}/${ECR_REPO}
+docker pull ${PUBLIC_ECR_ENDPOINT}/${ECR_REPO}:${TAG}
 docker tag ${PUBLIC_ECR_ENDPOINT}/${ECR_REPO} ${IMAGE}
 echo "Logging in to private repo..."
 aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin "${ECR_ENDPOINT}"
