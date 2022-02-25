@@ -5,7 +5,7 @@ ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
 ECR_ENDPOINT="${ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
 ECR_REPO=pcluster-manager-awslambda
 
-USAGE="$(basename "$0") [-h] [--release]"
+USAGE="$(basename "$0") [-h] [--release] [--tag TAG]"
 GIT_SHA=$(git rev-parse --short HEAD)
 TAG=${GIT_SHA}
 
@@ -21,6 +21,12 @@ case $key in
     --release)
     TAG=latest
     shift # past argument
+    ;;
+    --tag)
+    TAG=latest
+    TAG=$2
+    shift # past argument
+    shift # past value
     ;;
     *)    # unknown option
     echo "$usage" >&2
