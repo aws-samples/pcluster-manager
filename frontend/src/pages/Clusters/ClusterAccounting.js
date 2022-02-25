@@ -26,6 +26,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 // Components
 import EmptyState from '../../components/EmptyState';
+import Loading from '../../components/Loading'
 
 // UI Elements
 import {
@@ -160,7 +161,7 @@ function JobProperties({job}) {
           <ValueWithLabel label="Job Id">{job.job_id}</ValueWithLabel>
           <ValueWithLabel label="Cluster">{job.cluster}</ValueWithLabel>
           <ValueWithLabel label="Group">{job.group}</ValueWithLabel>
-          <ValueWithLabel label="Time">{getIn(job, ['time', 'elapsed'])}</ValueWithLabel>
+          <ValueWithLabel label="Time">{getIn(job, ['time', 'elapsed'])} ms</ValueWithLabel>
         </SpaceBetween>
         <SpaceBetween direction="vertical" size="l">
           <ValueWithLabel label="State">{<Status status={getIn(job, ['state', 'current'])} />}</ValueWithLabel>
@@ -216,14 +217,14 @@ export default function ClusterAccounting() {
   const endTime = useState(['app', 'clusters', 'accounting', 'endTime']);
   const nodes = useState(['app', 'clusters', 'accounting', 'nodes']) || []
   const jobName = useState(['app', 'clusters', 'accounting', 'jobName']) || []
-  const jobs = useState(['clusters', 'index', clusterName, 'accounting', 'jobs']) || []
+  const jobs = useState(['clusters', 'index', clusterName, 'accounting', 'jobs']);
 
   React.useEffect(() => {
     refreshAccounting({}, null, true);
   }, [])
 
   const { items, actions, filteredItemsCount, collectionProps, filterProps, paginationProps } = useCollection(
-    jobs,
+    jobs || [],
     {
       filtering: {
         empty: (
@@ -247,8 +248,10 @@ export default function ClusterAccounting() {
   );
 
   const selectJob = (job_id) => {
+    setState(['clusters', 'index', clusterName, 'accounting', 'dialog'], true);
+    clearState(['clusters', 'index', clusterName, 'accounting', 'selectedJob']);
+    clearState(['clusters', 'index', clusterName, 'accounting', 'job', job_id]);
     refreshAccounting({jobs: job_id}, (ret) => {
-      setState(['clusters', 'index', clusterName, 'accounting', 'dialog'], true);
       setState(['clusters', 'index', clusterName, 'accounting', 'selectedJob'], job_id);
       setState(['clusters', 'index', clusterName, 'accounting', 'job', job_id], ret.jobs[0]);
     }, false)
@@ -292,11 +295,10 @@ export default function ClusterAccounting() {
       </Container>
 
 
-
-      <SpaceBetween direction="vertical" size="s" >
+      {jobs ? <SpaceBetween direction="vertical" size="s" >
         <Table
           {...collectionProps}
-          trackBy="job_id"
+          trackBy={i => `${i.job_id}-${i.name}`}
           columnDefinitions={[
             {
               id: "id",
@@ -341,6 +343,8 @@ export default function ClusterAccounting() {
           }
         />
       </SpaceBetween>
+      : <div style={{textAlign: "center", paddingTop: "40px"}}><Loading /></div>
+      }
     </SpaceBetween>
   </>;
 }
