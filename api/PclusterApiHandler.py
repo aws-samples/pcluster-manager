@@ -149,14 +149,14 @@ def ec2_action():
     try:
         instance_ids = args.get("instance_ids").split(",")
     except:
-        abort(400, description="You must specify instances.")
+        return {"message": "You must specify instances."}, 400
 
     if args.get("action") == "stop_instances":
         resp = ec2.stop_instances(InstanceIds=instance_ids)
     elif args.get("action") == "start_instances":
         resp = ec2.start_instances(InstanceIds=instance_ids)
     else:
-        abort(400, description="You must specify an action.")
+        return {"message": "You must specify an action."}, 400
 
     print(resp)
     ret = {"message": "success"}
@@ -211,11 +211,11 @@ def ssm_command(region, instance_id, user, run_command):
         time.sleep(0.75)
 
     if time.time() - start > 60:
-        abort(500, description="Timed out waiting for command to complete.")
+        return {"message": "Timed out waiting for command to complete."}, 500
 
     if status["Status"] != "Success":
         print(status)
-        abort(500, description=status["StandardErrorContent"])
+        return {"message": status["StandardErrorContent"]}, 500
 
     output = status["StandardOutputContent"]
     return output
@@ -272,6 +272,26 @@ def sacct():
     except Exception as e:
         print(accounting)
         raise e
+
+
+def scontrol_job():
+    parser = reqparse.RequestParser()
+    parser.add_argument("instance_id", type=str)
+    parser.add_argument("user", type=str)
+    parser.add_argument("region", type=str)
+    parser.add_argument("job_id", type=str)
+    args = parser.parse_args()
+    user = args.get("user", "ec2-user")
+    instance_id = args.get("instance_id")
+    job_id = args.get("job_id")
+
+    if not job_id:
+        return {"message": "You must specify a job id."}, 400
+
+    job_data = ssm_command(args.get("region"), instance_id, user, f"scontrol show job {job_id} -o").strip().split(" ")
+    kvs = [jd.split("=", 1) for jd in job_data]
+    job_info = {k: v for k, v in kvs}
+    return job_info
 
 
 def queue_status():
@@ -345,10 +365,10 @@ def get_dcv_session():
         time.sleep(0.75)
 
     if time.time() - start > 15:
-        abort(500, description="Timed out waiting for dcv session to start.")
+        return {"message": "Timed out waiting for dcv session to start."}, 500
 
     if status["Status"] != "Success":
-        abort(500, description=status["StandardErrorContent"])
+        return {"message": status["StandardErrorContent"]}, 500
 
     output = status["StandardOutputContent"]
 
@@ -357,7 +377,7 @@ def get_dcv_session():
     )
 
     if not dcv_parameters:
-        abort(500, description="Something went wrong during DCV connection. Check logs in /var/log/parallelcluster/ .")
+        return {"message": "Something went wrong during DCV connection. Check logs in /var/log/parallelcluster/ ."}, 500
 
     ret = {
         "port": dcv_parameters.group(1),

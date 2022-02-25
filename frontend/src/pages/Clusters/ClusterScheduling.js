@@ -11,7 +11,7 @@
 import React from 'react';
 
 import { useState, getState, setState, clearState } from '../../store'
-import { QueueStatus, CancelJob } from '../../model'
+import { QueueStatus, CancelJob, JobInfo } from '../../model'
 import { clusterDefaultUser } from '../../util'
 import { useCollection } from '@awsui/collection-hooks';
 
@@ -20,6 +20,11 @@ import { useTheme } from '@mui/material/styles';
 // UI Elements
 import {
   Button,
+  Box,
+  ColumnLayout,
+  Container,
+  Link,
+  Modal,
   Pagination,
   SpaceBetween,
   Table,
@@ -36,6 +41,15 @@ import CircularProgress from '@mui/material/CircularProgress';
 // Components
 import EmptyState from '../../components/EmptyState';
 
+// Key:Value pair (label / children)
+const ValueWithLabel = ({ label, children }) => (
+  <div>
+    <Box margin={{ bottom: 'xxxs' }} color="text-label">
+      {label}
+    </Box>
+    <div>{children}</div>
+  </div>
+);
 
 function refreshQueues(callback) {
   const clusterName = getState(['app', 'clusters', 'selected']);
@@ -65,35 +79,109 @@ function Status(props) {
   return props.status in statusMap ? statusMap[props.status] : <span>{props.status}</span>;
 }
 
-function JobActions({job, disabled}) {
+function JobActions({job, disabled, cancelCallback}) {
   let pendingPath = ['app', 'clusters', 'queue', 'action', job.job_id, 'pending'];
   const pending = useState(pendingPath);
 
-  const cancelJob = (jobId) => {
+  const cancelJob = (jobId, cancelCallback) => {
     const clusterName = getState(['app', 'clusters', 'selected']);
     const clusterPath = ['clusters', 'index', clusterName];
     const cluster = getState(clusterPath);
     let user = clusterDefaultUser(cluster);
     const headNode = getState([...clusterPath, 'headNode']);
     setState(pendingPath, true);
-    CancelJob(headNode.instanceId, user, jobId, () => refreshQueues(() => clearState(pendingPath)))
+    CancelJob(headNode.instanceId, user, jobId, () => refreshQueues(() => {clearState(pendingPath); cancelCallback && cancelCallback()}))
   }
 
   return (
     <div>
-      {job.job_state !== "COMPLETED" &&
+      {job.job_state !== "COMPLETED" && job.job_state !== "CANCELLED" &&
       <div>
-        <Button loading={pending} disabled={disabled} onClick={() => {cancelJob(job.job_id)}}>Cancel</Button>
+        <Button loading={pending} disabled={disabled} onClick={() => {cancelJob(job.job_id, cancelCallback)}}>Stop Job</Button>
       </div>
       }
     </div>
   )
 }
 
+function JobProperties({job}) {
+  console.log(job);
+  return <Container>
+      <ColumnLayout columns={3} variant="text-grid">
+        <SpaceBetween direction="vertical" size="l">
+          <ValueWithLabel label="Job Id">{job.JobId}</ValueWithLabel>
+          <ValueWithLabel label="Job Name">{job.JobName}</ValueWithLabel>
+          <ValueWithLabel label="Queue">{job.Partition}</ValueWithLabel>
+          <ValueWithLabel label="User Id">{job.UserId}</ValueWithLabel>
+          <ValueWithLabel label="Group Id">{job.GroupId}</ValueWithLabel>
+          <ValueWithLabel label="Priority">{job.Priority}</ValueWithLabel>
+          <ValueWithLabel label="Account">{job.Account}</ValueWithLabel>
+          <ValueWithLabel label="State"><Status status={job.JobState} /></ValueWithLabel>
+          <ValueWithLabel label="Reason">{job.Reason}</ValueWithLabel>
+          <ValueWithLabel label="Requeue">{job.Requeue}</ValueWithLabel>
+        </SpaceBetween>
+        <SpaceBetween direction="vertical" size="l">
+          <ValueWithLabel label="Node List">{job.NodeList}</ValueWithLabel>
+          <ValueWithLabel label="Restarts">{job.Restarts}</ValueWithLabel>
+          <ValueWithLabel label="Reboot">{job.Reboot}</ValueWithLabel>
+          <ValueWithLabel label="ExitCode">{job.ExitCode}</ValueWithLabel>
+          <ValueWithLabel label="RunTime">{job.RunTime}</ValueWithLabel>
+          <ValueWithLabel label="TimeLimit">{job.TimeLimit}</ValueWithLabel>
+          <ValueWithLabel label="SubmitTime">{job.SubmitTime}</ValueWithLabel>
+          <ValueWithLabel label="WorkDir">{job.WorkDir}</ValueWithLabel>
+          <ValueWithLabel label="BatchHost">{job.BatchHost}</ValueWithLabel>
+        </SpaceBetween>
+        <SpaceBetween direction="vertical" size="l">
+          <ValueWithLabel label="EndTime">{job.EndTime}</ValueWithLabel>
+          <ValueWithLabel label="NumNodes">{job.NumNodes}</ValueWithLabel>
+          <ValueWithLabel label="NumCPUs">{job.NumCPUs}</ValueWithLabel>
+          <ValueWithLabel label="NumTasks">{job.NumTasks}</ValueWithLabel>
+          <ValueWithLabel label="CPUs/Task">{job['CPUs/Task']}</ValueWithLabel>
+          <ValueWithLabel label="TRES">{job.TRES}</ValueWithLabel>
+          <ValueWithLabel label="Command">{job.Command}</ValueWithLabel>
+          <ValueWithLabel label="StdOut">{job.StdOut}</ValueWithLabel>
+          <ValueWithLabel label="StdErr">{job.StdErr}</ValueWithLabel>
+        </SpaceBetween>
+      </ColumnLayout>
+    </Container>
+}
+
+function JobModal() {
+  const clusterName = useState(['app', 'clusters', 'selected']);
+  const clusterPath = ['clusters', 'index', clusterName];
+  const fleetStatus = useState([...clusterPath, 'computeFleetStatus']);
+  const open = useState(['app', 'clusters', 'jobInfo', 'dialog']);
+  const job = useState(['app', 'clusters', 'jobInfo', 'data']);
+
+  const close = () => {
+    setState(['app', 'clusters', 'jobInfo', 'dialog'], false)
+  };
+
+  return (
+    <Modal
+      onDismiss={close}
+      visible={open}
+      closeAriaLabel="Close modal"
+      size="large"
+      footer={
+        <Box float="right">
+          <SpaceBetween direction="horizontal" size="xs">
+            <JobActions job={{job_id: job.JobId, job_state: job.JobState}} disabled={fleetStatus !== "RUNNING"} cancelCallback={close}/>
+            <Button onClick={close} autoFocus>Close</Button>
+          </SpaceBetween>
+        </Box>
+      }
+      header={`Job Info: ${job ? job.JobName : ""}`}>
+      {job && <JobProperties job={job} />}
+      {!job && <div>Loading...</div>}
+    </Modal>
+  );
+}
+
 export default function ClusterScheduling() {
   const clusterName = useState(['app', 'clusters', 'selected']);
   const clusterPath = ['clusters', 'index', clusterName];
-  const cluster = useState(['clusters', 'index', clusterName]);
+  const cluster = useState(clusterPath);
   const fleetStatus = useState([...clusterPath, 'computeFleetStatus']);
   const cluster_minor = parseInt(cluster.version.split(".")[1]);
   const jobs = useState(['clusters', 'index', clusterName, 'jobs']) || []
@@ -106,6 +194,22 @@ export default function ClusterScheduling() {
     const timerId = setInterval(tick, 10000);
     return () => { clearInterval(timerId); }
   }, [])
+
+  const selectJobCallback = (jobInfo) => {
+    setState(['app', 'clusters', 'jobInfo', 'dialog'], true);
+    setState(['app', 'clusters', 'jobInfo', 'data'], jobInfo);
+  }
+
+  const selectJob = (jobId) => {
+    const clusterName = getState(['app', 'clusters', 'selected']);
+    if(clusterName){
+      const clusterPath = ['clusters', 'index', clusterName];
+      const cluster = getState(clusterPath);
+      let user = clusterDefaultUser(cluster);
+      const headNode = getState([...clusterPath, 'headNode']);
+      headNode && JobInfo(clusterName, headNode.instanceId, user, jobId, selectJobCallback)
+    }
+  }
 
   const { items, actions, filteredItemsCount, collectionProps, filterProps, paginationProps } = useCollection(
     jobs,
@@ -133,6 +237,7 @@ export default function ClusterScheduling() {
 
 
   return <SpaceBetween direction="vertical" size="s" >
+    <JobModal />
     <JobSubmitDialog />
     <Button variant="primary" disabled={fleetStatus !== "RUNNING"} onClick={() => setState(['app', 'clusters', 'jobSubmit', 'dialog'], true)}>Submit Job</Button>
     {cluster_minor > 0 &&
@@ -143,7 +248,7 @@ export default function ClusterScheduling() {
         {
           id: "id",
           header: "ID",
-          cell: item => item.job_id,
+          cell: item => <Link onFollow={() => selectJob(item.job_id)}>{item.job_id}</Link>,
           sortingField: "job_id"
         },
         {

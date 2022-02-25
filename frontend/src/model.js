@@ -566,6 +566,27 @@ function SubmitJob(instanceId, user, job, callback, failure) {
 }
 
 
+function JobInfo(clusterName, instanceId, user, jobId, callback, failure) {
+  const region = getState(['app', 'selectedRegion']) || getState(['aws', 'region']);
+  let url = `manager/scontrol_job?instance_id=${instanceId}&user=${user || 'ec2-user'}&region=${region}&job_id=${jobId}`
+  request('get', url).then(response => {
+    if(response.status === 200) {
+      console.log(response.data)
+      callback && callback(response.data)
+    }
+  }).catch(error => {
+    console.log("jif", error)
+    if(error.response)
+    {
+      failure && failure(error.response)
+      console.log(error.response)
+      notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
+    }
+    console.log(error)
+  })
+}
+
+
 function SlurmAccounting(clusterName, instanceId, user, args, callback, failure) {
   const region = getState(['app', 'selectedRegion']) || getState(['aws', 'region']);
   let url = `manager/sacct?instance_id=${instanceId}&user=${user || 'ec2-user'}&region=${region}`
@@ -626,4 +647,4 @@ export {CreateCluster, UpdateCluster, ListClusters, DescribeCluster,
   BuildImage, GetCustomImageStackEvents, ListCustomImageLogStreams,
   GetCustomImageLogEvents, ListOfficialImages, LoadInitialState,
   Ec2Action,LoadAwsConfig, GetDcvSession, QueueStatus, CancelJob, SubmitJob,
-  SlurmAccounting, ListUsers, SetUserRole, notify}
+  SlurmAccounting, JobInfo, ListUsers, SetUserRole, notify}

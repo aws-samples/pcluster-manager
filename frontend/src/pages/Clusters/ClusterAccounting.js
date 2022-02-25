@@ -208,8 +208,8 @@ function JobModal() {
 
 export default function ClusterAccounting() {
   const clusterName = useState(['app', 'clusters', 'selected']);
-  const accounting = useState(['clusters', 'index', clusterName, 'accounting']);
-  const errors = useState(['clusters', 'index', clusterName, 'accounting', 'errors']) || [];
+  //const accounting = useState(['clusters', 'index', clusterName, 'accounting']);
+  //const errors = useState(['clusters', 'index', clusterName, 'accounting', 'errors']) || [];
 
   const pending = useState(['app', 'clusters', 'accounting', 'pending']);
   const startTime = useState(['app', 'clusters', 'accounting', 'startTime']);
