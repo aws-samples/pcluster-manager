@@ -104,6 +104,19 @@ function JobActions({job, disabled, cancelCallback}) {
   )
 }
 
+function FileLink({path, isFile}) {
+  const clusterName = useState(['app', 'clusters', 'selected']);
+  const clusterPath = ['clusters', 'index', clusterName];
+  const defaultRegion = useState(['aws', 'region']);
+  const region = useState(['app', 'selectedRegion']) || defaultRegion;
+  const headNode = useState([...clusterPath, 'headNode']);
+
+  const linkPath = isFile ? path.slice(0, path.lastIndexOf('/')) : path;
+  console.log("lp: ", linkPath);
+
+  return <a href={`https://${region}.console.aws.amazon.com/systems-manager/managed-instances/${headNode.instanceId}/file-system?region=${region}&osplatform=Linux#%7B%22path%22%3A%22${linkPath}%22%7D`} rel="noreferrer" target="_blank">{path}</a>
+}
+
 function JobProperties({job}) {
   console.log(job);
   return <Container>
@@ -128,7 +141,7 @@ function JobProperties({job}) {
           <ValueWithLabel label="RunTime">{job.RunTime}</ValueWithLabel>
           <ValueWithLabel label="TimeLimit">{job.TimeLimit}</ValueWithLabel>
           <ValueWithLabel label="SubmitTime">{job.SubmitTime}</ValueWithLabel>
-          <ValueWithLabel label="WorkDir">{job.WorkDir}</ValueWithLabel>
+          <ValueWithLabel label="WorkDir"><FileLink path={job.WorkDir} /></ValueWithLabel>
           <ValueWithLabel label="BatchHost">{job.BatchHost}</ValueWithLabel>
         </SpaceBetween>
         <SpaceBetween direction="vertical" size="l">
@@ -139,8 +152,8 @@ function JobProperties({job}) {
           <ValueWithLabel label="CPUs/Task">{job['CPUs/Task']}</ValueWithLabel>
           <ValueWithLabel label="TRES">{job.TRES}</ValueWithLabel>
           <ValueWithLabel label="Command">{job.Command}</ValueWithLabel>
-          <ValueWithLabel label="StdOut">{job.StdOut}</ValueWithLabel>
-          <ValueWithLabel label="StdErr">{job.StdErr}</ValueWithLabel>
+          <ValueWithLabel label="StdOut"><FileLink path={job.StdOut} isFile={true} /></ValueWithLabel>
+          <ValueWithLabel label="StdErr"><FileLink path={job.StdErr} isFile={true} /></ValueWithLabel>
         </SpaceBetween>
       </ColumnLayout>
     </Container>
