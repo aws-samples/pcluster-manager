@@ -76,13 +76,13 @@ export API_BASE_URL=https://[API_ID].execute-api.us-east-2.amazonaws.com/prod  #
 Start the API backend by running:
 
 ```bash
-scripts/run_flask.sh
+./scripts/run_flask.sh
 ```
 
 Start the React frontend by running:
 
 ```bash
-cd frontend/src
+cd frontend/
 npm install # if this is your first time starting the frontend
 npm start
 ```

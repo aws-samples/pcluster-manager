@@ -359,6 +359,42 @@ function ListUsers() {
   })
 }
 
+function CreateUser(user) {
+  var url = 'manager/create_user';
+  request('post', url, user
+  ).then(response => {
+    if(response.status === 200) {
+      console.log("user added:", response.data);
+      let returned_user = response.data;
+      setState(['users', 'index', returned_user.Username], returned_user);
+    } else {
+      console.log(response)
+    }
+  }).catch(error => {
+    if(error.response)
+      notify(`Error: ${error.response.data.message}`, 'error');
+    console.log(error.response)
+  })
+}
+
+function DeleteUser(user) {
+  var url = 'manager/delete_user';
+  request('post', url, user
+  ).then(response => {
+    if(response.status === 200) {
+      let returned_user = response.data;
+      console.log(`user ${returned_user.Username} deleted`);
+      clearState(['users', 'index', returned_user.Username], []);
+    } else {
+      console.log(response)
+    }
+  }).catch(error => {
+    if(error.response)
+      notify(`Error: ${error.response.data.message}`, 'error');
+    console.log(error.response)
+  })
+}
+
 function SetUserRole(user, role, callback) {
   var url = 'manager/set_user_role';
   let body = {username: user.Username, role: role};
@@ -606,4 +642,4 @@ export {CreateCluster, UpdateCluster, ListClusters, DescribeCluster,
   BuildImage, GetCustomImageStackEvents, ListCustomImageLogStreams,
   GetCustomImageLogEvents, ListOfficialImages, LoadInitialState,
   Ec2Action,LoadAwsConfig, GetDcvSession, QueueStatus, CancelJob, SubmitJob,
-  ListUsers, SetUserRole, notify}
+  ListUsers, SetUserRole, notify, CreateUser, DeleteUser}
