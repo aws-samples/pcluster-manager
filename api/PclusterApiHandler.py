@@ -441,6 +441,23 @@ def list_users():
     except Exception as e:
         return {"exception": str(e)}
 
+def delete_user():
+    try:
+        cognito = boto3.client("cognito-idp")
+        username = request.json.get("Username")
+        cognito.admin_delete_user(UserPoolId=USER_POOL_ID, Username=username)
+        return {'Username': username}
+    except Exception as e:
+        return {"exception": str(e)}
+
+def create_user():
+    try:
+        cognito = boto3.client("cognito-idp")
+        username = request.json.get("Username")
+        user = cognito.admin_create_user(UserPoolId=USER_POOL_ID, Username=username).get('User')
+        return _augment_user(cognito, user)
+    except Exception as e:
+        return {"exception": str(e)}
 
 def set_user_role():
     cognito = boto3.client("cognito-idp")

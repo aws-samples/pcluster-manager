@@ -11,9 +11,9 @@
 import React from 'react';
 import { useSelector } from 'react-redux'
 import { useCollection } from '@awsui/collection-hooks';
-import { setState, useState } from '../../store'
+import { clearState, setState, useState } from '../../store'
 
-import { ListUsers, SetUserRole } from '../../model'
+import { ListUsers, SetUserRole, CreateUser, DeleteUser } from '../../model'
 
 // UI Elements
 import {
@@ -21,6 +21,7 @@ import {
   Button,
   Container,
   Header,
+  Input,
   Pagination,
   Select,
   SpaceBetween,
@@ -33,6 +34,7 @@ import EmptyState from '../../components/EmptyState';
 import SideBar from '../../components/SideBar';
 import Loading from '../../components/Loading'
 import DateView from '../../components/DateView'
+import { DeleteDialog, showDialog, hideDialog } from '../../components/DeleteDialog';
 
 // selectors
 const selectUserIndex = state => state.users.index
@@ -76,6 +78,8 @@ function UserList(props) {
   const user_index = useSelector(selectUserIndex) || {};
   const usernames = Object.keys(user_index).sort();
   const users = usernames.map((username) => user_index[username]);
+  const userEmail = useState(['app', 'user', 'delete', 'Attributes', 'email']);
+  const user = useState(['app', 'user', 'delete']);
 
   const { items, actions, filteredItemsCount, collectionProps, filterProps, paginationProps } = useCollection(
     users,
@@ -103,7 +107,16 @@ function UserList(props) {
     }
   );
 
-  return (
+  const deleteUser = () => {
+    console.log(user);
+    DeleteUser(user);
+    hideDialog('deleteUser');
+  }
+
+  return (<>
+    <DeleteDialog id='deleteUser' header='Delete User?' deleteCallback={deleteUser}>
+      Are you sure you want to delete user {userEmail}?
+    </DeleteDialog>
     <Table
       {...collectionProps}
       resizableColumns
@@ -132,6 +145,11 @@ function UserList(props) {
           header: "Created",
           cell: item => <DateView date={item.UserCreateDate} /> || "-",
           sortingField: "UserCreateDate"
+        },
+        {
+          id: "delete",
+          header: "Action",
+          cell: item => <Button className="action" onClick={() => {setState(['app', 'user', 'delete'], item); showDialog('deleteUser')}} >Delete</Button>|| "-",
         }
       ]}
       loading={users === null}
@@ -145,15 +163,23 @@ function UserList(props) {
           filteringAriaLabel="Filter users"
         />
       }
-    />
+    /></>
   );
 }
 
 export default function Users() {
   const users = useSelector(selectUserIndex);
   const navigationOpen = useState(['app', 'sidebar', 'drawerOpen']);
+  const usernamePath = ['app', 'users', 'email'];
+  const username = useState(usernamePath);
   const refreshUsers = () => {
     ListUsers();
+  }
+
+  const createUser = () => {
+    let user = {Username: username};
+    CreateUser(user);
+    clearState(usernamePath);
   }
 
   React.useEffect(() => {
@@ -178,6 +204,10 @@ export default function Users() {
                 counter={ users && `(${Object.keys(users).length})` }
                 actions={
                   <SpaceBetween direction="horizontal" size="xs">
+                    <div onKeyPress={e => e.key == 'Enter' && createUser()}>
+                      <Input onChange={({ detail }) => setState(usernamePath, detail.value)} value={username} placeholder='email@domain.com' onSubmit={createUser}></Input>
+                    </div>
+                    <Button className="action" onClick={createUser}>Create User</Button>
                     <Button className="action" onClick={refreshUsers} iconName={"refresh"}>Refresh</Button>
                   </SpaceBetween>}>
                 Users
