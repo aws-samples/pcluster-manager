@@ -277,7 +277,7 @@ function Queue({index}) {
     ["ONDEMAND", "On-Demand", "/img/od.svg"],
     ["SPOT", "Spot", "/img/spot.svg"],
   ];
-  const capacityTypePath = [queuesPath, index, "CapacityType"];
+  const capacityTypePath = [...queuesPath, index, "CapacityType"];
   const capacityType = useState(capacityTypePath) || "ONDEMAND";
 
   const subnetPath = [...queuesPath, index, "Networking", "SubnetIds"];
