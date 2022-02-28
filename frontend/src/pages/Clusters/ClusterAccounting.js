@@ -267,7 +267,7 @@ export default function ClusterAccounting() {
         <FormField label="Start Time">
           <Input
             value={startTime}
-            placeholder="now-60m"
+            placeholder="now-60minutes"
             onChange={(({detail}) => {setState(['app', 'clusters', 'accounting', 'startTime'], detail.value)})} />
         </FormField>
         <FormField label="End Time">
