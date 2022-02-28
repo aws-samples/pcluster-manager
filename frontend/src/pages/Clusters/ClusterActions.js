@@ -12,8 +12,8 @@ import React from 'react';
 
 import jsyaml from 'js-yaml';
 
-import { UpdateComputeFleet, GetConfiguration, GetDcvSession } from '../../model'
 import { setState, useState, isAdmin, ssmPolicy, consoleDomain } from '../../store'
+import { UpdateComputeFleet, GetConfiguration, GetDcvSession, DeleteCluster, DescribeCluster, ListClusters } from '../../model'
 import { findFirst, clusterDefaultUser } from '../../util'
 import { loadTemplate } from '../Configure/util'
 
@@ -29,7 +29,7 @@ import FolderIcon from '@mui/icons-material/Folder';
 import MonitorIcon from '@mui/icons-material/Monitor';
 
 // Components
-import ClusterDeleteDialog from './ClusterDeleteDialog'
+import { DeleteDialog, showDialog, hideDialog } from '../../components/DeleteDialog'
 import { ClusterStopDialog, stopComputeFleet } from './ClusterStopDialog'
 
 export default function ClusterActions () {
@@ -64,8 +64,11 @@ export default function ClusterActions () {
       loadTemplate(jsyaml.load(configuration));
     });
   }
+
   const deleteCluster = () => {
-    setState(['app', 'clusters', 'clusterDelete', 'dialog'], true)
+    console.log(`Deleting: ${clusterName}`);
+    DeleteCluster(clusterName, (resp) => {DescribeCluster(clusterName); ListClusters()});
+    hideDialog('deleteCluster');
   }
 
   const shellCluster = (instanceId) => {
@@ -86,8 +89,10 @@ export default function ClusterActions () {
     GetDcvSession(instance.instanceId, user, callback);
   }
 
-  return <div style={{marginLeft: "20px"}}>
-    <ClusterDeleteDialog clusterName={clusterName} />
+  return (<><div style={{marginLeft: "20px"}}>
+    <DeleteDialog id='deleteCluster' header='Delete Cluster?' deleteCallback={deleteCluster}>
+      Are you sure you want to delete cluster {clusterName}?
+    </DeleteDialog>
     <ClusterStopDialog clusterName={clusterName} />
     <SpaceBetween direction="horizontal" size="xs">
       <Button className="action" disabled={clusterStatus === 'DELETE_IN_PROGRESS' || clusterStatus === 'CREATE_FAILED' || !isAdmin()} variant="normal" onClick={editConfiguration} iconName={"edit"}> Edit</Button>
@@ -97,7 +102,7 @@ export default function ClusterActions () {
           <CancelIcon /> Stop
         </div>
       </Button>}
-      <Button className="action" disabled={clusterStatus === 'DELETE_IN_PROGRESS' || !isAdmin()} color="default" onClick={deleteCluster}>
+      <Button className="action" disabled={clusterStatus === 'DELETE_IN_PROGRESS' || !isAdmin()} color="default" onClick={() => {showDialog('deleteCluster')}}>
         <div className="container">
           <DeleteIcon /> Delete
         </div>
@@ -124,5 +129,5 @@ export default function ClusterActions () {
           </div>
             </Button>}
     </SpaceBetween>
-  </div>
+  </div></>)
 }
