@@ -359,14 +359,15 @@ function ListUsers() {
   })
 }
 
-function CreateUser(user) {
+function CreateUser(user, successCallback) {
   var url = 'manager/create_user';
-  request('post', url, user
+  request('put', url, user
   ).then(response => {
     if(response.status === 200) {
       console.log("user added:", response.data);
       let returned_user = response.data;
       setState(['users', 'index', returned_user.Username], returned_user);
+      return successCallback && successCallback(response.data)
     } else {
       console.log(response)
     }
@@ -377,14 +378,14 @@ function CreateUser(user) {
   })
 }
 
-function DeleteUser(user) {
+function DeleteUser(user, successCallback) {
   var url = 'manager/delete_user';
   request('post', url, user
   ).then(response => {
     if(response.status === 200) {
       let returned_user = response.data;
       console.log(`user ${returned_user.Username} deleted`);
-      clearState(['users', 'index', returned_user.Username], []);
+      return successCallback && successCallback(response.data)
     } else {
       console.log(response)
     }

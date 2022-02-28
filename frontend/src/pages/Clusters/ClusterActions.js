@@ -89,7 +89,7 @@ export default function ClusterActions () {
     GetDcvSession(instance.instanceId, user, callback);
   }
 
-  return (<><div style={{marginLeft: "20px"}}>
+  return <div style={{marginLeft: "20px"}}>
     <DeleteDialog id='deleteCluster' header='Delete Cluster?' deleteCallback={deleteCluster}>
       Are you sure you want to delete cluster {clusterName}?
     </DeleteDialog>
@@ -129,5 +129,5 @@ export default function ClusterActions () {
           </div>
             </Button>}
     </SpaceBetween>
-  </div></>)
+  </div>
 }

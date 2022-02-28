@@ -111,7 +111,7 @@ def run():
     def list_users_():
         return list_users()
 
-    @app.route("/manager/create_user",  methods=["POST"])
+    @app.route("/manager/create_user",  methods=["PUT"])
     @authenticated("admin")
     def create_user_():
         return create_user()

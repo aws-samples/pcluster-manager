@@ -448,7 +448,7 @@ def delete_user():
         cognito.admin_delete_user(UserPoolId=USER_POOL_ID, Username=username)
         return {'Username': username}
     except Exception as e:
-        return {"exception": str(e)}
+        return {"message": str(e)}, 500
 
 def create_user():
     try:
@@ -457,7 +457,7 @@ def create_user():
         user = cognito.admin_create_user(UserPoolId=USER_POOL_ID, Username=username).get('User')
         return _augment_user(cognito, user)
     except Exception as e:
-        return {"exception": str(e)}
+        return {"message": str(e)}, 500
 
 def set_user_role():
     cognito = boto3.client("cognito-idp")

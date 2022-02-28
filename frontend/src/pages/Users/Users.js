@@ -13,7 +13,7 @@ import { useSelector } from 'react-redux'
 import { useCollection } from '@awsui/collection-hooks';
 import { clearState, setState, useState } from '../../store'
 
-import { ListUsers, SetUserRole, CreateUser, DeleteUser } from '../../model'
+import { CreateUser, DeleteUser, ListUsers, SetUserRole } from '../../model'
 
 // UI Elements
 import {
@@ -74,6 +74,12 @@ function RoleSelector(props) {
   )
 }
 
+function DeleteButton(props) {
+  return <SpaceBetween direction="horizontal" size="s">
+        <Button className="action" onClick={() => {setState(['app', 'user', 'delete'], props.item); showDialog(props.action)}} >Delete</Button>
+  </SpaceBetween>
+}
+
 function UserList(props) {
   const user_index = useSelector(selectUserIndex) || {};
   const usernames = Object.keys(user_index).sort();
@@ -109,7 +115,7 @@ function UserList(props) {
 
   const deleteUser = () => {
     console.log(user);
-    DeleteUser(user);
+    DeleteUser(user, (returned_user) => {clearState(['users', 'index', returned_user.Username])});
     hideDialog('deleteUser');
   }
 
@@ -147,9 +153,9 @@ function UserList(props) {
           sortingField: "UserCreateDate"
         },
         {
-          id: "delete",
+          id: "action",
           header: "Action",
-          cell: item => <Button className="action" onClick={() => {setState(['app', 'user', 'delete'], item); showDialog('deleteUser')}} >Delete</Button>|| "-",
+          cell: item => <DeleteButton item={item} action='deleteUser' /> || "-",
         }
       ]}
       loading={users === null}
@@ -178,8 +184,7 @@ export default function Users() {
 
   const createUser = () => {
     let user = {Username: username};
-    CreateUser(user);
-    clearState(usernamePath);
+    CreateUser(user, () => {clearState(['app', 'users', 'email'])});
   }
 
   React.useEffect(() => {
