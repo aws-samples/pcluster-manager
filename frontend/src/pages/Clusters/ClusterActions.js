@@ -13,7 +13,7 @@ import React from 'react';
 import jsyaml from 'js-yaml';
 
 import { UpdateComputeFleet, GetConfiguration, GetDcvSession } from '../../model'
-import { setState, useState, isAdmin } from '../../store'
+import { setState, useState, isAdmin, ssmPolicy, consoleDomain } from '../../store'
 import { findFirst, clusterDefaultUser } from '../../util'
 import { loadTemplate } from '../Configure/util'
 
@@ -36,17 +36,16 @@ export default function ClusterActions () {
   const clusterName = useState(['app', 'clusters', 'selected']);
   const clusterPath = ['clusters', 'index', clusterName];
   const cluster = useState(clusterPath);
-  const region = useState(['app', 'selectedRegion']);
   const defaultRegion = useState(['aws', 'region']);
+  const region = useState(['app', 'selectedRegion']) || defaultRegion;
   const headNode = useState([...clusterPath, 'headNode']);
 
   const fleetStatus = useState([...clusterPath, 'computeFleetStatus']);
   const clusterStatus = useState([...clusterPath, 'clusterStatus']);
   const dcvEnabled = useState([...clusterPath, 'config', 'HeadNode', 'Dcv', 'Enabled']);
 
-  const ssmPolicy = 'arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore';
   function isSsmPolicy(p) {
-    return p.hasOwnProperty('Policy') && p.Policy === ssmPolicy;
+    return p.hasOwnProperty('Policy') && p.Policy === ssmPolicy(region);
   }
   const iamPolicies = useState([...clusterPath, 'config', 'HeadNode', 'Iam', 'AdditionalIamPolicies']);
   const ssmEnabled = iamPolicies && findFirst(iamPolicies, isSsmPolicy);
@@ -54,6 +53,7 @@ export default function ClusterActions () {
   const startFleet = () => {
     UpdateComputeFleet(clusterName, "START_REQUESTED")
   }
+
   const editConfiguration = () => {
     setState(['app', 'wizard', 'clusterName'], clusterName);
     setState(['app', 'wizard', 'page'], 'cluster');
@@ -69,15 +69,13 @@ export default function ClusterActions () {
   }
 
   const shellCluster = (instanceId) => {
-    const useRegion = region || defaultRegion;
-    window.open(`https://${useRegion}.console.aws.amazon.com/systems-manager/session-manager/${instanceId}?region=${useRegion}`);
+    window.open(`${consoleDomain(region)}/systems-manager/session-manager/${instanceId}?region=${region}`);
   }
 
   const ssmFilesystem = (instanceId) => {
-    const useRegion = region || defaultRegion;
     let user = clusterDefaultUser(cluster);
     const path = encodeURIComponent(`/home/${user}/`)
-    window.open(`https://${useRegion}.console.aws.amazon.com/systems-manager/managed-instances/${instanceId}/file-system?region=${useRegion}&osplatform=Linux#%7B%22path%22%3A%22${path}%22%7D`);
+    window.open(`${consoleDomain(region)}/systems-manager/managed-instances/${instanceId}/file-system?region=${region}&osplatform=Linux#%7B%22path%22%3A%22${path}%22%7D`);
   }
 
   const dcvConnect = (instance) => {

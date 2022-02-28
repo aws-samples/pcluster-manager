@@ -11,7 +11,7 @@
 import React from 'react';
 
 import { findFirst, clusterDefaultUser } from '../../util'
-import { getState, useState } from '../../store'
+import { getState, useState, ssmPolicy, consoleDomain } from '../../store'
 import { GetConfiguration, DescribeCluster } from '../../model'
 
 // UI Elements
@@ -21,6 +21,7 @@ import {
   ColumnLayout,
   Container,
   Header,
+  Link,
   Popover,
   SpaceBetween,
   StatusIndicator
@@ -63,10 +64,11 @@ export default function ClusterProperties () {
   const cluster = useState(['clusters', 'index', clusterName]);
   const clusterPath = ['clusters', 'index', clusterName];
   const headNode = useState([...clusterPath, 'headNode']);
+  const defaultRegion = useState(['aws', 'region']);
+  const region = useState(['app', 'selectedRegion']) || defaultRegion;
 
-  const ssmPolicy = 'arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore';
   function isSsmPolicy(p) {
-    return p.hasOwnProperty('Policy') && p.Policy === ssmPolicy;
+    return p.hasOwnProperty('Policy') && p.Policy === ssmPolicy(region);
   }
   const iamPolicies = useState([...clusterPath, 'config', 'HeadNode', 'Iam', 'AdditionalIamPolicies']);
   const ssmEnabled = iamPolicies && findFirst(iamPolicies, isSsmPolicy);
@@ -99,8 +101,7 @@ export default function ClusterProperties () {
                   >copy</Button>
                 </Popover>
               </Box>
-              <a href={`https://${cluster.region}.console.aws.amazon.com/cloudformation/home?region=${cluster.region}#/stacks/events?filteringStatus=active&filteringText=&viewNested=true&hideStacks=false&stackId=${cluster.cloudformationStackArn}`}
-                target="_blank" rel="noreferrer">{cluster.cloudformationStackArn}</a>
+              <Link external href={`${consoleDomain(cluster.region)}/cloudformation/home?region=${cluster.region}#/stacks/events?filteringStatus=active&filteringText=&viewNested=true&hideStacks=false&stackId=${cluster.cloudformationStackArn}`}>{cluster.cloudformationStackArn}</Link>
             </div>
           </ValueWithLabel>
           <ValueWithLabel label="clusterConfiguration">
