@@ -1,12 +1,17 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
-// Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance
+// Licensed under the Apache License,
+ Version 2.0 (
+the "License",
+). You may not use this file except in compliance
 // with the License. A copy of the License is located at
 //
 // http://aws.amazon.com/apache2.0/
 //
-// or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
-// OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
+// or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES
+// OR CONDITIONS OF ANY KIND,
+ express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import React from 'react';
 import { useSelector } from 'react-redux'
@@ -34,7 +39,9 @@ import EmptyState from '../../components/EmptyState';
 import SideBar from '../../components/SideBar';
 import Loading from '../../components/Loading'
 import DateView from '../../components/DateView'
-import { DeleteDialog, showDialog, hideDialog } from '../../components/DeleteDialog';
+import { DeleteDialog,
+ showDialog,
+ hideDialog } from '../../components/DeleteDialog';
 
 // selectors
 const selectUserIndex = state => state.users.index
@@ -57,10 +64,23 @@ function RoleSelector(props) {
       <Select
         expandToViewport
         placeholder="Role"
-        selectedOption={{label: current_group.charAt(0).toUpperCase() + current_group.slice(1), value: current_group}}
+        selectedOption={{label: current_group.charAt(
+0,
+).toUpperCase() + current_group.slice(
+1,
+),
+ value: current_group}}
         onChange={({ detail }) => {
           setPending(true);
-          SetUserRole(props.user, detail.selectedOption.value, (user) => {setPending(false)});
+          SetUserRole(
+props.user,
+ detail.selectedOption.value,
+ (
+user,
+) => {setPending(
+false,
+)},
+);
         }}
         options={[
           { label: "Guest", value: "guest" },
@@ -76,7 +96,14 @@ function RoleSelector(props) {
 
 function UserActions({user}) {
   return <SpaceBetween direction="horizontal" size="s">
-    <Button className="action" onClick={() => {setState(['app', 'user', 'delete'], user); showDialog('deleteUser')}}>Delete</Button>
+    <Button className="action" onClick={() => {setState(
+['app',
+ 'user',
+ 'delete'],
+ user,
+); showDialog(
+'deleteUser',
+)}}>Delete</Button>
   </SpaceBetween>
 }
 
@@ -87,7 +114,12 @@ function UserList(props) {
   const userEmail = useState(['app', 'user', 'delete', 'Attributes', 'email']);
   const user = useState(['app', 'user', 'delete']);
 
-  const { items, actions, filteredItemsCount, collectionProps, filterProps, paginationProps } = useCollection(
+  const { items,
+ actions,
+ filteredItemsCount,
+ collectionProps,
+ filterProps,
+ paginationProps } = useCollection(
     users,
     {
       filtering: {
@@ -102,7 +134,9 @@ function UserList(props) {
           <EmptyState
             title="No matches"
             subtitle="No users match the filters."
-            action={<Button onClick={() => actions.setFiltering('')}>Clear filter</Button>}
+            action={<Button onClick={() => actions.setFiltering(
+'',
+)}>Clear filter</Button>}
           />
         ),
       },
@@ -114,7 +148,16 @@ function UserList(props) {
 
   const deleteUser = () => {
     console.log(user);
-    DeleteUser(user, (returned_user) => {clearState(['users', 'index', returned_user.Username])});
+    DeleteUser(
+user,
+ (
+returned_user,
+) => {clearState(
+['users',
+ 'index',
+ returned_user.Username],
+)},
+);
     hideDialog('deleteUser');
   }
 
@@ -125,7 +168,7 @@ function UserList(props) {
     <Table
       {...collectionProps}
       resizableColumns
-      trackBy="email"
+      trackBy=item => item.Attributes && item.Attributes.email
       columnDefinitions={[
         {
           id: "username",
@@ -198,7 +241,14 @@ export default function Users() {
       toolsHide={true}
       splitHide={true}
       navigationOpen = {navigationOpen}
-      onNavigationChange = {(e) => {setState(['app', 'sidebar', 'drawerOpen'], e.detail.open)}}
+      onNavigationChange = {(
+e,
+) => {setState(
+['app',
+ 'sidebar',
+ 'drawerOpen'],
+ e.detail.open,
+)}}
       content={
           <Container
             header={
@@ -209,7 +259,12 @@ export default function Users() {
                 actions={
                   <SpaceBetween direction="horizontal" size="xs">
                     <div onKeyPress={e => e.key == 'Enter' && createUser()}>
-                      <Input onChange={({ detail }) => setState(usernamePath, detail.value)} value={username} placeholder='email@domain.com' onSubmit={createUser}></Input>
+                      <Input onChange={(
+{ detail },
+) => setState(
+usernamePath,
+ detail.value,
+)} value={username} placeholder='email@domain.com' onSubmit={createUser}></Input>
                     </div>
                     <Button className="action" onClick={createUser}>Create User</Button>
                     <Button className="action" onClick={refreshUsers} iconName={"refresh"}>Refresh</Button>
