@@ -443,8 +443,11 @@ def list_users():
 
 def delete_user():
     try:
+        parser = reqparse.RequestParser()
+        parser.add_argument('username', type=str)
+        args = parser.parse_args()
         cognito = boto3.client("cognito-idp")
-        username = request.json.get("Username")
+        username = args.get('username')
         cognito.admin_delete_user(UserPoolId=USER_POOL_ID, Username=username)
         return {'Username': username}
     except Exception as e:

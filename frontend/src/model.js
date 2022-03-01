@@ -379,8 +379,8 @@ function CreateUser(user, successCallback) {
 }
 
 function DeleteUser(user, successCallback) {
-  var url = 'manager/delete_user';
-  request('delete', url, user
+  var url = `manager/delete_user?username=${user.Username}`;
+  request('delete', url,
   ).then(response => {
     if(response.status === 200) {
       let returned_user = response.data;
