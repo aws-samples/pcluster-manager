@@ -361,7 +361,7 @@ function ListUsers() {
 
 function CreateUser(user, successCallback) {
   var url = 'manager/create_user';
-  request('put', url, user
+  request('post', url, user
   ).then(response => {
     if(response.status === 200) {
       console.log("user added:", response.data);
@@ -380,7 +380,7 @@ function CreateUser(user, successCallback) {
 
 function DeleteUser(user, successCallback) {
   var url = 'manager/delete_user';
-  request('post', url, user
+  request('delete', url, user
   ).then(response => {
     if(response.status === 200) {
       let returned_user = response.data;

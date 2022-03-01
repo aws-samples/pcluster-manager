@@ -74,9 +74,9 @@ function RoleSelector(props) {
   )
 }
 
-function DeleteButton(props) {
+function UserActions({user}) {
   return <SpaceBetween direction="horizontal" size="s">
-        <Button className="action" onClick={() => {setState(['app', 'user', 'delete'], props.item); showDialog(props.action)}} >Delete</Button>
+    <Button className="action" onClick={() => {setState(['app', 'user', 'delete'], user); showDialog('deleteUser')}}>Delete</Button>
   </SpaceBetween>
 }
 
@@ -102,8 +102,7 @@ function UserList(props) {
           <EmptyState
             title="No matches"
             subtitle="No users match the filters."
-            action={
-              <Button onClick={() => actions.setFiltering('')}>Clear filter</Button>}
+            action={<Button onClick={() => actions.setFiltering('')}>Clear filter</Button>}
           />
         ),
       },
@@ -143,19 +142,19 @@ function UserList(props) {
         {
           id: "role",
           header: "Role",
-          cell: item => <RoleSelector user={item} /> || "-",
+          cell: item => <RoleSelector user={item} />,
           sortingField: "Groups"
         },
         {
           id: "created",
           header: "Created",
-          cell: item => <DateView date={item.UserCreateDate} /> || "-",
+          cell: item => <DateView date={item.UserCreateDate} />,
           sortingField: "UserCreateDate"
         },
         {
           id: "action",
           header: "Action",
-          cell: item => <DeleteButton item={item} action='deleteUser' /> || "-",
+          cell: item => <UserActions user={item} /> || "-",
         }
       ]}
       loading={users === null}
