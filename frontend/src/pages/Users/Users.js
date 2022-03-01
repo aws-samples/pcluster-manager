@@ -59,47 +59,21 @@ function RoleSelector(props) {
       <Select
         expandToViewport
         placeholder="Role"
-        selectedOption={{label: current_group.charAt(
-0,
-).toUpperCase() + current_group.slice(
-1,
-),
- value: current_group}}
-        onChange={({ detail }) => {
-          setPending(true);
-          SetUserRole(
-props.user,
- detail.selectedOption.value,
- (
-user,
-) => {setPending(
-false,
-)},
-);
-        }}
+        selectedOption={{label: current_group.charAt(0,).toUpperCase() + current_group.slice(1,),value: current_group}}
+        onChange={({ detail }) => {setPending(true);SetUserRole(props.user,detail.selectedOption.value,(user,) => {setPending(false,)},);}}
         options={[
           { label: "Guest", value: "guest" },
           { label: "User", value: "user" },
           { label: "Admin", value: "admin" },
         ]}
-        selectedAriaLabel="Selected"
-      />
-      }
-    </div>
-  )
+        selectedAriaLabel="Selected"/>
+      }</div>)
 }
 
 function UserActions({user}) {
   return <SpaceBetween direction="horizontal" size="s">
-    <Button className="action" onClick={() => {setState(
-['app',
- 'user',
- 'delete'],
- user,
-); showDialog(
-'deleteUser',
-)}}>Delete</Button>
-  </SpaceBetween>
+      <Button className="action" onClick={() => {setState(['app','user','delete'],user,); showDialog('deleteUser',)}}>Delete</Button>
+    </SpaceBetween>
 }
 
 function UserList(props) {
@@ -109,35 +83,30 @@ function UserList(props) {
   const userEmail = useState(['app', 'user', 'delete', 'Attributes', 'email']);
   const user = useState(['app', 'user', 'delete']);
 
-  const { items,
- actions,
- filteredItemsCount,
- collectionProps,
- filterProps,
- paginationProps } = useCollection(
-    users,
-    {
-      filtering: {
-        empty: (
-          <EmptyState
-            title="No users"
-            subtitle="No users to display."
-            action={<></>}
-          />
-        ),
-        noMatch: (
-          <EmptyState
-            title="No matches"
-            subtitle="No users match the filters."
-            action={<Button onClick={() => actions.setFiltering('')}>Clear filter</Button>}
-          />
-        ),
-      },
-      pagination: { pageSize: 10 },
-      sorting: {},
-      selection: {},
-    }
-  );
+  const { items, actions, filteredItemsCount, collectionProps, filterProps, paginationProps } = useCollection(
+      users,
+      {
+        filtering: {
+          empty: (
+            <EmptyState
+              title="No users"
+              subtitle="No users to display."
+              action={<></>}
+            />
+          ),
+          noMatch: (
+            <EmptyState
+              title="No matches"
+              subtitle="No users match the filters."
+              action={<Button onClick={() => actions.setFiltering('')}>Clear filter</Button>}
+            />
+          ),
+        },
+        pagination: { pageSize: 10 },
+        sorting: {},
+        selection: {},
+      }
+    );
 
   const deleteUser = () => {
     console.log(user);
@@ -192,10 +161,7 @@ function UserList(props) {
         <TextFilter
           {...filterProps}
           countText={`Results: ${filteredItemsCount}`}
-          filteringAriaLabel="Filter users"
-        />
-      }
-    /></>
+          filteringAriaLabel="Filter users" />}/></>
   );
 }
 
@@ -225,14 +191,7 @@ export default function Users() {
       toolsHide={true}
       splitHide={true}
       navigationOpen = {navigationOpen}
-      onNavigationChange = {(
-e,
-) => {setState(
-['app',
- 'sidebar',
- 'drawerOpen'],
- e.detail.open,
-)}}
+      onNavigationChange = {(e,) => {setState(['app','sidebar','drawerOpen'],e.detail.open,)}}
       content={
           <Container
             header={
