@@ -71,9 +71,10 @@ function RoleSelector(props) {
 }
 
 function UserActions({user}) {
+  let email = useState(['identity', 'attributes', 'email']);
   return <SpaceBetween direction="horizontal" size="s">
-      <Button className="action" onClick={() => {setState(['app','user','delete'],user,); showDialog('deleteUser',)}}>Delete</Button>
-    </SpaceBetween>
+    <Button disabled={email === user.Attributes.email} className="action" onClick={() => {setState(['app','user','delete'], user); showDialog('deleteUser')}}>Delete</Button>
+  </SpaceBetween>
 }
 
 function UserList(props) {
