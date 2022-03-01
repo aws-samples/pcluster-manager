@@ -168,7 +168,7 @@ returned_user,
     <Table
       {...collectionProps}
       resizableColumns
-      trackBy=item => item.Attributes && item.Attributes.email
+      trackBy=item => item.Attributes && item.Attributes.email,
       columnDefinitions={[
         {
           id: "username",
