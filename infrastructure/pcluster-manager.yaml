@@ -402,6 +402,8 @@ Resources:
             - cognito-idp:AdminAddUserToGroup
             - cognito-idp:AdminListGroupsForUser
             - cognito-idp:ListUsers
+            - cognito-idp:AdminCreateUser
+            - cognito-idp:AdminDeleteUser
             Resource: !Sub
               - arn:${AWS::Partition}:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}
               - { UserPoolId: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]}
