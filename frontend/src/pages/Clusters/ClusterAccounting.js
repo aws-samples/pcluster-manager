@@ -27,6 +27,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 // Components
 import EmptyState from '../../components/EmptyState';
 import Loading from '../../components/Loading'
+import HelpTooltip from '../../components/HelpTooltip'
 
 // UI Elements
 import {
@@ -205,6 +206,17 @@ function JobSteps({job}) {
   </div>
 }
 
+function CostEstimate({job}) {
+  return <>
+    <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+      <span>$ {(getIn(job, ['price_estimate']) * getIn(job, ['allocation_nodes']) * (getIn(job, ['time', 'elapsed']) / 3600.0)).toFixed(5)}</span>
+      <HelpTooltip>
+        <b>Warning</b>This cost estimate is based on the time the job took, the number of nodes and an estimate of the node cost. It could be inaccurate and is just meant to be an overall estimate.
+      </HelpTooltip>
+    </div>
+  </>
+}
+
 function JobProperties({job}) {
   console.log(job);
   return <Container>
@@ -222,12 +234,13 @@ function JobProperties({job}) {
           <ValueWithLabel label="Name">{job.name}</ValueWithLabel>
           <ValueWithLabel label="Nodes">{job.nodes}</ValueWithLabel>
           <ValueWithLabel label="Account">{job.account}</ValueWithLabel>
+          <ValueWithLabel label="Nodes">{job.allocation_nodes}</ValueWithLabel>
         </SpaceBetween>
         <SpaceBetween direction="vertical" size="l">
           <ValueWithLabel label="Queue">{job.partition}</ValueWithLabel>
           <ValueWithLabel label="Return Code">{getIn(job, ['exit_code', 'return_code'])}</ValueWithLabel>
           <ValueWithLabel label="Exit Status">{<Status status={getIn(job, ['exit_code', 'status'])} />}</ValueWithLabel>
-          {getIn(job, ['price_estimate']) && <ValueWithLabel label="Cost Estimate">$ {(getIn(job, ['price_estimate']) * (getIn(job, ['time', 'elapsed']) / 3600)).toFixed(5)}</ValueWithLabel>}
+          {getIn(job, ['price_estimate']) && <ValueWithLabel label="Cost Estimate"><CostEstimate job={job} /></ValueWithLabel>}
         </SpaceBetween>
       </ColumnLayout>
       <ValueWithLabel label="Steps">{<JobSteps job={job} />}</ValueWithLabel>
