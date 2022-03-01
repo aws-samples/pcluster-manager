@@ -17,6 +17,7 @@ import time
 import boto3
 import botocore
 import requests
+import yaml
 from flask import abort, redirect, request
 from flask_restful import Resource, reqparse
 from jose import jwt
@@ -163,14 +164,10 @@ def ec2_action():
     return ret
 
 
-def get_cluster_config():
-    parser = reqparse.RequestParser()
-    parser.add_argument("cluster_name", type=str)
-    parser.add_argument("region", type=str)
-    args = parser.parse_args()
-    url = f"/v3/clusters/{args['cluster_name']}"
-    if args.get("region"):
-        info_resp = sigv4_request("GET", API_BASE_URL, url, params={"region": args.get("region")})
+def get_cluster_config_text(cluster_name, region=None):
+    url = f"/v3/clusters/{cluster_name}"
+    if region:
+        info_resp = sigv4_request("GET", API_BASE_URL, url, params={"region": region})
     else:
         info_resp = sigv4_request("GET", API_BASE_URL, url)
     if info_resp.status_code != 200:
@@ -179,6 +176,14 @@ def get_cluster_config():
     cluster_info = info_resp.json()
     configuration = requests.get(cluster_info["clusterConfiguration"]["url"])
     return configuration.text
+
+
+def get_cluster_config():
+    parser = reqparse.RequestParser()
+    parser.add_argument("cluster_name", type=str)
+    parser.add_argument("region", type=str)
+    args = parser.parse_args()
+    return get_cluster_config_text(args["cluster_name"], args.get("region"))
 
 
 def ssm_command(region, instance_id, user, run_command):
@@ -250,25 +255,66 @@ def sacct():
     parser.add_argument("instance_id", type=str)
     parser.add_argument("user", type=str)
     parser.add_argument("region", type=str)
+    parser.add_argument("cluster_name", type=str)
     args = parser.parse_args()
     user = args.get("user", "ec2-user")
     instance_id = args.get("instance_id")
+    cluster_name = args.get("cluster_name")
+    region = args.get("region")
     body = request.json
 
+    price_guess = None
     sacct_args = " ".join(f"--{k} {v}" for k, v in body.items())
     print(f"sacct {sacct_args} --json " + "| jq -c .jobs\\|\\map\\({name,nodes,partition,state,job_id,exit_code\\}\\)")
     if "jobs" not in sacct_args:
         accounting = ssm_command(
-            args.get("region"),
+            region,
             instance_id,
             user,
             f"sacct {sacct_args} --json "
             + "| jq -c .jobs[0:120]\\|\\map\\({name,nodes,partition,state,job_id,exit_code\\}\\)",
         )
     else:
-        accounting = ssm_command(args.get("region"), instance_id, user, f"sacct {sacct_args} --json | jq -c .jobs")
+
+        accounting = ssm_command(region, instance_id, user, f"sacct {sacct_args} --json | jq -c .jobs")
+        # Try to retrieve relevant cost information
+        try:
+            config_text = get_cluster_config_text(cluster_name, region)
+            config_data = yaml.safe_load(config_text)
+            queues = {q["Name"]: q for q in config_data["Scheduling"]["SlurmQueues"]}
+            queue = queues[json.loads(accounting)[0]["partition"]]
+
+            if len(queue["ComputeResources"]) == 1:
+                instance_type = queue["ComputeResources"][0]["InstanceType"]
+                print("****************************************************")
+                print("instance type", instance_type)
+                pricing_filters = [
+                    {"Field": "tenancy", "Value": "shared", "Type": "TERM_MATCH"},
+                    {"Field": "instanceType", "Value": instance_type, "Type": "TERM_MATCH"},
+                    {"Field": "operatingSystem", "Value": "Linux", "Type": "TERM_MATCH"},
+                    {"Field": "regionCode", "Value": region, "Type": "TERM_MATCH"},
+                    {"Field": "preInstalledSw", "Value": "NA", "Type": "TERM_MATCH"},
+                    {"Field": "capacityStatus", "Value": "Used", "Type": "TERM_MATCH"},
+                ]
+
+                # Pricing endpoint only available from "us-east-1" region
+                pricing = boto3.client("pricing", region_name="us-east-1")
+                prices = pricing.get_products(ServiceCode="AmazonEC2", Filters=pricing_filters)["PriceList"]
+                prices = list(map(lambda x: json.loads(x), prices))
+                on_demand_prices = list(prices[0]["terms"]["OnDemand"].values())
+                price_guess = float(list(on_demand_prices[0]["priceDimensions"].values())[0]["pricePerUnit"]["USD"])
+                price_guess = None if price_guess != price_guess else price_guess  # check for NaN
+        except Exception as e:
+            print(e)
+            pass
     try:
-        return {} if accounting == "" else {"jobs": json.loads(accounting)}
+        if accounting == "":
+            return {}
+        else:
+            accounting_ret = {"jobs": json.loads(accounting)}
+            if "jobs" in sacct_args and price_guess:
+                accounting_ret["jobs"][0]["price_estimate"] = price_guess
+            return accounting_ret
     except Exception as e:
         print(accounting)
         raise e

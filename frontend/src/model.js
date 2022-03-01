@@ -589,7 +589,7 @@ function JobInfo(clusterName, instanceId, user, jobId, callback, failure) {
 
 function SlurmAccounting(clusterName, instanceId, user, args, callback, failure) {
   const region = getState(['app', 'selectedRegion']) || getState(['aws', 'region']);
-  let url = `manager/sacct?instance_id=${instanceId}&user=${user || 'ec2-user'}&region=${region}`
+  let url = `manager/sacct?instance_id=${instanceId}&cluster_name=${clusterName}&user=${user || 'ec2-user'}&region=${region}`
   request('post', url, args).then(response => {
     if(response.status === 200) {
       console.log(response.data)

@@ -62,6 +62,7 @@ function refreshAccounting(args, callback, list) {
   const queue = getState(['app', 'clusters', 'accounting', 'queue']);
   const nodes = getState(['app', 'clusters', 'accounting', 'nodes']);
   const jobName = getState(['app', 'clusters', 'accounting', 'jobName']);
+  const jobState = getState(['app', 'clusters', 'accounting', 'jobState']);
 
   const clusterName = getState(['app', 'clusters', 'selected']);
   const defaultArgs = (!args || Object.keys(args).length === 0) ? {} : args;
@@ -80,6 +81,12 @@ function refreshAccounting(args, callback, list) {
 
   if(jobName && jobName !== "")
     defaultArgs['name'] = jobName;
+
+  if(jobState && jobState !== "")
+    defaultArgs['state'] = jobState;
+
+  if(list)
+    clearState(['clusters', 'index', clusterName, 'accounting', 'jobs'])
 
   setState(['app', 'clusters', 'accounting', 'pending'], true);
   const defaultCallback = (data) => {
@@ -122,6 +129,35 @@ function Status(props) {
   return props.status in statusMap ? statusMap[props.status] : <span>{props.status}</span>;
 }
 
+function JobStateSelect() {
+  const jobStates = ['BOOT_FAIL', 'CANCELLED', 'COMPLETED', 'DEADLINE',
+    'FAILED', 'NODE_FAIL', 'OUT_OF_MEMORY', 'PENDING', 'PREEMPTED', 'RUNNING',
+    'REQUEUED', 'RESIZING', 'REVOKED', 'SUSPENDED', 'TIMEOUT'];
+  const jobStatePath = ['app', 'clusters', 'accounting', 'jobState'];
+  const jobState = useState(jobStatePath);
+
+  let itemToOption = (item) => {
+    if(!item)
+      return;
+    return {label: <div style={{minWidth: "200px"}}>{item}</div>,
+      value: item}
+  }
+
+  return (<>
+    <Select
+      selectedOption={itemToOption(findFirst(jobStates, x => {return x === jobState}) || ["[ANY]"])}
+      onChange={({detail}) => {
+        if(detail.selectedOption.value === "[ANY]")
+          clearState(jobStatePath)
+        else
+          setState(jobStatePath, detail.selectedOption.value);
+        refreshAccounting({}, null, true);
+      }}
+      options={['[ANY]', ...jobStates].map(itemToOption)}
+      selectedAriaLabel="Selected"/>
+  </>);
+}
+
 function QueueSelect() {
   const clusterName = getState(['app', 'clusters', 'selected']);
   const clusterPath = ['clusters', 'index', clusterName];
@@ -147,33 +183,55 @@ function QueueSelect() {
         if(detail.selectedOption.value === "[ANY]")
           clearState(queuePath)
         else
-          setState(queuePath, detail.selectedOption.value);}}
+          setState(queuePath, detail.selectedOption.value);
+        refreshAccounting({}, null, true);
+      }}
       options={queuesOptions.map(itemToOption)}
       selectedAriaLabel="Selected"/>
   </>);
 }
 
+function JobStep({step}) {
+  const reqs = getIn(step, ['tres', 'requested', 'max']) || []
+  return <span style={{paddingLeft: "10px"}}>
+    {reqs.filter((req) => req.type !== 'energy').map((req) => <span style={{paddingRight: "10px"}}>{req.type}: {req.count} </span> )}
+  </span>
+}
+
+function JobSteps({job}) {
+  const steps = job.steps || [];
+  return <div>
+    {steps.map((step, i) => <div style={{paddingLeft: "10px"}}>{i}: <JobStep step={step} /></div>) }
+  </div>
+}
+
 function JobProperties({job}) {
   console.log(job);
   return <Container>
+    <SpaceBetween direction="vertical" size="l">
       <ColumnLayout columns={3} variant="text-grid">
         <SpaceBetween direction="vertical" size="l">
           <ValueWithLabel label="Job Id">{job.job_id}</ValueWithLabel>
           <ValueWithLabel label="Cluster">{job.cluster}</ValueWithLabel>
           <ValueWithLabel label="Group">{job.group}</ValueWithLabel>
-          <ValueWithLabel label="Time">{getIn(job, ['time', 'elapsed'])} ms</ValueWithLabel>
+          <ValueWithLabel label="User">{job.user}</ValueWithLabel>
+          <ValueWithLabel label="Time">{getIn(job, ['time', 'elapsed'])} s</ValueWithLabel>
         </SpaceBetween>
         <SpaceBetween direction="vertical" size="l">
           <ValueWithLabel label="State">{<Status status={getIn(job, ['state', 'current'])} />}</ValueWithLabel>
           <ValueWithLabel label="Name">{job.name}</ValueWithLabel>
           <ValueWithLabel label="Nodes">{job.nodes}</ValueWithLabel>
+          <ValueWithLabel label="Account">{job.account}</ValueWithLabel>
         </SpaceBetween>
         <SpaceBetween direction="vertical" size="l">
           <ValueWithLabel label="Queue">{job.partition}</ValueWithLabel>
           <ValueWithLabel label="Return Code">{getIn(job, ['exit_code', 'return_code'])}</ValueWithLabel>
           <ValueWithLabel label="Exit Status">{<Status status={getIn(job, ['exit_code', 'status'])} />}</ValueWithLabel>
+          {getIn(job, ['price_estimate']) && <ValueWithLabel label="Cost Estimate">$ {(getIn(job, ['price_estimate']) * (getIn(job, ['time', 'elapsed']) / 3600)).toFixed(5)}</ValueWithLabel>}
         </SpaceBetween>
       </ColumnLayout>
+      <ValueWithLabel label="Steps">{<JobSteps job={job} />}</ValueWithLabel>
+    </SpaceBetween>
     </Container>
 }
 
@@ -265,31 +323,42 @@ export default function ClusterAccounting() {
           actions={<Button loading={pending} onClick={() => refreshAccounting({}, null, true)}>Refresh</Button>}>Filters</Header>}>
       <SpaceBetween direction="horizontal" size="s">
         <FormField label="Start Time">
+          <div onKeyPress={e => e.key === 'Enter' && refreshAccounting({}, null, true)}>
           <Input
             value={startTime}
             placeholder="now-60minutes"
             onChange={(({detail}) => {setState(['app', 'clusters', 'accounting', 'startTime'], detail.value)})} />
+          </div>
         </FormField>
         <FormField label="End Time">
+          <div onKeyPress={e => e.key === 'Enter' && refreshAccounting({}, null, true)}>
           <Input
             value={endTime}
             placeholder="now"
             onChange={(({detail}) => {setState(['app', 'clusters', 'accounting', 'endTime'], detail.value)})} />
+          </div>
         </FormField>
         <FormField label="Queue">
           <QueueSelect />
         </FormField>
+        <FormField label="Job State">
+          <JobStateSelect />
+        </FormField>
         <FormField label="Nodes">
+          <div onKeyPress={e => e.key === 'Enter' && refreshAccounting({}, null, true)}>
           <Input
             value={nodes}
             placeholder="queue0-c5n-large-1"
             onChange={(({detail}) => {setState(['app', 'clusters', 'accounting', 'nodes'], detail.value)})} />
+          </div>
         </FormField>
         <FormField label="Job Name">
+          <div onKeyPress={e => e.key === 'Enter' && refreshAccounting({}, null, true)}>
           <Input
             value={jobName}
             placeholder="job0"
             onChange={(({detail}) => {setState(['app', 'clusters', 'accounting', 'jobName'], detail.value)})} />
+          </div>
         </FormField>
       </SpaceBetween>
       </Container>
