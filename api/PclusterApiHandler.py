@@ -214,7 +214,7 @@ def ssm_command(region, instance_id, user, run_command):
         abort(500, description="Timed out waiting for command to complete.")
 
     if status["Status"] != "Success":
-        abort(500, description=status["StandardErrorContent"])
+        return {"message": status["StandardErrorContent"]}, 500
 
     output = status["StandardOutputContent"]
     return output
@@ -240,7 +240,7 @@ def submit_job():
 
     resp = ssm_command(args.get("region"), instance_id, user, f"sbatch {job_cmd}")
 
-    return {"success": "true"}
+    return resp if type(resp) == tuple else {"success": "true"}
 
 
 def queue_status():
@@ -441,26 +441,29 @@ def list_users():
     except Exception as e:
         return {"exception": str(e)}
 
+
 def delete_user():
     try:
         parser = reqparse.RequestParser()
-        parser.add_argument('username', type=str)
+        parser.add_argument("username", type=str)
         args = parser.parse_args()
         cognito = boto3.client("cognito-idp")
-        username = args.get('username')
+        username = args.get("username")
         cognito.admin_delete_user(UserPoolId=USER_POOL_ID, Username=username)
-        return {'Username': username}
+        return {"Username": username}
     except Exception as e:
         return {"message": str(e)}, 500
+
 
 def create_user():
     try:
         cognito = boto3.client("cognito-idp")
         username = request.json.get("Username")
-        user = cognito.admin_create_user(UserPoolId=USER_POOL_ID, Username=username).get('User')
+        user = cognito.admin_create_user(UserPoolId=USER_POOL_ID, Username=username).get("User")
         return _augment_user(cognito, user)
     except Exception as e:
         return {"message": str(e)}, 500
+
 
 def set_user_role():
     cognito = boto3.client("cognito-idp")

@@ -69,6 +69,7 @@ function QueueSelect() {
 
 export default function JobSubmitDialog(props) {
   const open = useState([...submitPath, 'dialog']);
+  const error = useState([...submitPath, 'error']);
   const jobPath = [...submitPath, 'job'];
   const job = useState(jobPath);
   const submitting = useState([...submitPath, 'pending']);
@@ -89,7 +90,8 @@ export default function JobSubmitDialog(props) {
       setState([...submitPath, 'dialog'], false);
       setState([...submitPath, 'pending'], false);
     }
-    const failure_callback = () => {
+    const failure_callback = (message) => {
+      setState([...submitPath, 'error'], message)
       setState([...submitPath, 'pending'], false);
     }
     setState([...submitPath, 'pending'], true);
@@ -196,6 +198,7 @@ export default function JobSubmitDialog(props) {
         </SpaceBetween>
       </ColumnLayout>
       </SpaceBetween>
+      <div style={{color: 'red', marginTop: "20px"}}>{error.split('\n').map((line) => <div>{line}</div>)}</div>
     </Modal>
   );
 }
