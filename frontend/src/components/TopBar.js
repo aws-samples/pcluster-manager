@@ -19,7 +19,7 @@ import { SideBarIcons } from './SideBar';
 import TopNavigation from "@awsui/components-react/top-navigation";
 
 function regions(selected) {
-  const supportedRegions = [
+  let supportedRegions = [
     [
       ["US East (N. Virginia)", "us-east-1"],
       ["US East (Ohio)", "us-east-2"],
@@ -59,11 +59,16 @@ function regions(selected) {
       ["China (Beijing)", "cn-north-1"],
       ["China (Ningxia)", "cn-northwest-1"],
     ],
-    [
-      ["US Gov (east-1)", "us-gov-east-1"],
-      ["US Gov (west-1)", "us-gov-west-1"],
-    ],
   ];
+
+  if(selected === 'us-gov-west-1')
+    supportedRegions = [
+      [
+      //["US Gov (east-1)", "us-gov-east-1"],
+      ["US Gov (west-1)", "us-gov-west-1"],
+      ]
+    ]
+
   return supportedRegions.map((regions, i) => {
     return {
       type: "menu-dropdown",
