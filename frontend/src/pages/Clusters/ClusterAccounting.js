@@ -62,6 +62,7 @@ function refreshAccounting(args, callback, list) {
   const endTime = getState(['app', 'clusters', 'accounting', 'endTime']);
   const queue = getState(['app', 'clusters', 'accounting', 'queue']);
   const nodes = getState(['app', 'clusters', 'accounting', 'nodes']);
+  const clusterUser = getState(['app', 'clusters', 'accounting', 'user']);
   const jobName = getState(['app', 'clusters', 'accounting', 'jobName']);
   const jobState = getState(['app', 'clusters', 'accounting', 'jobState']);
 
@@ -82,6 +83,9 @@ function refreshAccounting(args, callback, list) {
 
   if(jobName && jobName !== "")
     defaultArgs['name'] = jobName;
+
+  if(clusterUser && clusterUser !== "")
+    defaultArgs['user'] = clusterUser;
 
   if(jobState && jobState !== "")
     defaultArgs['state'] = jobState;
@@ -284,9 +288,10 @@ export default function ClusterAccounting() {
   //const errors = useState(['clusters', 'index', clusterName, 'accounting', 'errors']) || [];
 
   const pending = useState(['app', 'clusters', 'accounting', 'pending']);
-  const startTime = useState(['app', 'clusters', 'accounting', 'startTime']);
-  const endTime = useState(['app', 'clusters', 'accounting', 'endTime']);
+  const startTime = useState(['app', 'clusters', 'accounting', 'startTime']) || '';
+  const endTime = useState(['app', 'clusters', 'accounting', 'endTime']) || '';
   const nodes = useState(['app', 'clusters', 'accounting', 'nodes']) || []
+  const user = useState(['app', 'clusters', 'accounting', 'user']) || ''
   const jobName = useState(['app', 'clusters', 'accounting', 'jobName']) || []
   const jobs = useState(['clusters', 'index', clusterName, 'accounting', 'jobs']);
 
@@ -357,6 +362,14 @@ export default function ClusterAccounting() {
         <FormField label="Job State">
           <JobStateSelect />
         </FormField>
+        <FormField label="User">
+          <div onKeyPress={e => e.key === 'Enter' && refreshAccounting({}, null, true)}>
+          <Input
+            value={user}
+            placeholder="ec2-user"
+            onChange={(({detail}) => {setState(['app', 'clusters', 'accounting', 'user'], detail.value)})} />
+          </div>
+        </FormField>
         <FormField label="Nodes">
           <div onKeyPress={e => e.key === 'Enter' && refreshAccounting({}, null, true)}>
           <Input
@@ -375,7 +388,6 @@ export default function ClusterAccounting() {
         </FormField>
       </SpaceBetween>
       </Container>
-
 
       {jobs ? <SpaceBetween direction="vertical" size="s" >
         <Table
@@ -401,10 +413,10 @@ export default function ClusterAccounting() {
               sortingField: "partition"
             },
             {
-              id: "nodes",
-              header: "nodes",
-              cell: item => item.nodes,
-              sortingField: "nodes"
+              id: "user",
+              header: "user",
+              cell: item => item.user,
+              sortingField: "user"
             },
             {
               id: "state",

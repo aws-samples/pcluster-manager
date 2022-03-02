@@ -253,7 +253,7 @@ def submit_job():
 def sacct():
     parser = reqparse.RequestParser()
     parser.add_argument("instance_id", type=str)
-    parser.add_argument("user", type=str)
+    parser.add_argument("user", type=str, location="args")
     parser.add_argument("region", type=str)
     parser.add_argument("cluster_name", type=str)
     args = parser.parse_args()
@@ -265,18 +265,23 @@ def sacct():
 
     price_guess = None
     sacct_args = " ".join(f"--{k} {v}" for k, v in body.items())
+    sacct_args += " --allusers" if "user" not in body else ""
     print(f"sacct {sacct_args} --json " + "| jq -c .jobs\\|\\map\\({name,nodes,partition,state,job_id,exit_code\\}\\)")
-    if "jobs" not in sacct_args:
+    if "jobs" not in body:
         accounting = ssm_command(
             region,
             instance_id,
             user,
             f"sacct {sacct_args} --json "
-            + "| jq -c .jobs[0:120]\\|\\map\\({name,nodes,partition,state,job_id,exit_code\\}\\)",
+            + "| jq -c .jobs[0:120]\\|\\map\\({name,user,partition,state,job_id,exit_code\\}\\)",
         )
+        if type(accounting) is tuple:
+            return accounting
     else:
 
         accounting = ssm_command(region, instance_id, user, f"sacct {sacct_args} --json | jq -c .jobs")
+        if type(accounting) is tuple:
+            return accounting
         # Try to retrieve relevant cost information
         try:
             config_text = get_cluster_config_text(cluster_name, region)
@@ -309,7 +314,7 @@ def sacct():
             pass
     try:
         if accounting == "":
-            return {}
+            return {"jobs": []}
         else:
             accounting_ret = {"jobs": json.loads(accounting)}
             if "jobs" in sacct_args and price_guess:
@@ -542,26 +547,29 @@ def list_users():
     except Exception as e:
         return {"exception": str(e)}
 
+
 def delete_user():
     try:
         parser = reqparse.RequestParser()
-        parser.add_argument('username', type=str)
+        parser.add_argument("username", type=str)
         args = parser.parse_args()
         cognito = boto3.client("cognito-idp")
-        username = args.get('username')
+        username = args.get("username")
         cognito.admin_delete_user(UserPoolId=USER_POOL_ID, Username=username)
-        return {'Username': username}
+        return {"Username": username}
     except Exception as e:
         return {"message": str(e)}, 500
+
 
 def create_user():
     try:
         cognito = boto3.client("cognito-idp")
         username = request.json.get("Username")
-        user = cognito.admin_create_user(UserPoolId=USER_POOL_ID, Username=username).get('User')
+        user = cognito.admin_create_user(UserPoolId=USER_POOL_ID, Username=username).get("User")
         return _augment_user(cognito, user)
     except Exception as e:
         return {"message": str(e)}, 500
+
 
 def set_user_role():
     cognito = boto3.client("cognito-idp")

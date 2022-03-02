@@ -135,12 +135,12 @@ function isGuest() {
 }
 
 function ssmPolicy(region) {
-  const partition = region.startsWith('us-gov') ? 'aws-us-gov' : 'aws';
+  const partition = (region && region.startsWith('us-gov')) ? 'aws-us-gov' : 'aws';
   return `arn:${partition}:iam::aws:policy/AmazonSSMManagedInstanceCore`;
 }
 
 function consoleDomain(region) {
-  return region.startsWith('us-gov') ? 'https://console.amazonaws-us-gov.com' : `https://${region}.console.aws.amazon.com`
+  return (region && region.startsWith('us-gov')) ? 'https://console.amazonaws-us-gov.com' : `https://${region}.console.aws.amazon.com`
 }
 
 export {store as default, store, setState, getState, clearState, clearEmptyNest,
