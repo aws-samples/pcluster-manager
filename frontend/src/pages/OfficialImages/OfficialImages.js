@@ -63,7 +63,7 @@ function OfficialImagesList(props) {
     <Table
       {...collectionProps}
       resizableColumns
-      trackBy="imageId"
+      trackBy="amiId"
       columnDefinitions={[
         {
           id: "id",
