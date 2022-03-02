@@ -37,6 +37,7 @@ import HelpTooltip from '../../components/HelpTooltip'
 // Constants
 const queuesPath = ['app', 'wizard', 'config', 'Scheduling', 'SlurmQueues'];
 const queuesErrorsPath = ['app', 'wizard', 'errors', 'queues'];
+const defaultInstanceType = 'c5n.large'
 
 // Helper Functions
 function itemToIconOption([value, label, icon]){
@@ -214,7 +215,7 @@ function ComputeResource({index, queueIndex, computeResource}) {
 
   React.useEffect(() => {
     if(!instanceType)
-      setState([...queuesPath, queueIndex, 'ComputeResources', index, "InstanceType"], 'c5n.large');
+      setState([...queuesPath, queueIndex, 'ComputeResources', index, "InstanceType"], defaultInstanceType);
   }, [queueIndex, index, instanceType]);
 
   return (
@@ -277,7 +278,7 @@ function Queue({index}) {
     ["ONDEMAND", "On-Demand", "/img/od.svg"],
     ["SPOT", "Spot", "/img/spot.svg"],
   ];
-  const capacityTypePath = [queuesPath, index, "CapacityType"];
+  const capacityTypePath = [...queuesPath, index, "CapacityType"];
   const capacityType = useState(capacityTypePath) || "ONDEMAND";
 
   const subnetPath = [...queuesPath, index, "Networking", "SubnetIds"];
@@ -289,8 +290,8 @@ function Queue({index}) {
   const addComputeResource = () => {
     setState([...queuesPath, index], {...queue, ComputeResources: [...(queue.ComputeResources || []),
       {
-        Name: `queue${index}-c5n-large`,
-        InstanceType: 'c5n-large',
+        Name: `queue${index}-${defaultInstanceType.replace(".", "")}`,
+        InstanceType: defaultInstanceType,
         MinCount: 0,
         MaxCount: 4
       }]});
@@ -367,7 +368,7 @@ function QueuesView(props) {
 function Queues() {
   let queues = useState(queuesPath) || [];
   const addQueue = () => {
-    setState([...queuesPath], [...(queues || []), {"Name": `queue${queues.length}`, "ComputeResources": [{'Name': `queue${queues.length}-c5nlarge`, 'MinCount': 0, "MaxCount": 4, 'InstanceType': 'c5n.large'}]}])
+    setState([...queuesPath], [...(queues || []), {"Name": `queue${queues.length}`, "ComputeResources": [{'Name': `queue${queues.length}-${defaultInstanceType.replace(".", "")}`, 'MinCount': 0, "MaxCount": 4, 'InstanceType': defaultInstanceType}]}])
   }
 
   return (<div>

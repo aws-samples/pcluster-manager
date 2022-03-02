@@ -12,8 +12,8 @@ import React from 'react';
 
 import jsyaml from 'js-yaml';
 
-import { UpdateComputeFleet, GetConfiguration, GetDcvSession } from '../../model'
-import { setState, useState, isAdmin } from '../../store'
+import { setState, useState, isAdmin, ssmPolicy, consoleDomain } from '../../store'
+import { UpdateComputeFleet, GetConfiguration, GetDcvSession, DeleteCluster, DescribeCluster, ListClusters } from '../../model'
 import { findFirst, clusterDefaultUser } from '../../util'
 import { loadTemplate } from '../Configure/util'
 
@@ -29,24 +29,23 @@ import FolderIcon from '@mui/icons-material/Folder';
 import MonitorIcon from '@mui/icons-material/Monitor';
 
 // Components
-import ClusterDeleteDialog from './ClusterDeleteDialog'
+import { DeleteDialog, showDialog, hideDialog } from '../../components/DeleteDialog'
 import { ClusterStopDialog, stopComputeFleet } from './ClusterStopDialog'
 
 export default function ClusterActions () {
   const clusterName = useState(['app', 'clusters', 'selected']);
   const clusterPath = ['clusters', 'index', clusterName];
   const cluster = useState(clusterPath);
-  const region = useState(['app', 'selectedRegion']);
   const defaultRegion = useState(['aws', 'region']);
+  const region = useState(['app', 'selectedRegion']) || defaultRegion;
   const headNode = useState([...clusterPath, 'headNode']);
 
   const fleetStatus = useState([...clusterPath, 'computeFleetStatus']);
   const clusterStatus = useState([...clusterPath, 'clusterStatus']);
   const dcvEnabled = useState([...clusterPath, 'config', 'HeadNode', 'Dcv', 'Enabled']);
 
-  const ssmPolicy = 'arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore';
   function isSsmPolicy(p) {
-    return p.hasOwnProperty('Policy') && p.Policy === ssmPolicy;
+    return p.hasOwnProperty('Policy') && p.Policy === ssmPolicy(region);
   }
   const iamPolicies = useState([...clusterPath, 'config', 'HeadNode', 'Iam', 'AdditionalIamPolicies']);
   const ssmEnabled = iamPolicies && findFirst(iamPolicies, isSsmPolicy);
@@ -54,6 +53,7 @@ export default function ClusterActions () {
   const startFleet = () => {
     UpdateComputeFleet(clusterName, "START_REQUESTED")
   }
+
   const editConfiguration = () => {
     setState(['app', 'wizard', 'clusterName'], clusterName);
     setState(['app', 'wizard', 'page'], 'cluster');
@@ -64,20 +64,21 @@ export default function ClusterActions () {
       loadTemplate(jsyaml.load(configuration));
     });
   }
+
   const deleteCluster = () => {
-    setState(['app', 'clusters', 'clusterDelete', 'dialog'], true)
+    console.log(`Deleting: ${clusterName}`);
+    DeleteCluster(clusterName, (resp) => {DescribeCluster(clusterName); ListClusters()});
+    hideDialog('deleteCluster');
   }
 
   const shellCluster = (instanceId) => {
-    const useRegion = region || defaultRegion;
-    window.open(`https://${useRegion}.console.aws.amazon.com/systems-manager/session-manager/${instanceId}?region=${useRegion}`);
+    window.open(`${consoleDomain(region)}/systems-manager/session-manager/${instanceId}?region=${region}`);
   }
 
   const ssmFilesystem = (instanceId) => {
-    const useRegion = region || defaultRegion;
     let user = clusterDefaultUser(cluster);
     const path = encodeURIComponent(`/home/${user}/`)
-    window.open(`https://${useRegion}.console.aws.amazon.com/systems-manager/managed-instances/${instanceId}/file-system?region=${useRegion}&osplatform=Linux#%7B%22path%22%3A%22${path}%22%7D`);
+    window.open(`${consoleDomain(region)}/systems-manager/managed-instances/${instanceId}/file-system?region=${region}&osplatform=Linux#%7B%22path%22%3A%22${path}%22%7D`);
   }
 
   const dcvConnect = (instance) => {
@@ -89,7 +90,9 @@ export default function ClusterActions () {
   }
 
   return <div style={{marginLeft: "20px"}}>
-    <ClusterDeleteDialog clusterName={clusterName} />
+    <DeleteDialog id='deleteCluster' header='Delete Cluster?' deleteCallback={deleteCluster}>
+      Are you sure you want to delete cluster {clusterName}?
+    </DeleteDialog>
     <ClusterStopDialog clusterName={clusterName} />
     <SpaceBetween direction="horizontal" size="xs">
       <Button className="action" disabled={clusterStatus === 'DELETE_IN_PROGRESS' || clusterStatus === 'CREATE_FAILED' || !isAdmin()} variant="normal" onClick={editConfiguration} iconName={"edit"}> Edit</Button>
@@ -99,7 +102,7 @@ export default function ClusterActions () {
           <CancelIcon /> Stop
         </div>
       </Button>}
-      <Button className="action" disabled={clusterStatus === 'DELETE_IN_PROGRESS' || !isAdmin()} color="default" onClick={deleteCluster}>
+      <Button className="action" disabled={clusterStatus === 'DELETE_IN_PROGRESS' || !isAdmin()} color="default" onClick={() => {showDialog('deleteCluster')}}>
         <div className="container">
           <DeleteIcon /> Delete
         </div>

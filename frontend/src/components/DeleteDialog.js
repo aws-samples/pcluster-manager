@@ -18,19 +18,21 @@ import {
   SpaceBetween,
 } from "@awsui/components-react";
 
-import { DeleteCluster, DescribeCluster, ListClusters } from '../../model'
-import { setState, useState } from '../../store'
+import { setState, useState } from '../store'
 
-export default function ClusterDeleteDialog(props) {
-  const open = useState(['app', 'clusters', 'clusterDelete', 'dialog']);
+export function showDialog(id) {
+  setState(['app', 'confirmDelete', id], true);
+}
 
-  const deleteCluster = () => {
-    DeleteCluster(props.clusterName, (resp) => {DescribeCluster(props.clusterName); ListClusters()})
-    setState(['app', 'clusters', 'clusterDelete', 'dialog'], false)
-  };
+export function hideDialog(id) {
+  setState(['app', 'confirmDelete', id], false);
+}
+
+export function DeleteDialog({children, deleteCallback, header, id}) {
+  const open = useState(['app', 'confirmDelete', id]);
 
   const cancel = () => {
-    setState(['app', 'clusters', 'clusterDelete', 'dialog'], false)
+    setState(['app', 'confirmDelete', id], false)
   };
 
   return (
@@ -43,13 +45,15 @@ export default function ClusterDeleteDialog(props) {
         <Box float="right">
           <SpaceBetween direction="horizontal" size="xs">
             <Button onClick={cancel}>Cancel</Button>
-            <Button onClick={deleteCluster} autoFocus>Delete!</Button>
+            <Button onClick={deleteCallback} autoFocus>Delete!</Button>
           </SpaceBetween>
         </Box>
       }
-      header="Delete Cluster?"
+      header={header}
     >
-      Are you sure you want to delete cluster {props.clusterName}?
+      {children}
     </Modal>
   );
 }
+
+// export {DeleteDialog, showDialog};

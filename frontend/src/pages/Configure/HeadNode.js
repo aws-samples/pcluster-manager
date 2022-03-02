@@ -29,7 +29,7 @@ import {
 } from "@awsui/components-react";
 
 // State
-import { setState, getState, useState, clearState, updateState } from '../../store'
+import { setState, getState, useState, clearState, updateState, ssmPolicy } from '../../store'
 
 // Components
 import { SubnetSelect, InstanceSelect, ActionsEditor } from './Components'
@@ -116,11 +116,14 @@ function headNodeValidate() {
 
 function enableSsm(enable) {
   const iamPolicies = getState([...headNodePath, 'Iam', 'AdditionalIamPolicies']);
+  const defaultRegion = getState(['aws', 'region']);
+  const region = getState(['app', 'selectedRegion']) || defaultRegion;
+
   if(enable) {
     if(iamPolicies && findFirst(iamPolicies, isSsmPolicy))
       return;
     updateState([...headNodePath, 'Iam', 'AdditionalIamPolicies'], (existing) =>
-      {return [...(existing || []), {Policy: ssmPolicy}]}
+      {return [...(existing || []), {Policy: ssmPolicy(region)}]}
     )
   } else {
     if(!iamPolicies || (iamPolicies && !findFirst(iamPolicies, isSsmPolicy)))
@@ -172,11 +175,10 @@ function KeypairSelect() {
   </FormField>);
 }
 
-const ssmPolicy = 'arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore';
 function isSsmPolicy(p) {
-  return p.hasOwnProperty('Policy') && p.Policy === ssmPolicy;
+  const region = getState(['app', 'selectedRegion']) || getState(['aws', 'region']);
+  return p.hasOwnProperty('Policy') && p.Policy === ssmPolicy(region);
 }
-
 
 function SsmSettings() {
   const dcvEnabled = useState([...headNodePath, 'Dcv', 'Enabled']) || false;

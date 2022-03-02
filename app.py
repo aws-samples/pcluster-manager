@@ -29,6 +29,8 @@ from api.PclusterApiHandler import (
     get_identity,
     get_version,
     list_users,
+    create_user,
+    delete_user,
     login,
     logout,
     queue_status,
@@ -110,6 +112,16 @@ def run():
     @authenticated("admin")
     def list_users_():
         return list_users()
+
+    @app.route("/manager/create_user", methods=["POST"])
+    @authenticated("admin")
+    def create_user_():
+        return create_user()
+
+    @app.route("/manager/delete_user", methods=["DELETE"])
+    @authenticated("admin")
+    def delete_user_():
+        return delete_user()
 
     @app.route("/manager/set_user_role", methods=["PUT"])
     @authenticated("admin")

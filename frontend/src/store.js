@@ -111,7 +111,7 @@ function getState(state, path) {
   // Don't pass the state in if running outside of a component and we can pull
   // directly from the store
   if(path === undefined)
-    return getState(store.getState(), state)
+    return getState(store.getState(), state);
   return getIn(state, path);
 }
 
@@ -134,5 +134,15 @@ function isGuest() {
   return identity && (!isAdmin() && !isUser());
 }
 
+function ssmPolicy(region) {
+  const partition = region.startsWith('us-gov') ? 'aws-us-gov' : 'aws';
+  return `arn:${partition}:iam::aws:policy/AmazonSSMManagedInstanceCore`;
+}
+
+function consoleDomain(region) {
+  return region.startsWith('us-gov') ? 'https://console.amazonaws-us-gov.com' : `https://${region}.console.aws.amazon.com`
+}
+
 export {store as default, store, setState, getState, clearState, clearEmptyNest,
-  clearAllState, useState, updateState, isAdmin, isUser, isGuest}
+  clearAllState, useState, updateState, isAdmin, isUser, isGuest,
+  ssmPolicy, consoleDomain}

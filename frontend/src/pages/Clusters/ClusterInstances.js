@@ -11,7 +11,7 @@
 import React from 'react';
 
 import { GetClusterInstances, Ec2Action } from '../../model'
-import { setState, clearState, useState, getState } from '../../store'
+import { setState, clearState, useState, getState, consoleDomain } from '../../store'
 
 // UI Elements
 import {
@@ -151,7 +151,7 @@ export default function ClusterInstances() {
           cell: item => <Link
               external
               externalIconAriaLabel="Opens in a new tab"
-              href={`https://${region}.console.aws.amazon.com/ec2/v2/home?region=${region}#InstanceDetails:instanceId=${item.instanceId}`}
+              href={`${consoleDomain(region)}/ec2/v2/home?region=${region}#InstanceDetails:instanceId=${item.instanceId}`}
             >{item.instanceId}</Link>,
           sortingField: "instanceId"
         },

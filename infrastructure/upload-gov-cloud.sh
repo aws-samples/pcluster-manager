@@ -16,6 +16,6 @@ do
     BUCKET=pcluster-manager-${REGION}
     echo Uploading to: ${BUCKET}
     aws s3 cp --acl public-read ${SCRIPT_DIR}/SSMSessionProfile-cfn.yaml s3://${BUCKET}/SSMSessionProfile-cfn.yaml
-    aws s3 cp --acl public-read ${SCRIPT_DIR}/pcluster-manager-cognito-packaged.yaml s3://${BUCKET}/pcluster-manager-cognito.yaml
+    aws s3 cp --acl public-read ${SCRIPT_DIR}/pcluster-manager-cognito.yaml s3://${BUCKET}/pcluster-manager-cognito.yaml
     aws s3 cp --acl public-read ${SCRIPT_DIR}/pcluster-manager.yaml s3://${BUCKET}/pcluster-manager.yaml
 done

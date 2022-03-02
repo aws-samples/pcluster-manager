@@ -46,7 +46,7 @@ ECR_ENDPOINT="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com"
 PRIVATE_ECR_REPO=$(aws ecr describe-repositories --query "repositories[?contains(repositoryName, 'pcluster-manager')] | [0].repositoryName" --output text)
 IMAGE=${ECR_ENDPOINT}/${PRIVATE_ECR_REPO}:latest
 echo "Logging in to docker..."
-AWS_SESSION_TOKEN= AWS_ACCESS_KEY= AWS_SECRET_ACCESS_KEY= aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin
+AWS_SESSION_TOKEN= AWS_ACCESS_KEY_ID= AWS_SECRET_ACCESS_KEY= aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin "${PUBLIC_ECR_ENDPOINT}"
 docker pull ${PUBLIC_ECR_ENDPOINT}/${ECR_REPO}:${TAG}
 docker tag ${PUBLIC_ECR_ENDPOINT}/${ECR_REPO}:${TAG} ${IMAGE}
 echo "Logging in to private repo..."

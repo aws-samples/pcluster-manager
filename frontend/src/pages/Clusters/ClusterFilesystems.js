@@ -10,7 +10,7 @@
 // limitations under the License.
 import React from 'react';
 
-import { useState } from '../../store'
+import { useState, consoleDomain } from '../../store'
 import { getIn } from '../../util'
 import { useCollection } from '@awsui/collection-hooks';
 
@@ -34,13 +34,13 @@ function StorageId({storage}){
 
   return <>
     {fs_id && storage.StorageType === 'FsxLustre' && <Link external externalIconAriaLabel="Opens a new tab"
-      href={`https://${region}.console.aws.amazon.com/fsx/home?region=${region}#file-system-details/${fs_id}`}
+      href={`${consoleDomain(region)}/fsx/home?region=${region}#file-system-details/${fs_id}`}
     >{fs_id}</Link>}
     {fs_id && storage.StorageType === 'Ebs' && <Link external externalIconAriaLabel="Opens a new tab"
-      href={`https://${region}.console.aws.amazon.com/efs/home?region=${region}#/file-systems/${fs_id}`}
+      href={`${consoleDomain(region)}/efs/home?region=${region}#/file-systems/${fs_id}`}
     >{fs_id}</Link>}
     {fs_id && storage.StorageType === 'Efs' && <Link external externalIconAriaLabel="Opens a new tab"
-      href={`https://${region}.console.aws.amazon.com/ec2/v2/home?region=${region}#VolumeDetails:volumeId=${fs_id}`}
+      href={`${consoleDomain(region)}/ec2/v2/home?region=${region}#VolumeDetails:volumeId=${fs_id}`}
     >{fs_id}</Link>}
     {!fs_id && "internal"}
   </>
@@ -91,7 +91,7 @@ export default function ClusterFilesystems() {
         {
           id: "mount",
           header: "Mount Point",
-          cell: item => <a href={`https://${region}.console.aws.amazon.com/systems-manager/managed-instances/${headNode.instanceId}/file-system?region=${region}&osplatform=Linux#%7B%22path%22%3A%22${item.MountDir}%22%7D`} rel="noreferrer" target="_blank">{item.MountDir}</a>,
+          cell: item => <Link external href={`${consoleDomain(region)}.console.aws.amazon.com/systems-manager/managed-instances/${headNode.instanceId}/file-system?region=${region}&osplatform=Linux#%7B%22path%22%3A%22${item.MountDir}%22%7D`} rel="noreferrer" target="_blank">{item.MountDir}</Link>,
           sortingField: "MountDir"
         },
         {
