@@ -46,7 +46,7 @@ function request(method, url, body = null) {
     'delete': axios.delete}[method]
 
   const region = getState(['app', 'selectedRegion']);
-  url = host + ((region && !url.includes('region')) ?  `${url}&region=${region}` : url)
+  url = host + ((region && !url.includes('region')) ? (url.includes('?') ? `${url}&region=${region}` : `${url}?region=${region}` ) : url)
   const headers = {"Content-Type": "application/json"}
 
   return requestFunc(url, body, headers)
@@ -628,6 +628,7 @@ function LoadInitialState() {
     let groups = identity['cognito:groups'];
     if((groups.includes("admin")) || (groups.includes("user")))
     {
+      ListUsers();
       ListClusters();
       ListCustomImages();
       ListOfficialImages();
