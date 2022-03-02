@@ -594,7 +594,7 @@ function SubmitJob(instanceId, user, job, callback, failure) {
   }).catch(error => {
     if(error.response)
     {
-      failure(error.response)
+      failure && failure(error.response.data.message)
       console.log(error.response)
       notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
     }
