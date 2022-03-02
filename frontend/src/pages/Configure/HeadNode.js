@@ -301,7 +301,11 @@ function HeadNode() {
     if(setImdsSecured)
       setState(imdsSecuredPath, setImdsSecured);
     else
+    {
       clearState(imdsSecuredPath);
+      if(Object.keys(getState([...headNodePath, 'Imds'])).length === 0)
+        clearState([...headNodePath, 'Imds']);
+    }
   }
 
   return (
