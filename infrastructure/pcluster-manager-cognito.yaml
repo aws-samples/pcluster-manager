@@ -16,11 +16,38 @@ Parameters:
     Description: Email address of administrative user setup by default.
     Type: String
     Default: user@amazon.com
+  EnableMFA:
+    AllowedValues: [true, false]
+    Default: false
+    Description: Whether or not to enable MFA through SMS.
+    Type: String
 
 Conditions:
   GovCloud: !Equals [!Ref AWS::Region, 'us-gov-west-1']
+  MFA: !Equals [!Ref EnableMFA, true]
 
 Resources:
+  SNSRole:
+    Condition: MFA
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - cognito-idp.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: CognitoSNSPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: sns:publish
+                Resource: '*'
 
   UserPoolClientSecret:
     Type: Custom::UserPoolClientSecret
@@ -160,7 +187,22 @@ Resources:
     Type: AWS::Cognito::UserPool
     Properties:
       AutoVerifiedAttributes:
-        - 'email'
+        - email
+        - phone_number
+      EnabledMfas: !If [MFA, [SMS_MFA], !Ref AWS::NoValue]
+      MfaConfiguration: !If [MFA, 'ON', 'OFF']
+      SmsConfiguration:
+        ExternalId: !Sub ${AWS::StackName}-external
+        SnsCallerArn: !If [MFA, !GetAtt SNSRole.Arn, !Ref AWS::NoValue]
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Mutable: false
+          Required: true
+        - Name: phone_number
+          AttributeDataType: String
+          Mutable: false
+          Required: true
       UserPoolName: !Sub ${AWS::StackName}-userpool
       UsernameConfiguration:
         CaseSensitive: false
