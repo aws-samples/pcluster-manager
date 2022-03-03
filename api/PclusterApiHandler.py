@@ -16,6 +16,7 @@ import time
 
 import boto3
 import botocore
+import jose
 import requests
 from flask import abort, redirect, request
 from flask_restful import Resource, reqparse
@@ -108,6 +109,8 @@ def authenticate(group):
         decoded = jwt_decode(access_token, USER_POOL_ID)
     except jwt.ExpiredSignatureError:
         return auth_redirect()
+    except jose.exceptions.JWSSignatureError:
+        return logout()
     if not disable_auth() and (group != "guest") and (group not in set(decoded.get("cognito:groups", []))):
         return auth_redirect()
 
@@ -405,7 +408,7 @@ def get_identity():
 
     access_token = request.cookies.get("accessToken")
     if not access_token:
-        abort(401)
+        return {"message": "No access token."}, 401
     try:
         decoded = jwt_decode(access_token, USER_POOL_ID)
         username = decoded.get("username")
@@ -415,7 +418,7 @@ def get_identity():
             user = cognito.list_users(UserPoolId=USER_POOL_ID, Filter=filter_)["Users"][0]
             decoded["attributes"] = {ua["Name"]: ua["Value"] for ua in user["Attributes"]}
     except jwt.ExpiredSignatureError:
-        abort(401)
+        return {"message": "Signature expired."}, 401
 
     if disable_auth():
         decoded["cognito:groups"] = ["user", "admin"]
@@ -459,7 +462,9 @@ def create_user():
     try:
         cognito = boto3.client("cognito-idp")
         username = request.json.get("Username")
-        user = cognito.admin_create_user(UserPoolId=USER_POOL_ID, Username=username).get("User")
+        user = cognito.admin_create_user(
+            UserPoolId=USER_POOL_ID, Username=username, DesiredDeliveryMediums=["EMAIL"]
+        ).get("User")
         return _augment_user(cognito, user)
     except Exception as e:
         return {"message": str(e)}, 500

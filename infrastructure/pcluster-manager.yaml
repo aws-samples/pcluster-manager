@@ -11,6 +11,11 @@ Parameters:
     Description: When set to false, any user will be able to view and manage clusters.
     Type: String
     Default: true
+  EnableMFA:
+    AllowedValues: [true, false]
+    Default: false
+    Description: Whether or not to enable MFA through SMS.
+    Type: String
   Version:
     Description: Version of AWS ParallelCluster to deploy
     Type: String
@@ -29,6 +34,7 @@ Resources:
     Properties:
       Parameters:
         AdminUserEmail: !Ref AdminUserEmail
+        EnableMFA: !Ref EnableMFA
         LogoutURL: !Sub
          - https://${Api}.execute-api.${AWS::Region}.${AWS::URLSuffix}/index.html
          - Api: !Ref ApiGateway
@@ -74,6 +80,7 @@ Resources:
           AUTH_PATH: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolAuthDomain ]
           SECRET_ID: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolClientSecretName ]
           ENABLE_AUTH: !Ref EnableAuth
+          ENABLE_MFA: !Ref EnableMFA
       FunctionName: !Sub
         - PclusterManagerFunction-${StackIdSuffix}
         - { StackIdSuffix: !Select [2, !Split ['/', !Ref 'AWS::StackId']] }
@@ -340,6 +347,67 @@ Resources:
       LogGroupName: !Sub /aws/lambda/${PclusterManagerFunction}
       RetentionInDays: 90
 
+  CognitoPostActions:
+    Type: Custom::CognitoPostActions
+    Properties:
+      ServiceToken: !GetAtt CognitoPostActionsFunction.Arn
+      LoginURL: !Sub
+       - https://${Api}.execute-api.${AWS::Region}.${AWS::URLSuffix}/login
+       - Api: !Ref ApiGateway
+      UserPoolId:  !Ref CognitoUserPool
+
+  CognitoPostActionsFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: index.handler
+      Runtime: python3.9
+      MemorySize: 128
+      Timeout: 20
+      TracingConfig:
+        Mode: Active
+      Role: !GetAtt CognitoPostActionsRole.Arn
+      Code:
+        ZipFile: |
+          import cfnresponse
+          import boto3
+          import random
+          import string
+          import json
+
+          cognito = boto3.client("cognito-idp")
+
+          def create_physical_resource_id():
+              alnum = string.ascii_uppercase + string.ascii_lowercase + string.digits
+              return "".join(random.choice(alnum) for _ in range(16))
+
+          def handler(event, context):
+              print(event)
+              print("boto version {}".format(boto3.__version__))
+
+              stack_name = event["StackId"].split("/")[1]
+              user_pool_id = event["ResourceProperties"]["UserPoolId"]
+              login_url = event["ResourceProperties"]["LoginURL"]
+              logical_resource_id = event["LogicalResourceId"]
+
+              response_data = {}
+              reason = None
+              response_status = cfnresponse.SUCCESS
+              try:
+                  if event["RequestType"] == "Create" or event["RequestType"] == "Update":
+                      response_data["Message"] = "Resource creation successful!"
+
+                      user_pool = cognito.describe_user_pool(UserPoolId=user_pool_id)
+                      user_pool['AdminCreateUserConfig']['InviteMessageTemplate']['EmailMessage']] = f"Thanks for installing PclusterManager on your AWS account. The following user has been created: {username}<br /><br />Please use this temporary password to login to your account: {####}<br /><br />Please click <a href=\"{login_url}\">here</a> to login."
+                      user_pool['EmailVerificationMessage'] = f"Thanks for installing PclusterManager on your AWS account. Please click the link below to verify your email address. {####}<br /><br />Click <a href=\"{login_url}\">here</a> to login."
+                      cognito.update_user_pool(UserPoolId=user_pool_id, **user_pool)
+                      response_data = {}
+
+              except Exception as exception:
+                  response_status = cfnresponse.FAILED
+                  reason = "Failed {}: {}".format(event["RequestType"], exception)
+
+              cfnresponse.send(event, context, response_status, response_data, secret_name, reason)
+
   # Roles
 
   PclusterManagerUserRole:
@@ -365,6 +433,31 @@ Resources:
         - !Ref PclusterManagerSsmSendPolicy
         - !Ref PclusterManagerSsmGetCommandInvocationPolicy
         - !Ref PclusterManagerCognitoSecretPolicy
+
+  CognitoPostActionsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Policies:
+        - PolicyName: CognitoPermissions
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cognito-idp:DescribeUserPool
+                  - cognito-idp:UpdateUserPool
+                Resource:
+                  - !Sub
+                    - arn:${AWS::Partition}:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}
+                    - { UserPoolId: !Ref CognitoUserPool }
 
   # Policies
 
