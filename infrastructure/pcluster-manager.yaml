@@ -354,7 +354,7 @@ Resources:
       LoginURL: !Sub
        - https://${Api}.execute-api.${AWS::Region}.${AWS::URLSuffix}/login
        - Api: !Ref ApiGateway
-      UserPoolId:  !Ref CognitoUserPool
+      UserPoolId: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]
 
   CognitoPostActionsFunction:
     Type: AWS::Lambda::Function
@@ -445,6 +445,10 @@ Resources:
               Service: lambda.amazonaws.com
             Action:
               - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        # Required for Lambda logging and XRay
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/AWSXRayDaemonWriteAccess
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
       Policies:
         - PolicyName: CognitoPermissions
           PolicyDocument:
@@ -457,7 +461,7 @@ Resources:
                 Resource:
                   - !Sub
                     - arn:${AWS::Partition}:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}
-                    - { UserPoolId: !Ref CognitoUserPool }
+                    - { UserPoolId: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]}
 
   # Policies
 
