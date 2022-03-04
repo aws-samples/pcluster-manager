@@ -169,15 +169,22 @@ function UserList(props) {
 export default function Users() {
   const users = useSelector(selectUserIndex);
   const navigationOpen = useState(['app', 'sidebar', 'drawerOpen']);
-  const usernamePath = ['app', 'users', 'email'];
+
+  const user = useState(['app', 'users', 'newUser'])
+
+  const usernamePath = ['app', 'users', 'newUser', 'Username'];
   const username = useState(usernamePath);
+
+  const userphonePath = ['app', 'users', 'newUser', 'Phonenumber'];
+  const userphone = useState(userphonePath);
+
+  const enableMfa = useState(['app', 'enableMfa']);
   const refreshUsers = () => {
     ListUsers();
   }
 
   const createUser = () => {
-    let user = {Username: username};
-    CreateUser(user, () => {clearState(['app', 'users', 'email'])});
+    CreateUser(user, () => {clearState(['app', 'users', 'newUser'])});
   }
 
   React.useEffect(() => {
@@ -202,7 +209,8 @@ export default function Users() {
                 counter={ users && `(${Object.keys(users).length})` }
                 actions={
                   <SpaceBetween direction="horizontal" size="xs">
-                    <div onKeyPress={e => e.key == 'Enter' && createUser()}>
+                    {enableMfa && <Input onChange={({ detail }) => setState(userphonePath, detail.value)} value={userphone} placeholder='+11234567890'></Input>}
+                    <div onKeyPress={e => e.key === 'Enter' && createUser()}>
                       <Input onChange={({ detail }) => setState(usernamePath, detail.value)} value={username} placeholder='email@domain.com' onSubmit={createUser}></Input>
                     </div>
                     <Button className="action" onClick={createUser}>Create User</Button>

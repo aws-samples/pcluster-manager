@@ -498,6 +498,7 @@ function GetVersion() {
         "major": major_int,
         "minor": minor_int,
         "patch": patch});
+      setState(['app', 'enableMfa'], response.data.enable_mfa);
     }
   }).catch(error => {
     if(error.response)

@@ -29,6 +29,7 @@ API_VERSION = os.getenv("API_VERSION", "3.1.0")
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 SECRET_ID = os.getenv("SECRET_ID")
+ENABLE_MFA = os.getenv("ENABLE_MFA")
 SITE_URL = os.getenv("SITE_URL", API_BASE_URL)
 
 try:
@@ -133,7 +134,7 @@ def authenticated(group="user", redirect=True):
 
 
 def get_version():
-    return {"version": API_VERSION}
+    return {"version": API_VERSION, "enable_mfa": ENABLE_MFA == "true"}
 
 
 def ec2_action():
@@ -462,8 +463,12 @@ def create_user():
     try:
         cognito = boto3.client("cognito-idp")
         username = request.json.get("Username")
+        phone_number = request.json.get("Phonenumber")
+        user_attributes = [{"Name": "email", "Value": username}]
+        if phone_number:
+            user_attributes.append({"Name": "phone_number", "Value": phone_number})
         user = cognito.admin_create_user(
-            UserPoolId=USER_POOL_ID, Username=username, DesiredDeliveryMediums=["EMAIL"]
+            UserPoolId=USER_POOL_ID, Username=username, DesiredDeliveryMediums=["EMAIL"], UserAttributes=user_attributes
         ).get("User")
         return _augment_user(cognito, user)
     except Exception as e:

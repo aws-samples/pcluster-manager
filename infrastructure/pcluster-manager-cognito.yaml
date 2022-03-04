@@ -28,7 +28,6 @@ Conditions:
 
 Resources:
   SNSRole:
-    Condition: MFA
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -80,10 +79,6 @@ Resources:
           def generate_secret(stack_name, resource_id):
               alnum = string.ascii_uppercase + string.digits
               return f"{stack_name}-{resource_id}-" + "".join(random.choice(alnum) for _ in range(12))
-
-          def create_physical_resource_id():
-              alnum = string.ascii_uppercase + string.ascii_lowercase + string.digits
-              return "".join(random.choice(alnum) for _ in range(16))
 
           def handler(event, context):
               print(event)
@@ -188,21 +183,16 @@ Resources:
     Properties:
       AutoVerifiedAttributes:
         - email
-        - phone_number
+        - !If [MFA, phone_number, !Ref AWS::NoValue]
       EnabledMfas: !If [MFA, [SMS_MFA], !Ref AWS::NoValue]
       MfaConfiguration: !If [MFA, 'ON', 'OFF']
       SmsConfiguration:
         ExternalId: !Sub ${AWS::StackName}-external
-        SnsCallerArn: !If [MFA, !GetAtt SNSRole.Arn, !Ref AWS::NoValue]
-      Schema:
-        - Name: email
-          AttributeDataType: String
-          Mutable: false
-          Required: true
-        - Name: phone_number
-          AttributeDataType: String
-          Mutable: false
-          Required: true
+        SnsCallerArn: !GetAtt SNSRole.Arn
+      Schema: !If
+        - MFA
+        - [{Name: email, AttributeDataType: String, Mutable: false, Required: true}, {Name: phone_number, AttributeDataType: String, Mutable: false, Required: true}]
+        - [{Name: email, AttributeDataType: String, Mutable: false, Required: true}]
       UserPoolName: !Sub ${AWS::StackName}-userpool
       UsernameConfiguration:
         CaseSensitive: false
@@ -264,31 +254,6 @@ Resources:
       Precedence: 2
       UserPoolId: !Ref CognitoUserPool
 
-  CognitoAdminUser:
-    Type: AWS::Cognito::UserPoolUser
-    Properties:
-      DesiredDeliveryMediums:
-        - EMAIL
-      UserAttributes:
-        - Name: email
-          Value: !Ref AdminUserEmail
-      Username: !Ref AdminUserEmail
-      UserPoolId: !Ref CognitoUserPool
-
-  CognitoUserToAdminGroup:
-    Type: AWS::Cognito::UserPoolUserToGroupAttachment
-    Properties:
-      GroupName: !Ref CognitoAdminGroup
-      Username: !Ref CognitoAdminUser
-      UserPoolId: !Ref CognitoUserPool
-
-  CognitoUserToUserGroup:
-    Type: AWS::Cognito::UserPoolUserToGroupAttachment
-    Properties:
-      GroupName: !Ref CognitoUserGroup
-      Username: !Ref CognitoAdminUser
-      UserPoolId: !Ref CognitoUserPool
-
 Outputs:
 
   UserPoolAuthPrefix:
@@ -305,9 +270,21 @@ Outputs:
     Description: Cognito UserPool Id
     Value:  !Ref CognitoUserPool
 
+  CognitoUserGroup:
+    Description: Cognito User Group
+    Value:  !Ref CognitoUserGroup
+
+  CognitoAdminGroup:
+    Description: Cognito Admin Group
+    Value:  !Ref CognitoAdminGroup
+
   UserPoolClientSecretArn:
     Description: The app client secret ARN for PclusterManager.
     Value: !GetAtt UserPoolClientSecret.SecretArn
+
+  SNSRole:
+    Description: Role for SNS
+    Value: !GetAtt SNSRole.Arn
 
   UserPoolClientSecretName:
     Description: The app client secret name for PclusterManager.
