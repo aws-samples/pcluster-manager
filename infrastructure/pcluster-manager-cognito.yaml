@@ -205,7 +205,7 @@ Resources:
         - 'email'
       VerificationMessageTemplate:
         DefaultEmailOption: CONFIRM_WITH_CODE
-        EmailMessage: "Thanks for signing up to PclusterManager. Please the following code to verify your account: {####}"
+        EmailMessage: "Thanks for signing up to PclusterManager. Please use the following code to verify your account: {####}"
         EmailSubject: "[PclusterManager] Please verify your account"
       EmailVerificationSubject: "[PclusterManager] Please verify your account."
       EmailVerificationMessage: "Thanks for installing PclusterManager on your AWS account. Please click the link below to verify your email address. {####}"
