@@ -209,7 +209,7 @@ export default function Users() {
                 counter={ users && `(${Object.keys(users).length})` }
                 actions={
                   <SpaceBetween direction="horizontal" size="xs">
-                    {enableMfa && <Input onChange={({ detail }) => setState(userphonePath, detail.value)} value={userphone} placeholder='+11234567890'></Input>}
+                    {enableMfa && <Input inputMode='tel' onChange={({ detail }) => setState(userphonePath, detail.value)} value={userphone} placeholder='+11234567890'></Input>}
                     <div onKeyPress={e => e.key === 'Enter' && createUser()}>
                       <Input onChange={({ detail }) => setState(usernamePath, detail.value)} value={username} placeholder='email@domain.com' onSubmit={createUser}></Input>
                     </div>
