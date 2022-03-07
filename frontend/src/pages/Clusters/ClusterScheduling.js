@@ -194,7 +194,7 @@ export default function ClusterScheduling() {
   const clusterPath = ['clusters', 'index', clusterName];
   const cluster = useState(clusterPath);
   const fleetStatus = useState([...clusterPath, 'computeFleetStatus']);
-  const cluster_minor = parseInt(cluster.version.split(".")[1]);
+  const cluster_minor = cluster.version ? parseInt(cluster.version.split(".")[1]) : 0;
   const jobs = useState(['clusters', 'index', clusterName, 'jobs']);
 
   React.useEffect(() => {
