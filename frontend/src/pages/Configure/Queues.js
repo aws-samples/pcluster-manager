@@ -31,7 +31,7 @@ import {
 import { setState, getState, useState, clearState } from '../../store'
 
 // Components
-import { SubnetSelect, InstanceSelect, LabeledIcon, ActionsEditor, CustomAMISettings } from './Components'
+import { ActionsEditor, CustomAMISettings, InstanceSelect, LabeledIcon, SubnetSelect, SecurityGroups } from './Components'
 import HelpTooltip from '../../components/HelpTooltip'
 
 // Constants
@@ -348,6 +348,9 @@ function Queue({index}) {
         </ColumnLayout>
         <ComputeResources queue={queue} index={index}/>
         <ExpandableSection header="Advanced options">
+          <FormField label="Additional Security Groups">
+            <SecurityGroups basePath={[...queuesPath, index]} />
+          </FormField>
           <ActionsEditor basePath={[...queuesPath, index]} errorsPath={errorsPath}/>
           <CustomAMISettings basePath={[...queuesPath, index]} appPath={['app', 'wizard', 'queues', index]} errorsPath={errorsPath} validate={queuesValidate}/>
         </ExpandableSection>
