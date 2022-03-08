@@ -396,7 +396,7 @@ function HeadNode() {
           <SecurityGroups />
         </FormField>
           <HelpTooltip>
-            Provides additioanl security groups for the HeadNode.
+            Provides additional security groups for the HeadNode.
           </HelpTooltip>
         </div>
       </ColumnLayout>
