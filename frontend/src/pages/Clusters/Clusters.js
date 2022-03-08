@@ -34,8 +34,8 @@ import EmptyState from '../../components/EmptyState';
 import SideBar from '../../components/SideBar';
 import Status from "../../components/Status";
 import Loading from "../../components/Loading";
-import ClusterActions from './ClusterActions';
-import ClusterDetails from "./ClusterDetails";
+import Actions from './Actions';
+import Details from "./Details";
 import { WizardDialog, WizardShow } from '../Configure/WizardDialog';
 
 function ClusterList() {
@@ -52,6 +52,7 @@ function ClusterList() {
     setSelected([cluster]);
     let config_path = ['clusters', 'index', name, 'config'];
     GetConfiguration(name, (configuration) => {
+      setState(['clusters', 'index', name, 'configYaml'], configuration);
       setState(config_path, jsyaml.load(configuration))});
     DescribeCluster(name);
     setState(['app', 'clusters', 'selected'], name);
@@ -172,11 +173,11 @@ export default function Clusters () {
           header={
             <Header
               variant="h2"
-              actions={cluster && <ClusterActions className="spacer" />}>
+              actions={cluster && <Actions className="spacer" />}>
               {clusterName ? `Cluster: ${clusterName}` : "No cluster selected" }
             </Header>
           }>
-          {clusterName ? <ClusterDetails /> : <div>Select a cluster to see its details.</div>}
+          {clusterName ? <Details /> : <div>Select a cluster to see its details.</div>}
         </SplitPanel>
       }
       content={

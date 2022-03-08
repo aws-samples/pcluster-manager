@@ -14,6 +14,7 @@ import { CreateCluster, UpdateCluster, ListClusters, DescribeCluster, notify } f
 
 // UI Elements
 import {
+  CodeEditor,
   Header,
   Toggle,
   Spinner,
@@ -97,15 +98,43 @@ function Create() {
   const errors = useState(['app', 'wizard', 'errors', 'create']);
   const pending = useState(['app', 'wizard', 'pending']);
   const editing = getState(['app', 'wizard', 'editing']);
+  const [preferences, setPreferences] = React.useState(
+    undefined
+  );
   return (
     <>
       <Header description={`This is the cluster configuration that will be used to ${editing ? 'update' : 'create'} your cluster.`}
       ></Header>
-      <textarea
-        disabled={ pending ? true : false}
-        spellCheck="false"
-        className="configuration-data" value={clusterConfig}
-        onChange={(e) => {setState(configPath, e.target.value)}} />
+      <CodeEditor
+        ace={window.ace}
+        language="yaml"
+        value={clusterConfig}
+        preferences={preferences}
+        onPreferencesChange={e => setPreferences(e.detail)}
+        onDelayedChange={({detail}) => {setState(configPath, detail.value)}}
+        loading={pending ? true : false}
+        i18nStrings={{
+          loadingState: "Saving",
+          errorState:
+          "There was an error loading the code editor.",
+          errorStateRecovery: "Retry",
+          editorGroupAriaLabel: "Code editor",
+          statusBarGroupAriaLabel: "Status bar",
+          cursorPosition: (row, column) =>
+          `Ln ${row}, Col ${column}`,
+          errorsTab: "Errors",
+          warningsTab: "Warnings",
+          preferencesButtonAriaLabel: "Preferences",
+          paneCloseButtonAriaLabel: "Close",
+          preferencesModalHeader: "Preferences",
+          preferencesModalCancel: "Cancel",
+          preferencesModalConfirm: "Confirm",
+          preferencesModalWrapLines: "Wrap lines",
+          preferencesModalTheme: "Theme",
+          preferencesModalLightThemes: "Light themes",
+          preferencesModalDarkThemes: "Dark themes"
+        }}
+      />
       {errors && <ValidationErrors errors={errors} /> }
       {pending && <div><Spinner size="normal" /> {pending} request pending...</div>}
       {editing && <Toggle checked={forceUpdate} onChange={() => setState(['app', 'wizard', 'forceUpdate'], !forceUpdate)}>Force Update: Enable this to perform an update while the ComputeFleet is still running.</Toggle>}
