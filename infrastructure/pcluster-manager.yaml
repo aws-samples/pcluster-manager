@@ -14,13 +14,13 @@ Parameters:
   Version:
     Description: Version of AWS ParallelCluster to deploy
     Type: String
-    Default: 3.1.1
+    Default: 3.1.2
 
 Mappings:
   PclusterManager:
     Constants:
-      Version: 3.1.1
-      ShortVersion: 3.1.1
+      Version: 3.1.2
+      ShortVersion: 3.1.2
 
 Resources:
 

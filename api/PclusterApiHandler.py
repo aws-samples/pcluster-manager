@@ -219,7 +219,6 @@ def ssm_command(region, instance_id, user, run_command):
         return {"message": "Timed out waiting for command to complete."}, 500
 
     if status["Status"] != "Success":
-        print(status)
         return {"message": status["StandardErrorContent"]}, 500
 
     output = status["StandardOutputContent"]
@@ -247,7 +246,7 @@ def submit_job():
     ret = ssm_command(args.get("region"), instance_id, user, f"sbatch {job_cmd}")
     print(ret)
 
-    return {"success": "true"}
+    return resp if type(resp) == tuple else {"success": "true"}
 
 
 def _price_estimate(cluster_name, region, queue_name):

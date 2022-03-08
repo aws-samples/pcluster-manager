@@ -370,7 +370,11 @@ function HeadNode() {
     if(setImdsSecured)
       setState(imdsSecuredPath, setImdsSecured);
     else
+    {
       clearState(imdsSecuredPath);
+      if(Object.keys(getState([...headNodePath, 'Imds'])).length === 0)
+        clearState([...headNodePath, 'Imds']);
+    }
   }
 
   return (
@@ -428,10 +432,9 @@ function HeadNode() {
           <SecurityGroups />
         </FormField>
           <HelpTooltip>
-            Provides additioanl security groups for the HeadNode.
+            Provides additional security groups for the HeadNode.
           </HelpTooltip>
         </div>
-
       </ColumnLayout>
       <ExpandableSection header="Advanced options">
         <ActionsEditor basePath={headNodePath} errorsPath={errorsPath}/>
