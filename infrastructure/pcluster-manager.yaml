@@ -417,6 +417,7 @@ Resources:
         Version: '2012-10-17'
         Statement:
           - Action:
+            - ec2:DescribeSecurityGroups
             - ec2:DescribeVpcs
             - ec2:DescribeInstanceTypes
             - ec2:DescribeSubnets

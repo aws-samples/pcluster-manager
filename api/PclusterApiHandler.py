@@ -363,6 +363,9 @@ def get_aws_config():
     vpcs = ec2.describe_vpcs()["Vpcs"]
     subnets = ec2.describe_subnets()["Subnets"]
 
+    security_groups = ec2.describe_security_groups()["SecurityGroups"]
+    security_groups = [{k: sg[k] for k in {"GroupId", "GroupName"}} for sg in security_groups]
+
     efa_filters = [{"Name": "network-info.efa-supported", "Values": ["true"]}]
     instance_paginator = ec2.get_paginator("describe_instance_types")
     efa_instances_paginator = instance_paginator.paginate(Filters=efa_filters)
@@ -389,6 +392,7 @@ def get_aws_config():
         pass
 
     return {
+        "security_groups": security_groups,
         "keypairs": keypairs,
         "vpcs": vpcs,
         "subnets": subnets,

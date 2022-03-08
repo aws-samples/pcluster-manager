@@ -17,6 +17,7 @@ import { findFirst, getIn } from '../../util'
 // UI Elements
 import {
   Box,
+  Button,
   ColumnLayout,
   ExpandableSection,
   FormField,
@@ -197,6 +198,35 @@ function SsmSettings() {
   )
 }
 
+function SecurityGroups() {
+￼  const sgPath = [...headNodePath, 'Networking', 'AdditionalSecurityGroups'];
+￼  const selectedSgs = useState(sgPath) || [];
+￼  const sgSelected = useState(['app', 'wizard', 'sg-selected']);
+￼
+￼  const sgs = useState(['aws', 'security_groups']) || [];
+￼  const sgMap = sgs.reduce((acc, s) => {acc[s.GroupId] = s.GroupName; return acc}, {})
+￼
+￼  console.log(useState(headNodePath));
+￼
+￼  const itemToOption = item => {return {value: item.GroupId, label: item.GroupId, description: item.GroupName}}
+￼  const removeSg = (i) => {
+￼    setState(sgPath, [...selectedSgs.slice(0, i), ...selectedSgs.slice(i + 1)]);
+￼    if(getState(sgPath).length === 0)
+￼      clearState(sgPath);
+￼  }
+￼  return <SpaceBetween direction="vertical" size="xs">
+￼    <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap:"16px"}}>
+￼      <Select
+￼        selectedOption={(sgSelected && findFirst(sgs, x => x.GroupId === sgSelected.value)) ? itemToOption(findFirst(sgs, x => x.GroupId === sgSelected.value)) : {label: "Please Select A Security Group"}}
+￼        onChange={({detail}) => {setState(['app', 'wizard', 'sg-selected'], detail.selectedOption)}}
+￼        options={sgs.map(itemToOption)}
+￼      />
+￼      <Button disabled={!sgSelected} onClick={() => setState(sgPath, [...selectedSgs, sgSelected.value])}>Add</Button>
+￼    </div>
+￼    {selectedSgs.map((s, i) => <div key={`sg${i}`} style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap:"16px"}}><div>{s}</div><Button onClick={() => removeSg(i)}>Remove</Button></div>)}
+￼  </SpaceBetween>
+}
+
 function DcvSettings() {
   const dcvPath = [...headNodePath, 'Dcv', 'Enabled'];
 
@@ -356,6 +386,14 @@ function HeadNode() {
             checked={imdsSecured || false} onChange={toggleImdsSecured}>IMDS Secured</Toggle>
           <HelpTooltip>
             If enabled, restrict access to IMDS (and thus instance credentials) to users with superuser permissions. For more information, see <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html#instance-metadata-v2-how-it-works'>How instance metadata service version 2 works</a> in the <i>Amazon EC2 User Guide for Linux Instances</i>.
+          </HelpTooltip>
+        </div>
+        <div key="sgs" style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+        <FormField label="Additional Security Groups">
+          <SecurityGroups />
+        </FormField>
+          <HelpTooltip>
+            Provides additioanl security groups for the HeadNode.
           </HelpTooltip>
         </div>
       </ColumnLayout>
