@@ -11,7 +11,7 @@
 import React from 'react';
 
 import { findFirst, clusterDefaultUser } from '../../util'
-import { getState, useState, ssmPolicy, consoleDomain } from '../../store'
+import { getState, useState, setState, ssmPolicy, consoleDomain } from '../../store'
 import { GetConfiguration, DescribeCluster } from '../../model'
 
 // UI Elements
@@ -28,6 +28,7 @@ import {
 } from '@awsui/components-react';
 
 // Components
+import ConfigDialog from './ConfigDialog'
 import DateView from '../../components/DateView'
 import Status from '../../components/Status'
 import HelpTooltip from '../../components/HelpTooltip'
@@ -42,27 +43,11 @@ const ValueWithLabel = ({ label, children }) => (
   </div>
 );
 
-function downloadBlob(blob, filename) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename || 'download';
-  const clickHandler = () => {
-    setTimeout(() => {
-      URL.revokeObjectURL(url);
-      a.removeEventListener('click', clickHandler);
-    }, 150);
-  };
-  a.addEventListener('click', clickHandler, false);
-  a.click();
-  return a;
-}
-
 export default function ClusterProperties () {
 
   const clusterName = useState(['app', 'clusters', 'selected']);
-  const cluster = useState(['clusters', 'index', clusterName]);
   const clusterPath = ['clusters', 'index', clusterName];
+  const cluster = useState(clusterPath);
   const headNode = useState([...clusterPath, 'headNode']);
   const defaultRegion = useState(['aws', 'region']);
   const region = useState(['app', 'selectedRegion']) || defaultRegion;
@@ -83,6 +68,7 @@ export default function ClusterProperties () {
   }, [])
 
   return <>
+    <ConfigDialog />
     <Container header={<Header variant="h3">Properties</Header>}>
       <ColumnLayout columns={3} variant="text-grid">
         <SpaceBetween size="l">
@@ -105,15 +91,7 @@ export default function ClusterProperties () {
             </div>
           </ValueWithLabel>
           <ValueWithLabel label="clusterConfiguration">
-            <Button
-              iconName="download"
-              disabled={cluster && cluster.clusterStatus === 'CREATE_FAILED'}
-              onClick={() => {
-                GetConfiguration(clusterName, (configuration) => {
-                  const blob = new Blob([configuration], {type: 'text/yaml'});
-                  downloadBlob(blob, 'config.yaml')});
-              }}
-            >Download</Button>
+            <Button iconName="external" onClick={() => setState(['app', 'clusters', 'clusterConfig', 'dialog'], true)}>View</Button>
           </ValueWithLabel>
         </SpaceBetween>
         <SpaceBetween size="l">

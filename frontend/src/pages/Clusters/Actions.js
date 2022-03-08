@@ -30,9 +30,9 @@ import MonitorIcon from '@mui/icons-material/Monitor';
 
 // Components
 import { DeleteDialog, showDialog, hideDialog } from '../../components/DeleteDialog'
-import { ClusterStopDialog, stopComputeFleet } from './ClusterStopDialog'
+import { StopDialog, stopComputeFleet } from './StopDialog'
 
-export default function ClusterActions () {
+export default function Actions () {
   const clusterName = useState(['app', 'clusters', 'selected']);
   const clusterPath = ['clusters', 'index', clusterName];
   const cluster = useState(clusterPath);
@@ -93,7 +93,7 @@ export default function ClusterActions () {
     <DeleteDialog id='deleteCluster' header='Delete Cluster?' deleteCallback={deleteCluster}>
       Are you sure you want to delete cluster {clusterName}?
     </DeleteDialog>
-    <ClusterStopDialog clusterName={clusterName} />
+    <StopDialog clusterName={clusterName} />
     <SpaceBetween direction="horizontal" size="xs">
       <Button className="action" disabled={clusterStatus === 'DELETE_IN_PROGRESS' || clusterStatus === 'CREATE_FAILED' || !isAdmin()} variant="normal" onClick={editConfiguration} iconName={"edit"}> Edit</Button>
       {fleetStatus === "STOPPED" && <Button className="action" variant="normal" onClick={startFleet} iconName={"caret-right-filled"}> Start</Button>}

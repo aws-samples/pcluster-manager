@@ -47,7 +47,7 @@ function StorageId({storage}){
 
 }
 
-export default function ClusterFilesystems() {
+export default function Filesystems() {
   const clusterName = useState(['app', 'clusters', 'selected']);
   const clusterPath = ['clusters', 'index', clusterName];
   const storage = useState([...clusterPath, 'config', 'SharedStorage']) || [];

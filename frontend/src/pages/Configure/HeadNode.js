@@ -358,7 +358,6 @@ function HeadNode() {
           <SubnetSelect disabled={editing} value={subnetValue} onChange={(subnetId) => setState(subnetPath, subnetId)}/>
         </FormField>
         <KeypairSelect />
-
         <FormField
           label="Root Volume Size (GB)"
           errorText={rootVolumeErrors}
