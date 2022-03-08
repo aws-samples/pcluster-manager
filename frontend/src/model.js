@@ -498,6 +498,7 @@ function GetVersion() {
         "major": major_int,
         "minor": minor_int,
         "patch": patch});
+      setState(['app', 'enableMfa'], response.data.enable_mfa);
     }
   }).catch(error => {
     if(error.response)
@@ -626,7 +627,7 @@ function LoadInitialState() {
   GetVersion();
   GetIdentity((identity) => {
     let groups = identity['cognito:groups'];
-    if((groups.includes("admin")) || (groups.includes("user")))
+    if(groups && (groups.includes("admin") || groups.includes("user")))
     {
       ListUsers();
       ListClusters();
