@@ -250,6 +250,47 @@ def submit_job():
     return {"success": "true"}
 
 
+def _price_estimate(cluster_name, region, queue_name):
+    config_text = get_cluster_config_text(cluster_name, region)
+    config_data = yaml.safe_load(config_text)
+    queues = {q["Name"]: q for q in config_data["Scheduling"]["SlurmQueues"]}
+    queue = queues[queue_name]
+
+    if len(queue["ComputeResources"]) == 1:
+        instance_type = queue["ComputeResources"][0]["InstanceType"]
+        print("****************************************************")
+        print("instance type", instance_type)
+        pricing_filters = [
+            {"Field": "tenancy", "Value": "shared", "Type": "TERM_MATCH"},
+            {"Field": "instanceType", "Value": instance_type, "Type": "TERM_MATCH"},
+            {"Field": "operatingSystem", "Value": "Linux", "Type": "TERM_MATCH"},
+            {"Field": "regionCode", "Value": region, "Type": "TERM_MATCH"},
+            {"Field": "preInstalledSw", "Value": "NA", "Type": "TERM_MATCH"},
+            {"Field": "capacityStatus", "Value": "Used", "Type": "TERM_MATCH"},
+        ]
+
+        # Pricing endpoint only available from "us-east-1" region
+        pricing = boto3.client("pricing", region_name="us-east-1")
+        prices = pricing.get_products(ServiceCode="AmazonEC2", Filters=pricing_filters)["PriceList"]
+        prices = list(map(json.loads, prices))
+        on_demand_prices = list(prices[0]["terms"]["OnDemand"].values())
+        price_guess = float(list(on_demand_prices[0]["priceDimensions"].values())[0]["pricePerUnit"]["USD"])
+        price_guess = None if price_guess != price_guess else price_guess  # check for NaN
+        return price_guess
+    else:
+        return {"message": "Cost estimate not available for queues with multiple resource types."}, 400
+
+
+def price_estimate():
+    parser = reqparse.RequestParser()
+    parser.add_argument("region", type=str)
+    parser.add_argument("cluster_name", type=str)
+    parser.add_argument("queue_name", type=str)
+    args = parser.parse_args()
+    price_guess = _price_estimate(args.get("cluster_name"), args.get("region"), args.get("queue_name"))
+    return price_guess if isinstance(price_guess, tuple) else {"estimate": price_guess}
+
+
 def sacct():
     parser = reqparse.RequestParser()
     parser.add_argument("instance_id", type=str)
@@ -280,46 +321,24 @@ def sacct():
     else:
 
         accounting = ssm_command(region, instance_id, user, f"sacct {sacct_args} --json | jq -c .jobs")
-        if type(accounting) is tuple:
+        if isinstance(accounting, tuple):
             return accounting
         # Try to retrieve relevant cost information
         try:
-            config_text = get_cluster_config_text(cluster_name, region)
-            config_data = yaml.safe_load(config_text)
-            queues = {q["Name"]: q for q in config_data["Scheduling"]["SlurmQueues"]}
-            queue = queues[json.loads(accounting)[0]["partition"]]
-
-            if len(queue["ComputeResources"]) == 1:
-                instance_type = queue["ComputeResources"][0]["InstanceType"]
-                print("****************************************************")
-                print("instance type", instance_type)
-                pricing_filters = [
-                    {"Field": "tenancy", "Value": "shared", "Type": "TERM_MATCH"},
-                    {"Field": "instanceType", "Value": instance_type, "Type": "TERM_MATCH"},
-                    {"Field": "operatingSystem", "Value": "Linux", "Type": "TERM_MATCH"},
-                    {"Field": "regionCode", "Value": region, "Type": "TERM_MATCH"},
-                    {"Field": "preInstalledSw", "Value": "NA", "Type": "TERM_MATCH"},
-                    {"Field": "capacityStatus", "Value": "Used", "Type": "TERM_MATCH"},
-                ]
-
-                # Pricing endpoint only available from "us-east-1" region
-                pricing = boto3.client("pricing", region_name="us-east-1")
-                prices = pricing.get_products(ServiceCode="AmazonEC2", Filters=pricing_filters)["PriceList"]
-                prices = list(map(lambda x: json.loads(x), prices))
-                on_demand_prices = list(prices[0]["terms"]["OnDemand"].values())
-                price_guess = float(list(on_demand_prices[0]["priceDimensions"].values())[0]["pricePerUnit"]["USD"])
-                price_guess = None if price_guess != price_guess else price_guess  # check for NaN
+            queue_name = json.loads(accounting)[0]["partition"]
+            _price_guess = _price_estimate(cluster_name, region, queue_name)
+            if not isinstance(_price_guess, tuple):
+                price_guess = _price_guess
         except Exception as e:
             print(e)
-            pass
     try:
         if accounting == "":
             return {"jobs": []}
-        else:
-            accounting_ret = {"jobs": json.loads(accounting)}
-            if "jobs" in sacct_args and price_guess:
-                accounting_ret["jobs"][0]["price_estimate"] = price_guess
-            return accounting_ret
+
+        accounting_ret = {"jobs": json.loads(accounting)}
+        if "jobs" in sacct_args and price_guess:
+            accounting_ret["jobs"][0]["price_estimate"] = price_guess
+        return accounting_ret
     except Exception as e:
         print(accounting)
         raise e

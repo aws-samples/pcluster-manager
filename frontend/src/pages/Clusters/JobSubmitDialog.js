@@ -11,14 +11,15 @@
 import * as React from 'react';
 import { useState, setState, getState, clearState } from '../../store'
 import { findFirst, clusterDefaultUser } from '../../util'
-import { SubmitJob } from '../../model'
+import { SubmitJob, PriceEstimate } from '../../model'
 
 // UI Elements
 import {
   Box,
   Button,
-  FormField,
   ColumnLayout,
+  ExpandableSection,
+  FormField,
   Header,
   Input,
   Modal,
@@ -67,9 +68,77 @@ function QueueSelect() {
   );
 }
 
+function JobCostEstimate() {
+  const jobRuntimePath = [...submitPath, 'jobRuntime'];
+  const priceEstimatePath = [...submitPath, 'priceEstimate'];
+  const priceEstimate = useState(priceEstimatePath);
+  const costEstimatePendingPath = [...submitPath, 'costEstimatePending'];
+
+  const costEstimatePending = useState(costEstimatePendingPath);
+
+  const jobRuntime = useState(jobRuntimePath);
+  const jobPath = [...submitPath, 'job'];
+  const nodes = useState([...jobPath, 'nodes']);
+
+  const costEstimatePath = [...submitPath, 'costEstimate'];
+  const costEstimate = useState(costEstimatePath);
+
+  const errorsPath = [...submitPath, 'errors', 'costEstimate'];
+  const errors = useState(errorsPath);
+
+  const estimateCost = () => {
+    const clusterName = getState(['app', 'clusters', 'selected']);
+    const queueName = getState([...jobPath, 'partition']);
+    setState(costEstimatePendingPath, true);
+    const callback = (data) => {
+      clearState(errorsPath);
+      clearState(costEstimatePendingPath);
+      setState(priceEstimatePath, data.estimate);
+      setState(costEstimatePath, data.estimate * (jobRuntime / 3600.0) * nodes)
+    }
+    const failure = (data) => {
+      clearState(costEstimatePendingPath);
+      setState(errorsPath, data.message);
+    }
+    if(!queueName || queueName === "[ANY]")
+    {
+      setState(errorsPath, "Error: You must select a queue.");
+    } else if(!nodes || nodes === '')
+    {
+      setState(errorsPath, "Error: You must select a node count.");
+    } else if(!jobRuntime || jobRuntime === '')
+    {
+      setState(errorsPath, "Error: You must select a job runtime.");
+    } else {
+      PriceEstimate(clusterName, queueName, callback, failure);
+    }
+  }
+
+  return <>
+    <b>Experimental!</b> This provides a basic cost estimate based on the expected job run-time, the number of nodes and their instance type. Actual costs will vary based on node uptime, storage, and other factors. Please refer to Cost Explorer for actual cluster costs.
+    <FormField errorText={errors}>
+      Your estimate of the total runtime of the job (in Seconds).
+      <SpaceBetween direction="horizontal" size="s" key="command">
+        <div style={{flexGrow: 1}}>
+          <Input
+            onChange={({ detail }) => {setState(jobRuntimePath, detail.value);}}
+            value={jobRuntime}
+            inputMode='numeric'
+            placeholder={'300'}
+          />
+        </div>
+        <Button loading={costEstimatePending} onClick={estimateCost}>Estimate</Button>
+      </SpaceBetween>
+    </FormField>
+    {costEstimate && <FormField>Estimated job cost: ${costEstimate.toFixed(2)}</FormField>}
+    {costEstimate && <div>Price ($/h) * Time (h) * NodeCount =&gt; {priceEstimate} * {(jobRuntime / 3600.0).toFixed(2)} * {nodes}</div>}
+  </>
+}
+
 export default function JobSubmitDialog({submitCallback}) {
   const open = useState([...submitPath, 'dialog']);
   const jobPath = [...submitPath, 'job'];
+
   const job = useState(jobPath);
   const submitting = useState([...submitPath, 'pending']);
   let jobName = useState([...jobPath, 'job-name']);
@@ -159,6 +228,7 @@ export default function JobSubmitDialog({submitCallback}) {
             <Input
               onChange={({ detail }) => {setState([...jobPath, 'nodes'], detail.value);}}
               value={nodes}
+              inputMode='numeric'
               placeholder="0"
             />
           </FormField>
@@ -173,6 +243,7 @@ export default function JobSubmitDialog({submitCallback}) {
             <Input
               onChange={({ detail }) => {setState([...jobPath, 'ntasks'], detail.value);}}
               value={ntasks}
+              inputMode='numeric'
               placeholder="0"
             />
           </FormField>
@@ -196,6 +267,9 @@ export default function JobSubmitDialog({submitCallback}) {
           </FormField>
         </SpaceBetween>
       </ColumnLayout>
+      <ExpandableSection header="Cost estimate">
+        <JobCostEstimate />
+      </ExpandableSection>
       </SpaceBetween>
     </Modal>
   );
