@@ -17,13 +17,13 @@ import { setState, useState } from '../../store'
 import {
   Box,
   Button,
-  CodeEditor,
   Modal,
   SpaceBetween,
 } from "@awsui/components-react";
 
 // Components
 import Loading from '../../components/Loading'
+import ConfigView from '../../components/ConfigView'
 
 function downloadBlob(blob, filename) {
   const url = URL.createObjectURL(blob);
@@ -41,39 +41,6 @@ function downloadBlob(blob, filename) {
   return a;
 }
 
-function ConfigView({config}){
-  const [preferences, setPreferences] = React.useState({'theme': 'textmate'});
-  return <>
-    <CodeEditor
-      ace={window.ace}
-      language="yaml"
-      value={config}
-      preferences={preferences}
-      onPreferencesChange={e => setPreferences(e.detail)}
-      i18nStrings={{
-        loadingState: "Loading code editor",
-        errorState:
-        "There was an error loading the code editor.",
-        errorStateRecovery: "Retry",
-        editorGroupAriaLabel: "Code editor",
-        statusBarGroupAriaLabel: "Status bar",
-        cursorPosition: (row, column) =>
-        `Ln ${row}, Col ${column}`,
-        errorsTab: "Errors",
-        warningsTab: "Warnings",
-        preferencesButtonAriaLabel: "Preferences",
-        paneCloseButtonAriaLabel: "Close",
-        preferencesModalHeader: "Preferences",
-        preferencesModalCancel: "Cancel",
-        preferencesModalConfirm: "Confirm",
-        preferencesModalWrapLines: "Wrap lines",
-        preferencesModalTheme: "Theme",
-        preferencesModalLightThemes: "Light themes",
-        preferencesModalDarkThemes: "Dark themes"
-      }}
-    />
-  </>
-}
 
 export default function ConfigDialog() {
   const open = useState(['app', 'clusters', 'clusterConfig', 'dialog']);
