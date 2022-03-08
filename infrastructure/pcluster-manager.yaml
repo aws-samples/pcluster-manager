@@ -3,10 +3,6 @@ Parameters:
     Description: Email address of administrative user setup by default.
     Type: String
     Default: user@amazon.com
-  AdminUserPhone:
-    Description: Phone number of administrative user setup by default. This is only required if MFA is enabled.
-    Type: String
-    Default: '+10000000000'
   PublicEcrImageUri:
     Description: When specified, the URI of the Docker image for the Lambda of the PclusterManager container
     Type: String
@@ -20,6 +16,10 @@ Parameters:
     Default: false
     Description: Whether or not to enable MFA through SMS.
     Type: String
+  AdminUserPhone:
+    Description: Phone number of administrative user setup by default. This is only required if MFA is enabled.
+    Type: String
+    Default: '+10000000000'
   Version:
     Description: Version of AWS ParallelCluster to deploy
     Type: String
