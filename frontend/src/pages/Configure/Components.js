@@ -26,6 +26,7 @@ import {
   Input,
   SpaceBetween,
   Toggle,
+  TokenGroup,
   Select,
 } from "@awsui/components-react";
 
@@ -347,4 +348,35 @@ function ActionsEditor({basePath, errorsPath}) {
   </>
 }
 
-export { SubnetSelect, InstanceSelect, LabeledIcon, ActionsEditor, CustomAMISettings }
+function SecurityGroups({basePath}) {
+  const sgPath = [...basePath, 'Networking', 'AdditionalSecurityGroups'];
+  const selectedSgs = useState(sgPath) || [];
+  const sgSelected = useState(['app', 'wizard', 'sg-selected']);
+
+  const sgs = useState(['aws', 'security_groups']) || [];
+  // const sgMap = sgs.reduce((acc, s) => {acc[s.GroupId] = s.GroupName; return acc}, {})
+  console.log(useState(basePath));
+
+  const itemToOption = item => {return {value: item.GroupId, label: item.GroupId, description: item.GroupName}}
+  const removeSg = (i) => {
+    setState(sgPath, [...selectedSgs.slice(0, i), ...selectedSgs.slice(i + 1)]);
+    if(getState(sgPath).length === 0)
+      clearState(sgPath);
+  }
+  return <SpaceBetween direction="vertical" size="xs">
+    <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap:"16px"}}>
+      <Select
+        selectedOption={(sgSelected && findFirst(sgs, x => x.GroupId === sgSelected.value)) ? itemToOption(findFirst(sgs, x => x.GroupId === sgSelected.value)) : {label: "Please Select A Security Group"}}
+        onChange={({detail}) => {setState(['app', 'wizard', 'sg-selected'], detail.selectedOption)}}
+        options={sgs.map(itemToOption)}
+      />
+      <Button disabled={!sgSelected} onClick={() => setState(sgPath, [...selectedSgs, sgSelected.value])}>Add</Button>
+    </div>
+    <TokenGroup
+      onDismiss={({ detail: { itemIndex } }) => {removeSg(itemIndex)}}
+      items={selectedSgs.map((s) => {return {label: s, dismissLabel: `Remove ${s}`}})}
+    />
+  </SpaceBetween>
+}
+
+export { SubnetSelect, SecurityGroups, InstanceSelect, LabeledIcon, ActionsEditor, CustomAMISettings }
