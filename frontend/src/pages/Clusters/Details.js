@@ -17,13 +17,13 @@ import { getIn } from '../../util'
 import Tabs from "@awsui/components-react/tabs"
 
 // Components
-import ClusterAccounting from './ClusterAccounting'
-import ClusterStackEvents from './ClusterStackEvents'
-import ClusterInstances from './ClusterInstances'
-import ClusterFilesystems from './ClusterFilesystems'
-import ClusterScheduling from './ClusterScheduling'
-import ClusterProperties from './ClusterProperties'
-import ClusterLogs from './ClusterLogs'
+import Accounting from './Accounting'
+import StackEvents from './StackEvents'
+import Instances from './Instances'
+import Filesystems from './Filesystems'
+import Scheduling from './Scheduling'
+import Properties from './Properties'
+import Logs from './Logs'
 import Loading from '../../components/Loading'
 
 export default function ClusterTabs() {
@@ -54,13 +54,13 @@ export default function ClusterTabs() {
 
   return cluster ?
       <Tabs tabs={[
-        {label: "Details", id: "details", content: <ClusterProperties />},
-        {label: "Instances", id: "instances", content: <ClusterInstances />},
-        {label: "Storage", id: "storage", content: <ClusterFilesystems />},
-        {label: "Job Scheduling", id: "scheduling", content: <ClusterScheduling />},
-        ...(accountingEnabled ? [{label: "Accounting", id: "accounting", content: <ClusterAccounting />}] : []),
-        {label: "Stack Events", id: "stack-events", content: <ClusterStackEvents />},
-        {label: "Logs", id: "logs", content: <ClusterLogs />}
+        {label: "Details", id: "details", content: <Properties />},
+        {label: "Instances", id: "instances", content: <Instances />},
+        {label: "Storage", id: "storage", content: <Filesystems />},
+        {label: "Job Scheduling", id: "scheduling", content: <Scheduling />},
+        ...(accountingEnabled ? [{label: "Accounting", id: "accounting", content: <Accounting />}] : []),
+        {label: "Stack Events", id: "stack-events", content: <StackEvents />},
+        {label: "Logs", id: "logs", content: <Logs />}
       ]} />
       : <div style={{textAlign: "center", paddingTop: "40px"}}>
         <Loading />

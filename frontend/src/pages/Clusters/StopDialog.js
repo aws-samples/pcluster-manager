@@ -21,7 +21,7 @@ import {
 import { UpdateComputeFleet } from '../../model'
 import { setState, useState } from '../../store'
 
-function ClusterStopDialog({clusterName}) {
+function StopDialog({clusterName}) {
   const open = useState(['app', 'clusters', 'clusterStop', 'dialog']);
 
   const cancel = () => {
@@ -59,4 +59,4 @@ function stopComputeFleet() {
   setState(['app', 'clusters', 'clusterStop', 'dialog'], true)
 }
 
-export { ClusterStopDialog, stopComputeFleet }
+export { StopDialog, stopComputeFleet }

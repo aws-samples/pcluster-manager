@@ -21,6 +21,7 @@ import {
 
 // Components
 import ValidationErrors from '../../components/ValidationErrors'
+import ConfigView from '../../components/ConfigView'
 
 // State
 import { setState, getState, useState } from '../../store'
@@ -101,11 +102,7 @@ function Create() {
     <>
       <Header description={`This is the cluster configuration that will be used to ${editing ? 'update' : 'create'} your cluster.`}
       ></Header>
-      <textarea
-        disabled={ pending ? true : false}
-        spellCheck="false"
-        className="configuration-data" value={clusterConfig}
-        onChange={(e) => {setState(configPath, e.target.value)}} />
+      <ConfigView config={clusterConfig} pending={pending} onChange={({detail}) => {setState(configPath, detail.value)}} />
       {errors && <ValidationErrors errors={errors} /> }
       {pending && <div><Spinner size="normal" /> {pending} request pending...</div>}
       {editing && <Toggle checked={forceUpdate} onChange={() => setState(['app', 'wizard', 'forceUpdate'], !forceUpdate)}>Force Update: Enable this to perform an update while the ComputeFleet is still running.</Toggle>}

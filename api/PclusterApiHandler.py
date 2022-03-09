@@ -16,6 +16,7 @@ import time
 
 import boto3
 import botocore
+import jose
 import requests
 import yaml
 from flask import abort, redirect, request
@@ -29,6 +30,7 @@ API_VERSION = os.getenv("API_VERSION", "3.1.0")
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 SECRET_ID = os.getenv("SECRET_ID")
+ENABLE_MFA = os.getenv("ENABLE_MFA")
 SITE_URL = os.getenv("SITE_URL", API_BASE_URL)
 
 try:
@@ -109,6 +111,8 @@ def authenticate(group):
         decoded = jwt_decode(access_token, USER_POOL_ID)
     except jwt.ExpiredSignatureError:
         return auth_redirect()
+    except jose.exceptions.JWSSignatureError:
+        return logout()
     if not disable_auth() and (group != "guest") and (group not in set(decoded.get("cognito:groups", []))):
         return auth_redirect()
 
@@ -131,7 +135,7 @@ def authenticated(group="user", redirect=True):
 
 
 def get_version():
-    return {"version": API_VERSION}
+    return {"version": API_VERSION, "enable_mfa": ENABLE_MFA == "true"}
 
 
 def ec2_action():
@@ -529,7 +533,7 @@ def get_identity():
 
     access_token = request.cookies.get("accessToken")
     if not access_token:
-        abort(401)
+        return {"message": "No access token."}, 401
     try:
         decoded = jwt_decode(access_token, USER_POOL_ID)
         username = decoded.get("username")
@@ -539,7 +543,7 @@ def get_identity():
             user = cognito.list_users(UserPoolId=USER_POOL_ID, Filter=filter_)["Users"][0]
             decoded["attributes"] = {ua["Name"]: ua["Value"] for ua in user["Attributes"]}
     except jwt.ExpiredSignatureError:
-        abort(401)
+        return {"message": "Signature expired."}, 401
 
     if disable_auth():
         decoded["cognito:groups"] = ["user", "admin"]
@@ -583,7 +587,13 @@ def create_user():
     try:
         cognito = boto3.client("cognito-idp")
         username = request.json.get("Username")
-        user = cognito.admin_create_user(UserPoolId=USER_POOL_ID, Username=username).get("User")
+        phone_number = request.json.get("Phonenumber")
+        user_attributes = [{"Name": "email", "Value": username}]
+        if phone_number:
+            user_attributes.append({"Name": "phone_number", "Value": phone_number})
+        user = cognito.admin_create_user(
+            UserPoolId=USER_POOL_ID, Username=username, DesiredDeliveryMediums=["EMAIL"], UserAttributes=user_attributes
+        ).get("User")
         return _augment_user(cognito, user)
     except Exception as e:
         return {"message": str(e)}, 500

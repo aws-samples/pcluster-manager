@@ -32,7 +32,7 @@ import { Queues, queuesValidate } from './Queues'
 import { Create, createValidate, handleCreate as wizardHandleCreate, handleDryRun as wizardHandleDryRun } from './Create'
 
 // Components
-import { stopComputeFleet } from '../Clusters/ClusterStopDialog'
+import { stopComputeFleet } from '../Clusters/StopDialog'
 import Loading from '../../components/Loading'
 
 // State
