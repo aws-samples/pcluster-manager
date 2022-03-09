@@ -59,6 +59,16 @@ function wizardShow() {
   setState(['app', 'section'], 'configure');
 }
 
+function setPage(page) {
+  const config = getState(['app', 'wizard', 'config']);
+  if(page === "create")
+  {
+    console.log(jsyaml.dump(config));
+    setState(['app', 'wizard', 'clusterConfigYaml'], jsyaml.dump(config));
+  }
+  setState(['app', 'wizard', 'page'], page);
+}
+
 function SideNav() {
   const editing = useState(['app', 'wizard', 'editing']);
   const page = getState(['app', 'wizard', 'page']) || 'source';
@@ -84,7 +94,7 @@ function SideNav() {
       onFollow={event => {
         if (!event.detail.external) {
           event.preventDefault();
-          setState(['app', 'wizard', 'page'], event.detail.href);
+          setPage(event.detail.href);
         }
       }}
       items={items}/>
@@ -136,7 +146,6 @@ function Content() {
   }
 
   const handleNext = () => {
-    let config = getState(['app', 'wizard', 'config']);
     let currentPage = getState(['app', 'wizard', 'page']) || 'source';
 
     // Run the validators corresponding to the page we are on
@@ -165,16 +174,9 @@ function Content() {
 
     for(let i = 0; i < pages.length; i++)
     {
-       if(pages[i] === currentPage) {
+      if(pages[i] === currentPage) {
         let nextPage = pages[i + 1];
-
-        if(nextPage === "create")
-        {
-          console.log(jsyaml.dump(config));
-          setState(['app', 'wizard', 'clusterConfigYaml'], jsyaml.dump(config));
-        }
-        console.log("np", nextPage);
-        setState(['app', 'wizard', 'page'], nextPage);
+        setPage(nextPage);
         return;
       }
     }
