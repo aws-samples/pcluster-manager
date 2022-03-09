@@ -147,11 +147,11 @@ export default function CustomImageDetails() {
         id: "configuration",
         content: <CustomImageConfiguration imageId={selected} />
       },
-      {
+      ...(image && (image.imageBuildStatus !== 'BUILD_COMPLETE') ? [{
         label: "Stack Events",
         id: "stack-events",
         content: <CustomImageStackEvents imageId={selected} />
-      },
+      }] : []),
       // {
       //   label: "Logs",
       //   id: "logs",
