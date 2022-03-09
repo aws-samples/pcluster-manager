@@ -357,15 +357,15 @@ function HeadNode() {
             If enabled, restrict access to IMDS (and thus instance credentials) to users with superuser permissions. For more information, see <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html#instance-metadata-v2-how-it-works'>How instance metadata service version 2 works</a> in the <i>Amazon EC2 User Guide for Linux Instances</i>.
           </HelpTooltip>
         </div>
-        <div key="sgs" style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+      </ColumnLayout>
+      <div key="sgs" style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
         <FormField label="Additional Security Groups">
           <SecurityGroups basePath={headNodePath} />
         </FormField>
-          <HelpTooltip>
-            Provides additional security groups for the HeadNode.
-          </HelpTooltip>
-        </div>
-      </ColumnLayout>
+        <HelpTooltip>
+          Provides additional security groups for the HeadNode.
+        </HelpTooltip>
+      </div>
       <ExpandableSection header="Advanced options">
         <ActionsEditor basePath={headNodePath} errorsPath={errorsPath}/>
       </ExpandableSection>

@@ -368,6 +368,7 @@ function SecurityGroups({basePath}) {
       <Select
         selectedOption={(sgSelected && findFirst(sgs, x => x.GroupId === sgSelected.value)) ? itemToOption(findFirst(sgs, x => x.GroupId === sgSelected.value)) : {label: "Please Select A Security Group"}}
         onChange={({detail}) => {setState(['app', 'wizard', 'sg-selected'], detail.selectedOption)}}
+        triggerVariant={'option'}
         options={sgs.map(itemToOption)}
       />
       <Button disabled={!sgSelected} onClick={() => setState(sgPath, [...selectedSgs, sgSelected.value])}>Add</Button>
