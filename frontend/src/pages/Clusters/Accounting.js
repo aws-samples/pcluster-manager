@@ -35,6 +35,7 @@ import {
   Button,
   ColumnLayout,
   Container,
+  DateRangePicker,
   FormField,
   Header,
   Input,
@@ -288,8 +289,8 @@ export default function ClusterAccounting() {
   //const errors = useState(['clusters', 'index', clusterName, 'accounting', 'errors']) || [];
 
   const pending = useState(['app', 'clusters', 'accounting', 'pending']);
-  const startTime = useState(['app', 'clusters', 'accounting', 'startTime']) || '';
-  const endTime = useState(['app', 'clusters', 'accounting', 'endTime']) || '';
+  //const startTime = useState(['app', 'clusters', 'accounting', 'startTime']) || '';
+  //const endTime = useState(['app', 'clusters', 'accounting', 'endTime']) || '';
   const nodes = useState(['app', 'clusters', 'accounting', 'nodes']) || []
   const user = useState(['app', 'clusters', 'accounting', 'user']) || ''
   const jobName = useState(['app', 'clusters', 'accounting', 'jobName']) || []
@@ -298,6 +299,36 @@ export default function ClusterAccounting() {
   React.useEffect(() => {
     refreshAccounting({}, null, true);
   }, [])
+
+  const setDateRange = (val) => {
+    if(!val)
+    {
+      clearState(['app', 'clusters', 'accounting', 'startTime']);
+      clearState(['app', 'clusters', 'accounting', 'endTime']);
+    } else {
+      if(val.type === 'relative')
+      {
+        if(val.unit === 'month')
+        {
+          setState(['app', 'clusters', 'accounting', 'startTime'], `now-${val.amount * 4}weeks`);
+          setState(['app', 'clusters', 'accounting', 'endTime'], 'now');
+        } else if(val.unit === 'year')
+        {
+          setState(['app', 'clusters', 'accounting', 'startTime'], `now-${val.amount * 52}weeks`);
+          setState(['app', 'clusters', 'accounting', 'endTime'], 'now');
+        } else {
+          setState(['app', 'clusters', 'accounting', 'startTime'], `now-${val.amount}${val.unit}s`);
+          setState(['app', 'clusters', 'accounting', 'endTime'], 'now');
+        }
+      } else {
+        const start = new Date(val.startDate);
+        const end = new Date(val.endDate);
+        setState(['app', 'clusters', 'accounting', 'startTime'], start.toISOString().substring(0,19));
+        setState(['app', 'clusters', 'accounting', 'endTime'], end.toISOString().substring(0,19));
+      }
+    }
+    refreshAccounting({}, null, true);
+  }
 
   const { items, actions, filteredItemsCount, collectionProps, filterProps, paginationProps } = useCollection(
     jobs || [],
@@ -333,6 +364,8 @@ export default function ClusterAccounting() {
     }, false)
   }
 
+  const [dateValue, setDateValue] = React.useState(undefined);
+
   return <>
     <JobModal />
     <SpaceBetween direction="vertical" size="s">
@@ -340,20 +373,69 @@ export default function ClusterAccounting() {
         header={<Header variant="h2"
           actions={<Button loading={pending} onClick={() => refreshAccounting({}, null, true)}>Refresh</Button>}>Filters</Header>}>
       <SpaceBetween direction="horizontal" size="s">
-        <FormField label="Start Time">
+        <FormField label="Time range filter">
           <div onKeyPress={e => e.key === 'Enter' && refreshAccounting({}, null, true)}>
-          <Input
-            value={startTime}
-            placeholder="now-60minutes"
-            onChange={(({detail}) => {setState(['app', 'clusters', 'accounting', 'startTime'], detail.value)})} />
-          </div>
-        </FormField>
-        <FormField label="End Time">
-          <div onKeyPress={e => e.key === 'Enter' && refreshAccounting({}, null, true)}>
-          <Input
-            value={endTime}
-            placeholder="now"
-            onChange={(({detail}) => {setState(['app', 'clusters', 'accounting', 'endTime'], detail.value)})} />
+            <DateRangePicker
+              onChange={({ detail }) => {setDateRange(detail.value); setDateValue(detail.value);}}
+              value={dateValue}
+              relativeOptions={[
+                {
+                  key: "previous-5-minutes",
+                    amount: 5,
+                    unit: "minute",
+                    type: "relative"
+                },
+                {
+                  key: "previous-30-minutes",
+                  amount: 30,
+                  unit: "minute",
+                  type: "relative"
+                },
+                {
+                  key: "previous-1-hour",
+                  amount: 1,
+                  unit: "hour",
+                  type: "relative"
+                },
+                {
+                  key: "previous-6-hours",
+                  amount: 6,
+                  unit: "hour",
+                  type: "relative"
+                }
+              ]}
+              i18nStrings={{
+                todayAriaLabel: "Today",
+                nextMonthAriaLabel: "Next month",
+                previousMonthAriaLabel: "Previous month",
+                customRelativeRangeDurationLabel: "Duration",
+                customRelativeRangeDurationPlaceholder:
+                "Enter duration",
+                customRelativeRangeOptionLabel: "Custom range",
+                customRelativeRangeOptionDescription:
+                "Set a custom range in the past",
+                customRelativeRangeUnitLabel: "Unit of time",
+                formatRelativeRange: e => {
+                  const t =
+                    1 === e.amount ? e.unit : `${e.unit}s`;
+                  return `Last ${e.amount} ${t}`;
+                },
+                formatUnit: (e, t) => (1 === t ? e : `${e}s`),
+                dateTimeConstraintText:
+                "Range must be between 6 - 30 days. Use 24 hour format.",
+                relativeModeTitle: "Relative range",
+                absoluteModeTitle: "Absolute range",
+                relativeRangeSelectionHeading: "Choose a range",
+                startDateLabel: "Start date",
+                endDateLabel: "End date",
+                startTimeLabel: "Start time",
+                endTimeLabel: "End time",
+                clearButtonLabel: "Clear",
+                cancelButtonLabel: "Cancel",
+                applyButtonLabel: "Apply"
+              }}
+              placeholder="Filter by a date and time range"
+            />
           </div>
         </FormField>
         <FormField label="Queue">
