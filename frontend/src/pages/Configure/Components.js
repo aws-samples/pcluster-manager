@@ -354,7 +354,7 @@ function SecurityGroups({basePath}) {
   const sgSelected = useState(['app', 'wizard', 'sg-selected']);
 
   const sgs = useState(['aws', 'security_groups']) || [];
-  // const sgMap = sgs.reduce((acc, s) => {acc[s.GroupId] = s.GroupName; return acc}, {})
+  const sgMap = sgs.reduce((acc, s) => {acc[s.GroupId] = s.GroupName; return acc}, {})
   console.log(useState(basePath));
 
   const itemToOption = item => {return {value: item.GroupId, label: item.GroupId, description: item.GroupName}}
@@ -374,7 +374,7 @@ function SecurityGroups({basePath}) {
     </div>
     <TokenGroup
       onDismiss={({ detail: { itemIndex } }) => {removeSg(itemIndex)}}
-      items={selectedSgs.map((s) => {return {label: s, dismissLabel: `Remove ${s}`}})}
+      items={selectedSgs.map((s) => {return {label: s, dismissLabel: `Remove ${s}`, description: sgMap[s]}})}
     />
   </SpaceBetween>
 }
