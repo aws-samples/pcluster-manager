@@ -198,7 +198,7 @@ export default function JobSubmitDialog(props) {
         </SpaceBetween>
       </ColumnLayout>
       </SpaceBetween>
-      <div style={{color: 'red', marginTop: "20px"}}>{error.split('\n').map((line) => <div>{line}</div>)}</div>
+      <div style={{color: 'red', marginTop: "20px"}}>{(error || "").split('\n').map((line) => <div>{line}</div>)}</div>
     </Modal>
   );
 }
