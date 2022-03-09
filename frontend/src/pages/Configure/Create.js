@@ -14,6 +14,7 @@ import { CreateCluster, UpdateCluster, ListClusters, DescribeCluster, notify } f
 
 // UI Elements
 import {
+  Container,
   Header,
   Toggle,
   Spinner,
@@ -98,16 +99,12 @@ function Create() {
   const errors = useState(['app', 'wizard', 'errors', 'create']);
   const pending = useState(['app', 'wizard', 'pending']);
   const editing = getState(['app', 'wizard', 'editing']);
-  return (
-    <>
-      <Header description={`This is the cluster configuration that will be used to ${editing ? 'update' : 'create'} your cluster.`}
-      ></Header>
-      <ConfigView config={clusterConfig} pending={pending} onChange={({detail}) => {setState(configPath, detail.value)}} />
-      {errors && <ValidationErrors errors={errors} /> }
-      {pending && <div><Spinner size="normal" /> {pending} request pending...</div>}
-      {editing && <Toggle checked={forceUpdate} onChange={() => setState(['app', 'wizard', 'forceUpdate'], !forceUpdate)}>Force Update: Enable this to perform an update while the ComputeFleet is still running.</Toggle>}
-    </>
-  );
+  return <Container header={<Header description={`This is the cluster configuration that will be used to ${editing ? 'update' : 'create'} your cluster.`}>Cluster Configuration</Header>}>
+    <ConfigView config={clusterConfig} pending={pending} onChange={({detail}) => {setState(configPath, detail.value)}} />
+    {errors && <ValidationErrors errors={errors} /> }
+    {pending && <div><Spinner size="normal" /> {pending} request pending...</div>}
+    {editing && <Toggle checked={forceUpdate} onChange={() => setState(['app', 'wizard', 'forceUpdate'], !forceUpdate)}>Force Update: Enable this to perform an update while the ComputeFleet is still running.</Toggle>}
+  </Container>
 }
 
 export { Create, createValidate, handleCreate, handleDryRun }
