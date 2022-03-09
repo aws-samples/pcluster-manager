@@ -24,6 +24,7 @@ import {
   Button,
   FormField,
   Input,
+  Link,
   SpaceBetween,
   Toggle,
   TokenGroup,
@@ -393,6 +394,7 @@ function MultiRunnerEditor({path}) {
 function ActionEditor({label, actionKey, errorPath, path}) {
   const script = useState([...path, 'Script']) || '';
   const args = useState([...path, 'Args']) || [];
+  const baseScriptPath = script.slice(0, script.lastIndexOf('/') + 1);
 
   const addArg = (path) => {
     updateState(path, (old) => [...(old || []), '']);
@@ -420,6 +422,7 @@ function ActionEditor({label, actionKey, errorPath, path}) {
 
   return <>
       <FormField label={<div>{label} <Toggle checked={useMultiRunner} onChange={toggleUseMultiRunner}>Use Multi-Script Runner?</Toggle></div>} errorText={errorPath}>
+        {useMultiRunner && <div><b>Experimental!</b> The Multi-Script Runner is experimental and uses scripts stored as a sibling <Link external href={script}>here</Link> which are maintained separate from the AWS ParallelCluster project. Please evaluate these scripts before running them and valiate that they are compatible with your environment.</div>}
         {useMultiRunner && <MultiRunnerEditor path={[...path, 'Args']}/>}
         {!useMultiRunner &&
         <SpaceBetween direction="vertical" size="xs">
