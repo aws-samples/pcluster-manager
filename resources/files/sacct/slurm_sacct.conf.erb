@@ -1,11 +1,8 @@
-#
-## automatically added by 1Click-HPC
-#
 # ACCOUNTING
 JobAcctGatherType=jobacct_gather/linux
 JobAcctGatherFrequency=30
 #
 AccountingStorageType=accounting_storage/slurmdbd
-AccountingStorageHost=@SLURM_DBD_HOST@
-AccountingStorageUser=@SLURM_DBD_USER@
+AccountingStorageHost=<%= @slurm_dbd_host %>
+AccountingStorageUser=<%= @slurm_db_user %>
 AccountingStoragePort=6819

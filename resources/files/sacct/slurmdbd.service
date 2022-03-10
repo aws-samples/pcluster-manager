@@ -1,0 +1,15 @@
+[Unit]
+Description=SlurmDBD daemon
+After=munge.service network.target
+ConditionPathExists=/opt/slurm/etc/slurmdbd.conf
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=centos
+ExecStart=/opt/slurm/sbin/slurmdbd
+
+[Install]
+WantedBy=multi-user.target

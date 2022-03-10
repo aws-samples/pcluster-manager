@@ -1,6 +1,3 @@
-#
-## Sample /opt/slurm/etc/slurmdbd.conf
-#
 ArchiveEvents=yes
 ArchiveJobs=yes
 ArchiveResvs=yes
@@ -9,7 +6,7 @@ ArchiveSuspend=no
 ArchiveTXN=no
 ArchiveUsage=no
 AuthType=auth/munge
-DbdHost=@SLURM_DBD_HOST@
+DbdHost=<%= @slurm_dbd_host %>
 DbdPort=6819
 DebugLevel=info
 PurgeEventAfter=1month
@@ -23,7 +20,7 @@ SlurmUser=slurm
 LogFile=/var/log/slurmdbd.log
 PidFile=/var/run/slurmdbd.pid
 StorageType=accounting_storage/mysql
-StorageUser=@RDS_USER@
-StoragePass=@RDS_PASS@
-StorageHost=@RDS_ENDPOINT@
-StoragePort=@RDS_PORT@
+StorageUser=<%= @slurm_db_user %>
+StoragePass=<%= @slurm_db_password %>
+StorageHost=<%= node['cluster']['accounting']['rds_endpoint'] %>
+StoragePort=<%= node['cluster']['accounting']['rds_port'] %>
