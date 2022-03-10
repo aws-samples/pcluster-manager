@@ -67,10 +67,12 @@ ruby_block 'add slurm accounting to slurm.conf' do
   not_if "grep -q slurm_sacct.conf #{slurm_etc}/slurm.conf"
 end
 
-replace_or_add 'Update name of cluster in slurm to that of the cluster name' do
-  path "#{slurm_etc}/slurm.conf"
-  pattern 'ClusterName=.*'
-  line "ClusterName=#{node['cluster']['stack_name']}"
+ruby_block 'Update name of cluster in slurm to that of the cluster name' do
+  block do
+    file = Chef::Util::FileEdit.new("#{slurm_etc}/slurm.conf")
+    file.search_file_replace_line(/ClusterName=.*/, "ClusterName=#{node['cluster']['stack_name']}")
+    file.write_file
+  end
 end
 
 file '/var/spool/slurm.state/clustername' do
