@@ -1,8 +1,12 @@
 require 'json'
+puts node['cluster']
+puts node['slurm_accounting']
 return if node['cluster']['node_type'] != 'HeadNode'
 
 # Get Slurm database credentials
 secret = JSON.parse(shell_out!("aws secretsmanager get-secret-value --secret-id #{node['slurm_accounting']['secret_id']} --region #{node['cluster']['region']} --query SecretString --output text").stdout)
+
+puts secret
 
 case node['platform']
 when 'ubuntu'
