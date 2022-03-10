@@ -25,6 +25,31 @@ Parameters:
     Type: String
     Default: 3.1.2
 
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label: 
+          default: Admin User
+        Parameters: 
+          - EnableAuth
+          - AdminUserEmail
+      - Label:
+          default: Multi-Factor Authentication
+        Parameters:
+          - EnableMFA
+          - AdminUserPhone
+      - Label:
+          default: ParallelCluster API
+        Parameters:
+          - Version
+          - PublicEcrImageUri
+    ParameterLabels:
+      EnableAuth:
+        default: Enable/Disable Auth Requirement
+      AdminUserEmail:
+        default: Administrator's Email 
+ 
+
 Mappings:
   PclusterManager:
     Constants:
