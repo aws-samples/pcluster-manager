@@ -20,6 +20,8 @@ cat <<EOF > sacct_attrs.json
 }
 EOF
 
+jq -s '.[0] * .[1]' /etc/chef/dna.json sacct_attrs.json > dna_combined.json
+
 # Copy Slurm configuration files
 source_path=https://raw.githubusercontent.com/aws-samples/pcluster-manager/post-install-scripts/resources/files
 files=(slurm_sacct.conf.erb slurmdbd.service slurmdbd.conf.erb  slurm_accounting.rb)
@@ -35,6 +37,5 @@ sudo cinc-client \
   --force-formatter \
   --no-color \
   --chef-zero-port 8889 \
-  --json-attributes /etc/chef/dna.json \
-  -j /tmp/slurm_accounting/sacct_attrs.json \
+  -j dna_combined.json \
   -z slurm_accounting.rb
