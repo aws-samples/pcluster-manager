@@ -320,48 +320,48 @@ Resources:
 
 
 Outputs:
-  PClusterNatEip:
-    Description: NAT gateway IP address
-    Value: !Sub "${ClusterVpcStack.Outputs.NatEip}"
+  # PClusterNatEip:
+  #   Description: NAT gateway IP address
+  #   Value: !Sub "${ClusterVpcStack.Outputs.NatEip}"
 
-  PClusterNatGatewayId:
-    Description: NAT gateway ID
-    Value: !Sub "${ClusterVpcStack.Outputs.NatGatewayId}"
+  # PClusterNatGatewayId:
+  #   Description: NAT gateway ID
+  #   Value: !Sub "${ClusterVpcStack.Outputs.NatGatewayId}"
 
-  PClusterPrivateRouteTable:
-    Description: Private subnet route table
-    Value: !Sub "${ClusterVpcStack.Outputs.PrivateRouteTable}"
+  # PClusterPrivateRouteTable:
+  #   Description: Private subnet route table
+  #   Value: !Sub "${ClusterVpcStack.Outputs.PrivateRouteTable}"
 
-  PClusterPrivateSubnetCidr:
-    Description: Private subnet CIDR
-    Value: !Sub "${ClusterVpcStack.Outputs.PrivateSubnetCidr}"
+  # PClusterPrivateSubnetCidr:
+  #   Description: Private subnet CIDR
+  #   Value: !Sub "${ClusterVpcStack.Outputs.PrivateSubnetCidr}"
 
   PClusterPrivateSubnetId:
     Description: Private subnet
     Value: !Sub "${ClusterVpcStack.Outputs.PrivateSubnetId}"
 
-  PClusterPublicRouteTable:
-    Description: Public subnet route table
-    Value: !Sub "${ClusterVpcStack.Outputs.PublicRouteTable}"
+  # PClusterPublicRouteTable:
+  #   Description: Public subnet route table
+  #   Value: !Sub "${ClusterVpcStack.Outputs.PublicRouteTable}"
 
-  PClusterPublicSubnetCidr:
-    Description: Public subnet CIDR
-    Value: !Sub "${ClusterVpcStack.Outputs.PublicSubnetCidr}"
+  # PClusterPublicSubnetCidr:
+  #   Description: Public subnet CIDR
+  #   Value: !Sub "${ClusterVpcStack.Outputs.PublicSubnetCidr}"
 
   PClusterPublicSubnetId:
-    Description: Public subnet
+    Description: Public subnet (HeadNode)
     Value: !Sub "${ClusterVpcStack.Outputs.PublicSubnetId}"
 
-  PClusterVpcCidr:
-    Description: VPC CIDR
-    Value: !Sub "${ClusterVpcStack.Outputs.VpcCidr}"
+  # PClusterVpcCidr:
+  #   Description: VPC CIDR
+  #   Value: !Sub "${ClusterVpcStack.Outputs.VpcCidr}"
 
   PClusterVpcId:
     Description: VPC ID
     Value: !Sub "${ClusterVpcStack.Outputs.VpcId}"
 
   SlurmDbEndpoint:
-    Description: Database endpoint address
+    Description: Database endpoint address, set as RDS Endpoint
     Value: !Sub "${SlurmDbStack.Outputs.DbEndpoint}"
 
   SlurmDbInstanceId:
@@ -374,15 +374,15 @@ Outputs:
     Value: !Sub "${SlurmDbStack.Outputs.DbPasswordSecretArn}"
 
   SlurmDbSecurityGroupId:
-    Description: The secrity group ID for the RDS instance
+    Description: The secrity group ID for the RDS instance, needs to be added to Additional Security Groups on the HeadNode.
     Value: !Sub "${SlurmDbStack.Outputs.DbSecurityGroupId}"
 
-  SlurmDbSubnet1Id:
-    Description: Database subnet 1
-    Condition: CreateSlurmDbVpc
-    Value: !Sub "${SlurmDbStack.Outputs.DbSubnet1Id}"
+  # SlurmDbSubnet1Id:
+  #   Description: Database subnet 1
+  #   Condition: CreateSlurmDbVpc
+  #   Value: !Sub "${SlurmDbStack.Outputs.DbSubnet1Id}"
 
-  SlurmDbSubnet2Id:
-    Description: Database subnet 2
-    Condition: CreateSlurmDbVpc
-    Value: !Sub "${SlurmDbStack.Outputs.DbSubnet2Id}"
+  # SlurmDbSubnet2Id:
+  #   Description: Database subnet 2
+  #   Condition: CreateSlurmDbVpc
+  #   Value: !Sub "${SlurmDbStack.Outputs.DbSubnet2Id}"
