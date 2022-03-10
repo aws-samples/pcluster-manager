@@ -8,7 +8,7 @@ StartLimitIntervalSec=0
 Type=simple
 Restart=always
 RestartSec=1
-User=centos
+User=slurm
 ExecStart=/opt/slurm/sbin/slurmdbd
 
 [Install]
