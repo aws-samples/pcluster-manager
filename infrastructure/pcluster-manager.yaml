@@ -8,7 +8,7 @@ Parameters:
     Type: String
     Default: public.ecr.aws/n0x0o5k1/pcluster-manager-awslambda:latest
   EnableAuth:
-    Description: When set to false, any user will be able to view and manage clusters.
+    Description: When false this enables all users to create an account & login with Admin privileges. Only use this value for tutorials or short-lived deployments.
     Type: String
     Default: true
     AllowedValues: [true, false]
