@@ -11,7 +11,7 @@ rds_port=$3
 mkdir -p /tmp/slurm_accounting
 pushd /tmp/slurm_accounting
 
-cat <<EOF > /tmp/sacct_attrs.json
+cat <<EOF > sacct_attrs.json
 {
   "cluster": {"accounting": {
   "secret_id": "${secret_id}",
