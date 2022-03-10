@@ -22,5 +22,5 @@ PidFile=/var/run/slurmdbd.pid
 StorageType=accounting_storage/mysql
 StorageUser=<%= @slurm_db_user %>
 StoragePass=<%= @slurm_db_password %>
-StorageHost=<%= node['cluster']['accounting']['rds_endpoint'] %>
-StoragePort=<%= node['cluster']['accounting']['rds_port'] %>
+StorageHost=<%= node['slurm_accounting']['rds_endpoint'] %>
+StoragePort=<%= node['slurm_accounting']['rds_port'] %>

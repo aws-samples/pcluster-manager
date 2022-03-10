@@ -13,10 +13,10 @@ pushd /tmp/slurm_accounting
 
 cat <<EOF > sacct_attrs.json
 {
-  "cluster": {"accounting": {
+  "slurm_accounting": {
   "secret_id": "${secret_id}",
   "rds_endpoint": "${rds_endpoint}",
-  "rds_port": "${rds_port}"}}
+  "rds_port": "${rds_port}"}
 }
 EOF
 

@@ -2,7 +2,7 @@ require 'json'
 return if node['cluster']['node_type'] != 'HeadNode'
 
 # Get Slurm database credentials
-secret = JSON.parse(shell_out!("aws secretsmanager get-secret-value --secret-id #{node['secret_id']} --region #{node['cluster']['region']} --query SecretString --output text").stdout)
+secret = JSON.parse(shell_out!("aws secretsmanager get-secret-value --secret-id #{node['slurm_accounting']['secret_id']} --region #{node['cluster']['region']} --query SecretString --output text").stdout)
 
 case node['platform']
 when 'ubuntu'
@@ -31,7 +31,6 @@ template '/tmp/slurmdbd.conf' do
   variables(
     slurm_db_user: secret['username'],
     slurm_db_password: secret['password'],
-    slurm_db_host: node['ec2']['local_hostname'],
     slurm_dbd_host: shell_out!('hostname').stdout.strip
   )
   sensitive true
