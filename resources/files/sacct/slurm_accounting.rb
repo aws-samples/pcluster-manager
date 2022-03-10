@@ -55,6 +55,17 @@ ruby_block 'add slurm accounting to slurm.conf' do
   not_if "grep -q slurm_sacct.conf #{slurm_etc}/slurm.conf"
 end
 
+replace_or_add 'Update name of cluster in slurm to that of the cluster name' do
+  path "#{slurm_etc}/slurm.conf"
+  pattern 'ClusterName=.*'
+  line "ClusterName=#{node['cluster']['stack_name']}"
+end
+
+file '/var/spool/slurm.state/clustername' do
+  action :delete
+  only_if { File.exist? '/var/spool/slurm.state/clustername' }
+end
+
 service 'slurmdbd' do
   action :start
 end
