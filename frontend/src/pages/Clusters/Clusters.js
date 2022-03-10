@@ -39,8 +39,8 @@ import Details from "./Details";
 import { WizardDialog, WizardShow } from '../Configure/WizardDialog';
 
 function ClusterList() {
-  const[ selected, setSelected ] = React.useState([]);
   let clusters = useState(['clusters', 'list']);
+  const selectedClusterName = useState(['app', 'clusters', 'selected']);
 
   React.useEffect(() => {
     const timerId = (setInterval(ListClusters, 5000));
@@ -49,7 +49,6 @@ function ClusterList() {
 
   const select = (cluster) => {
     const name = cluster.clusterName;
-    setSelected([cluster]);
     let config_path = ['clusters', 'index', name, 'config'];
     GetConfiguration(name, (configuration) => {
       setState(['clusters', 'index', name, 'configYaml'], configuration);
@@ -122,7 +121,7 @@ function ClusterList() {
           filteringAriaLabel="Filter cluster"
         />
       }
-      selectedItems={selected}
+      selectedItems={(items || []).filter((c) => c.clusterName === selectedClusterName)}
       onSelectionChange={(e) => {select(e.detail.selectedItems[0])}}
     />
   )
