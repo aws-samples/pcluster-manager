@@ -9,7 +9,9 @@ Type=simple
 Restart=always
 RestartSec=1
 User=slurm
-ExecStart=/opt/slurm/sbin/slurmdbd
+ExecStart=/opt/slurm/sbin/slurmdbd -D -s
+ExecReload=/bin/kill -HUP $MAINPID
+LimitNOFILE=65536
 
 [Install]
 WantedBy=multi-user.target
