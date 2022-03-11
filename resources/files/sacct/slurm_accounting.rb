@@ -64,10 +64,7 @@ ruby_block 'Update name of cluster in slurm to that of the cluster name' do
 end
 
 file '/var/spool/slurm.state/clustername' do
-  content node['cluster']['stack_name'].to_s
-  owner 'slurm'
-  group 'slurm'
-  mode '0600'
+  action :delete
   only_if { File.exist? '/var/spool/slurm.state/clustername' }
 end
 
