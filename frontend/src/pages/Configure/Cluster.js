@@ -17,7 +17,6 @@ import { findFirst, getIn } from '../../util'
 
 // UI Elements
 import {
-  ColumnLayout,
   Container,
   FormField,
   Header,
@@ -300,17 +299,17 @@ function Cluster() {
 
   return <Container header={<Header variant="h2">Cluster Properties</Header>}>
     <SpaceBetween direction="vertical" size="s">
-        <RegionSelect />
-        <SchedulerSelect />
-        <OsSelect />
-        <VpcSelect />
-        {versionMinor && versionMinor >= 1 && true &&
-        <FormField>
-          <Header variant="h4" description="Enable Multi-User cluster through Active Directory integration.">Multi User</Header>
-          <Toggle disabled={editing} checked={multiUserEnabled} onChange={() => setState(['app', 'wizard', 'multiUser'], !multiUserEnabled)}>Multi User Cluster</Toggle>
-        </FormField>
-        }
-        <CustomAMISettings basePath={configPath} appPath={['app', 'wizard']} errorsPath={errorsPath} validate={clusterValidate}/>
+      <RegionSelect />
+      <SchedulerSelect />
+      <OsSelect />
+      <VpcSelect />
+      {versionMinor && versionMinor >= 1 && true &&
+      <FormField>
+        <Header variant="h4" description="Enable Multi-User cluster through Active Directory integration.">Multi User</Header>
+        <Toggle disabled={editing} checked={multiUserEnabled} onChange={() => setState(['app', 'wizard', 'multiUser'], !multiUserEnabled)}>Multi User Cluster</Toggle>
+      </FormField>
+      }
+      <CustomAMISettings basePath={configPath} appPath={['app', 'wizard']} errorsPath={errorsPath} validate={clusterValidate}/>
     </SpaceBetween>
   </Container>
 }

@@ -65,6 +65,9 @@ end
 
 file '/var/spool/slurm.state/clustername' do
   action :delete
+  owner 'slurm'
+  group 'slurm'
+  mode '0600'
   only_if { File.exist? '/var/spool/slurm.state/clustername' }
 end
 
