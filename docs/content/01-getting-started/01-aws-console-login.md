@@ -7,7 +7,7 @@ weight = 11
 
 Depending on your workshop, you may access the AWS Management Console through direct sign-in ([here](https://signin.aws.amazon.com/console)) or as directed by your trainer. To sign in, enter your AWS Account ID or alias, IAM user name, and password that was provided to you for this lab.
 
-![AWS Management Console](/images/getting-started/login.png)
+![AWS Management Console](login.png)
 
 After you sign in, take a few minutes to explore the navigation components of the AWS Management Console.
 
@@ -21,4 +21,4 @@ Start this workshop by selecting an **AWS Region**:
 
 Choose the **Region** drop-down menu, then choose **US East (N. Virginia)** us-east-1.
 
-![AWS Management Console](/images/getting-started/aws-console.png)
+![AWS Management Console](aws-console.png)
