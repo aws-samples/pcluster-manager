@@ -17,9 +17,10 @@ import { findFirst, getIn } from '../../util'
 // UI Elements
 import {
   Box,
-  ColumnLayout,
+  Container,
   ExpandableSection,
   FormField,
+  Header,
   Input,
   Select,
   SpaceBetween,
@@ -185,16 +186,14 @@ function SsmSettings() {
     const iamPolicies = getIn(state, [...headNodePath, 'Iam', 'AdditionalIamPolicies']);
     return findFirst(iamPolicies, isSsmPolicy) || false;
   })
-  return (
-      <FormField label="Virtual Console" description="Allow connecting to HeadNode via SSM.">
-        <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
-          <Toggle checked={ssmEnabled} onChange={({detail}) => enableSsm(!ssmEnabled)} disabled={dcvEnabled}>Remote Console Enabled</Toggle>
-          <HelpTooltip>
-            This setting will enable SSM which permits connecting to the head node via a virtual console.
-          </HelpTooltip>
-        </div>
-      </FormField>
-  )
+  return <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+    <FormField label="Virtual Console" description="Allow connecting to HeadNode via SSM.">
+      <Toggle checked={ssmEnabled} onChange={({detail}) => enableSsm(!ssmEnabled)} disabled={dcvEnabled}>Remote Console Enabled</Toggle>
+    </FormField>
+    <HelpTooltip>
+      This setting will enable SSM which permits connecting to the head node via a virtual console.
+    </HelpTooltip>
+  </div>
 }
 
 function DcvSettings() {
@@ -219,35 +218,33 @@ function DcvSettings() {
     }
   }
 
-  return (
+  return <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
     <FormField label="Virtual Desktop" description="Allow a virtual desktop session on the HeadNode via DCV. If you select this option, we suggest using a larger instance size.">
-      <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
-        <SpaceBetween direction="vertical" size="xxxs">
-          <Toggle disabled={editing} checked={dcvEnabled} onChange={toggleDcv}>DCV Enabled</Toggle>
-          <SpaceBetween direction="vertical" size="xs">
-            {dcvEnabled &&
-            <FormField label="Allowed IPs">
+      <SpaceBetween direction="vertical" size="xxxs">
+        <Toggle disabled={editing} checked={dcvEnabled} onChange={toggleDcv}>DCV Enabled</Toggle>
+        <SpaceBetween direction="vertical" size="xs">
+          {dcvEnabled &&
+          <FormField label="Allowed IPs">
+            <Input
+              value={allowedIps}
+              onChange={(({detail}) => {setState([...headNodePath, 'Dcv', 'allowedIps'], detail.value)})} />
+          </FormField>
+          }
+          {dcvEnabled &&
+            <FormField label="Port">
               <Input
-                value={allowedIps}
-                onChange={(({detail}) => {setState([...headNodePath, 'Dcv', 'allowedIps'], detail.value)})} />
+                inputMode="decimal"
+                value={port}
+                onChange={(({detail}) => setState([...headNodePath, 'Dcv', 'port'], parseInt(detail.value)))} />
             </FormField>
-            }
-            {dcvEnabled &&
-              <FormField label="Port">
-                <Input
-                  inputMode="decimal"
-                  value={port}
-                  onChange={(({detail}) => setState([...headNodePath, 'Dcv', 'port'], parseInt(detail.value)))} />
-              </FormField>
-            }
-          </SpaceBetween>
+          }
         </SpaceBetween>
-        <HelpTooltip>
-          Remote-Desktop into the headnode to visualize results.
-        </HelpTooltip>
-      </div>
+      </SpaceBetween>
     </FormField>
-  )
+    <HelpTooltip>
+      Remote-Desktop into the headnode to visualize results.
+    </HelpTooltip>
+  </div>
 }
 
 function HeadNode() {
@@ -308,9 +305,8 @@ function HeadNode() {
     }
   }
 
-  return (
-    <SpaceBetween direction="vertical" size="xs">
-      <ColumnLayout columns={2} borders="vertical">
+  return <Container header={<Header variant="h2">Head Node Properties</Header>}>
+    <SpaceBetween direction="vertical" size="s">
         <Box>
           <FormField
             errorText={instanceTypeErrors}
@@ -357,7 +353,6 @@ function HeadNode() {
             If enabled, restrict access to IMDS (and thus instance credentials) to users with superuser permissions. For more information, see <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html#instance-metadata-v2-how-it-works'>How instance metadata service version 2 works</a> in the <i>Amazon EC2 User Guide for Linux Instances</i>.
           </HelpTooltip>
         </div>
-      </ColumnLayout>
       <div key="sgs" style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
         <FormField label="Additional Security Groups">
           <SecurityGroups basePath={headNodePath} />
@@ -370,7 +365,7 @@ function HeadNode() {
         <ActionsEditor basePath={headNodePath} errorsPath={errorsPath}/>
       </ExpandableSection>
     </SpaceBetween>
-  )
+  </Container>
 }
 
 export { HeadNode, headNodeValidate }

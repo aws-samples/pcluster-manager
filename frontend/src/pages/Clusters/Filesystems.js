@@ -91,7 +91,7 @@ export default function Filesystems() {
         {
           id: "mount",
           header: "Mount Point",
-          cell: item => <Link external href={`${consoleDomain(region)}.console.aws.amazon.com/systems-manager/managed-instances/${headNode.instanceId}/file-system?region=${region}&osplatform=Linux#%7B%22path%22%3A%22${item.MountDir}%22%7D`} rel="noreferrer" target="_blank">{item.MountDir}</Link>,
+          cell: item => <Link external href={`${consoleDomain(region)}/systems-manager/managed-instances/${headNode.instanceId}/file-system?region=${region}&osplatform=Linux#%7B%22path%22%3A%22${item.MountDir}%22%7D`} rel="noreferrer" target="_blank">{item.MountDir}</Link>,
           sortingField: "MountDir"
         },
         {

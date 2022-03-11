@@ -606,7 +606,7 @@ function Storage() {
     setState(['app', 'wizard', 'storage', 'type'], newStorageType);
   }
 
-  return (
+  return <Container header={<Header variant="h2">Storage Properties</Header>}>
     <div style={{display: "flex", flexDirection: "column", gap: "20px"}}>
       {storages ? storages.map((_, i) => <StorageInstance key={i} index={i} />)
       : <div>No shared storage options selected.</div>}
@@ -627,7 +627,7 @@ function Storage() {
         </div>
       }
     </div>
-  );
+  </Container>
 }
 
 export { Storage, storageValidate }

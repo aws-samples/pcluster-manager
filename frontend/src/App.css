@@ -236,3 +236,8 @@ div.custom-image-details table {
   align-items: flex-end;
 }
 
+.config-side-navigation .disabled
+{
+  cursor: not-allowed;
+  color: #aaa;
+}

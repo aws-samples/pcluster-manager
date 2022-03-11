@@ -364,7 +364,7 @@ function SecurityGroups({basePath}) {
       clearState(sgPath);
   }
   return <SpaceBetween direction="vertical" size="xs">
-    <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap:"16px"}}>
+    <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap:"16px"}}>
       <Select
         selectedOption={(sgSelected && findFirst(sgs, x => x.GroupId === sgSelected.value)) ? itemToOption(findFirst(sgs, x => x.GroupId === sgSelected.value)) : {label: "Please Select A Security Group"}}
         onChange={({detail}) => {setState(['app', 'wizard', 'sg-selected'], detail.selectedOption)}}

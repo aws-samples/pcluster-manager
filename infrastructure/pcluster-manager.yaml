@@ -8,9 +8,10 @@ Parameters:
     Type: String
     Default: public.ecr.aws/n0x0o5k1/pcluster-manager-awslambda:latest
   EnableAuth:
-    Description: When set to false, any user will be able to view and manage clusters.
+    Description: When false this enables all users to create an account & login with Admin privileges. Only use this value for tutorials or short-lived deployments.
     Type: String
     Default: true
+    AllowedValues: [true, false]
   EnableMFA:
     AllowedValues: [true, false]
     Default: false
@@ -38,7 +39,36 @@ Conditions:
     Fn::And:
       - !Not [!Equals [!Ref ImageBuilderVpcId, ""]]
       - !Not [!Equals [!Ref ImageBuilderSubnetId, ""]]
-    
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Authentication
+        Parameters:
+          - EnableAuth
+          - EnableMFA
+      - Label: 
+          default: Initial Admin User
+        Parameters: 
+          - AdminUserEmail
+          - AdminUserPhone
+      - Label:
+          default: ParallelCluster API
+        Parameters:
+          - Version
+          - PublicEcrImageUri
+    ParameterLabels:
+      EnableMFA:
+        default: Require Multi-Factor Authentication for all Users
+      EnableAuth:
+        default: Enable Auth Roles (e.g., Admin, User, Guest)
+      AdminUserEmail:
+        default: Initial Admin's Email 
+      AdminUserPhone:
+        default: Initial Admin's Phone Number
+ 
+
 Mappings:
   PclusterManager:
     Constants:
@@ -70,8 +100,6 @@ Resources:
         CreateApiUserRole: False
         EnableIamAdminAccess: True
         PublicEcrImageUri: !Sub public.ecr.aws/parallelcluster/pcluster-api:${Version}
-        ImageBuilderVpcId: !Ref ImageBuilderVpcId
-        ImageBuilderSubnetId: !Ref ImageBuilderSubnetId
       TemplateURL: !Sub https://${AWS::Region}-aws-parallelcluster.s3.${AWS::Region}.amazonaws.com/parallelcluster/${Version}/api/parallelcluster-api.yaml
       TimeoutInMinutes: 30
 
@@ -202,7 +230,7 @@ Resources:
           - NonDefaultVpc
           - [!Ref InfrastructureConfigurationSecurityGroup]
           - !Ref AWS::NoValue
-
+          
   EcrImageRecipe:
     Type: AWS::ImageBuilder::ContainerRecipe
     Properties:
