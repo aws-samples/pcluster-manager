@@ -33,7 +33,7 @@ do
     wget -qO- ${source_path}/sacct/${file} > ${file}
 done
 
-echo sudo cinc-client \
+sudo cinc-client \
   --local-mode \
   --config /etc/chef/client.rb \
   --log_level auto \
