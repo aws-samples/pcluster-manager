@@ -91,7 +91,7 @@ export default function ClusterProperties () {
             </div>
           </ValueWithLabel>
           <ValueWithLabel label="clusterConfiguration">
-            <Button iconName="external" onClick={() => setState(['app', 'clusters', 'clusterConfig', 'dialog'], true)}>View</Button>
+            <Button disabled={cluster.clusterStatus === 'CREATE_FAILED'} iconName="external" onClick={() => setState(['app', 'clusters', 'clusterConfig', 'dialog'], true)}>View</Button>
           </ValueWithLabel>
         </SpaceBetween>
         <SpaceBetween size="l">
