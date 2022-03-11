@@ -27,8 +27,8 @@ end
 
 template "#{slurm_etc}/slurmdbd.conf" do
   source '/tmp/slurm_accounting/slurmdbd.conf.erb'
-  owner 'root'
-  group 'root'
+  owner 'slurm'
+  group 'slurm'
   mode '0600'
   variables(
     slurm_db_user: secret['username'],
