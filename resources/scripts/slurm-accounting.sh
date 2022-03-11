@@ -42,3 +42,8 @@ sudo cinc-client \
   --chef-zero-port 8889 \
   -j dna_combined.json \
   -z slurm_accounting.rb
+
+sleep 5
+sudo /opt/slurm/bin/sacctmgr -i create cluster ${stack_name}
+sudo /opt/slurm/bin/sacctmgr -i add account none Cluster=${stack_name}
+sudo /opt/slurm/bin/sacctmgr -i add user ${cfn_cluster_user} DefaultAccount=none
