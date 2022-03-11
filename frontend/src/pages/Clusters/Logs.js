@@ -19,10 +19,10 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import Loading from '../../components/Loading'
 
-function LogEvents(props) {
+function LogEvents({events}) {
   return (
     <div style={{borderTop: "1px solid #AAA", fontSize: "10pt", width: "100%", overflow: "auto", whiteSpace: "nowrap"}}>
-      {props.events.events.map((event, i) => <div key={event.timestamp + i.toString()}>{event.timestamp + i.toString()} - {event.message}</div>)}
+      {events.events.map((event, i) => <div key={event.timestamp + i.toString()}>{event.timestamp + i.toString()} - {event.message}</div>)}
     </div>
   );
 }
@@ -36,6 +36,13 @@ export default function ClusterLogs() {
   const streams = useState(['clusters', 'index', selected, 'logstreams']);
   const selectedLogStreamName = useState(['app', 'clusters', 'selectedLogStreamName']);
   const logEvents = useState(['clusters', 'index', selected, 'logEventIndex', selectedLogStreamName]);
+
+  const clusterPath = ['clusters', 'index', selected];
+  const headNode = useState([...clusterPath, 'headNode']);
+  const instanceId = (headNode && headNode.instanceId) || '';
+
+  const headNodeStreams = ((streams && streams['logStreams']) || []).filter((e) => e.logStreamName.includes(instanceId))
+  const computeStreams = ((streams && streams['logStreams']) || []).filter((e) => !e.logStreamName.includes(instanceId))
 
   const select = (logStreamName) => {
     const selected = getState(['app', 'clusters', 'selected']);
@@ -60,7 +67,10 @@ export default function ClusterLogs() {
       <div style={{display: 'flex'}}>
         <div style={{textAlign: 'left', flexDirection: 'column', flex: split, width: 0,
           overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: '10px'}}>
-          {streams.logStreams.map((stream, i) => <div onClick={() => {select(stream.logStreamName)}} style={{cursor: 'pointer'}} key={stream.logStreamName} title={stream.logStreamName}>{stream.logStreamName}</div>)}
+          <div><b>HeadNode</b></div>
+          {headNodeStreams.map((stream, i) => <div onClick={() => {select(stream.logStreamName)}} style={{cursor: 'pointer'}} key={stream.logStreamName} title={stream.logStreamName}>{stream.logStreamName}</div>)}
+          <div><b>Compute</b></div>
+          {computeStreams.map((stream, i) => <div onClick={() => {select(stream.logStreamName)}} style={{cursor: 'pointer'}} key={stream.logStreamName} title={stream.logStreamName}>{stream.logStreamName}</div>)}
         </div>
         <div style={{ flex: 100 - split, paddingLeft: "10px", borderLeft: "1px solid #AAA"}}>
           <div style={{ marginBottom: '20px', whiteSpace: "nowrap" }}>
