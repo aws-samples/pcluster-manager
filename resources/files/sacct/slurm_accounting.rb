@@ -63,13 +63,13 @@ ruby_block 'Update name of cluster in slurm to that of the cluster name' do
   end
 end
 
-file '/var/spool/slurm.state/clustername' do
-  action :delete
-  owner 'slurm'
-  group 'slurm'
-  mode '0600'
-  only_if { File.exist? '/var/spool/slurm.state/clustername' }
-end
+# file '/var/spool/slurm.state/clustername' do
+#   action :delete
+#   owner 'slurm'
+#   group 'slurm'
+#   mode '0600'
+#   only_if { File.exist? '/var/spool/slurm.state/clustername' }
+# end
 
 service 'slurmdbd' do
   action :start
