@@ -360,13 +360,13 @@ Outputs:
     Description: VPC ID
     Value: !Sub "${ClusterVpcStack.Outputs.VpcId}"
 
-  SlurmDbEndpoint:
+  RdsbEndpoint:
     Description: Database endpoint address, set as RDS Endpoint
     Value: !Sub "${SlurmDbStack.Outputs.DbEndpoint}"
 
-  SlurmDbInstanceId:
-    Description: RDS instance ID
-    Value: !Sub "${SlurmDbStack.Outputs.DbInstanceId}"
+  # SlurmDbInstanceId:
+  #   Description: RDS instance ID
+  #   Value: !Sub "${SlurmDbStack.Outputs.DbInstanceId}"
 
   SlurmDbPasswordSecretArn:
     Description: Database username and password secret ARN

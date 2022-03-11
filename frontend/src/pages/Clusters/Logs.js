@@ -12,7 +12,7 @@ import React from 'react';
 
 // Model
 import { ListClusterLogStreams, GetClusterLogEvents } from '../../model'
-import { getState, setState, useState } from '../../store'
+import { getState, setState, clearState, useState } from '../../store'
 
 // UI Elements
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
@@ -54,6 +54,7 @@ export default function ClusterLogs() {
     setState(pendingPath, true);
     const selected = getState(['app', 'clusters', 'selected']);
     const logStreamName = getState(['app', 'clusters', 'selectedLogStreamName']);
+    clearState(['clusters', 'index', selected, 'logEventIndex', selectedLogStreamName]);
     GetClusterLogEvents(selected, logStreamName, () => setState(pendingPath, false));
   }
 
@@ -80,7 +81,6 @@ export default function ClusterLogs() {
       <div style={{display: 'flex'}}>
         <div style={{textAlign: 'left', flexDirection: 'column', flex: split, width: 0,
           overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: '10px'}}>
-          <Button loading={pending} disabled={!selectedLogStreamName} onClick={refresh} iconName="refresh">Refresh</Button>
           <div><b>HeadNode</b></div>
           {headNodeStreams.map((stream, i) => <div onClick={() => {select(stream.logStreamName)}} style={{cursor: 'pointer'}} key={stream.logStreamName} title={stream.logStreamName}>{stream.logStreamName}</div>)}
           <div><b>Compute</b></div>
@@ -90,6 +90,7 @@ export default function ClusterLogs() {
           <div style={{ marginBottom: '20px', whiteSpace: "nowrap" }}>
             {isSelected ? <ChevronRightIcon style={{cursor: 'pointer'}} onClick={() => {unselect();}}/> :  <ChevronLeftIcon style={{cursor: 'pointer'}} onClick={() => {setSelected(false); setSplit(80)}}/>}
             {selectedLogStreamName && <div style={{display: 'inline-block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{selectedLogStreamName}</div>}
+            {isSelected && <div style={{marginLeft: "10px"}}><Button loading={pending} disabled={!selectedLogStreamName} onClick={refresh} iconName="refresh">Refresh</Button></div>}
           </div>
           {isSelected && (logEvents ? <LogEvents events={logEvents} /> : <Loading />) }
         </div>
