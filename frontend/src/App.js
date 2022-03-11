@@ -17,6 +17,7 @@ import { useState } from './store'
 import './App.css';
 
 import Clusters from "./pages/Clusters/Clusters"
+import Configure from "./pages/Configure/Configure"
 import CustomImages from "./pages/CustomImages/CustomImages"
 import OfficialImages from "./pages/OfficialImages/OfficialImages"
 import Users from "./pages/Users/Users"
@@ -47,18 +48,19 @@ export default function App() {
     LoadInitialState();
   }, [])
 
-  return (
-    <div>
+  console.log("section: ", section);
+
+  return <>
       <TopBar />
       <CssBaseline />
       {identity ?
         {"home": <Home />,
          "clusters": <Clusters />,
+         "configure": <Configure />,
          "custom-images": <CustomImages />,
          "official-images": <OfficialImages />,
          "users": <Users />}[section || defaultPage]
         : <Loading />
       }
-    </div>
-  );
+  </>;
 }

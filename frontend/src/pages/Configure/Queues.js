@@ -374,14 +374,14 @@ function Queues() {
     setState([...queuesPath], [...(queues || []), {"Name": `queue${queues.length}`, "ComputeResources": [{'Name': `queue${queues.length}-${defaultInstanceType.replace(".", "")}`, 'MinCount': 0, "MaxCount": 4, 'InstanceType': defaultInstanceType}]}])
   }
 
-  return (<div>
+  return <Container header={<Header variant="h2">Queues</Header>}>
     <div>
       <QueuesView />
     </div>
     <div className="wizard-compute-add">
       <Button disabled={queues.length >= 5} onClick={addQueue} iconName={"add-plus"} >Add Queue</Button>
     </div>
-  </div>);
+  </Container>
 }
 
 export { Queues, queuesValidate }

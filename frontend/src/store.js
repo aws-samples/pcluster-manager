@@ -33,6 +33,31 @@ function recurseAction(state, action) {
   return ret
 }
 
+function clone(thing, opts) {
+    var newObject = {};
+    if (thing instanceof Array) {
+        return thing.map(function (i) { return clone(i, opts); });
+    } else if (thing instanceof Date) {
+        return new Date(thing);
+    } else if (thing instanceof Set) {
+        return new Set(thing);
+    } else if (thing instanceof RegExp) {
+        return new RegExp(thing);
+    } else if (thing instanceof Function) {
+        return opts && opts.newFns ? new Function('return ' + thing.toString())() : thing;
+    } else if (thing instanceof Object) {
+        Object.keys(thing).forEach(function (key) { newObject[key] = clone(thing[key], opts); });
+        return newObject;
+    } else if ([ undefined, null ].indexOf(thing) > -1) {
+        return thing;
+    } else {
+        if (thing.constructor.name === 'Symbol') {
+            return Symbol(thing.toString().replace(/^Symbol\(/, '').slice(0, -1));
+        }
+        return thing.__proto__.constructor(thing);
+    }
+}
+
 function rootReducer(state, action) {
   switch(action.type) {
     case 'state/clearAll':
@@ -69,7 +94,7 @@ function rootReducer(state, action) {
       if(path.length > 1)
         return recurseAction(state, action);
 
-      const existing = path[0] in state ? (Array.isArray(state[path[0]]) ? [...state[path[0]]] : {...state[path[0]]}) : null
+      const existing = path[0] in state ? clone(state[path[0]]) : null;
       return swapIn(state, path[0], update(existing));
     }
     default:

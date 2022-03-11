@@ -21,6 +21,7 @@ import jsyaml from 'js-yaml';
 // UI Elements
 import {
   Box,
+  Container,
   FormField,
   Header,
   Input,
@@ -165,19 +166,22 @@ function Source() {
         </FormField>
 
       </SpaceBetween>
-      <SpaceBetween direction="vertical" size="xxs" key="source">
+      <Container header={
         <Header variant="h2"
-            description="Please choose the source configuration for the cluster you want to create."
-          >Configuration Source
-          </Header>
+          description="Please choose the source configuration for the cluster you want to create."
+        >Configuration Source
+        </Header>
+        }
+      >
+        <SpaceBetween direction="vertical" size="xxs" key="source">
           <RadioGroup
             onChange={({ detail }) => setState([...sourcePath, 'type'], detail.value)}
             value={source}
             items={[
               {
                 value: "wizard",
-                label: "Wizard",
-                description: "Choose this to start a new cluster configuration."
+                  label: "Wizard",
+                  description: "Choose this to start a new cluster configuration."
               },
               {
                 value: "template",
@@ -203,7 +207,8 @@ function Source() {
             ]}
           />
           <HiddenUploader callbackPath={['app', 'wizard', 'source', 'upload']} handleData={handleUpload} />
-      </SpaceBetween>
+        </SpaceBetween>
+      </Container>
     </SpaceBetween>
     }
   </div>;
