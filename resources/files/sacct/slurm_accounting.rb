@@ -15,9 +15,9 @@ end
 
 template "#{slurm_etc}/slurm_sacct.conf" do
   source '/tmp/slurm_accounting/slurm_sacct.conf.erb'
-  owner 'slurm'
-  group 'slurm'
-  mode '0600'
+  owner 'root'
+  group 'root'
+  mode '0666'
   variables(
     slurm_db_user: secret['username'],
     slurm_dbd_host: shell_out!('hostname').stdout.strip
@@ -27,8 +27,8 @@ end
 
 template "#{slurm_etc}/slurmdbd.conf" do
   source '/tmp/slurm_accounting/slurmdbd.conf.erb'
-  owner 'slurm'
-  group 'slurm'
+  owner 'root'
+  group 'root'
   mode '0600'
   variables(
     slurm_db_user: secret['username'],
