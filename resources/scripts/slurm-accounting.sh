@@ -45,8 +45,8 @@ sudo cinc-client \
 
 # FIXME: make idempotent?
 sleep 5
+set +e
 sudo /opt/slurm/bin/sacctmgr -i create cluster ${stack_name}
 sudo /opt/slurm/bin/sacctmgr -i create account name=none
 sudo /opt/slurm/bin/sacctmgr -i create user ${cfn_cluster_user} cluster=${stack_name} account=none
-
 sudo service slurmctld restart
