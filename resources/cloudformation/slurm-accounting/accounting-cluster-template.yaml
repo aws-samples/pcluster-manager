@@ -286,7 +286,7 @@ Resources:
       Name: !Sub DbPasswdSecret-${AWS::StackName}
       Description: Slurm database password secret
       GenerateSecretString:
-        ExcludeCharacters: "\"@/\\"
+        ExcludeCharacters: "\"@/\\#|"
         GenerateStringKey: password
         PasswordLength: 15
         SecretStringTemplate: !Sub '{"username": "${SlurmDbUsername}"}'
