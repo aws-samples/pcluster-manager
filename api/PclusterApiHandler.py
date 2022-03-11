@@ -250,7 +250,7 @@ def submit_job():
     ret = ssm_command(args.get("region"), instance_id, user, f"sbatch {job_cmd}")
     print(ret)
 
-    return resp if type(resp) == tuple else {"success": "true"}
+    return ret if type(ret) == tuple else {"success": "true"}
 
 
 def _price_estimate(cluster_name, region, queue_name):
