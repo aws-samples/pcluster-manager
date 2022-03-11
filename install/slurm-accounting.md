@@ -87,8 +87,11 @@ Choose a name for your job, a number of nodes to run under, choose to `Run a com
 
 Once you've submitted a job, you can see the job information under the `Accounting tab`
 
-You can use any of the filters at the top to narrow down the number of jobs in the view to select specific jobs. If you choose the Job ID in the left column you can see further detials about the job.
+You can use any of the filters at the top to narrow down the number of jobs in the view to select specific jobs. 
 
 ![Cluster Properties](slurm-accounting-job-list.png)
 
+If you choose the Job ID in the left column you can see further detials about the job.
+
+![Cluster Properties](slurm-accounting-job-details.png)
 
