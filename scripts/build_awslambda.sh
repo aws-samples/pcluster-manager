@@ -8,6 +8,7 @@ ECR_REPO=pcluster-manager-awslambda
 USAGE="$(basename "$0") [-h] [--release] [--tag TAG]"
 GIT_SHA=$(git rev-parse --short HEAD)
 TAG=${GIT_SHA}
+RELEASE_SET=false
 
 while [[ $# -gt 0 ]]
 do
@@ -20,6 +21,7 @@ case $key in
     ;;
     --release)
     TAG=latest
+    RELEASE_SET=true
     shift # past argument
     ;;
     --tag)
@@ -50,3 +52,11 @@ aws ecr-public get-login-password --region us-east-1 | docker login --username A
 docker tag ${ECR_REPO} ${ECR_IMAGE}
 docker push ${ECR_IMAGE}
 echo "Uploaded: " ${ECR_IMAGE}
+
+if [ "$RELEASE_SET" == "true" ]; then
+    DATE_TAG=$(date +%Y%m%d)
+    ECR_IMAGE=${ECR_ENDPOINT}/${ECR_REPO}:${DATE_TAG}
+    docker tag ${ECR_REPO} ${ECR_IMAGE}
+    docker push ${ECR_IMAGE}
+    echo "Uploaded: " ${ECR_IMAGE}
+fi

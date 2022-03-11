@@ -73,7 +73,7 @@ function handleDryRun(handleClose) {
   const clusterName = getState(['app', 'wizard', 'clusterName']);
   const editing = getState(['app', 'wizard', 'editing']);
   const forceUpdate = getState(['app', 'wizard', 'forceUpdate']);
-  const clusterConfig = getState(configPath);
+  const clusterConfig = getState(configPath) || '';
   const region = getState(['app', 'wizard', 'config', 'Region']);
   const dryRun = true;
   var errHandler = (err) => {setState(['app', 'wizard', 'errors', 'create'], err); setState(['app', 'wizard','pending'], false);}
@@ -95,12 +95,12 @@ function createValidate() {
 
 function Create() {
   const clusterConfig = useState(configPath);
-  const forceUpdate = getState(['app', 'wizard', 'forceUpdate']);
+  const forceUpdate = getState(['app', 'wizard', 'forceUpdate']) || false;
   const errors = useState(['app', 'wizard', 'errors', 'create']);
   const pending = useState(['app', 'wizard', 'pending']);
   const editing = getState(['app', 'wizard', 'editing']);
   return <Container header={<Header description={`This is the cluster configuration that will be used to ${editing ? 'update' : 'create'} your cluster.`}>Cluster Configuration</Header>}>
-    <ConfigView config={clusterConfig} pending={pending} onChange={({detail}) => {setState(configPath, detail.value)}} />
+    <ConfigView config={clusterConfig} pending={!clusterConfig} onChange={({detail}) => {setState(configPath, detail.value)}} />
     {errors && <ValidationErrors errors={errors} /> }
     {pending && <div><Spinner size="normal" /> {pending} request pending...</div>}
     {editing && <Toggle checked={forceUpdate} onChange={() => setState(['app', 'wizard', 'forceUpdate'], !forceUpdate)}>Force Update: Enable this to perform an update while the ComputeFleet is still running.</Toggle>}
