@@ -35,7 +35,7 @@ export default function ConfigView({config, pending, onChange}){
         statusBarGroupAriaLabel: "Status bar",
         cursorPosition: (row, column) =>
         `Ln ${row}, Col ${column}`,
-        errorsTab: "Errorsz",
+        errorsTab: "Errors",
         warningsTab: "Warnings",
         preferencesButtonAriaLabel: "Preferences",
         paneCloseButtonAriaLabel: "Close",
