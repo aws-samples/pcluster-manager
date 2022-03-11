@@ -103,12 +103,15 @@ function JobCostEstimate() {
     if(!queueName || queueName === "[ANY]")
     {
       setState(errorsPath, "Error: You must select a queue.");
+      clearState(costEstimatePendingPath);
     } else if(!nodes || nodes === '')
     {
       setState(errorsPath, "Error: You must select a node count.");
+      clearState(costEstimatePendingPath);
     } else if(!jobRuntime || jobRuntime === '')
     {
       setState(errorsPath, "Error: You must select a job runtime.");
+      clearState(costEstimatePendingPath);
     } else {
       PriceEstimate(clusterName, queueName, callback, failure);
     }
