@@ -95,3 +95,47 @@ If you choose the Job ID in the left column you can see further detials about th
 
 ![Cluster Properties](slurm-accounting-job-details.png)
 
+## Sample Config
+
+For anyone looking to create a cluster directly with a config.yaml an example is provided below. Note you will need to replace any `${VARIABLES}` with information from your account. Feel free to customize the remaining cluster configuration to your needs.
+
+```.yaml
+HeadNode:
+  InstanceType: t2.micro
+  Ssh:
+    KeyName: ${KEY_PAIR}
+  Networking:
+    SubnetId: ${PRIVATE_SUBNET}
+    AdditionalSecurityGroups:
+      - ${SECURITY_GROUP}
+  Iam:
+    AdditionalIamPolicies:
+      - Policy: arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+      - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite
+  CustomActions:
+    OnNodeConfigured:
+      Script: >-
+        https://raw.githubusercontent.com/aws-samples/pcluster-manager/post-install-scripts/resources/scripts/multi-runner.py
+      Args:
+        - >-
+          https://raw.githubusercontent.com/aws-samples/pcluster-manager/post-install-scripts/resources/scripts/slurm-accounting.sh
+        - >-
+          -${SECRET_ARN}
+        - '-${RDS_ENDPOINT}'
+        - '-3306'
+Scheduling:
+  Scheduler: slurm
+  SlurmQueues:
+    - Name: queue0
+      ComputeResources:
+        - Name: queue0-t2-micro
+          MinCount: 0
+          MaxCount: 4
+          InstanceType: t2.micro
+      Networking:
+        SubnetIds:
+          - ${PRIVATE_SUBNET_ID}
+Region: us-east-2
+Image:
+  Os: alinux2
+```
