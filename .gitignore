@@ -5,4 +5,3 @@ package-lock.json
 .DS_Store
 .hugo_build.lock
 public/*
-docs/themes/
