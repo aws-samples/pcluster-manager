@@ -57,7 +57,7 @@ export default function Actions () {
   const editConfiguration = () => {
     setState(['app', 'wizard', 'clusterName'], clusterName);
     setState(['app', 'wizard', 'page'], 'cluster');
-    setState(['app', 'wizard', 'dialog'], true);
+    setState(['app', 'section'], 'configure');
     setState(['app', 'wizard', 'editing'], true);
 
     GetConfiguration(clusterName, (configuration) => {

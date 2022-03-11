@@ -37,6 +37,7 @@ import Loading from "../../components/Loading";
 import Actions from './Actions';
 import Details from "./Details";
 import { WizardDialog, WizardShow } from '../Configure/WizardDialog';
+import { wizardShow } from '../Configure/Configure';
 
 function ClusterList() {
   let clusters = useState(['clusters', 'list']);
@@ -57,8 +58,8 @@ function ClusterList() {
     setState(['app', 'clusters', 'selected'], name);
   }
 
-  const wizard = () => {
-    WizardShow();
+  const configure = () => {
+    wizardShow();
   }
 
   const { items, actions, filteredItemsCount, collectionProps, filterProps, paginationProps } = useCollection(
@@ -69,7 +70,7 @@ function ClusterList() {
           <EmptyState
             title="No clusters"
             subtitle="No clusters to display."
-            action={<Button onClick={wizard} disabled={!isAdmin()}>Create Cluster</Button>}
+            action={<Button onClick={configure} disabled={!isAdmin()}>Create Cluster</Button>}
           />
         ),
         noMatch: (
@@ -134,8 +135,8 @@ export default function Clusters () {
   const clusters = useState(['clusters', 'list']);
   const [ splitOpen, setSplitOpen ] = React.useState(true);
 
-  const wizard = () => {
-    WizardShow();
+  const configure = () => {
+    wizardShow();
   }
 
   React.useEffect(() => {
@@ -190,7 +191,7 @@ export default function Clusters () {
                 counter={ clusters && `(${clusters.length})` }
                 actions={
                   <SpaceBetween direction="horizontal" size="xs">
-                    {clusters && <Button onClick={wizard} variant="primary" iconName={"add-plus"} disabled={!isAdmin()}>Create Cluster</Button>}
+                    {clusters && <Button onClick={configure} variant="primary" iconName={"add-plus"} disabled={!isAdmin()}>Create Cluster</Button>}
                   </SpaceBetween>}>
                 Clusters
               </Header>

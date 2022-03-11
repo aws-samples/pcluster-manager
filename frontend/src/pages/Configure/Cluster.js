@@ -18,6 +18,7 @@ import { findFirst, getIn } from '../../util'
 // UI Elements
 import {
   ColumnLayout,
+  Container,
   FormField,
   Header,
   Select,
@@ -233,9 +234,9 @@ function VpcSelect() {
     }
   }
 
-  return (<FormField errorText={error}>
-    <Header variant="h4" description="VPC where the cluster instances will reside."
+  return <Header variant="h4" description="VPC where the cluster instances will reside."
       actions={
+        <FormField errorText={error}>
         <Select
           disabled={editing}
           selectedOption={vpcToDisplayOption(findFirst(vpcs, x => {return x.VpcId === vpc}))}
@@ -243,9 +244,10 @@ function VpcSelect() {
           options={vpcs.map(vpcToOption)}
           selectedAriaLabel="Selected"
         />
-      }
-    >VPC</Header>
-  </FormField>);
+        </FormField>
+      }>
+      VPC
+    </Header>
 }
 
 function Cluster() {
@@ -296,23 +298,21 @@ function Cluster() {
     }
   }, [region, config, awsConfig, clusterConfig, wizardLoaded]);
 
-  return (
-      <SpaceBetween direction="vertical" size="xs">
-        <ColumnLayout columns={2} borders="vertical">
-          <RegionSelect />
-          <SchedulerSelect />
-          <OsSelect />
-          <VpcSelect />
-          {versionMinor && versionMinor >= 1 && true &&
-          <FormField>
-            <Header variant="h4" description="Enable Multi-User cluster through Active Directory integration.">Multi User</Header>
-            <Toggle disabled={editing} checked={multiUserEnabled} onChange={() => setState(['app', 'wizard', 'multiUser'], !multiUserEnabled)}>Multi User Cluster</Toggle>
-          </FormField>
-          }
-          <CustomAMISettings basePath={configPath} appPath={['app', 'wizard']} errorsPath={errorsPath} validate={clusterValidate}/>
-        </ColumnLayout>
-      </SpaceBetween>
-  )
+  return <Container header={<Header variant="h2">Cluster Properties</Header>}>
+    <SpaceBetween direction="vertical" size="s">
+        <RegionSelect />
+        <SchedulerSelect />
+        <OsSelect />
+        <VpcSelect />
+        {versionMinor && versionMinor >= 1 && true &&
+        <FormField>
+          <Header variant="h4" description="Enable Multi-User cluster through Active Directory integration.">Multi User</Header>
+          <Toggle disabled={editing} checked={multiUserEnabled} onChange={() => setState(['app', 'wizard', 'multiUser'], !multiUserEnabled)}>Multi User Cluster</Toggle>
+        </FormField>
+        }
+        <CustomAMISettings basePath={configPath} appPath={['app', 'wizard']} errorsPath={errorsPath} validate={clusterValidate}/>
+    </SpaceBetween>
+  </Container>
 }
 
 export { Cluster, clusterValidate }
