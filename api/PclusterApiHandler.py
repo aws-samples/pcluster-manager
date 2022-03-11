@@ -337,7 +337,6 @@ def sacct():
     try:
         if accounting == "":
             return {"jobs": []}
-
         accounting_ret = {"jobs": json.loads(accounting)}
         if "jobs" in sacct_args and price_guess:
             accounting_ret["jobs"][0]["price_estimate"] = price_guess
@@ -362,6 +361,9 @@ def scontrol_job():
         return {"message": "You must specify a job id."}, 400
 
     job_data = ssm_command(args.get("region"), instance_id, user, f"scontrol show job {job_id} -o").strip().split(" ")
+    if isinstance(job_data, tuple):
+        return job_data
+
     kvs = [jd.split("=", 1) for jd in job_data]
     job_info = {k: v for k, v in kvs}
     return job_info
