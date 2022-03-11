@@ -1,16 +1,10 @@
 require 'json'
-puts 'start'
 return if node['cluster']['node_type'] != 'HeadNode'
-
-puts node['cluster']
-puts 'node["cluster"] --^'
 
 # Get Slurm database credentials
 secret = JSON.parse(shell_out!("aws secretsmanager get-secret-value --secret-id #{node['slurm_accounting']['secret_id']} --region #{node['cluster']['region']} --query SecretString --output text").stdout)
 
 slurm_etc = '/opt/slurm/etc'
-
-puts 'node of platform'
 
 case node['platform']
 when 'ubuntu'
@@ -18,8 +12,6 @@ when 'ubuntu'
 when 'amazon', 'centos'
   package 'mysql'
 end
-
-puts 't1'
 
 template "#{slurm_etc}/slurm_sacct.conf" do
   source '/tmp/slurm_accounting/slurm_sacct.conf.erb'
@@ -32,8 +24,6 @@ template "#{slurm_etc}/slurm_sacct.conf" do
   )
   local true
 end
-
-puts 't2'
 
 template "#{slurm_etc}/slurmdbd.conf" do
   source '/tmp/slurm_accounting/slurmdbd.conf.erb'
@@ -48,8 +38,6 @@ template "#{slurm_etc}/slurmdbd.conf" do
   sensitive true
   local true
 end
-
-puts 'sldbd'
 
 file '/etc/systemd/system/slurmdbd.service' do
   owner 'root'

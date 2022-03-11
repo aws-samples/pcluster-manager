@@ -8,6 +8,9 @@ secret_id=$1
 rds_endpoint=$2
 rds_port=$3
 
+# Why is this needed?!
+sudo apt update
+
 mkdir -p /tmp/slurm_accounting
 pushd /tmp/slurm_accounting
 
@@ -30,7 +33,7 @@ do
     wget -qO- ${source_path}/sacct/${file} > ${file}
 done
 
-sudo echo cinc-client \
+sudo cinc-client \
   --local-mode \
   --config /etc/chef/client.rb \
   --log_level auto \
