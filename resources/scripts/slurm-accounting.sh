@@ -8,8 +8,10 @@ secret_id=$1
 rds_endpoint=$2
 rds_port=$3
 
-# Why is this needed?!
-sudo apt update
+if [ "$(grep -Ei 'debian|buntu|mint' /etc/*release)" ]; then
+  # Why is this needed?!
+  sudo apt update
+fi
 
 mkdir -p /tmp/slurm_accounting
 pushd /tmp/slurm_accounting
