@@ -43,13 +43,13 @@ If you don't see your region click **More Regions (Click to expand)** below.
 
 2. The AWS Console opens on the AWS CloudFormation panel to deploy your stack. Update the field *AdminUserEmail* with **a valid email** to receive a temporary password in order to connect to the Pcluster Manager GUI. Leave the other fields with their default values and click **Next** to proceed to Step 3.
 
-![Pcluster Manager install](/images/getting-started/pcmanager-install.png)
-![Pcluster Manager install](/images/getting-started/pcmanager-stack.png)
+![Pcluster Manager install](pcmanager-install.png)
+![Pcluster Manager install](pcmanager-stack.png)
 
 3. Scroll down to the bottom of the Stage 3 page (*Configure stack options*) and click **Next**.
 4. Scroll down to the bottom of the Stage 4 page (*Review*) and **click** on the the two tick boxes to create new IAM resources. Once done, click on **Create stack**.
 
-![Pcluster Manager install](/images/getting-started/pcmanager-deploy.png)
+![Pcluster Manager install](pcmanager-deploy.png)
 
 The stack is deploying using AWS CloudFormation. It will take ~20 minutes to deploy the AWS ParallelCluster API and Pcluster Manager GUI. In the meantime, you will complete the first part of the lab. Continue to the next page to define the configuration of your first HPC system in AWS.
 

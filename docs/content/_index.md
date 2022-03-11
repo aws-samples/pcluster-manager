@@ -8,7 +8,7 @@ weight: 1
 
 Quickly and easily create HPC cluster in AWS using Pcluster Manager. This UI uses the AWS ParallelCluster 3.0 API to Create, Update and Delete Clusters as well as access, view logs, and build Amazon Machine Images (AMI's).
 
-![Pcluster Manager Architecture](/images/getting-started/architecture.png)
+![Pcluster Manager Architecture](architecture.png)
 
 #### Want to request a new feature?
 
