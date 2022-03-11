@@ -45,5 +45,5 @@ sudo cinc-client \
 
 sleep 5
 sudo /opt/slurm/bin/sacctmgr -i create cluster ${stack_name}
-sudo /opt/slurm/bin/sacctmgr -i add account none Cluster=${stack_name}
-sudo /opt/slurm/bin/sacctmgr -i add user ${cfn_cluster_user} DefaultAccount=none
+sudo /opt/slurm/bin/sacctmgr -i create account name=none
+sudo /opt/slurm/bin/sacctmgr -i create user ${cfn_cluster_user} cluster=${stack_name} account=none
