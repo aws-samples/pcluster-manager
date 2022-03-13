@@ -229,14 +229,17 @@ function ListClusterLogStreams(clusterName) {
   })
 }
 
-function GetClusterLogEvents(clusterName, logStreamName) {
-  request('get', `api?path=/v3/clusters/${clusterName}/logstreams/${logStreamName}`
+function GetClusterLogEvents(clusterName, logStreamName, success, failure) {
+  let url = `api?path=/v3/clusters/${clusterName}/logstreams/${logStreamName}`
+  request('get', url
     ).then(response => {
     //console.log(response)
     if(response.status === 200) {
       setState(['clusters', 'index', clusterName, 'logEventIndex', logStreamName], response.data);
+      success && success(response.data)
     }
   }).catch(error => {
+    failure && failure()
     if(error.response)
       notify(`Error (${clusterName}/${logStreamName}): ${error.response.data.message}`, 'error');
     console.log(error)

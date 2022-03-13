@@ -36,7 +36,7 @@ import Status from "../../components/Status";
 import Loading from "../../components/Loading";
 import Actions from './Actions';
 import Details from "./Details";
-import { WizardDialog, WizardShow } from '../Configure/WizardDialog';
+import { WizardDialog } from '../Configure/WizardDialog';
 import { wizardShow } from '../Configure/Configure';
 
 function ClusterList() {
