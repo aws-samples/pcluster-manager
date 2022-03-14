@@ -13,13 +13,20 @@ import React from 'react';
 // Model
 import { ListClusterLogStreams, GetClusterLogEvents } from '../../model'
 import { clearState, getState, setState, useState } from '../../store'
+import { useCollection } from '@awsui/collection-hooks';
 
 // UI Elements
 import Loading from '../../components/Loading'
 import {
   Button,
-  ExpandableSection
+  ExpandableSection,
+  Pagination,
+  Table,
+  TextFilter
 } from "@awsui/components-react";
+
+// Components
+import EmptyState from '../../components/EmptyState';
 
 function LogEvents() {
   const selected = getState(['app', 'clusters', 'selected']);
@@ -38,9 +45,66 @@ function LogEvents() {
     }
   }
 
+  const { items, actions, filteredItemsCount, collectionProps, filterProps, paginationProps } = useCollection(
+    events.events,
+    {
+      filtering: {
+        empty: (
+          <EmptyState
+            title="No logs"
+            subtitle="No logs to display."
+          />
+        ),
+        noMatch: (
+          <EmptyState
+            title="No matches"
+            subtitle="No logs match the filters."
+            action={
+              <Button onClick={() => actions.setFiltering('')}>Clear filter</Button>}
+          />
+        ),
+      },
+      pagination: { pageSize: 10 },
+      sorting: {},
+      selection: {},
+    }
+  );
+
+  console.log(items)
+
   return <div><div style={{marginBottom: "10px", display: "flex", direction: "row", gap: "16px", alignItems: "center"}}><div>{selectedLogStreamName}</div><Button loading={pending} onClick={refresh}>Refresh</Button></div>
     <div style={{borderTop: "1px solid #AAA", fontSize: "10pt", overflow: "auto", whiteSpace: "nowrap"}}>
-      {events.events.map((event, i) => <div key={event.timestamp + i.toString()} title={event.timestamp}>{event.message}</div>)}
+      <Table
+        {...collectionProps}
+        resizableColumns
+        wrapLines
+        trackBy={item => (item.timestamp + item.message)}
+        columnDefinitions={[
+          {
+            id: "timestamp",
+              header: "timestamp",
+              cell: item => item.timestamp,
+              sortingField: "timestamp"
+          },
+          {
+            id: "message",
+            header: "message",
+            cell: item => item.message,
+          },
+        ]}
+        loading={events === null}
+        items={items}
+        selectionType="single"
+        loadingText="Loading Logs..."
+        pagination={<Pagination {...paginationProps} />}
+        filter={
+          <TextFilter
+            {...filterProps}
+            countText={`Results: ${filteredItemsCount}`}
+            filteringAriaLabel="Filter logs"
+          />
+        }
+      />
     </div>
   </div>
 }
