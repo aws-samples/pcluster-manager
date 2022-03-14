@@ -23,7 +23,7 @@ To enable Multi-Factor Authentication (MFA) with Pcluster Manager there's two se
     | Capabilities   | SMS        |
     | Default Message Type   | Transactional        |
 
-    ![image](https://user-images.githubusercontent.com/5545980/157335565-55bb760b-7dce-447a-928b-862d1c895dc8.png)
+    ![Origination Number Setup](origination-number.png)
 
 2. Click **Next** > **Request**
 
@@ -31,11 +31,11 @@ To enable Multi-Factor Authentication (MFA) with Pcluster Manager there's two se
 
 1. Next navigate to the [SNS SMS Console](https://console.aws.amazon.com/sns/v3/home?#/mobile/text-messaging) > Click **Add a phone number"
 
-    ![image](https://user-images.githubusercontent.com/5545980/157336427-3d04f31e-9bf1-460f-9114-25170c96df0d.png)
+    ![Sandbox Number](sandbox-number.png)
 
 2. Enter the phone number of the user and set verification message language
 
-    ![image](https://user-images.githubusercontent.com/5545980/157334963-6a9c9178-bc61-43a8-bb2a-3ce3f2aba1a2.png)
+    ![Sandbox Number 2](sandbox-number-2.png)
 
 3. You'll receive a text message, enter that code to verify your number
 
@@ -43,6 +43,6 @@ To enable Multi-Factor Authentication (MFA) with Pcluster Manager there's two se
 
 Now that you've gotten the SMS portion setup you can go ahead and login. You'll see a screen after you enter your username/passowrd that looks like:
 
-![image](https://user-images.githubusercontent.com/5545980/157338297-c5942e1e-b4ad-40bb-8f59-dfd6a3afd259.png)
+![PCM MFA Confirmation](pcm-mfa.png)
 
 If everthing is setup properly you'll receive a text message that allows you to login.
