@@ -26,10 +26,10 @@ Parameters:
     Type: String
     Default: 3.1.2
   ImageBuilderVpcId:
-    Description: Optional. Provide a specific vpc id to use for building the container images. Use this if you don't have a default vpc available.
+    Description: Select the VPC to use for building the container images.
     Type: AWS::EC2::VPC::Id
   ImageBuilderSubnetId:
-    Description: Optional. Provide a specific subnet id to use for building the container images. Use this if you don't have a default vpc available.
+    Description: Select the subnet to use for building the container images.
     Type: AWS::EC2::Subnet::Id
 
 Conditions:
