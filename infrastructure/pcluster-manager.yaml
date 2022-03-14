@@ -28,9 +28,11 @@ Parameters:
   ImageBuilderVpcId:
     Description: Select the VPC to use for building the container images.
     Type: AWS::EC2::VPC::Id
+    MinLength: 1 # Force this to be selected
   ImageBuilderSubnetId:
     Description: Select the subnet to use for building the container images.
     Type: AWS::EC2::Subnet::Id
+    MinLength: 1 # Force this to be selected
 
 Conditions:
   NonDefaultVpc:
