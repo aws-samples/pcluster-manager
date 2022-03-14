@@ -18,9 +18,11 @@ import { getState, setState, clearState, useState } from '../../store'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import Loading from '../../components/Loading'
+import HelpTooltip from '../../components/HelpTooltip'
 import {
   Button
 } from "@awsui/components-react";
+
 
 function LogEvents({events}) {
   return (
@@ -81,9 +83,9 @@ export default function ClusterLogs() {
       <div style={{display: 'flex'}}>
         <div style={{textAlign: 'left', flexDirection: 'column', flex: split, width: 0,
           overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: '10px'}}>
-          <div><b>HeadNode</b></div>
+          <div><b>HeadNode</b><HelpTooltip>Descriptions of each log can be found in the <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/troubleshooting-v3.html#troubleshooting-v3-key-logs'>ParallelCluster Docs</a>.</HelpTooltip></div>
           {headNodeStreams.map((stream, i) => <div onClick={() => {select(stream.logStreamName)}} style={{cursor: 'pointer'}} key={stream.logStreamName} title={stream.logStreamName}>{stream.logStreamName}</div>)}
-          <div><b>Compute</b></div>
+          <div><b>Compute</b><HelpTooltip>Descriptions of each log can be found in the <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/troubleshooting-v3.html#troubleshooting-v3-key-logs'>ParallelCluster Docs</a>.</HelpTooltip></div>
           {computeStreams.map((stream, i) => <div onClick={() => {select(stream.logStreamName)}} style={{cursor: 'pointer'}} key={stream.logStreamName} title={stream.logStreamName}>{stream.logStreamName}</div>)}
         </div>
         <div style={{ flex: 100 - split, paddingLeft: "10px", borderLeft: "1px solid #AAA"}}>
