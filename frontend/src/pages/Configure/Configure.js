@@ -247,45 +247,47 @@ function Content() {
     return () => window.removeEventListener('keydown', close)
   },[])
 
-  return <SpaceBetween direction="vertical" size="l">
-    <BreadcrumbGroup items={[{text: "Clusters", href: "#clusters"}, {text: (editing ? "Update" : "Create") }]} 
-      onClick={() => handleClose(true)}
-    />
-    <SpaceBetween direction="horizontal" size="s">
-      <SideNav />
-      <div style={{minWidth: '800px', maxWidth: '1200px'}}>
-        <SpaceBetween direction="vertical" size='s'>
-          <Box className="wizard-container">
-            {{"source": <Source />,
-              "cluster": aws ? <Cluster /> : <Loading />,
-              "headNode": aws ? <HeadNode /> : <Loading />,
-              "multiUser": aws ? <MultiUser /> : <Loading />,
-              "storage": aws ? <Storage /> : <Loading />,
-              "queues": aws ? <Queues /> : <Loading />,
-              "create": aws ? <Create /> : <Loading />,
-            }[page]}
-          </Box>
-          <Box float="right">
-            <SpaceBetween direction="horizontal" size="xs">
-              {page !== "source" && page !== "create" &&
-              <Button loading={refreshing} onClick={handleRefresh} iconName={"refresh"}>
-                Refresh AWS Config
-              </Button>
-              }
-              {editing && (fleetStatus === "RUNNING" || fleetStatus === "STOP_REQUESTED") && <Button className="action" variant="normal" loading={fleetStatus === "STOP_REQUESTED"} onClick={stopComputeFleet}>
-                {fleetStatus !== "RUNNING" ? <span>Stop Compute Fleet</span>
-                : <div className="container"><CancelIcon /> Stop Compute Fleet</div>}
-              </Button>}
-              <Button onClick={() => handleClose(true)} autoFocus>Cancel</Button>
-              <Button disabled={page === pages[0]} onClick={handlePrev}>Back</Button>
-              {page === "create" && <Button onClick={handleDryRun}>Dry Run</Button>}
-              <Button disabled={loading} onClick={handleNext}>{page === "create" ? (editing ? "Update" : "Create") : "Next"}</Button>
-            </SpaceBetween>
-          </Box>
-        </SpaceBetween>
-      </div>
+  return <div style={{minWidth: '1400px'}}>
+    <SpaceBetween direction="vertical" size="l">
+      <BreadcrumbGroup items={[{text: "Clusters", href: "#clusters"}, {text: (editing ? "Update" : "Create") }]}
+        onClick={() => handleClose(true)}
+      />
+      <SpaceBetween direction="horizontal" size="s">
+        <SideNav />
+        <div style={{minWidth: '800px', maxWidth: '1200px'}}>
+          <SpaceBetween direction="vertical" size='s'>
+            <Box className="wizard-container">
+              {{"source": <Source />,
+                "cluster": aws ? <Cluster /> : <Loading />,
+                "headNode": aws ? <HeadNode /> : <Loading />,
+                "multiUser": aws ? <MultiUser /> : <Loading />,
+                "storage": aws ? <Storage /> : <Loading />,
+                "queues": aws ? <Queues /> : <Loading />,
+                "create": aws ? <Create /> : <Loading />,
+              }[page]}
+            </Box>
+            <Box float="right">
+              <SpaceBetween direction="horizontal" size="xs">
+                {page !== "source" && page !== "create" &&
+                <Button loading={refreshing} onClick={handleRefresh} iconName={"refresh"}>
+                  Refresh AWS Config
+                </Button>
+                }
+                {editing && (fleetStatus === "RUNNING" || fleetStatus === "STOP_REQUESTED") && <Button className="action" variant="normal" loading={fleetStatus === "STOP_REQUESTED"} onClick={stopComputeFleet}>
+                  {fleetStatus !== "RUNNING" ? <span>Stop Compute Fleet</span>
+                  : <div className="container"><CancelIcon /> Stop Compute Fleet</div>}
+                </Button>}
+                <Button onClick={() => handleClose(true)} autoFocus>Cancel</Button>
+                <Button disabled={page === pages[0]} onClick={handlePrev}>Back</Button>
+                {page === "create" && <Button onClick={handleDryRun}>Dry Run</Button>}
+                <Button disabled={loading} onClick={handleNext}>{page === "create" ? (editing ? "Update" : "Create") : "Next"}</Button>
+              </SpaceBetween>
+            </Box>
+          </SpaceBetween>
+        </div>
+      </SpaceBetween>
     </SpaceBetween>
-  </SpaceBetween>
+  </div>
 }
 
 function Configure() {
