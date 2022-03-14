@@ -19,6 +19,7 @@ import { useCollection } from '@awsui/collection-hooks';
 import Loading from '../../components/Loading'
 import {
   Button,
+  CollectionPreferences,
   ExpandableSection,
   Pagination,
   Table,
@@ -32,6 +33,9 @@ function LogEvents() {
   const selected = getState(['app', 'clusters', 'selected']);
   const selectedLogStreamName = useState(['app', 'clusters', 'selectedLogStreamName']);
   const events = useState(['clusters', 'index', selected, 'logEventIndex', selectedLogStreamName]);
+
+  const columns = useState(['app', 'clusters', 'logs', 'columns']) || ['message']
+  const pageSize = useState(['app', 'clusters', 'logs', 'pageSize']) || 100
 
   const pending = useState(['app', 'clusters', 'logs', 'pending']);
 
@@ -51,50 +55,48 @@ function LogEvents() {
       filtering: {
         empty: (
           <EmptyState
-            title="No logs"
-            subtitle="No logs to display."
+            title='No logs'
+            subtitle='No logs to display.'
           />
         ),
         noMatch: (
           <EmptyState
-            title="No matches"
-            subtitle="No logs match the filters."
+            title='No matches'
+            subtitle='No logs match the filters.'
             action={
               <Button onClick={() => actions.setFiltering('')}>Clear filter</Button>}
           />
         ),
       },
-      pagination: { pageSize: 10 },
+      pagination: { pageSize: pageSize },
       sorting: {},
       selection: {},
     }
   );
 
-  console.log(items)
-
-  return <div><div style={{marginBottom: "10px", display: "flex", direction: "row", gap: "16px", alignItems: "center"}}><div>{selectedLogStreamName}</div><Button loading={pending} onClick={refresh}>Refresh</Button></div>
-    <div style={{borderTop: "1px solid #AAA", fontSize: "10pt", overflow: "auto", whiteSpace: "nowrap"}}>
+  return <div><div style={{marginBottom: '10px', display: 'flex', direction: 'row', gap: '16px', alignItems: 'center'}}><div>{selectedLogStreamName}</div><Button loading={pending} onClick={refresh} iconName='refresh' /></div>
+    <div style={{borderTop: '1px solid #AAA', fontSize: '10pt', overflow: 'auto', whiteSpace: 'nowrap'}}>
       <Table
         {...collectionProps}
         resizableColumns
         wrapLines
-        trackBy={item => (item.timestamp + item.message)}
+        visibleColumns={columns}
+        variant='container'
         columnDefinitions={[
           {
-            id: "timestamp",
-              header: "timestamp",
+            id: 'timestamp',
+              header: 'timestamp',
               cell: item => item.timestamp,
-              sortingField: "timestamp"
+              sortingField: 'timestamp'
           },
           {
-            id: "message",
-            header: "message",
+            id: 'message',
+            header: 'message',
             cell: item => item.message,
           },
         ]}
         loading={events === null}
         items={items}
-        selectionType="single"
         loadingText="Loading Logs..."
         pagination={<Pagination {...paginationProps} />}
         filter={
@@ -104,6 +106,43 @@ function LogEvents() {
             filteringAriaLabel="Filter logs"
           />
         }
+        preferences={
+          <CollectionPreferences
+            onConfirm={({detail}) => {
+              setState(['app', 'clusters', 'logs', 'columns'], detail.visibleContent);
+              setState(['app', 'clusters', 'logs', 'pageSize'], detail.pageSize);
+            }}
+            title="Preferences"
+            confirmLabel="Confirm"
+            cancelLabel="Cancel"
+            preferences={{
+              pageSize: pageSize,
+              visibleContent: columns}}
+            pageSizePreference={{
+              title: "Select page size",
+              options: [
+                { value: 100, label: "100 Logs" },
+                { value: 250, label: "250 Logs" },
+                { value: 500, label: "500 Logs" }
+              ]
+            }}
+            visibleContentPreference={{
+              title: "Select visible content",
+              options: [
+                {
+                  label: "Log columns",
+                  options: [
+                    {
+                      id: "timestamp",
+                      label: "Timestamp",
+                    },
+                    { id: "message", label: "Message", editable: false
+                    }
+                  ]
+                }
+              ]
+            }}
+          />}
       />
     </div>
   </div>
