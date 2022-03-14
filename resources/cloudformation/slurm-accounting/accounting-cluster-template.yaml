@@ -350,7 +350,7 @@ Outputs:
 
   PClusterPublicSubnetId:
     Description: Public subnet (HeadNode)
-    Value: !Sub "${ClusterVpcStack.Outputs.PublicSubnetId}"
+    Value: !If [CreateClusterVpc, !Sub "${ClusterVpcStack.Outputs.PublicSubnetId}", ""]
 
   # PClusterVpcCidr:
   #   Description: VPC CIDR
@@ -358,7 +358,7 @@ Outputs:
 
   PClusterVpcId:
     Description: VPC ID
-    Value: !Sub "${ClusterVpcStack.Outputs.VpcId}"
+    Value: !If [CreateClusterVpc, !Sub "${ClusterVpcStack.Outputs.VpcId}", ""]
 
   RdsbEndpoint:
     Description: Database endpoint address, set as RDS Endpoint
