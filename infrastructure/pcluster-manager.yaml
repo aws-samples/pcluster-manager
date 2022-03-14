@@ -34,12 +34,6 @@ Parameters:
     Type: AWS::EC2::Subnet::Id
     MinLength: 1 # Force this to be selected
 
-Conditions:
-  NonDefaultVpc:
-    Fn::And:
-      - !Not [!Equals [!Ref ImageBuilderVpcId, ""]]
-      - !Not [!Equals [!Ref ImageBuilderSubnetId, ""]]
-
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
@@ -207,7 +201,6 @@ Resources:
         - !Ref ImageBuilderInstanceRole
 
   InfrastructureConfigurationSecurityGroup:
-    Condition: NonDefaultVpc
     Type: AWS::EC2::SecurityGroup
     Properties:
       VpcId: !Ref ImageBuilderVpcId
@@ -222,16 +215,8 @@ Resources:
       InstanceProfileName: !Ref ImageBuilderInstanceProfile
       TerminateInstanceOnFailure: true
       SnsTopicArn: !Ref EcrImageBuilderSNSTopic
-      SubnetId: 
-        Fn::If:
-          - NonDefaultVpc
-          - !Ref ImageBuilderSubnetId
-          - !Ref AWS::NoValue
-      SecurityGroupIds:
-        Fn::If:
-          - NonDefaultVpc
-          - [!Ref InfrastructureConfigurationSecurityGroup]
-          - !Ref AWS::NoValue
+      SubnetId: !Ref ImageBuilderSubnetId
+      SecurityGroupIds: [!Ref InfrastructureConfigurationSecurityGroup]
 
   EcrImageRecipe:
     Type: AWS::ImageBuilder::ContainerRecipe
