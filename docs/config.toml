@@ -1,0 +1,35 @@
+baseURL = "http://aws-samples.github.io/pcluster-manager/"
+languageCode = 'en-us'
+title = 'Pcluster Manager Docs'
+theme = "hugo-theme-learn"
+uglyurls = true
+sectionPagesMenu = "main"
+pygmentsCodeFences = true
+
+[blackfriday]
+hrefTargetBlank = true
+
+[params]
+editURL = "https://github.com/aws-samples/pcluster-manager/tree/main/docs/content/"
+themeVariant = "mine"
+showVisitedLinks = true
+description = "Pcluster Manager Docs"
+disableSearch = false
+disableAssetsBusting = false
+disableLanguageSwitchingButton = true
+disableShortcutsTitle = false
+disableLandingPageButton = true
+
+# For search functionality
+[outputs]
+home = [ "HTML", "RSS", "JSON"]
+
+[[menu.shortcuts]]
+name = "<i class='fab fa-github'></i> Github"
+url = "https://github.com/aws-samples/pcluster-manager"
+weight = 10
+
+[[menu.shortcuts]]
+name = "<i class='fas fa-bookmark'></i> AWS - HPC"
+url = "https://aws.amazon.com/hpc/"
+weight = 10

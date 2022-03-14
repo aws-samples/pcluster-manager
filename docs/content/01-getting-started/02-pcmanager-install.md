@@ -1,7 +1,17 @@
-# Installation
++++
+title = "b. Deploy Pcluster Manager"
+weight = 12
++++
 
-### Step 1: CloudFormation Setup
-First Deploy the PclusterManager Server (which includes the AWS ParallelCluster API). If you don't see your region below don't fret.
+The [AWS ParallelCluster API](https://docs.aws.amazon.com/parallelcluster/latest/ug/api-reference-v3.html) has been released with the version 3 of AWS ParallelCluster. It enables you to to manage clusters though an API hosted on AWS and build workflows to manage your cluster lifecycle with Python.
+
+Pcluster Manager is a web UI that built upon the AWS ParallelCluster CLI that you can use to manage your compute clusters. It'll take about 20 minutes to deploy both stacks. You will initiate the deployment now to have it ready by the time you need it.
+
+1. Deploy the Pcluster Manager stack by clicking on the link in your region. If you don't have a prefered region use **Ohio (us-east-2)**.
+
+{{% notice info %}}
+If you don't see your region click **More Regions (Click to expand)** below.
+{{% /notice %}}
 
 | Region       | Launch                                                                                                                                                                                                                                                                                                              | 
 |--------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -10,12 +20,11 @@ First Deploy the PclusterManager Server (which includes the AWS ParallelCluster 
 | Ireland (eu-west-1)    | [![Launch](https://samdengler.github.io/cloudformation-launch-stack-button-svg/images/eu-west-1.svg)](https://eu-west-1.console.aws.amazon.com/cloudformation/home?region=eu-west-1#/stacks/create/review?stackName=pcluster-manager&templateURL=https://pcluster-manager-eu-west-1.s3.amazonaws.com/pcluster-manager.yaml)       |
 | Frankfurt (eu-central-1) | [![Launch](https://samdengler.github.io/cloudformation-launch-stack-button-svg/images/eu-west-1.svg)](https://eu-central-1.console.aws.amazon.com/cloudformation/home?region=eu-central-1#/stacks/create/review?stackName=pcluster-manager&templateURL=https://pcluster-manager-eu-central-1.s3.amazonaws.com/pcluster-manager.yaml) |
 
-<details>
-    <summary>More Regions (Click to expand)</summary>
+{{%expand "More Regions (Click to expand)" %}}
                    
 | Region       | Launch                                                                                                                                                                                                                                                                                                              | 
 |--------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Oregon (us-west-2)    | [![Launch](https://samdengler.github.io/cloudformation-launch-stack-button-svg/images/us-west-2.svg)](https://us-west-2.console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/create/review?stackName=pcluster-manager&templateURL=https://pcluster-manager-us-east-1.s3.amazonaws.com/pcluster-manager.yaml)       |
+| Oregon (us-west-2)    | [![Launch](https://samdengler.github.io/cloudformation-launch-stack-button-svg/images/us-west-2.svg)](https://us-west-2.console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/create/review?stackName=pcluster-manager&templateURL=https://pcluster-manager-us-west-2.s3.amazonaws.com/pcluster-manager.yaml)       |
 | California (us-west-1)    | [![Launch](https://samdengler.github.io/cloudformation-launch-stack-button-svg/images/us-west-1.svg)](https://us-west-1.console.aws.amazon.com/cloudformation/home?region=us-west-1#/stacks/create/review?stackName=pcluster-manager&templateURL=https://pcluster-manager-us-west-1.s3.amazonaws.com/pcluster-manager.yaml)       |
 | London (eu-west-2)    | [![Launch](https://samdengler.github.io/cloudformation-launch-stack-button-svg/images/eu-west-2.svg)](https://eu-west-2.console.aws.amazon.com/cloudformation/home?region=eu-west-2#/stacks/create/review?stackName=pcluster-manager&templateURL=https://pcluster-manager-eu-west-2.s3.amazonaws.com/pcluster-manager.yaml)       |
 | Paris (eu-north-1)    | [![Launch](https://samdengler.github.io/cloudformation-launch-stack-button-svg/images/eu-west-3.svg)](https://eu-west-3.console.aws.amazon.com/cloudformation/home?region=eu-west-3#/stacks/create/review?stackName=pcluster-manager&templateURL=https://pcluster-manager-eu-west-3.s3.amazonaws.com/pcluster-manager.yaml)       |
@@ -29,33 +38,20 @@ First Deploy the PclusterManager Server (which includes the AWS ParallelCluster 
 | Mumbai (ap-south-1) | [![Launch](https://samdengler.github.io/cloudformation-launch-stack-button-svg/images/ap-south-1.svg)](https://ap-south-1.console.aws.amazon.com/cloudformation/home?region=ap-south-1#/stacks/create/review?stackName=pcluster-manager&templateURL=https://pcluster-manager-ap-south-1.s3.amazonaws.com/pcluster-manager.yaml) |
 | Singapore (ap-southeast-1) | [![Launch](https://samdengler.github.io/cloudformation-launch-stack-button-svg/images/ap-southeast-1.svg)](https://ap-southeast-1.console.aws.amazon.com/cloudformation/home?region=ap-southeast-1#/stacks/create/review?stackName=pcluster-manager&templateURL=https://pcluster-manager-ap-southeast-1.s3.amazonaws.com/pcluster-manager.yaml) |
 | Sydney (ap-southeast-2) | [![Launch](https://samdengler.github.io/cloudformation-launch-stack-button-svg/images/ap-southeast-2.svg)](https://ap-southeast-2.console.aws.amazon.com/cloudformation/home?region=ap-southeast-2#/stacks/create/review?stackName=pcluster-manager&templateURL=https://pcluster-manager-ap-southeast-2.s3.amazonaws.com/pcluster-manager.yaml) |
-</details>
+| GovCloud West (us-gov-west-1) | [![Launch](https://samdengler.github.io/cloudformation-launch-stack-button-svg/images/launch-stack.svg)](https://console.amazonaws-us-gov.com/cloudformation/home?region=us-gov-west-1#/stacks/create/review?stackName=pcluster-manager&templateURL=https://pcluster-manager-us-gov-west-1.s3-us-gov-west-1.amazonaws.com/pcluster-manager.yaml) |
+{{% /expand%}}
 
+2. The AWS Console opens on the AWS CloudFormation panel to deploy your stack. Update the field *AdminUserEmail* with **a valid email** to receive a temporary password in order to connect to the Pcluster Manager GUI. Leave the other fields with their default values and click **Next** to proceed to Step 3.
 
-### Step 2: Setup CloudFormation Stack
+![Pcluster Manager install](pcmanager-install.png)
+![Pcluster Manager install](pcmanager-stack.png)
 
-The AWS Console opens on the AWS CloudFormation panel to deploy your stack. Update the field **AdminUserEmail** with a valid email to receive a temporary password in order to connect to the Pcluster Manager GUI. Leave the other fields with their default values and click Next to proceed to Step 3.
+3. Scroll down to the bottom of the Stage 3 page (*Configure stack options*) and click **Next**.
+4. Scroll down to the bottom of the Stage 4 page (*Review*) and **click** on the the two tick boxes to create new IAM resources. Once done, click on **Create stack**.
 
-![CloudFormation Settings](pcmanager-install.png)
+![Pcluster Manager install](pcmanager-deploy.png)
 
-Click the two IAM boxes and click **Create Stack**
+The stack is deploying using AWS CloudFormation. It will take ~20 minutes to deploy the AWS ParallelCluster API and Pcluster Manager GUI. In the meantime, you will complete the first part of the lab. Continue to the next page to define the configuration of your first HPC system in AWS.
 
-![Deploy the Stack](pcmanager-deploy.png)
-
-The setup for Pcluster Manager (and AWS ParallelCluster API) will take approximately 20 minutes.
-
-### Step 3: Login
-
-During the setup process you will receive an automated email with a temporary password which looks like the following (except the email you receive will have a code in the place of the `[REDACTED]` text below. You will use this temporary password to login to your administrator account along with the email you specified in `Step 2` above.
-
-![Admin Temporary Password](welcome-email.png)
-
-Once the stack has been created (you should see **CREATE_COMPLETE** in green as the status next to the `pcluster-manager` stack) -- go to the `Outputs` tab and select the `PclusterManagerUrl` output to access the site. Use your administrator email from `Step 2` and the temporary password from your email to login to the site.
-
-![CloudFormation Outputs](cfn-outputs.png)
-
-### Step 4: Create a Cluster
-
-Once you have logged in to the site you will be presented with a page that looks something like the following. Likely if this is your first time interacting with ParallelCluster your list of clusters will be empty. In that case, click the **Create Cluster** in the top right and follow the instructions in the wizard to create your first cluster.
-
-![Main Page](main-page.png)
+{{% notice warning %}}Ensure that you entered a valid email when deploying the Pcluster Manager stack. This email will be used to send you the credentials to connect to Pcluster Manager. If the email you will have to delete and recreate it which may delay your progression.
+{{% /notice %}}

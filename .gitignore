@@ -2,3 +2,6 @@ __pycache__
 frontend/node_modules
 infrastructure/cognitolambda/node_modules
 package-lock.json
+.DS_Store
+.hugo_build.lock
+public/*

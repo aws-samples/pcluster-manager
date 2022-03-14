@@ -45,17 +45,17 @@ Launch the stack in your AWS account by clicking on one of the below regions:
 
 Enter your email and wait (~15 mins) for the stack to go into **CREATE_COMPLETE**. Using the code from your email login to the Web UI at the address specified by the `PclusterManagerUrl` in the `Outputs` tab of the main `pcluster-manager` stack.
 
-![CloudFormation Outputs](install/cfn-outputs.png)
+![CloudFormation Outputs](docs/static/01-getting-started/pcmanager-url.png)
 
-For more details see the [Install Instructions](install/README.md).
+For more details see the [Getting Started Guide](https://pcluster-manager.github.io/).
 
 ## Screen Shot
 
-![Main Page](install/main-page.png)
+![Main Page](docs/static/01-getting-started/main-page.png)
 
 ## System Architecture
 
-![Pcluster Manager Architecture](install/architecture.png)
+![Pcluster Manager Architecture](docs/static/architecture.png)
 
 ## Updating
 
