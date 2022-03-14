@@ -64,7 +64,7 @@ To update the the latest version, run the following, make sure to set the region
 ```bash
 git clone https://github.com/aws-samples/pcluster-manager.git
 cd pcluster-manager/
-./scripts/update.sh us-east-1  # should be region where stack is deployed
+./scripts/update.sh --region us-east-1  # should be region where stack is deployed
 ```
 
 ## Local Development
