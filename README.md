@@ -47,7 +47,7 @@ Enter your email and wait (~15 mins) for the stack to go into **CREATE_COMPLETE*
 
 ![CloudFormation Outputs](docs/static/01-getting-started/pcmanager-url.png)
 
-For more details see the [Getting Started Guide](https://pcluster-manager.github.io/).
+For more details see the [Getting Started Guide](https://aws-samples.github.io/pcluster-manager/).
 
 ## Screen Shot
 
