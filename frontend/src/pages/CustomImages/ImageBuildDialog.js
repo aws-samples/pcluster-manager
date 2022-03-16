@@ -28,6 +28,7 @@ import ValidationErrors from '../../components/ValidationErrors'
 
 // State
 import { setState, useState, getState, clearState } from '../../store'
+import ConfigView from '../../components/ConfigView';
 
 const buildImageErrorsPath = ['app', 'buildImage', 'errors'];
 
@@ -148,10 +149,9 @@ export default function ImageBuildDialog(props) {
             <Input value={imageId} onChange={({ detail }) => {setImageId(detail.value)}} />
           </FormField>
         </div>
-        <textarea
-          spellCheck="false"
-          className="configuration-data" value={imageConfig}
-          onChange={(e) => {setState([...imageBuildPath, 'config'], e.target.value)}} />
+        {<ConfigView
+          config={imageConfig}
+          onChange={({ detail }) => {setState([...imageBuildPath, 'config'], detail.value)}}/>}
         {errors && <ValidationErrors errors={errors} /> }
         {pending && <div><Spinner size="normal" /> Image Build request pending...</div>}
       </SpaceBetween>
