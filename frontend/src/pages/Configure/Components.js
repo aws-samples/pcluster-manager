@@ -87,13 +87,6 @@ function InstanceSelect({path, selectId, callback, disabled}) {
   ]
 
   const computeInstances = [
-    ["c5n.large", "2 vcpus, 5.25GB memory", "/img/c5n.svg"],
-    ["c5n.xlarge", "4 vcpus, 10.5GB memory", "/img/c5n.svg"],
-    ["c5n.2xlarge", "8 vcpus, 21GB memory", "/img/c5n.svg"],
-    ["c5n.4xlarge", "16 vcpus, 42GB memory", "/img/c5n.svg"],
-    ["c5n.9xlarge", "36 vcpus, 96GB memory", "/img/c5n.svg"],
-    ["c5n.18xlarge", "72 vcpus, 192GB memory", "/img/c5n.svg"],
-    ["c5n.metal", "72 vcpus, 192GB memory", "/img/c5n.svg"],
     ["c5.large", "2 vcpus, 4GB memory", "/img/c5.svg"],
     ["c5.xlarge", "4 vcpus, 8GB memory", "/img/c5.svg"],
     ["c5.2xlarge", "8 vcpus, 16GB memory", "/img/c5.svg"],
@@ -102,6 +95,13 @@ function InstanceSelect({path, selectId, callback, disabled}) {
     ["c5.12xlarge", "48 vcpus, 96GB memory", "/img/c5.svg"],
     ["c5.18xlarge", "72 vcpus, 144GB memory", "/img/c5.svg"],
     ["c5.24xlarge", "96 vcpus, 192GB memory", "/img/c5.svg"],
+    ["c5n.large", "2 vcpus, 5.25GB memory", "/img/c5n.svg"],
+    ["c5n.xlarge", "4 vcpus, 10.5GB memory", "/img/c5n.svg"],
+    ["c5n.2xlarge", "8 vcpus, 21GB memory", "/img/c5n.svg"],
+    ["c5n.4xlarge", "16 vcpus, 42GB memory", "/img/c5n.svg"],
+    ["c5n.9xlarge", "36 vcpus, 96GB memory", "/img/c5n.svg"],
+    ["c5n.18xlarge", "72 vcpus, 192GB memory", "/img/c5n.svg"],
+    ["c5n.metal", "72 vcpus, 192GB memory", "/img/c5n.svg"],
     ["c6i.large", "2 vcpus, 4GB memory", "/img/od.svg"],
     ["c6i.xlarge", "4 vcpus, 8GB memory", "/img/od.svg"],
     ["c6i.2xlarge", "8 vcpus, 16GB memory", "/img/od.svg"],
@@ -143,6 +143,14 @@ function InstanceSelect({path, selectId, callback, disabled}) {
     ["g4dn.16xlarge", "1 x NVIDIA T4,  64 vcpus, 256GB memory", "/img/od.svg"],
     ["g4dn.12xlarge", "4 x NVIDIA T4,  48 vcpus, 192GB memory", "/img/od.svg"],
     ["g4dn.metal", "8 x NVIDIA T4,  96 vcpus, 384GB memory", "/img/od.svg"],
+    ["g5.xlarge", "1 x NVIDIA A10G,  4 vcpus, 16GB memory", "/img/od.svg"],
+    ["g5.2xlarge", "1 x NVIDIA A10G,  8 vcpus, 32GB memory", "/img/od.svg"],
+    ["g5.4xlarge", "1 x NVIDIA A10G,  16 vcpus, 64GB memory", "/img/od.svg"],
+    ["g5.8xlarge", "1 x NVIDIA A10G,  32 vcpus, 128GB memory", "/img/od.svg"],
+    ["g5.12xlarge", "4 x NVIDIA A10G,  48 vcpus, 192GB memory", "/img/od.svg"],
+    ["g5.16xlarge", "1 x NVIDIA A10G,  64 vcpus, 256GB memory", "/img/od.svg"],
+    ["g5.24xlarge", "4 x NVIDIA A10G,  96 vcpus, 384GB memory", "/img/od.svg"],
+    ["g5.48xlarge", "8 x NVIDIA A10G,  192 vcpus, 768GB memory", "/img/od.svg"],
   ];
 
   const groups = [
