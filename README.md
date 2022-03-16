@@ -47,7 +47,7 @@ Enter your email and wait (~15 mins) for the stack to go into **CREATE_COMPLETE*
 
 ![CloudFormation Outputs](docs/static/01-getting-started/pcmanager-url.png)
 
-For more details see the [Getting Started Guide](https://pcluster-manager.github.io/).
+For more details see the [Getting Started Guide](https://aws-samples.github.io/pcluster-manager/).
 
 ## Screen Shot
 
@@ -64,7 +64,7 @@ To update the the latest version, run the following, make sure to set the region
 ```bash
 git clone https://github.com/aws-samples/pcluster-manager.git
 cd pcluster-manager/
-./scripts/update.sh us-east-1  # should be region where stack is deployed
+./scripts/update.sh --region us-east-1  # should be region where stack is deployed
 ```
 
 ## Local Development

@@ -12,66 +12,92 @@ import React from 'react';
 
 // Model
 import { ListClusterLogStreams, GetClusterLogEvents } from '../../model'
-import { getState, setState, clearState, useState } from '../../store'
+import { clearState, getState, setState, useState } from '../../store'
 
 // UI Elements
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import Loading from '../../components/Loading'
 import HelpTooltip from '../../components/HelpTooltip'
 import {
-  Button
+  Button,
+  ExpandableSection
 } from "@awsui/components-react";
 
+function LogEvents() {
+  const selected = getState(['app', 'clusters', 'selected']);
+  const selectedLogStreamName = useState(['app', 'clusters', 'selectedLogStreamName']);
+  const events = useState(['clusters', 'index', selected, 'logEventIndex', selectedLogStreamName]);
 
-function LogEvents({events}) {
-  return (
-    <div style={{borderTop: "1px solid #AAA", fontSize: "10pt", width: "100%", overflow: "auto", whiteSpace: "nowrap"}}>
-      {events.events.map((event, i) => <div key={event.timestamp + i.toString()}>{event.timestamp + i.toString()} - {event.message}</div>)}
+  const pending = useState(['app', 'clusters', 'logs', 'pending']);
+
+  const refresh = () => {
+    setState(['app', 'clusters', 'logs', 'pending'], true);
+    const clusterName = getState(['app', 'clusters', 'selected']);
+    const logStreamName = getState(['app', 'clusters', 'selectedLogStreamName']);
+    if(clusterName && logStreamName)
+    {
+      GetClusterLogEvents(clusterName, logStreamName, () => clearState(['app', 'clusters', 'logs', 'pending']), () => clearState(['app', 'clusters', 'logs', 'pending']));
+    }
+  }
+
+  return <div><div style={{marginBottom: "10px", display: "flex", direction: "row", gap: "16px", alignItems: "center"}}><div>{selectedLogStreamName}</div><Button loading={pending} onClick={refresh}>Refresh</Button></div>
+    <div style={{borderTop: "1px solid #AAA", fontSize: "10pt", overflow: "auto", whiteSpace: "nowrap"}}>
+      {events.events.map((event, i) => <div key={event.timestamp + i.toString()} title={event.timestamp}>{event.message}</div>)}
     </div>
-  );
+  </div>
+}
+
+function StreamList({instanceId}) {
+  const logStreamIndex = useState(['app', 'clusters', 'logs', 'index']);
+  const logStreams = logStreamIndex[instanceId].streams;
+  const ip = logStreamIndex[instanceId].ip;
+  const fnames = Object.keys(logStreams).sort()
+  const selectedLogStreamName = useState(['app', 'clusters', 'selectedLogStreamName']);
+
+  const select = (logStream) => {
+    const logStreamName = logStream.logStreamName;
+    const selected = getState(['app', 'clusters', 'selected']);
+    setState(['app', 'clusters', 'selectedLogStreamName'], logStreamName);
+    GetClusterLogEvents(selected, logStreamName);
+  }
+
+  return <div title={instanceId}>
+    <ExpandableSection header={ip}>
+      {fnames.map((fname) => <div onClick={() => select(logStreams[fname])} style={{marginLeft: '10px', cursor: 'pointer', fontWeight: selectedLogStreamName === logStreams[fname].logStreamName ? 'bold' : 'normal'}}>{fname}</div>)}
+    </ExpandableSection>
+  </div>
+}
+
+function LogStreamList() {
+  const logStreamIndex = useState(['app', 'clusters', 'logs', 'index']);
+  const selected = useState(['app', 'clusters', 'selected']);
+  const clusterPath = ['clusters', 'index', selected];
+  const headNode = useState([...clusterPath, 'headNode']);
+  const instanceId = (headNode && headNode.instanceId) || '';
+  return <div style={{width: "150px"}}>
+    <div><b>HeadNode</b></div>
+    {instanceId && <StreamList instanceId={instanceId} />}
+    <div><b>Compute</b></div>
+    {Object.keys(logStreamIndex).filter(k => k !== instanceId).sort().map(instanceId => <StreamList instanceId={instanceId} />)}
+  </div>
 }
 
 export default function ClusterLogs() {
-
-  const [ split, setSplit ] = React.useState(80);
-  const [ isSelected , setSelected ] = React.useState(false);
-
-  const pendingPath = ['app', 'clusters', 'logs', 'pending'];
-
-  const selected = useState(['app', 'clusters', 'selected']);
-  const pending = useState(pendingPath);
+  const selected = getState(['app', 'clusters', 'selected']);
+  const logStreamIndexPath = ['app', 'clusters', 'logs', 'index'];
   const streams = useState(['clusters', 'index', selected, 'logstreams']);
   const selectedLogStreamName = useState(['app', 'clusters', 'selectedLogStreamName']);
   const logEvents = useState(['clusters', 'index', selected, 'logEventIndex', selectedLogStreamName]);
 
-  const clusterPath = ['clusters', 'index', selected];
-  const headNode = useState([...clusterPath, 'headNode']);
-  const instanceId = (headNode && headNode.instanceId) || '';
-
-  const headNodeStreams = ((streams && streams['logStreams']) || []).filter((e) => e.logStreamName.includes(instanceId))
-  const computeStreams = ((streams && streams['logStreams']) || []).filter((e) => !e.logStreamName.includes(instanceId))
-
-  const refresh = () => {
-    setState(pendingPath, true);
-    const selected = getState(['app', 'clusters', 'selected']);
-    const logStreamName = getState(['app', 'clusters', 'selectedLogStreamName']);
-    clearState(['clusters', 'index', selected, 'logEventIndex', selectedLogStreamName]);
-    GetClusterLogEvents(selected, logStreamName, () => setState(pendingPath, false));
+  for(let stream of ((streams && streams['logStreams']) || []))
+  {
+    let [ip, id, fname] = stream.logStreamName.split('.');
+    if(!getState([...logStreamIndexPath, id, 'streams', fname]))
+    {
+      setState([...logStreamIndexPath, id, 'streams', fname], stream);
+      setState([...logStreamIndexPath, id, 'ip'], ip);
+    }
   }
 
-  const select = (logStreamName) => {
-    const selected = getState(['app', 'clusters', 'selected']);
-    setState(['app', 'clusters', 'selectedLogStreamName'], logStreamName);
-    GetClusterLogEvents(selected, logStreamName);
-    setSplit(10);
-    setSelected(true);
-  }
-
-  const unselect = () => {
-    setSplit(80);
-    setSelected(false);
-  }
 
   React.useEffect(() => {
     const selected = getState(['app', 'clusters', 'selected']);
@@ -80,21 +106,11 @@ export default function ClusterLogs() {
 
   return <div>
     { streams ?
-      <div style={{display: 'flex'}}>
-        <div style={{textAlign: 'left', flexDirection: 'column', flex: split, width: 0,
-          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: '10px'}}>
-          <div><b>HeadNode</b><HelpTooltip>Descriptions of each log can be found in the <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/troubleshooting-v3.html#troubleshooting-v3-key-logs'>ParallelCluster Docs</a>.</HelpTooltip></div>
-          {headNodeStreams.map((stream, i) => <div onClick={() => {select(stream.logStreamName)}} style={{cursor: 'pointer'}} key={stream.logStreamName} title={stream.logStreamName}>{stream.logStreamName}</div>)}
-          <div><b>Compute</b><HelpTooltip>Descriptions of each log can be found in the <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/troubleshooting-v3.html#troubleshooting-v3-key-logs'>ParallelCluster Docs</a>.</HelpTooltip></div>
-          {computeStreams.map((stream, i) => <div onClick={() => {select(stream.logStreamName)}} style={{cursor: 'pointer'}} key={stream.logStreamName} title={stream.logStreamName}>{stream.logStreamName}</div>)}
-        </div>
-        <div style={{ flex: 100 - split, paddingLeft: "10px", borderLeft: "1px solid #AAA"}}>
-          <div style={{ marginBottom: '20px', whiteSpace: "nowrap" }}>
-            {isSelected ? <ChevronRightIcon style={{cursor: 'pointer'}} onClick={() => {unselect();}}/> :  <ChevronLeftIcon style={{cursor: 'pointer'}} onClick={() => {setSelected(false); setSplit(80)}}/>}
-            {selectedLogStreamName && <div style={{display: 'inline-block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{selectedLogStreamName}</div>}
-            {isSelected && <div style={{marginLeft: "10px"}}><Button loading={pending} disabled={!selectedLogStreamName} onClick={refresh} iconName="refresh">Refresh</Button></div>}
-          </div>
-          {isSelected && (logEvents ? <LogEvents events={logEvents} /> : <Loading />) }
+      <div style={{display: 'flex', flexDirection: 'row'}}>
+          <LogStreamList />
+        <div style={{width: "calc(100% - 165px)", overflowX: "auto"}}>
+          {selectedLogStreamName && (logEvents ? <LogEvents /> : <Loading />) }
+          {!selectedLogStreamName && "Please select a log stream from the left." }
         </div>
       </div>
       : <Loading />
