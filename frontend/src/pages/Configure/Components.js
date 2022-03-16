@@ -223,8 +223,13 @@ function CustomAMISettings({basePath, appPath, errorsPath, validate}) {
     const value = !customAmiEnabled;
     setState([...appPath, 'customAMI', 'enabled'], value);
     if(!value)
+    {
       clearState(customAmiPath);
+      if(Object.keys(getState([...basePath, 'Image'])).length === 0)
+        clearState([...basePath, 'Image']);
+    }
   }
+
   return (
     <>
       <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>

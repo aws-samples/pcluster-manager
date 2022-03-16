@@ -19,33 +19,35 @@ import {
 export default function ConfigView({config, pending, onChange}){
   const [preferences, setPreferences] = React.useState({'theme': 'textmate'});
   return <CodeEditor
-      ace={window.ace}
-      language="yaml"
-      value={config || ''}
-      preferences={preferences}
-      onPreferencesChange={e => setPreferences(e.detail)}
-      onValidate={e => {console.log(e)}}
-      loading={pending ? true : false}
-      i18nStrings={{
-        loadingState: "Loading code editor",
-        errorState:
-        "There was an error loading the code editor.",
-        errorStateRecovery: "Retry",
-        editorGroupAriaLabel: "Code editor",
-        statusBarGroupAriaLabel: "Status bar",
-        cursorPosition: (row, column) =>
-        `Ln ${row}, Col ${column}`,
-        errorsTab: "Errors",
-        warningsTab: "Warnings",
-        preferencesButtonAriaLabel: "Preferences",
-        paneCloseButtonAriaLabel: "Close",
-        preferencesModalHeader: "Preferences",
-        preferencesModalCancel: "Cancel",
-        preferencesModalConfirm: "Confirm",
-        preferencesModalWrapLines: "Wrap lines",
-        preferencesModalTheme: "Theme",
-        preferencesModalLightThemes: "Light themes",
-        preferencesModalDarkThemes: "Dark themes"
-      }}
+    ace={window.ace}
+    language="yaml"
+    value={config || ''}
+    onChange={(e) => {}}
+    onDelayedChange={onChange}
+    preferences={preferences}
+    onPreferencesChange={e => setPreferences(e.detail)}
+    onValidate={e => {console.log(e)}}
+    loading={pending ? true : false}
+    i18nStrings={{
+      loadingState: "Loading code editor",
+      errorState:
+      "There was an error loading the code editor.",
+      errorStateRecovery: "Retry",
+      editorGroupAriaLabel: "Code editor",
+      statusBarGroupAriaLabel: "Status bar",
+      cursorPosition: (row, column) =>
+      `Ln ${row}, Col ${column}`,
+      errorsTab: "Errors",
+      warningsTab: "Warnings",
+      preferencesButtonAriaLabel: "Preferences",
+      paneCloseButtonAriaLabel: "Close",
+      preferencesModalHeader: "Preferences",
+      preferencesModalCancel: "Cancel",
+      preferencesModalConfirm: "Confirm",
+      preferencesModalWrapLines: "Wrap lines",
+      preferencesModalTheme: "Theme",
+      preferencesModalLightThemes: "Light themes",
+      preferencesModalDarkThemes: "Dark themes"
+    }}
     />
 }
