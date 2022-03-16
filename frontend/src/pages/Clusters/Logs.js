@@ -164,7 +164,7 @@ function StreamList({instanceId}) {
 
   return <div title={instanceId}>
     <ExpandableSection header={ip}>
-      {fnames.map((fname) => <div onClick={() => select(logStreams[fname])} style={{marginLeft: '10px', cursor: 'pointer', fontWeight: selectedLogStreamName === logStreams[fname].logStreamName ? 'bold' : 'normal'}}>{fname}</div>)}
+      {fnames.map((fname) => <div key={fname} onClick={() => select(logStreams[fname])} style={{marginLeft: '10px', cursor: 'pointer', fontWeight: selectedLogStreamName === logStreams[fname].logStreamName ? 'bold' : 'normal'}}>{fname}</div>)}
     </ExpandableSection>
   </div>
 }
@@ -179,7 +179,7 @@ function LogStreamList() {
     <div><b>HeadNode</b></div>
     {instanceId && <StreamList instanceId={instanceId} />}
     <div><b>Compute</b></div>
-    {Object.keys(logStreamIndex).filter(k => k !== instanceId).sort().map(instanceId => <StreamList instanceId={instanceId} />)}
+    {Object.keys(logStreamIndex).filter(k => k !== instanceId).sort().map(instanceId => <StreamList key={instanceId} instanceId={instanceId} />)}
   </div>
 }
 
