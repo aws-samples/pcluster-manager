@@ -244,7 +244,7 @@ def submit_job():
 
     resp = ssm_command(args.get("region"), instance_id, user, f"sbatch {job_cmd}")
 
-    return ret if type(ret) == tuple else {"success": "true"}
+    return resp if type(resp) == tuple else {"success": "true"}
 
 
 def queue_status():
