@@ -92,7 +92,7 @@ function LogEvents() {
           {
             id: 'message',
             header: 'message',
-            cell: item => item.message,
+            cell: item => <pre style={{margin: 0}}>{item.message}</pre>,
           },
         ]}
         loading={events === null}
