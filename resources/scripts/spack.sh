@@ -16,6 +16,7 @@ source $SPACK_ROOT/share/spack/setup-env.sh
 
 # Find gcc and other compilers on PATH
 spack compiler find --scope site 
+spack external find --scope site
 
 # Root retains control of upstream packages
 cat ${SPACK_INSTALL_PREFIX}/spack/etc/spack/defaults/config.yaml > ~/.spack/config.yaml
@@ -27,7 +28,7 @@ spack config --scope site add "config:install_tree:root:~/.spack/install"
 spack config --scope site add "config:module_roots:tcl:~/.spack/modules"
 spack config --scope site add "config:module_roots:lmod:~/.spack/lmod"
 spack config --scope site add "config:source_cache:~/.spack/cache"
-spack config --scope site add "config:build_stage:~/.spack/stage"
+#spack config --scope site add "config:build_stage:~/.spack/stage"
 spack config --scope site add "config:template_dirs:~/.spack/templates"
               
 # Root-controlled Upstream packages are provided to users: 
