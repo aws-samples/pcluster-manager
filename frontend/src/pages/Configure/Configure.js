@@ -247,14 +247,14 @@ function Content() {
     return () => window.removeEventListener('keydown', close)
   },[])
 
-  return <div style={{minWidth: '1400px'}}>
+  return <div style={{minWidth: '1200px'}}>
     <SpaceBetween direction="vertical" size="l">
       <BreadcrumbGroup items={[{text: "Clusters", href: "#clusters"}, {text: (editing ? "Update" : "Create") }]}
         onClick={() => handleClose(true)}
       />
       <SpaceBetween direction="horizontal" size="s">
         <SideNav />
-        <div style={{minWidth: '800px', maxWidth: '1200px'}}>
+        <div style={{minWidth: '800px', maxWidth: '1000px'}}>
           <SpaceBetween direction="vertical" size='s'>
             <Box className="wizard-container">
               {{"source": <Source />,
