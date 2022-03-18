@@ -13,18 +13,29 @@ import React from 'react';
 // Model
 import { ListClusterLogStreams, GetClusterLogEvents } from '../../model'
 import { clearState, getState, setState, useState } from '../../store'
+import { useCollection } from '@awsui/collection-hooks';
 
 // UI Elements
 import Loading from '../../components/Loading'
 import {
   Button,
-  ExpandableSection
+  CollectionPreferences,
+  ExpandableSection,
+  Pagination,
+  Table,
+  TextFilter
 } from "@awsui/components-react";
+
+// Components
+import EmptyState from '../../components/EmptyState';
 
 function LogEvents() {
   const selected = getState(['app', 'clusters', 'selected']);
   const selectedLogStreamName = useState(['app', 'clusters', 'selectedLogStreamName']);
   const events = useState(['clusters', 'index', selected, 'logEventIndex', selectedLogStreamName]);
+
+  const columns = useState(['app', 'clusters', 'logs', 'columns']) || ['message']
+  const pageSize = useState(['app', 'clusters', 'logs', 'pageSize']) || 100
 
   const pending = useState(['app', 'clusters', 'logs', 'pending']);
 
@@ -38,9 +49,101 @@ function LogEvents() {
     }
   }
 
-  return <div><div style={{marginBottom: "10px", display: "flex", direction: "row", gap: "16px", alignItems: "center"}}><div>{selectedLogStreamName}</div><Button loading={pending} onClick={refresh}>Refresh</Button></div>
-    <div style={{borderTop: "1px solid #AAA", fontSize: "10pt", overflow: "auto", whiteSpace: "nowrap"}}>
-      {events.events.map((event, i) => <div key={event.timestamp + i.toString()} title={event.timestamp}>{event.message}</div>)}
+  const { items, actions, filteredItemsCount, collectionProps, filterProps, paginationProps } = useCollection(
+    events.events,
+    {
+      filtering: {
+        empty: (
+          <EmptyState
+            title='No logs'
+            subtitle='No logs to display.'
+          />
+        ),
+        noMatch: (
+          <EmptyState
+            title='No matches'
+            subtitle='No logs match the filters.'
+            action={
+              <Button onClick={() => actions.setFiltering('')}>Clear filter</Button>}
+          />
+        ),
+      },
+      pagination: { pageSize: pageSize },
+      sorting: {},
+      selection: {},
+    }
+  );
+
+  return <div><div style={{marginBottom: '10px', display: 'flex', direction: 'row', gap: '16px', alignItems: 'center'}}><div>{selectedLogStreamName}</div><Button loading={pending} onClick={refresh} iconName='refresh' /></div>
+    <div style={{borderTop: '1px solid #AAA', fontSize: '10pt', overflow: 'auto', whiteSpace: 'nowrap'}}>
+      <Table
+        {...collectionProps}
+        resizableColumns
+        wrapLines
+        visibleColumns={columns}
+        variant='container'
+        columnDefinitions={[
+          {
+            id: 'timestamp',
+              header: 'timestamp',
+              cell: item => item.timestamp,
+              sortingField: 'timestamp'
+          },
+          {
+            id: 'message',
+            header: 'message',
+            cell: item => <pre style={{margin: 0}}>{item.message}</pre>,
+          },
+        ]}
+        loading={events === null}
+        items={items}
+        loadingText="Loading Logs..."
+        pagination={<Pagination {...paginationProps} />}
+        filter={
+          <TextFilter
+            {...filterProps}
+            countText={`Results: ${filteredItemsCount}`}
+            filteringAriaLabel="Filter logs"
+          />
+        }
+        preferences={
+          <CollectionPreferences
+            onConfirm={({detail}) => {
+              setState(['app', 'clusters', 'logs', 'columns'], detail.visibleContent);
+              setState(['app', 'clusters', 'logs', 'pageSize'], detail.pageSize);
+            }}
+            title="Preferences"
+            confirmLabel="Confirm"
+            cancelLabel="Cancel"
+            preferences={{
+              pageSize: pageSize,
+              visibleContent: columns}}
+            pageSizePreference={{
+              title: "Select page size",
+              options: [
+                { value: 100, label: "100 Logs" },
+                { value: 250, label: "250 Logs" },
+                { value: 500, label: "500 Logs" }
+              ]
+            }}
+            visibleContentPreference={{
+              title: "Select visible content",
+              options: [
+                {
+                  label: "Log columns",
+                  options: [
+                    {
+                      id: "timestamp",
+                      label: "Timestamp",
+                    },
+                    { id: "message", label: "Message", editable: false
+                    }
+                  ]
+                }
+              ]
+            }}
+          />}
+      />
     </div>
   </div>
 }
@@ -61,7 +164,7 @@ function StreamList({instanceId}) {
 
   return <div title={instanceId}>
     <ExpandableSection header={ip}>
-      {fnames.map((fname) => <div onClick={() => select(logStreams[fname])} style={{marginLeft: '10px', cursor: 'pointer', fontWeight: selectedLogStreamName === logStreams[fname].logStreamName ? 'bold' : 'normal'}}>{fname}</div>)}
+      {fnames.map((fname) => <div key={fname} onClick={() => select(logStreams[fname])} style={{marginLeft: '10px', cursor: 'pointer', fontWeight: selectedLogStreamName === logStreams[fname].logStreamName ? 'bold' : 'normal'}}>{fname}</div>)}
     </ExpandableSection>
   </div>
 }
@@ -76,7 +179,7 @@ function LogStreamList() {
     <div><b>HeadNode</b></div>
     {instanceId && <StreamList instanceId={instanceId} />}
     <div><b>Compute</b></div>
-    {Object.keys(logStreamIndex).filter(k => k !== instanceId).sort().map(instanceId => <StreamList instanceId={instanceId} />)}
+    {Object.keys(logStreamIndex).filter(k => k !== instanceId).sort().map(instanceId => <StreamList key={instanceId} instanceId={instanceId} />)}
   </div>
 }
 
