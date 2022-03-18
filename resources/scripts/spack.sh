@@ -1,5 +1,5 @@
 #!/bin/bash
-#Description: Install Spack on ParallelCluster spack.sh [/shared_dir]
+#Description: Install Spack on ParallelCluster spack.sh [/shared_dir] [release-tag] [/user/install/path]
 
 # Defaults to ec2-user if not on ParallelCluster
 export USER=${cfn_cluster_user:-ec2-user}
