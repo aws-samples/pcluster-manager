@@ -18,9 +18,16 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CircularProgress from '@mui/material/CircularProgress';
 import DangerousIcon from '@mui/icons-material/Dangerous';
 import NotInterestedIcon from '@mui/icons-material/NotInterested';
+import HelpTooltip from '../components/HelpTooltip'
+import { Link } from "@awsui/components-react";
+import { useState } from '../store'
 
-export default function Status(props) {
+export default function Status({status, cluster}) {
+  const failedStatuses = new Set(['CREATE_FAILED', 'DELETE_FAILED', 'UPDATE_FAILED']);
+  const defaultRegion = useState(['aws', 'region']);
+  const region = useState(['app', 'selectedRegion']) || defaultRegion;
   const theme = useTheme();
+
   const aligned = (icon, text, color) => <div style={{
     color: color || 'black',
     display: 'flex',
@@ -29,18 +36,19 @@ export default function Status(props) {
   }}>
     {icon}
     <span style={{display: 'inline-block', paddingLeft: '10px'}}> {text ? text.replaceAll("_", " ") : "<unknown>"}</span>
+    { cluster && failedStatuses.has(status) && <HelpTooltip>Stack failed to create, see <Link external href={`https://${region}.console.aws.amazon.com/cloudformation/home?region=${region}#/stacks?filteringStatus=active&filteringText=${cluster.clusterName}`}>CloudFormation Stack Events</Link> to see why.</HelpTooltip> }
   </div>
-    const statusMap = {"CREATE_IN_PROGRESS": aligned(<CircularProgress color='info' size={15} />, props.status, theme.palette.info.main),
-      "CREATE_COMPLETE": aligned(<CheckCircleOutlineIcon />, props.status, theme.palette.success.main),
-      "CREATE_FAILED": aligned(<DangerousIcon />, props.status, theme.palette.error.main),
-      "DELETE_IN_PROGRESS": aligned(<CircularProgress size={15} color='error' />, props.status, theme.palette.error.main),
-      "DELETE_FAILED": aligned(<NotInterestedIcon />, props.status, theme.palette.error.main),
-      "RUNNING": aligned(<CheckCircleOutlineIcon />, props.status, theme.palette.success.main),
-      "STOPPED": aligned(<CancelIcon />, props.status, theme.palette.error.main),
-      "STOP_REQUESTED": aligned(<CircularProgress size={15} color='error' />, props.status, theme.palette.error.main),
-      "UPDATE_FAILED": aligned(<DangerousIcon />, props.status, theme.palette.error.main),
-      "UPDATE_IN_PROGRESS": aligned(<CircularProgress color='info' size={15} />, props.status, theme.palette.info.main),
-      "UNKNOWN": aligned(<CircularProgress size={15} color='info' />, props.status, theme.palette.info.main),
-      "UPDATE_COMPLETE": aligned(<CheckCircleOutlineIcon />, props.status, theme.palette.success.main),};
-  return props.status in statusMap ? statusMap[props.status] : <span>{props.status ? props.status.replaceAll("_", " ") : "<unknown>"}</span>;
+    const statusMap = {"CREATE_IN_PROGRESS": aligned(<CircularProgress color='info' size={15} />, status, theme.palette.info.main),
+      "CREATE_COMPLETE": aligned(<CheckCircleOutlineIcon />, status, theme.palette.success.main),
+      "CREATE_FAILED": aligned(<DangerousIcon />, status, theme.palette.error.main),
+      "DELETE_IN_PROGRESS": aligned(<CircularProgress size={15} color='error' />, status, theme.palette.error.main),
+      "DELETE_FAILED": aligned(<NotInterestedIcon />, status, theme.palette.error.main),
+      "RUNNING": aligned(<CheckCircleOutlineIcon />, status, theme.palette.success.main),
+      "STOPPED": aligned(<CancelIcon />, status, theme.palette.error.main),
+      "STOP_REQUESTED": aligned(<CircularProgress size={15} color='error' />, status, theme.palette.error.main),
+      "UPDATE_FAILED": aligned(<DangerousIcon />, status, theme.palette.error.main),
+      "UPDATE_IN_PROGRESS": aligned(<CircularProgress color='info' size={15} />, status, theme.palette.info.main),
+      "UNKNOWN": aligned(<CircularProgress size={15} color='info' />, status, theme.palette.info.main),
+      "UPDATE_COMPLETE": aligned(<CheckCircleOutlineIcon />, status, theme.palette.success.main),};
+  return status in statusMap ? statusMap[status] : <span>{status ? status.replaceAll("_", " ") : "<unknown>"}</span>;
 }

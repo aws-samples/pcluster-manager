@@ -96,7 +96,7 @@ export default function ClusterProperties () {
         </SpaceBetween>
         <SpaceBetween size="l">
           <ValueWithLabel label="clusterStatus">
-            <Status status={cluster.clusterStatus} />
+            <Status status={cluster.clusterStatus} cluster={cluster} />
           </ValueWithLabel>
           <ValueWithLabel label="computeFleetStatus">
             <Status status={cluster.computeFleetStatus} />

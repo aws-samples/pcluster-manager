@@ -188,7 +188,7 @@ export default function ClusterInstances() {
         {
           id: "state",
           header: "State",
-          cell: item => <Status status={item.state} />,
+          cell: item => <Status status={item.state} cluster={item} />,
           sortingField: "state"
         },
         {
