@@ -101,7 +101,7 @@ function ClusterList() {
         {
           id: "status",
           header: "Status",
-          cell: item => <Status status={item.clusterStatus} /> || "-",
+          cell: item => <Status status={item.clusterStatus} cluster={item} /> || "-",
           sortingField: "clusterStatus"
         },
         {
