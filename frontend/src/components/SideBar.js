@@ -9,6 +9,7 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import * as React from 'react';
+import { Link, useLocation } from "react-router-dom"
 import { setState, useState, isAdmin} from '../store'
 
 // UI Elements
@@ -35,38 +36,37 @@ export function SideBarIcons(props) {
     return groups && ((groups.includes("admin")) || (groups.includes("user")));
   }
 
+  const location = useLocation();
   let defaultPage = isGuest() ? "home" : "clusters";
-  const section = useState(['app', 'section']) || defaultPage;
-
-  const setSection = (section) => {
-    setState(['app', 'section'], section)
-  }
+  let section = location && location.pathname && location.pathname.substring(1);
+  section = section && (section.indexOf('/') !== -1 ? section.substring(0, section.indexOf('/')) : section)
+  section = section || defaultPage;
 
   return (
     <div className="sidebar-icons"
       style={{display: drawerOpen ? "none" : "block"}}>
-      <div className={section === "home" ? "selected" : ""} key="Home" onClick={() => setSection('home')}>
+      <Link to='/home' className={section === "home" ? "selected" : ""} key="Home">
         <HomeIcon />
-      </div>
+      </Link>
         {isUser() &&
-        <div className={section === "clusters" ? "selected" : ""} key="Clusters" onClick={() => setSection('clusters')}>
+        <Link to='/clusters' className={section === "clusters" ? "selected" : ""} key="Clusters">
           <GridOnIcon />
-        </div>
+        </Link>
         }
         {isUser() &&
-          <div className={section === "custom-images" ? "selected" : ""} key="Custom Images" onClick={() => setSection('custom-images')}>
+          <Link to='/custom-images' className={section === "custom-images" ? "selected" : ""} key="Custom Images">
             <ImageIcon />
-          </div>
+          </Link>
         }
         {isUser() &&
-          <div className={section === "official-images" ? "selected" : ""} key="Official Images" onClick={() => setSection('official-images')}>
+          <Link to='/official-images' className={section === "official-images" ? "selected" : ""} key="Official Images">
             <LayersIcon />
-          </div>
+          </Link>
         }
         {isAdmin() &&
-          <div className={section === "users" ? "selected" : ""} key="Users" onClick={() => setSection('users')}>
+          <Link to='/users' className={section === "users" ? "selected" : ""} key="Users">
             <GroupIcon />
-          </div>}
+          </Link>}
     </div>
   )
 }
@@ -83,13 +83,14 @@ export default function SideBar(props) {
   const isUser = () => {
     return groups && ((groups.includes("admin")) || (groups.includes("user")));
   }
-  let defaultPage = isGuest() ? "home" : "clusters";
-  const section = useState(['app', 'section']) || defaultPage;
 
   useNotifier();
-  const setSection = (section) => {
-    setState(['app', 'section'], section)
-  }
+
+  const location = useLocation();
+  let defaultPage = isGuest() ? "home" : "clusters";
+  let section = location && location.pathname && location.pathname.substring(1);
+  section = section && (section.indexOf('/') !== -1 ? section.substring(0, section.indexOf('/')) : section)
+  section = section || defaultPage;
 
   React.useEffect(() => {
     if(drawerOpen === undefined)
@@ -98,27 +99,28 @@ export default function SideBar(props) {
 
   return (
     <div className="sidebar">
-      <div className={section === "home" ? "selected" : ""} key="Home" onClick={() => setSection('home')}>
+      <Link to='/home' className={section === "home" ? "selected" : ""} key="Home">
         <HomeIcon />Home
-      </div>
+      </Link>
       {isUser() &&
-      <div className={section === "clusters" ? "selected" : ""} key="Clusters" onClick={() => setSection('clusters')}>
+      <Link to='/clusters' className={section === "clusters" ? "selected" : ""} key="Clusters">
         <GridOnIcon />Clusters
-      </div>
+      </Link>
       }
       {isUser() &&
-        <div className={section === "custom-images" ? "selected" : ""} key="Custom Images" onClick={() => setSection('custom-images')}>
+        <Link to='/custom-images' className={section === "custom-images" ? "selected" : ""} key="Custom Images">
           <ImageIcon />Custom Images
-        </div>
+        </Link>
       }
       {isUser() &&
-        <div className={section === "official-images" ? "selected" : ""} key="Official Images" onClick={() => setSection('official-images')}>
+        <Link to='/official-images' className={section === "official-images" ? "selected" : ""} key="Official Images">
           <LayersIcon />Official Images
-        </div>
+        </Link>
       }
-      {isAdmin() && <div className={section === "users" ? "selected" : ""} key="Users" onClick={() => setSection('users')}>
+      {isAdmin() &&
+        <Link to='/users' className={section === "users" ? "selected" : ""} key="Users">
           <GroupIcon />Users
-      </div>}
+        </Link>}
       <Divider />
       <div style={{justifyContent: "center", alignItems: "flex-start", paddingTop: "20px", paddingRight: "20px"}}>
         <img style={{display: "inline-block"}} alt="AWS Logo" width={140} src="/img/aws_logo.png" />

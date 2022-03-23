@@ -10,12 +10,14 @@
 // limitations under the License.
 
 import React from 'react';
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom"
 
 import { LoadInitialState} from './model'
 
 import { useState } from './store'
 import './App.css';
 
+import Layout from "./pages/Layout"
 import Clusters from "./pages/Clusters/Clusters"
 import Configure from "./pages/Configure/Configure"
 import CustomImages from "./pages/CustomImages/CustomImages"
@@ -29,38 +31,38 @@ import "@awsui/global-styles/index.css"
 import CssBaseline from '@mui/material/CssBaseline';
 
 // Components
-import TopBar from './components/TopBar';
 import Loading from './components/Loading'
 
 export default function App() {
 
   const identity = useState(['identity']);
   const groups = useState(['identity', 'cognito:groups']);
-  const section = useState(['app', 'section']);
 
   const isGuest = () => {
     return identity && (!groups || ((!groups.includes("admin")) && (!groups.includes("user"))));
   }
 
-  let defaultPage = isGuest() ? "home" : "clusters";
-
   React.useEffect(() => {
     LoadInitialState();
   }, [])
 
-  console.log("section: ", section);
-
   return <>
-      <TopBar />
-      <CssBaseline />
-      {identity ?
-        {"home": <Home />,
-         "clusters": <Clusters />,
-         "configure": <Configure />,
-         "custom-images": <CustomImages />,
-         "official-images": <OfficialImages />,
-         "users": <Users />}[section || defaultPage]
-        : <Loading />
-      }
+    <CssBaseline />
+    {identity ?
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={isGuest() ? <Home /> : <Navigate replace to='/clusters' />} />
+            <Route path="home" element={<Home />} />
+            <Route path="clusters" element={<Clusters />} />
+            <Route path="configure" element={<Configure />} />
+            <Route path="custom-images" element={<CustomImages />} />
+            <Route path="official-images" element={<OfficialImages />} />
+            <Route path="users" element={<Users />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+      : <Loading />
+    }
   </>;
 }

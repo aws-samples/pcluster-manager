@@ -8,6 +8,7 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import React from 'react';
+import { useNavigate } from "react-router-dom"
 import jsyaml from 'js-yaml';
 
 import { ListClusters, DescribeCluster, GetConfiguration } from '../../model'
@@ -31,7 +32,6 @@ import { useCollection } from '@awsui/collection-hooks';
 
 // Components
 import EmptyState from '../../components/EmptyState';
-import SideBar from '../../components/SideBar';
 import Status from "../../components/Status";
 import Loading from "../../components/Loading";
 import Actions from './Actions';
@@ -42,6 +42,7 @@ import { wizardShow } from '../Configure/Configure';
 function ClusterList() {
   let clusters = useState(['clusters', 'list']);
   const selectedClusterName = useState(['app', 'clusters', 'selected']);
+  let navigate = useNavigate();
 
   React.useEffect(() => {
     const timerId = (setInterval(ListClusters, 5000));
@@ -59,7 +60,7 @@ function ClusterList() {
   }
 
   const configure = () => {
-    wizardShow();
+    wizardShow(navigate);
   }
 
   const { items, actions, filteredItemsCount, collectionProps, filterProps, paginationProps } = useCollection(
@@ -130,13 +131,13 @@ function ClusterList() {
 
 export default function Clusters () {
   const clusterName = useState(['app', 'clusters', 'selected']);
-  const navigationOpen = useState(['app', 'sidebar', 'drawerOpen']);
   const cluster = useState(['clusters', 'index', clusterName]);
   const clusters = useState(['clusters', 'list']);
+  let navigate = useNavigate();
   const [ splitOpen, setSplitOpen ] = React.useState(true);
 
   const configure = () => {
-    wizardShow();
+    wizardShow(navigate);
   }
 
   React.useEffect(() => {
@@ -145,13 +146,11 @@ export default function Clusters () {
 
   return (
     <AppLayout
-      className="app-layout"
+      className='inner-app-layout'
       headerSelector="#top-bar"
       disableContentHeaderOverlap
-      navigationWidth="220px"
-      toolsHide={true}
-      navigationOpen = {navigationOpen}
-      onNavigationChange = {(e) => {setState(['app', 'sidebar', 'drawerOpen'], e.detail.open)}}
+      navigationHide
+      toolsHide
       splitPanelOpen={splitOpen}
       onSplitPanelToggle={(e) => {setSplitOpen(e.detail.open)}}
       splitPanel={
@@ -201,7 +200,6 @@ export default function Clusters () {
           <WizardDialog />
         </div>
       }
-      navigation={<SideBar />}
     />
   );
 }

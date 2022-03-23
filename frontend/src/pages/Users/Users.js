@@ -17,7 +17,6 @@ import { CreateUser, DeleteUser, ListUsers, SetUserRole } from '../../model'
 
 // UI Elements
 import {
-  AppLayout,
   Button,
   Container,
   Header,
@@ -31,7 +30,6 @@ import {
 
 // Components
 import EmptyState from '../../components/EmptyState';
-import SideBar from '../../components/SideBar';
 import Loading from '../../components/Loading'
 import DateView from '../../components/DateView'
 import { DeleteDialog,
@@ -168,7 +166,6 @@ function UserList(props) {
 
 export default function Users() {
   const users = useSelector(selectUserIndex);
-  const navigationOpen = useState(['app', 'sidebar', 'drawerOpen']);
 
   const user = useState(['app', 'users', 'newUser'])
 
@@ -191,38 +188,24 @@ export default function Users() {
     ListUsers();
   }, [])
 
-  return (
-    <AppLayout
-      className="app-layout"
-      headerSelector="#top-bar"
-      navigationWidth="220px"
-      toolsHide={true}
-      splitHide={true}
-      navigationOpen = {navigationOpen}
-      onNavigationChange = {(e,) => {setState(['app','sidebar','drawerOpen'],e.detail.open,)}}
-      content={
-          <Container
-            header={
-              <Header
-                variant="h2"
-                description=""
-                counter={ users && `(${Object.keys(users).length})` }
-                actions={
-                  <SpaceBetween direction="horizontal" size="xs">
-                    {enableMfa && <Input inputMode='tel' onChange={({ detail }) => setState(userphonePath, detail.value)} value={userphone} placeholder='+11234567890'></Input>}
-                    <div onKeyPress={e => e.key === 'Enter' && createUser()}>
-                      <Input onChange={({ detail }) => setState(usernamePath, detail.value)} value={username} placeholder='email@domain.com' onSubmit={createUser}></Input>
-                    </div>
-                    <Button className="action" onClick={createUser}>Create User</Button>
-                    <Button className="action" onClick={refreshUsers} iconName={"refresh"}>Refresh</Button>
-                  </SpaceBetween>}>
-                Users
-              </Header>
-            }>
-            {users ? <UserList /> : <Loading />}
-          </Container>
-      }
-      navigation={<SideBar />}
-    />
-  );
+  return <Container
+    header={
+      <Header
+        variant="h2"
+        description=""
+        counter={ users && `(${Object.keys(users).length})` }
+        actions={
+          <SpaceBetween direction="horizontal" size="xs">
+            {enableMfa && <Input inputMode='tel' onChange={({ detail }) => setState(userphonePath, detail.value)} value={userphone} placeholder='+11234567890'></Input>}
+            <div onKeyPress={e => e.key === 'Enter' && createUser()}>
+              <Input onChange={({ detail }) => setState(usernamePath, detail.value)} value={username} placeholder='email@domain.com' onSubmit={createUser}></Input>
+            </div>
+            <Button className="action" onClick={createUser}>Create User</Button>
+            <Button className="action" onClick={refreshUsers} iconName={"refresh"}>Refresh</Button>
+          </SpaceBetween>}>
+        Users
+      </Header>
+    }>
+    {users ? <UserList /> : <Loading />}
+  </Container>
 }

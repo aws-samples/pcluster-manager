@@ -191,13 +191,12 @@ export default function CustomImages() {
     ListCustomImages(imageStatus || "AVAILABLE");
   }, [])
 
-  return (
-    <AppLayout
-      className="app-layout"
+  return <AppLayout
+      className="inner-app-layout"
       headerSelector="#top-bar"
       disableContentHeaderOverlap
-      navigationWidth="220px"
-      toolsHide={true}
+      navigationHide
+      toolsHide
       navigationOpen = {navigationOpen}
       onNavigationChange = {(e) => {setState(['app', 'sidebar', 'drawerOpen'], e.detail.open)}}
       splitPanelOpen={splitOpen}
@@ -249,7 +248,5 @@ export default function CustomImages() {
         <ImageBuildDialog />
         </>
       }
-      navigation={<SideBar />}
     />
-  );
 }
