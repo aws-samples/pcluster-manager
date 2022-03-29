@@ -18,7 +18,6 @@ import { LoadAwsConfig } from '../../model'
 
 // UI Elements
 import {
-  AppLayout,
   Box,
   BreadcrumbGroup,
   Button,
@@ -37,7 +36,6 @@ import { Create, createValidate, handleCreate as wizardHandleCreate, handleDryRu
 
 // Components
 import { stopComputeFleet } from '../Clusters/StopDialog'
-import SideBar from '../../components/SideBar';
 import Loading from '../../components/Loading'
 
 // Icons
