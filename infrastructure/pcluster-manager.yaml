@@ -96,7 +96,8 @@ Resources:
         PublicEcrImageUri: !Sub public.ecr.aws/parallelcluster/pcluster-api:${Version}
         ImageBuilderVpcId: !Ref ImageBuilderVpcId
         ImageBuilderSubnetId: !Ref ImageBuilderSubnetId
-      TemplateURL: !Sub https://${AWS::Region}-aws-parallelcluster.s3.${AWS::Region}.amazonaws.com/parallelcluster/${Version}/api/parallelcluster-api.yaml
+      # TemplateURL: !Sub https://${AWS::Region}-aws-parallelcluster.s3.${AWS::Region}.amazonaws.com/parallelcluster/${Version}/api/parallelcluster-api.yaml
+      TemplateURL: !Sub https://pcluster-manager-${AWS::Region}.s3.${AWS::Region}.amazonaws.com/parallelcluster-api.yaml
       TimeoutInMinutes: 30
 
   SSMDefaultUser:
