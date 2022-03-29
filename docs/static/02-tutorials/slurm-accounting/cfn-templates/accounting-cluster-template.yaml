@@ -16,6 +16,9 @@ Metadata:
           - SlurmDbInstanceClass
           - SlurmDbInstanceIdentifier
           - SlurmDbAllocatedStorage
+          - SlurmDbBackupRetentionPeriod
+          - SlurmDbDeleteAutoBackup
+          - SlurmDbDeleteProtect
           - SlurmDbPort
           - SlurmDbEngine
           - SlurmDbEngineVersion
@@ -35,6 +38,12 @@ Metadata:
         default: "Database instance name"
       SlurmDbAllocatedStorage:
         default: "Database instance storage"
+      SlurmDbBackupRetentionPeriod:
+        default: "Database backup retention period"
+      SlurmDbDeleteAutoBackup:
+        default: "Auotmatic backup deletion"
+      SlurmDbDeleteProtect:
+        default: "Database deletion protection"
       SlurmDbPort:
         default: "Database port"
       SlurmDbEngine:
@@ -51,24 +60,48 @@ Metadata:
 
 Parameters:
   EnvironmentName:
-    Description: "20 characters max"
+    Description: "20 characters max."
     Type: String
     AllowedPattern: ^[a-zA-Z0-9-_]{1,20}$
     Default: slurm-accounting
 
   VpcId:
-    Description: "Existing VPC where Slurm accounting database will be created"
+    Description: "Existing VPC where Slurm accounting database will be created."
     Type: AWS::EC2::VPC::Id
 
   SlurmDbSubnets:
-    Description: "List of existing subnets that will be used to create database subnet group"
+    Description: "List of existing subnets that will be used to create database subnet group."
     Type: List<AWS::EC2::Subnet::Id>
     ConstraintDescription: "Must be a list of at least two existing subnets in two different availability zones. They reside in the VPC specified above."
 
   SlurmDbAllocatedStorage:
-    Description: "Specify size in GiB"
+    Description: "Specify size in GiB."
     Type: Number
     Default: 50
+
+  SlurmDbBackupRetentionPeriod:
+    Description: "Number of days for which automated backups are kept."
+    Type: Number
+    MinValue: "0"
+    MaxValue: "35"
+    ConstraintDescription: "Must be a value between 0 and 35."
+    Default: 1
+
+  SlurmDbDeleteAutoBackup:
+    Description: "Indicates whether automated backups are deleted after the DB instance is deleted (Manual backups are retained)."
+    Type: String
+    AllowedValues:
+      - 'true'
+      - 'false'
+    Default: 'true'
+
+  SlurmDbDeleteProtect:
+    Description: "If enabled, database instance can't be deleted unless protection is disabled."
+    Type: String
+    AllowedValues:
+      - 'true'
+      - 'false'
+    Default: 'false'
 
   SlurmDbEngine:
     Type: String
@@ -78,7 +111,7 @@ Parameters:
     Default: mariadb
 
   SlurmDbEngineVersion:
-    Description: "MySQL version 8 or MariaDB version 10"
+    Description: "MySQL version 8 or MariaDB version 10."
     Type: String
     AllowedValues:
       - 8.0.11
@@ -113,7 +146,7 @@ Parameters:
     Default: 10.4.22
 
   SlurmDbInstanceClass:
-    Description: "Standard, memory optimized, and burstable instance classes"
+    Description: "Standard, memory optimized, and burstable instance classes."
     Type: String
     AllowedValues:
       - db.t3.micro
@@ -168,6 +201,7 @@ Parameters:
     Default: db.t4g.medium
 
   SlurmDbInstanceIdentifier:
+    Description: "Name will be converted to lowercase."
     Type: String
     Default: slurmdb-rds-instance
 
@@ -180,14 +214,17 @@ Parameters:
     Default: AUTO
 
   SlurmDbPort:
+    Description: "Port on which the database accepts connections."
     Type: Number
     Default: 3306
 
   SlurmDbName:
+    Description: "Name of database to create when DB instance is created."
     Type: String
     Default: slurmdb
 
   SlurmDbUsername:
+    Description: "Admininstrator user name for DB instance."
     Type: String
     Default: admin
 
@@ -244,10 +281,13 @@ Resources:
     Type: AWS::RDS::DBInstance
     Properties:
       AllocatedStorage: !Ref SlurmDbAllocatedStorage
+      BackupRetentionPeriod: !Ref SlurmDbBackupRetentionPeriod
       DBInstanceClass: !Ref SlurmDbInstanceClass
       DBInstanceIdentifier: !Ref SlurmDbInstanceIdentifier
       DBName: !Ref SlurmDbName
       DBSubnetGroupName: !Ref SlurmDbSubnetGroup
+      DeleteAutomatedBackups: !Ref SlurmDbDeleteAutoBackup
+      DeletionProtection: !Ref SlurmDbDeleteProtect
       Engine: !Ref SlurmDbEngine
       EngineVersion: !Ref SlurmDbEngineVersion
       MasterUserPassword: !Join
