@@ -83,7 +83,7 @@ function InstanceSelect({path, selectId, callback, disabled}) {
 
   const instanceTypes = useState(['aws', 'instanceTypes']) || [];
 
-  let groupNames = ['General Purpose', 'Compute', 'HPC', 'Mixed', 'GPU'];
+  let groupNames = ['General Purpose', 'Compute', 'HPC', 'High Memory', 'Graviton', 'Mixed', 'GPU'];
 
   let groups = {};
 
@@ -91,7 +91,9 @@ function InstanceSelect({path, selectId, callback, disabled}) {
   {
     let group = 'General Purpose';
     let img = '/img/od.svg'
-    if(instance.InstanceType.startsWith('c'))
+    if(instance.InstanceType.startsWith('c6g')) {
+      group = 'Graviton';
+    } else if(instance.InstanceType.startsWith('c'))
     {
       img = '/img/c5.svg'
       if(instance.InstanceType.startsWith('c5n'))
@@ -101,6 +103,8 @@ function InstanceSelect({path, selectId, callback, disabled}) {
       group = 'HPC';
     } else if(instance.InstanceType.startsWith('m')) {
       group = 'Mixed';
+    } else if(instance.InstanceType.startsWith('r')) {
+      group = 'High Memory';
     } else if(instance.InstanceType.startsWith('p') || instance.InstanceType.startsWith('g')) {
       if(instance.InstanceType.startsWith('p3'))
         img = '/img/p3.svg'
