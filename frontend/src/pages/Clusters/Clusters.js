@@ -46,16 +46,18 @@ function ClusterList() {
   let params = useParams();
 
   React.useEffect(() => {
+    const timerId = (setInterval(ListClusters, 5000));
+    return () => { clearInterval(timerId); }
+  }, [])
+
+  React.useEffect(() => {
     if(selectedClusterName !== params.clusterName)
     {
       const name = params.clusterName;
       if(name)
         selectCluster(name);
     }
-
-    const timerId = (setInterval(ListClusters, 5000));
-    return () => { clearInterval(timerId); }
-  }, [])
+  }, [selectedClusterName, params])
 
   const configure = () => {
     wizardShow(navigate);
