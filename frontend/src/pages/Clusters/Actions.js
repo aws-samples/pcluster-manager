@@ -9,6 +9,7 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import React from 'react';
+import { useNavigate } from "react-router-dom"
 
 import jsyaml from 'js-yaml';
 
@@ -39,6 +40,7 @@ export default function Actions () {
   const defaultRegion = useState(['aws', 'region']);
   const region = useState(['app', 'selectedRegion']) || defaultRegion;
   const headNode = useState([...clusterPath, 'headNode']);
+  let navigate = useNavigate();
 
   const fleetStatus = useState([...clusterPath, 'computeFleetStatus']);
   const clusterStatus = useState([...clusterPath, 'clusterStatus']);
@@ -57,8 +59,9 @@ export default function Actions () {
   const editConfiguration = () => {
     setState(['app', 'wizard', 'clusterName'], clusterName);
     setState(['app', 'wizard', 'page'], 'cluster');
-    setState(['app', 'section'], 'configure');
     setState(['app', 'wizard', 'editing'], true);
+
+    navigate('/configure');
 
     GetConfiguration(clusterName, (configuration) => {
       loadTemplate(jsyaml.load(configuration));

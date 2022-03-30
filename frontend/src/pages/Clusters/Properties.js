@@ -12,7 +12,7 @@ import React from 'react';
 
 import { findFirst, clusterDefaultUser } from '../../util'
 import { getState, useState, setState, ssmPolicy, consoleDomain } from '../../store'
-import { GetConfiguration, DescribeCluster } from '../../model'
+import { DescribeCluster } from '../../model'
 
 // UI Elements
 import {
@@ -96,7 +96,7 @@ export default function ClusterProperties () {
         </SpaceBetween>
         <SpaceBetween size="l">
           <ValueWithLabel label="clusterStatus">
-            <Status status={cluster.clusterStatus} />
+            <Status status={cluster.clusterStatus} cluster={cluster} />
           </ValueWithLabel>
           <ValueWithLabel label="computeFleetStatus">
             <Status status={cluster.computeFleetStatus} />

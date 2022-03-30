@@ -25,6 +25,14 @@ Parameters:
     Description: Version of AWS ParallelCluster to deploy
     Type: String
     Default: 3.1.2
+  ImageBuilderVpcId:
+    Description: Select the VPC to use for building the container images.
+    Type: AWS::EC2::VPC::Id
+    MinLength: 1 # Force this to be selected
+  ImageBuilderSubnetId:
+    Description: Select the subnet to use for building the container images.
+    Type: AWS::EC2::Subnet::Id
+    MinLength: 1 # Force this to be selected
 
 Metadata:
   AWS::CloudFormation::Interface:
@@ -86,7 +94,10 @@ Resources:
         CreateApiUserRole: False
         EnableIamAdminAccess: True
         PublicEcrImageUri: !Sub public.ecr.aws/parallelcluster/pcluster-api:${Version}
-      TemplateURL: !Sub https://${AWS::Region}-aws-parallelcluster.s3.${AWS::Region}.amazonaws.com/parallelcluster/${Version}/api/parallelcluster-api.yaml
+        ImageBuilderVpcId: !Ref ImageBuilderVpcId
+        ImageBuilderSubnetId: !Ref ImageBuilderSubnetId
+      # TemplateURL: !Sub https://${AWS::Region}-aws-parallelcluster.s3.${AWS::Region}.amazonaws.com/parallelcluster/${Version}/api/parallelcluster-api.yaml
+      TemplateURL: !Sub https://pcluster-manager-${AWS::Region}.s3.${AWS::Region}.amazonaws.com/parallelcluster-api.yaml
       TimeoutInMinutes: 30
 
   SSMDefaultUser:
@@ -190,6 +201,12 @@ Resources:
       Roles:
         - !Ref ImageBuilderInstanceRole
 
+  InfrastructureConfigurationSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId: !Ref ImageBuilderVpcId
+      GroupDescription: Parallel cluster image builder security group
+
   InfrastructureConfiguration:
     Type: AWS::ImageBuilder::InfrastructureConfiguration
     Properties:
@@ -199,6 +216,8 @@ Resources:
       InstanceProfileName: !Ref ImageBuilderInstanceProfile
       TerminateInstanceOnFailure: true
       SnsTopicArn: !Ref EcrImageBuilderSNSTopic
+      SubnetId: !Ref ImageBuilderSubnetId
+      SecurityGroupIds: [!Ref InfrastructureConfigurationSecurityGroup]
 
   EcrImageRecipe:
     Type: AWS::ImageBuilder::ContainerRecipe

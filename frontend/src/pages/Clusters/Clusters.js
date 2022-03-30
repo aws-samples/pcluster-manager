@@ -8,17 +8,17 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import React from 'react';
-import jsyaml from 'js-yaml';
+import { useNavigate, useParams } from "react-router-dom"
 
-import { ListClusters, DescribeCluster, GetConfiguration } from '../../model'
+import { ListClusters } from '../../model'
 
-import { setState, useState, isAdmin } from '../../store'
+import { useState, isAdmin } from '../../store'
+import { selectCluster } from './util'
 
 // UI Elements
 import {
   AppLayout,
   Button,
-  Container,
   Header,
   Pagination,
   SpaceBetween,
@@ -31,39 +31,37 @@ import { useCollection } from '@awsui/collection-hooks';
 
 // Components
 import EmptyState from '../../components/EmptyState';
-import SideBar from '../../components/SideBar';
 import Status from "../../components/Status";
-import Loading from "../../components/Loading";
 import Actions from './Actions';
 import Details from "./Details";
-import { WizardDialog } from '../Configure/WizardDialog';
 import { wizardShow } from '../Configure/Configure';
 
 function ClusterList() {
   let clusters = useState(['clusters', 'list']);
   const selectedClusterName = useState(['app', 'clusters', 'selected']);
+  let navigate = useNavigate();
+  let params = useParams();
 
   React.useEffect(() => {
     const timerId = (setInterval(ListClusters, 5000));
     return () => { clearInterval(timerId); }
   }, [])
 
-  const select = (cluster) => {
-    const name = cluster.clusterName;
-    let config_path = ['clusters', 'index', name, 'config'];
-    GetConfiguration(name, (configuration) => {
-      setState(['clusters', 'index', name, 'configYaml'], configuration);
-      setState(config_path, jsyaml.load(configuration))});
-    DescribeCluster(name);
-    setState(['app', 'clusters', 'selected'], name);
-  }
+  React.useEffect(() => {
+    if(selectedClusterName !== params.clusterName)
+    {
+      const name = params.clusterName;
+      if(name)
+        selectCluster(name);
+    }
+  }, [selectedClusterName, params])
 
   const configure = () => {
-    wizardShow();
+    wizardShow(navigate);
   }
 
   const { items, actions, filteredItemsCount, collectionProps, filterProps, paginationProps } = useCollection(
-    clusters,
+    clusters || [],
     {
       filtering: {
         empty: (
@@ -90,6 +88,18 @@ function ClusterList() {
   return (
     <Table
       {...collectionProps}
+      header={
+        <Header
+          variant="h2"
+          description=""
+          counter={ clusters && `(${clusters.length})` }
+          actions={
+            <SpaceBetween direction="horizontal" size="xs">
+              {clusters && <Button onClick={configure} variant="primary" iconName={"add-plus"} disabled={!isAdmin()}>Create Cluster</Button>}
+            </SpaceBetween>}>
+          Clusters
+        </Header>
+      }
       trackBy="clusterName"
       columnDefinitions={[
         {
@@ -101,7 +111,7 @@ function ClusterList() {
         {
           id: "status",
           header: "Status",
-          cell: item => <Status status={item.clusterStatus} /> || "-",
+          cell: item => <Status status={item.clusterStatus} cluster={item} /> || "-",
           sortingField: "clusterStatus"
         },
         {
@@ -123,20 +133,20 @@ function ClusterList() {
         />
       }
       selectedItems={(items || []).filter((c) => c.clusterName === selectedClusterName)}
-      onSelectionChange={(e) => {select(e.detail.selectedItems[0])}}
+      onSelectionChange={({detail}) => {navigate(`/clusters/${detail.selectedItems[0].clusterName}`)}}
     />
   )
 }
 
 export default function Clusters () {
   const clusterName = useState(['app', 'clusters', 'selected']);
-  const navigationOpen = useState(['app', 'sidebar', 'drawerOpen']);
   const cluster = useState(['clusters', 'index', clusterName]);
   const clusters = useState(['clusters', 'list']);
+  let navigate = useNavigate();
   const [ splitOpen, setSplitOpen ] = React.useState(true);
 
   const configure = () => {
-    wizardShow();
+    wizardShow(navigate);
   }
 
   React.useEffect(() => {
@@ -145,13 +155,11 @@ export default function Clusters () {
 
   return (
     <AppLayout
-      className="app-layout"
+      className='inner-app-layout'
       headerSelector="#top-bar"
       disableContentHeaderOverlap
-      navigationWidth="220px"
-      toolsHide={true}
-      navigationOpen = {navigationOpen}
-      onNavigationChange = {(e) => {setState(['app', 'sidebar', 'drawerOpen'], e.detail.open)}}
+      navigationHide
+      toolsHide
       splitPanelOpen={splitOpen}
       onSplitPanelToggle={(e) => {setSplitOpen(e.detail.open)}}
       splitPanel={
@@ -180,28 +188,8 @@ export default function Clusters () {
           {clusterName ? <Details /> : <div>Select a cluster to see its details.</div>}
         </SplitPanel>
       }
-      content={
-        <div className="clusters">
-          <Container
-            className="cluster-list-container"
-            header={
-              <Header
-                variant="h2"
-                description=""
-                counter={ clusters && `(${clusters.length})` }
-                actions={
-                  <SpaceBetween direction="horizontal" size="xs">
-                    {clusters && <Button onClick={configure} variant="primary" iconName={"add-plus"} disabled={!isAdmin()}>Create Cluster</Button>}
-                  </SpaceBetween>}>
-                Clusters
-              </Header>
-            }>
-            {clusters ? <ClusterList /> : <Loading />}
-          </Container>
-          <WizardDialog />
-        </div>
+      content={<ClusterList />
       }
-      navigation={<SideBar />}
     />
   );
 }

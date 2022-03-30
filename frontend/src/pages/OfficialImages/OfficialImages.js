@@ -10,13 +10,12 @@
 // limitations under the License.
 import React from 'react';
 
-import { setState, useState } from '../../store'
+import { useState } from '../../store'
 import { ListOfficialImages } from '../../model'
 import { useCollection } from '@awsui/collection-hooks';
 
 // UI Elements
 import {
-  AppLayout,
   Button,
   Container,
   Header,
@@ -27,7 +26,6 @@ import {
 
 // Components
 import EmptyState from '../../components/EmptyState';
-import SideBar from '../../components/SideBar';
 import Loading from '../../components/Loading'
 
 function OfficialImagesList(props) {
@@ -105,36 +103,21 @@ function OfficialImagesList(props) {
 }
 
 export default function OfficialImages() {
-  const navigationOpen = useState(['app', 'sidebar', 'drawerOpen']);
   const images = useState(['officialImages', 'list']);
 
   React.useEffect(() => {
     ListOfficialImages();
   }, [])
 
-  return (
-    <AppLayout
-      className="app-layout"
-      headerSelector="#top-bar"
-      navigationWidth="220px"
-      toolsHide={true}
-      splitHide={true}
-      navigationOpen = {navigationOpen}
-      onNavigationChange = {(e) => {setState(['app', 'sidebar', 'drawerOpen'], e.detail.open)}}
-      content={
-          <Container
-            header={
-              <Header
-                variant="h2"
-                description=""
-                counter={ images && `(${images.length})` }>
-                Official Images
-              </Header>
-            }>
-            {images ? <OfficialImagesList /> : <Loading />}
-          </Container>
-      }
-      navigation={<SideBar />}
-    />
-  );
+  return <Container
+    header={
+      <Header
+        variant="h2"
+        description=""
+        counter={ images && `(${images.length})` }>
+        Official Images
+      </Header>
+    }>
+    {images ? <OfficialImagesList /> : <Loading />}
+  </Container>
 }

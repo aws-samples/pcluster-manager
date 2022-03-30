@@ -237,8 +237,13 @@ function CustomAMISettings({basePath, appPath, errorsPath, validate}) {
     const value = !customAmiEnabled;
     setState([...appPath, 'customAMI', 'enabled'], value);
     if(!value)
+    {
       clearState(customAmiPath);
+      if(Object.keys(getState([...basePath, 'Image'])).length === 0)
+        clearState([...basePath, 'Image']);
+    }
   }
+
   return (
     <>
       <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
@@ -477,7 +482,6 @@ function SecurityGroups({basePath}) {
 
   const sgs = useState(['aws', 'security_groups']) || [];
   const sgMap = sgs.reduce((acc, s) => {acc[s.GroupId] = s.GroupName; return acc}, {})
-  console.log(useState(basePath));
 
   const itemToOption = item => {return {value: item.GroupId, label: item.GroupId, description: item.GroupName}}
   const removeSg = (i) => {
