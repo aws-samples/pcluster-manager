@@ -150,17 +150,16 @@ export default function ClusterStackEvents() {
   }, [searchParams]);
 
   return events ?
-    <Container
-      header={<Header
-        variant='h2'
-        counter={ filteredItemsCount && `(${filteredItemsCount})` }
-        actions={<SpaceBetween direction='horizontal' size='s'>
-          <Button onClick={refreshStackEvents} iconName="refresh" />
-          <Button iconName='external' href={cfnHref}>View in CloudFormation</Button>
-        </SpaceBetween>}>
-        Events</Header>}>
       <Table
         {...collectionProps}
+        header={<Header
+          variant='h2'
+          counter={ filteredItemsCount && `(${filteredItemsCount})` }
+          actions={<SpaceBetween direction='horizontal' size='s'>
+            <Button onClick={refreshStackEvents} iconName="refresh" />
+            <Button iconName='external' href={cfnHref}>View in CloudFormation</Button>
+          </SpaceBetween>}>
+          Events</Header>}
         resizableColumns
         wrapLines
         visibleColumns={columns}
@@ -237,6 +236,5 @@ export default function ClusterStackEvents() {
             }}
           />}
       />
-    </Container>
     : <Loading />
 }

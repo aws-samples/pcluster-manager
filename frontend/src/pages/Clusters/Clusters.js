@@ -19,7 +19,6 @@ import { selectCluster } from './util'
 import {
   AppLayout,
   Button,
-  Container,
   Header,
   Pagination,
   SpaceBetween,
@@ -33,10 +32,8 @@ import { useCollection } from '@awsui/collection-hooks';
 // Components
 import EmptyState from '../../components/EmptyState';
 import Status from "../../components/Status";
-import Loading from "../../components/Loading";
 import Actions from './Actions';
 import Details from "./Details";
-import { WizardDialog } from '../Configure/WizardDialog';
 import { wizardShow } from '../Configure/Configure';
 
 function ClusterList() {
@@ -64,7 +61,7 @@ function ClusterList() {
   }
 
   const { items, actions, filteredItemsCount, collectionProps, filterProps, paginationProps } = useCollection(
-    clusters,
+    clusters || [],
     {
       filtering: {
         empty: (
@@ -91,6 +88,18 @@ function ClusterList() {
   return (
     <Table
       {...collectionProps}
+      header={
+        <Header
+          variant="h2"
+          description=""
+          counter={ clusters && `(${clusters.length})` }
+          actions={
+            <SpaceBetween direction="horizontal" size="xs">
+              {clusters && <Button onClick={configure} variant="primary" iconName={"add-plus"} disabled={!isAdmin()}>Create Cluster</Button>}
+            </SpaceBetween>}>
+          Clusters
+        </Header>
+      }
       trackBy="clusterName"
       columnDefinitions={[
         {
@@ -179,26 +188,7 @@ export default function Clusters () {
           {clusterName ? <Details /> : <div>Select a cluster to see its details.</div>}
         </SplitPanel>
       }
-      content={
-        <div className="clusters">
-          <Container
-            className="cluster-list-container"
-            header={
-              <Header
-                variant="h2"
-                description=""
-                counter={ clusters && `(${clusters.length})` }
-                actions={
-                  <SpaceBetween direction="horizontal" size="xs">
-                    {clusters && <Button onClick={configure} variant="primary" iconName={"add-plus"} disabled={!isAdmin()}>Create Cluster</Button>}
-                  </SpaceBetween>}>
-                Clusters
-              </Header>
-            }>
-            {clusters ? <ClusterList /> : <Loading />}
-          </Container>
-          <WizardDialog />
-        </div>
+      content={<ClusterList />
       }
     />
   );

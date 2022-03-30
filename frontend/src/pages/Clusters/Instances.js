@@ -140,15 +140,14 @@ export default function ClusterInstances() {
     }
   );
 
-  return <>
-    <Header
-      variant="h3"
-      description=""
-      counter={ instances && `(${instances.length})` }>
-      Instances
-    </Header>
-    <Table
+  return <Table
       {...collectionProps}
+      header={<Header
+        variant="h3"
+        description=""
+        counter={ instances && `(${instances.length})` }>
+        Instances
+      </Header>}
       trackBy="instanceId"
       columnDefinitions={[
         {
@@ -215,5 +214,4 @@ export default function ClusterInstances() {
         />
       }
     />
-  </>
 }
