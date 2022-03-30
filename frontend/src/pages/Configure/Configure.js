@@ -156,7 +156,7 @@ function Configure() {
 
     if(currentPage === "create")
     {
-      wizardHandleCreate(() => handleClose(true));
+      wizardHandleCreate(() => handleClose(true), navigate);
       return;
     }
 

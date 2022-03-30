@@ -39,7 +39,7 @@ function handleWarnings(resp) {
   })
 }
 
-function handleCreate(handleClose) {
+function handleCreate(handleClose, navigate) {
   const clusterName = getState(['app', 'wizard', 'clusterName']);
   const editing = getState(['app', 'wizard', 'editing']);
   const forceUpdate = getState(['app', 'wizard', 'forceUpdate']);
@@ -48,12 +48,15 @@ function handleCreate(handleClose) {
   const region = getState(['app', 'wizard', 'config', 'Region']);
   var errHandler = (err) => {setState(['app', 'wizard', 'errors', 'create'], err); setState(['app', 'wizard','pending'], false);}
   var successHandler = (resp) => {
+    let href = `/clusters/${clusterName}/stack-events`;
     handleWarnings(resp);
+
     setState(['app', 'wizard', 'pending'], false);
     DescribeCluster(clusterName)
     setState(['app', 'clusters', 'selected'], clusterName);
     ListClusters();
-    handleClose()
+    handleClose();
+    navigate(href);
   }
   setState(['app', 'wizard', 'errors', "create"], null);
 

@@ -66,7 +66,21 @@ export default function ClusterStackEvents() {
 
   React.useEffect(() => {
     const clusterName = getState(['app', 'clusters', 'selected']);
+    const cluster = getState(['clusters', 'index', clusterName]);
     GetClusterStackEvents(clusterName);
+
+    let timerId = (setInterval(() => {
+      if(cluster.clusterStatus !== 'CREATE_IN_PROGRESS')
+      {
+        console.log("done creating...")
+        clearInterval(timerId);
+      } else {
+        console.log("getting more events...")
+        GetClusterStackEvents(clusterName);
+      }
+    }, 5000));
+    return () => { timerId && clearInterval(timerId); }
+
   }, []);
 
   const refreshStackEvents = () => {
