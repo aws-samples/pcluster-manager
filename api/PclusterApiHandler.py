@@ -18,6 +18,7 @@ import boto3
 import botocore
 import jose
 import requests
+import yaml
 from flask import abort, redirect, request
 from flask_restful import Resource, reqparse
 from jose import jwt
@@ -153,28 +154,24 @@ def ec2_action():
     try:
         instance_ids = args.get("instance_ids").split(",")
     except:
-        abort(400, description="You must specify instances.")
+        return {"message": "You must specify instances."}, 400
 
     if args.get("action") == "stop_instances":
         resp = ec2.stop_instances(InstanceIds=instance_ids)
     elif args.get("action") == "start_instances":
         resp = ec2.start_instances(InstanceIds=instance_ids)
     else:
-        abort(400, description="You must specify an action.")
+        return {"message": "You must specify an action."}, 400
 
     print(resp)
     ret = {"message": "success"}
     return ret
 
 
-def get_cluster_config():
-    parser = reqparse.RequestParser()
-    parser.add_argument("cluster_name", type=str)
-    parser.add_argument("region", type=str)
-    args = parser.parse_args()
-    url = f"/v3/clusters/{args['cluster_name']}"
-    if args.get("region"):
-        info_resp = sigv4_request("GET", API_BASE_URL, url, params={"region": args.get("region")})
+def get_cluster_config_text(cluster_name, region=None):
+    url = f"/v3/clusters/{cluster_name}"
+    if region:
+        info_resp = sigv4_request("GET", API_BASE_URL, url, params={"region": region})
     else:
         info_resp = sigv4_request("GET", API_BASE_URL, url)
     if info_resp.status_code != 200:
@@ -183,6 +180,14 @@ def get_cluster_config():
     cluster_info = info_resp.json()
     configuration = requests.get(cluster_info["clusterConfiguration"]["url"])
     return configuration.text
+
+
+def get_cluster_config():
+    parser = reqparse.RequestParser()
+    parser.add_argument("cluster_name", type=str)
+    parser.add_argument("region", type=str)
+    args = parser.parse_args()
+    return get_cluster_config_text(args["cluster_name"], args.get("region"))
 
 
 def ssm_command(region, instance_id, user, run_command):
@@ -215,7 +220,7 @@ def ssm_command(region, instance_id, user, run_command):
         time.sleep(0.75)
 
     if time.time() - start > 60:
-        abort(500, description="Timed out waiting for command to complete.")
+        return {"message": "Timed out waiting for command to complete."}, 500
 
     if status["Status"] != "Success":
         return {"message": status["StandardErrorContent"]}, 500
@@ -243,8 +248,73 @@ def submit_job():
     print(job_cmd)
 
     resp = ssm_command(args.get("region"), instance_id, user, f"sbatch {job_cmd}")
+    print(resp)
 
     return resp if type(resp) == tuple else {"success": "true"}
+
+
+def _price_estimate(cluster_name, region, queue_name):
+    config_text = get_cluster_config_text(cluster_name, region)
+    config_data = yaml.safe_load(config_text)
+    queues = {q["Name"]: q for q in config_data["Scheduling"]["SlurmQueues"]}
+    queue = queues[queue_name]
+
+    if len(queue["ComputeResources"]) == 1:
+        instance_type = queue["ComputeResources"][0]["InstanceType"]
+        print("****************************************************")
+        print("instance type", instance_type)
+        pricing_filters = [
+            {"Field": "tenancy", "Value": "shared", "Type": "TERM_MATCH"},
+            {"Field": "instanceType", "Value": instance_type, "Type": "TERM_MATCH"},
+            {"Field": "operatingSystem", "Value": "Linux", "Type": "TERM_MATCH"},
+            {"Field": "regionCode", "Value": region, "Type": "TERM_MATCH"},
+            {"Field": "preInstalledSw", "Value": "NA", "Type": "TERM_MATCH"},
+            {"Field": "capacityStatus", "Value": "Used", "Type": "TERM_MATCH"},
+        ]
+
+        # Pricing endpoint only available from "us-east-1" region
+        pricing = boto3.client("pricing", region_name="us-east-1")
+        prices = pricing.get_products(ServiceCode="AmazonEC2", Filters=pricing_filters)["PriceList"]
+        prices = list(map(json.loads, prices))
+        on_demand_prices = list(prices[0]["terms"]["OnDemand"].values())
+        price_guess = float(list(on_demand_prices[0]["priceDimensions"].values())[0]["pricePerUnit"]["USD"])
+        price_guess = None if price_guess != price_guess else price_guess  # check for NaN
+        return price_guess
+    else:
+        return {"message": "Cost estimate not available for queues with multiple resource types."}, 400
+
+
+def price_estimate():
+    parser = reqparse.RequestParser()
+    parser.add_argument("region", type=str)
+    parser.add_argument("cluster_name", type=str)
+    parser.add_argument("queue_name", type=str)
+    args = parser.parse_args()
+    price_guess = _price_estimate(args.get("cluster_name"), args.get("region"), args.get("queue_name"))
+    return price_guess if isinstance(price_guess, tuple) else {"estimate": price_guess}
+
+
+def scontrol_job():
+    parser = reqparse.RequestParser()
+    parser.add_argument("instance_id", type=str)
+    parser.add_argument("user", type=str)
+    parser.add_argument("region", type=str)
+    parser.add_argument("job_id", type=str)
+    args = parser.parse_args()
+    user = args.get("user", "ec2-user")
+    instance_id = args.get("instance_id")
+    job_id = args.get("job_id")
+
+    if not job_id:
+        return {"message": "You must specify a job id."}, 400
+
+    job_data = ssm_command(args.get("region"), instance_id, user, f"scontrol show job {job_id} -o").strip().split(" ")
+    if isinstance(job_data, tuple):
+        return job_data
+
+    kvs = [jd.split("=", 1) for jd in job_data]
+    job_info = {k: v for k, v in kvs}
+    return job_info
 
 
 def queue_status():
@@ -318,10 +388,10 @@ def get_dcv_session():
         time.sleep(0.75)
 
     if time.time() - start > 15:
-        abort(500, description="Timed out waiting for dcv session to start.")
+        return {"message": "Timed out waiting for dcv session to start."}, 500
 
     if status["Status"] != "Success":
-        abort(500, description=status["StandardErrorContent"])
+        return {"message": status["StandardErrorContent"]}, 500
 
     output = status["StandardOutputContent"]
 
@@ -330,7 +400,7 @@ def get_dcv_session():
     )
 
     if not dcv_parameters:
-        abort(500, description="Something went wrong during DCV connection. Check logs in /var/log/parallelcluster/ .")
+        return {"message": "Something went wrong during DCV connection. Check logs in /var/log/parallelcluster/ ."}, 500
 
     ret = {
         "port": dcv_parameters.group(1),

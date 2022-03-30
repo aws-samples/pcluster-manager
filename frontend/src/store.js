@@ -118,6 +118,18 @@ function clearAllState() {
   store.dispatch({type: 'state/clearAll', payload: null})
 }
 
+function clearEmptyNest(path, depth){
+  if(depth === 0)
+    return;
+
+  let parentPath = path.slice(0, -1)
+  if(Object.keys(getState(parentPath)).length === 0)
+  {
+    clearState(parentPath);
+    clearEmptyNest(parentPath, depth - 1)
+  }
+}
+
 function getState(state, path) {
   // Don't pass the state in if running outside of a component and we can pull
   // directly from the store
@@ -154,6 +166,6 @@ function consoleDomain(region) {
   return (region && region.startsWith('us-gov')) ? 'https://console.amazonaws-us-gov.com' : `https://${region}.console.aws.amazon.com`
 }
 
-export {store as default, store, setState, getState, clearState,
+export {store as default, store, setState, getState, clearState, clearEmptyNest,
   clearAllState, useState, updateState, isAdmin, isUser, isGuest,
   ssmPolicy, consoleDomain}
