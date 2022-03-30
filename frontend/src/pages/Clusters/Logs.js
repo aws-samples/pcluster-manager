@@ -9,6 +9,7 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import React from 'react';
+import { useSearchParams } from "react-router-dom"
 
 // Model
 import { ListClusterLogStreams, GetClusterLogEvents } from '../../model'
@@ -50,7 +51,7 @@ function LogEvents() {
   }
 
   const { items, actions, filteredItemsCount, collectionProps, filterProps, paginationProps } = useCollection(
-    events.events,
+    (events && events.events) || [],
     {
       filtering: {
         empty: (
@@ -154,17 +155,22 @@ function StreamList({instanceId}) {
   const ip = logStreamIndex[instanceId].ip;
   const fnames = Object.keys(logStreams).sort()
   const selectedLogStreamName = useState(['app', 'clusters', 'selectedLogStreamName']);
+  let [searchParams, setSearchParams] = useSearchParams();
 
-  const select = (logStream) => {
-    const logStreamName = logStream.logStreamName;
-    const selected = getState(['app', 'clusters', 'selected']);
-    setState(['app', 'clusters', 'selectedLogStreamName'], logStreamName);
-    GetClusterLogEvents(selected, logStreamName);
-  }
+  React.useEffect(() => {
+    if(searchParams.get('instance') && (searchParams.get('instance') === instanceId) && searchParams.get('filename') && (`${ip}.${instanceId}.${searchParams.get('filename')}` !== selectedLogStreamName))
+    {
+      const selected = getState(['app', 'clusters', 'selected']);
+      const logStreamName = `${ip}.${instanceId}.${searchParams.get('filename')}`;
+      setState(['app', 'clusters', 'selectedLogStreamName'], logStreamName);
+      GetClusterLogEvents(selected, logStreamName);
+    }
+  }, []);
+
 
   return <div title={instanceId}>
-    <ExpandableSection header={ip}>
-      {fnames.map((fname) => <div key={fname} onClick={() => select(logStreams[fname])} style={{marginLeft: '10px', cursor: 'pointer', fontWeight: selectedLogStreamName === logStreams[fname].logStreamName ? 'bold' : 'normal'}}>{fname}</div>)}
+    <ExpandableSection header={ip} onChange={({detail}) => {if(detail.expanded){setSearchParams({instance: instanceId})}}} expanded={searchParams.get("instance") === instanceId}>
+      {fnames.map((fname) => <div key={fname} onClick={() => setSearchParams({filename: fname, instance: instanceId})} style={{marginLeft: '10px', cursor: 'pointer', fontWeight: selectedLogStreamName === logStreams[fname].logStreamName ? 'bold' : 'normal'}}>{fname}</div>)}
     </ExpandableSection>
   </div>
 }

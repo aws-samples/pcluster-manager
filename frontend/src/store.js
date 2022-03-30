@@ -43,8 +43,6 @@ function clone(thing, opts) {
         return new Set(thing);
     } else if (thing instanceof RegExp) {
         return new RegExp(thing);
-    } else if (thing instanceof Function) {
-        return opts && opts.newFns ? new Function('return ' + thing.toString())() : thing;
     } else if (thing instanceof Object) {
         Object.keys(thing).forEach(function (key) { newObject[key] = clone(thing[key], opts); });
         return newObject;

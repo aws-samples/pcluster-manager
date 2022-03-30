@@ -12,7 +12,7 @@ import React from 'react';
 
 import { findFirst, clusterDefaultUser } from '../../util'
 import { getState, useState, setState, ssmPolicy, consoleDomain } from '../../store'
-import { GetConfiguration, DescribeCluster } from '../../model'
+import { DescribeCluster } from '../../model'
 
 // UI Elements
 import {

@@ -8,6 +8,10 @@
 // or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
+import React from 'react';
+import { useNavigate } from "react-router-dom"
+
+import { selectCluster } from '../pages/Clusters/util'
 
 // UI Elements
 import { useTheme } from '@mui/material/styles';
@@ -22,10 +26,22 @@ import HelpTooltip from '../components/HelpTooltip'
 import { Link } from "@awsui/components-react";
 import { useState } from '../store'
 
-export default function Status({status, cluster}) {
-  const failedStatuses = new Set(['CREATE_FAILED', 'DELETE_FAILED', 'UPDATE_FAILED']);
+function ClusterFailedHelp({clusterName}) {
   const defaultRegion = useState(['aws', 'region']);
   const region = useState(['app', 'selectedRegion']) || defaultRegion;
+  let navigate = useNavigate();
+  const href = `/clusters/${clusterName}/logs`;
+
+  return <HelpTooltip>
+    Stack failed to create, see <Link external href={`https://${region}.console.aws.amazon.com/cloudformation/home?region=${region}#/stacks?filteringStatus=active&filteringText=${clusterName}`}>CloudFormation Stack Events</Link> 
+    &nbsp; or see the &nbsp;
+    <Link onFollow={() => {navigate(href); selectCluster(clusterName)}}>Cluster Logs</Link>
+    &nbsp; to see why.
+  </HelpTooltip>
+}
+
+export default function Status({status, cluster}) {
+  const failedStatuses = new Set(['CREATE_FAILED', 'DELETE_FAILED', 'UPDATE_FAILED']);
   const theme = useTheme();
 
   const aligned = (icon, text, color) => <div style={{
@@ -36,7 +52,7 @@ export default function Status({status, cluster}) {
   }}>
     {icon}
     <span style={{display: 'inline-block', paddingLeft: '10px'}}> {text ? text.replaceAll("_", " ") : "<unknown>"}</span>
-    { cluster && failedStatuses.has(status) && <HelpTooltip>Stack failed to create, see <Link external href={`https://${region}.console.aws.amazon.com/cloudformation/home?region=${region}#/stacks?filteringStatus=active&filteringText=${cluster.clusterName}`}>CloudFormation Stack Events</Link> to see why.</HelpTooltip> }
+    { cluster && failedStatuses.has(status) && <ClusterFailedHelp clusterName={cluster.clusterName} />  }
   </div>
     const statusMap = {"CREATE_IN_PROGRESS": aligned(<CircularProgress color='info' size={15} />, status, theme.palette.info.main),
       "CREATE_COMPLETE": aligned(<CheckCircleOutlineIcon />, status, theme.palette.success.main),

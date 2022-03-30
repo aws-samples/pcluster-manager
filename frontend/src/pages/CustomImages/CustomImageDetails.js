@@ -32,7 +32,7 @@ import Loading from '../../components/Loading'
 import DateView from '../../components/DateView'
 
 import CustomImageStackEvents from './CustomImageStackEvents';
-import CustomImageLogs from './CustomImageLogs';
+// import CustomImageLogs from './CustomImageLogs';
 
 // Constants
 const customImagesPath = ['app', 'customImages'];

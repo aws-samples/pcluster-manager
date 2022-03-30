@@ -8,12 +8,12 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import React from 'react';
-import { useNavigate } from "react-router-dom"
-import jsyaml from 'js-yaml';
+import { useNavigate, useParams } from "react-router-dom"
 
-import { ListClusters, DescribeCluster, GetConfiguration } from '../../model'
+import { ListClusters } from '../../model'
 
-import { setState, useState, isAdmin } from '../../store'
+import { useState, isAdmin } from '../../store'
+import { selectCluster } from './util'
 
 // UI Elements
 import {
@@ -43,21 +43,20 @@ function ClusterList() {
   let clusters = useState(['clusters', 'list']);
   const selectedClusterName = useState(['app', 'clusters', 'selected']);
   let navigate = useNavigate();
+  let params = useParams();
 
   React.useEffect(() => {
+    if(selectedClusterName !== params.clusterName)
+    {
+      const name = params.clusterName;
+      if(name)
+        selectCluster(name);
+    }
+
     const timerId = (setInterval(ListClusters, 5000));
     return () => { clearInterval(timerId); }
   }, [])
 
-  const select = (cluster) => {
-    const name = cluster.clusterName;
-    let config_path = ['clusters', 'index', name, 'config'];
-    GetConfiguration(name, (configuration) => {
-      setState(['clusters', 'index', name, 'configYaml'], configuration);
-      setState(config_path, jsyaml.load(configuration))});
-    DescribeCluster(name);
-    setState(['app', 'clusters', 'selected'], name);
-  }
 
   const configure = () => {
     wizardShow(navigate);
@@ -124,7 +123,7 @@ function ClusterList() {
         />
       }
       selectedItems={(items || []).filter((c) => c.clusterName === selectedClusterName)}
-      onSelectionChange={(e) => {select(e.detail.selectedItems[0])}}
+      onSelectionChange={({detail}) => {navigate(`/clusters/${detail.selectedItems[0].clusterName}`)}}
     />
   )
 }

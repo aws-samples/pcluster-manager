@@ -54,7 +54,11 @@ export default function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={isGuest() ? <Home /> : <Navigate replace to='/clusters' />} />
             <Route path="home" element={<Home />} />
-            <Route path="clusters" element={<Clusters />} />
+            <Route path="clusters" element={<Clusters />}>
+              <Route path=":clusterName">
+                <Route path=":tab" />
+              </Route>
+            </Route>
             <Route path="configure" element={<Configure />} />
             <Route path="custom-images" element={<CustomImages />} />
             <Route path="official-images" element={<OfficialImages />} />

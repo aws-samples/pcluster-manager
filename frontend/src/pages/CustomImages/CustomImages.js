@@ -19,7 +19,6 @@ import { useCollection } from '@awsui/collection-hooks';
 
 // Components
 import EmptyState from '../../components/EmptyState';
-import SideBar from '../../components/SideBar';
 import ImageBuildDialog from './ImageBuildDialog'
 import CustomImageDetails from './CustomImageDetails'
 import Loading from '../../components/Loading'
