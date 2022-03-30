@@ -9,9 +9,12 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import React from 'react';
+import { useNavigate } from "react-router-dom"
 
 import { GetClusterInstances, Ec2Action } from '../../model'
 import { setState, clearState, useState, getState, consoleDomain } from '../../store'
+
+
 
 // UI Elements
 import {
@@ -19,6 +22,7 @@ import {
   Header,
   Link,
   Pagination,
+  SpaceBetween,
   Table,
   TextFilter
 } from "@awsui/components-react";
@@ -54,6 +58,9 @@ function Status(props) {
 function InstanceActions({fleetStatus, instance}) {
 
   const pending = useState(['app', 'clusters', 'action', 'pending']);
+  const clusterName = useState(['app', 'clusters', 'selected']);
+  const navigate = useNavigate();
+  const logHref = `/clusters/${clusterName}/logs?instance=${instance.instanceId}`;
 
   const refresh = () => {
     const clusterName = getState(['app', 'clusters', 'selected']);
@@ -70,8 +77,7 @@ function InstanceActions({fleetStatus, instance}) {
     Ec2Action([instance.instanceId], "start_instances", refresh);
   }
 
-  return (
-    <div>
+  return <SpaceBetween direction='horizontal' size='s'>
       {fleetStatus === "STOPPED" &&
       <div>
         {instance.nodeType === 'HeadNode' &&  instance.state === 'running' && <Button loading={pending} onClick={() => {stopInstance(instance)}}>Stop</Button>}
@@ -83,8 +89,8 @@ function InstanceActions({fleetStatus, instance}) {
           {instance.nodeType === 'HeadNode' &&  instance.state === 'running' && <Button disabled={true}>Stop</Button>}
         </div>
       }
-    </div>
-  )
+    <Button href={logHref} onClick={(e) => {navigate(logHref); e.preventDefault();}}>Logs</Button>
+    </SpaceBetween>
 }
 
 export default function ClusterInstances() {
@@ -134,15 +140,14 @@ export default function ClusterInstances() {
     }
   );
 
-  return <>
-    <Header
-      variant="h3"
-      description=""
-      counter={ instances && `(${instances.length})` }>
-      Instances
-    </Header>
-    <Table
+  return <Table
       {...collectionProps}
+      header={<Header
+        variant="h3"
+        description=""
+        counter={ instances && `(${instances.length})` }>
+        Instances
+      </Header>}
       trackBy="instanceId"
       columnDefinitions={[
         {
@@ -209,5 +214,4 @@ export default function ClusterInstances() {
         />
       }
     />
-  </>
 }

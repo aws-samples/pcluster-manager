@@ -19,7 +19,6 @@ import { useCollection } from '@awsui/collection-hooks';
 
 // Components
 import EmptyState from '../../components/EmptyState';
-import SideBar from '../../components/SideBar';
 import ImageBuildDialog from './ImageBuildDialog'
 import CustomImageDetails from './CustomImageDetails'
 import Loading from '../../components/Loading'
@@ -191,13 +190,12 @@ export default function CustomImages() {
     ListCustomImages(imageStatus || "AVAILABLE");
   }, [])
 
-  return (
-    <AppLayout
-      className="app-layout"
+  return <AppLayout
+      className="inner-app-layout"
       headerSelector="#top-bar"
       disableContentHeaderOverlap
-      navigationWidth="220px"
-      toolsHide={true}
+      navigationHide
+      toolsHide
       navigationOpen = {navigationOpen}
       onNavigationChange = {(e) => {setState(['app', 'sidebar', 'drawerOpen'], e.detail.open)}}
       splitPanelOpen={splitOpen}
@@ -249,7 +247,5 @@ export default function CustomImages() {
         <ImageBuildDialog />
         </>
       }
-      navigation={<SideBar />}
     />
-  );
 }

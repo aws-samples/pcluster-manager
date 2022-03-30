@@ -41,9 +41,26 @@
   padding-left: 8px;
 }
 
+a {
+  text-decoration: none;
+  color: #0073BB;
+}
+
+a:hover {
+  text-decoration: underline;
+  color: #0073BB;
+}
+
 
 .app-layout {
   margin-top: 56px;
+}
+
+.inner-app-layout {
+  margin-left: -40px;
+  margin-top: -26px;
+  margin-bottom: -10px;
+  margin-right: -40px;
 }
 
 .sidebar-icons {
@@ -65,7 +82,7 @@
   height: 32px;
 }
 
-.sidebar-icons div.selected , .sidebar div.selected {
+.sidebar-icons a.selected , .sidebar a.selected {
 
   background: rgba(236, 114, 17, 0.1);
 /*  background: rgba(25, 118, 210, 0.1); */
@@ -77,8 +94,9 @@
   margin-bottom: 10px;
 }
 
-.sidebar div {
-  cursor: pointer;
+.sidebar a {
+  color: #666;
+  text-decoration: none;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -89,7 +107,7 @@
   margin-bottom: 10px;
 }
 
-.sidebar div svg {
+.sidebar a svg {
   width: 18px;
   height: 20px;
 }

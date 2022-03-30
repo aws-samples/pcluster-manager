@@ -8,8 +8,8 @@
 // or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-
 import React from 'react';
+import { useNavigate } from "react-router-dom"
 
 import jsyaml from 'js-yaml';
 
@@ -18,7 +18,6 @@ import { LoadAwsConfig } from '../../model'
 
 // UI Elements
 import {
-  AppLayout,
   Box,
   BreadcrumbGroup,
   Button,
@@ -37,13 +36,12 @@ import { Create, createValidate, handleCreate as wizardHandleCreate, handleDryRu
 
 // Components
 import { stopComputeFleet } from '../Clusters/StopDialog'
-import SideBar from '../../components/SideBar';
 import Loading from '../../components/Loading'
 
 // Icons
 import CancelIcon from '@mui/icons-material/Cancel';
 
-function wizardShow() {
+function wizardShow(navigate) {
   const editing = getState(['app', 'wizard', 'editing']);
   const page = getState(['app', 'wizard', 'page']);
   if(editing) {
@@ -56,7 +54,7 @@ function wizardShow() {
   console.log("page: ", page);
   if(!page)
     setState(['app', 'wizard', 'page'], 'source');
-  setState(['app', 'section'], 'configure');
+  navigate('/configure');
 }
 
 function setPage(page) {
@@ -101,7 +99,7 @@ function SideNav() {
   </div>
 }
 
-function Content() {
+function Configure() {
   const open = useState(['app', 'wizard', 'dialog']);
   const loadingPath = ['app', 'wizard', 'source', 'loading'];
   const loading = useState(loadingPath);
@@ -110,6 +108,7 @@ function Content() {
   const [ refreshing, setRefreshing ] = React.useState(false);
   const aws = useState(['aws']);
   let multiUserEnabled = useState(['app', 'wizard', 'multiUser']);
+  let navigate = useNavigate();
 
   const clusterPath = ['clusters', 'index', clusterName];
   const fleetStatus = useState([...clusterPath, 'computeFleetStatus']);
@@ -131,8 +130,8 @@ function Content() {
       clearState(['app', 'wizard', 'validated']);
       clearState(loadingPath);
     }
-    setState(['app', 'section'], 'clusters');
     clearState(['app', 'wizard', 'errors']);
+    navigate('/clusters');
   };
 
   const validators = {
@@ -157,7 +156,7 @@ function Content() {
 
     if(currentPage === "create")
     {
-      wizardHandleCreate(() => handleClose(true));
+      wizardHandleCreate(() => handleClose(true), navigate);
       return;
     }
 
@@ -288,21 +287,6 @@ function Content() {
       </SpaceBetween>
     </SpaceBetween>
   </div>
-}
-
-function Configure() {
-  const navigationOpen = useState(['app', 'sidebar', 'drawerOpen']);
-  return <AppLayout
-    className="app-layout"
-    headerSelector="#top-bar"
-    disableContentHeaderOverlap
-    navigationWidth="220px"
-    toolsHide={true}
-    navigationOpen = {navigationOpen}
-    onNavigationChange = {(e) => {setState(['app', 'sidebar', 'drawerOpen'], e.detail.open)}}
-    content={<Content />}
-    navigation={<SideBar />}
-    />
 }
 
 export { Configure as default, wizardShow }

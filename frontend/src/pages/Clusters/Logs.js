@@ -9,6 +9,7 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import React from 'react';
+import { useSearchParams } from "react-router-dom"
 
 // Model
 import { ListClusterLogStreams, GetClusterLogEvents } from '../../model'
@@ -39,6 +40,8 @@ function LogEvents() {
 
   const pending = useState(['app', 'clusters', 'logs', 'pending']);
 
+  let [searchParams, setSearchParams] = useSearchParams();
+
   const refresh = () => {
     setState(['app', 'clusters', 'logs', 'pending'], true);
     const clusterName = getState(['app', 'clusters', 'selected']);
@@ -50,7 +53,7 @@ function LogEvents() {
   }
 
   const { items, actions, filteredItemsCount, collectionProps, filterProps, paginationProps } = useCollection(
-    events.events,
+    (events && events.events) || [],
     {
       filtering: {
         empty: (
@@ -73,6 +76,10 @@ function LogEvents() {
       selection: {},
     }
   );
+
+  React.useEffect(() => {
+    filterProps.onChange({detail: {filteringText: searchParams.get("filter") || ""}})
+  }, [searchParams]);
 
   return <div><div style={{marginBottom: '10px', display: 'flex', direction: 'row', gap: '16px', alignItems: 'center'}}><div>{selectedLogStreamName}</div><Button loading={pending} onClick={refresh} iconName='refresh' /></div>
     <div style={{borderTop: '1px solid #AAA', fontSize: '10pt', overflow: 'auto', whiteSpace: 'nowrap'}}>
@@ -102,6 +109,8 @@ function LogEvents() {
         filter={
           <TextFilter
             {...filterProps}
+            filteringText={searchParams.get('filter') || ''}
+            onChange={(e) => {searchParams.set('filter', e.detail.filteringText); setSearchParams(searchParams); filterProps.onChange(e);}}
             countText={`Results: ${filteredItemsCount}`}
             filteringAriaLabel="Filter logs"
           />
@@ -149,22 +158,26 @@ function LogEvents() {
 }
 
 function StreamList({instanceId}) {
-  const logStreamIndex = useState(['app', 'clusters', 'logs', 'index']);
-  const logStreams = logStreamIndex[instanceId].streams;
-  const ip = logStreamIndex[instanceId].ip;
+  const logStreams = useState(['app', 'clusters', 'logs', 'index', instanceId, 'streams']) || [];
+  const ip = useState(['app', 'clusters', 'logs', 'index', instanceId, 'ip']);
   const fnames = Object.keys(logStreams).sort()
   const selectedLogStreamName = useState(['app', 'clusters', 'selectedLogStreamName']);
+  let [searchParams, setSearchParams] = useSearchParams();
 
-  const select = (logStream) => {
-    const logStreamName = logStream.logStreamName;
-    const selected = getState(['app', 'clusters', 'selected']);
-    setState(['app', 'clusters', 'selectedLogStreamName'], logStreamName);
-    GetClusterLogEvents(selected, logStreamName);
-  }
+  React.useEffect(() => {
+    if(searchParams.get('instance') && (searchParams.get('instance') === instanceId) && searchParams.get('filename') && (`${ip}.${instanceId}.${searchParams.get('filename')}` !== selectedLogStreamName))
+    {
+      const selected = getState(['app', 'clusters', 'selected']);
+      const logStreamName = `${ip}.${instanceId}.${searchParams.get('filename')}`;
+      setState(['app', 'clusters', 'selectedLogStreamName'], logStreamName);
+      GetClusterLogEvents(selected, logStreamName);
+    }
+  }, [searchParams, instanceId]);
+
 
   return <div title={instanceId}>
-    <ExpandableSection header={ip}>
-      {fnames.map((fname) => <div key={fname} onClick={() => select(logStreams[fname])} style={{marginLeft: '10px', cursor: 'pointer', fontWeight: selectedLogStreamName === logStreams[fname].logStreamName ? 'bold' : 'normal'}}>{fname}</div>)}
+    <ExpandableSection header={ip} onChange={({detail}) => {if(detail.expanded){setSearchParams({instance: instanceId})}}} expanded={searchParams.get("instance") === instanceId}>
+      {fnames.map((fname) => <div key={fname} onClick={() => setSearchParams({filename: fname, instance: instanceId})} style={{marginLeft: '10px', cursor: 'pointer', fontWeight: selectedLogStreamName === logStreams[fname].logStreamName ? 'bold' : 'normal'}}>{fname}</div>)}
     </ExpandableSection>
   </div>
 }
@@ -179,7 +192,7 @@ function LogStreamList() {
     <div><b>HeadNode</b></div>
     {instanceId && <StreamList instanceId={instanceId} />}
     <div><b>Compute</b></div>
-    {Object.keys(logStreamIndex).filter(k => k !== instanceId).sort().map(instanceId => <StreamList key={instanceId} instanceId={instanceId} />)}
+    {logStreamIndex && Object.keys(logStreamIndex).filter(k => k !== instanceId).sort().map(instanceId => <StreamList key={instanceId} instanceId={instanceId} />)}
   </div>
 }
 

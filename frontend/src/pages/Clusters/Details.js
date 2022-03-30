@@ -9,6 +9,7 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import React from 'react';
+import { useNavigate, useParams } from "react-router-dom"
 
 import { useState } from '../../store'
 
@@ -28,6 +29,8 @@ export default function ClusterTabs() {
 
   const clusterName = useState(['app', 'clusters', 'selected']);
   const cluster = useState(['clusters', 'index', clusterName]);
+  let navigate = useNavigate();
+  let params = useParams();
 
   return cluster ?
       <Tabs tabs={[
@@ -37,7 +40,10 @@ export default function ClusterTabs() {
         {label: "Job Scheduling", id: "scheduling", content: <Scheduling />},
         {label: "Stack Events", id: "stack-events", content: <StackEvents />},
         {label: "Logs", id: "logs", content: <Logs />}
-      ]} />
+      ]}
+        onChange={({detail}) => {navigate(`/clusters/${params.clusterName}/${detail.activeTabId}`)}}
+        activeTabId={params.tab || 'details'}
+    />
       : <div style={{textAlign: "center", paddingTop: "40px"}}>
         <Loading />
       </div>
