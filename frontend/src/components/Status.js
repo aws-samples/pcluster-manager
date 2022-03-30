@@ -12,8 +12,6 @@ import React from 'react';
 import { Link as InternalLink } from "react-router-dom"
 import { useNavigate } from "react-router-dom"
 
-import { selectCluster } from '../pages/Clusters/util'
-
 // UI Elements
 import { useTheme } from '@mui/material/styles';
 
@@ -39,7 +37,7 @@ function ClusterFailedHelp({clusterName}) {
 
   return <HelpTooltip>
     Stack failed to create, see <InternalLink to={cfnHref}>CloudFormation Stack Events</InternalLink> 
-    &nbsp; or see the &nbsp;
+    &nbsp; or &nbsp;
     <Link onFollow={(e) => {navigate(href); e.preventDefault()}}>Cluster Logs</Link>
     &nbsp; to see why.
   </HelpTooltip>
