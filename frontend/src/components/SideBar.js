@@ -122,7 +122,7 @@ export default function SideBar(props) {
           <GroupIcon />Users
         </Link>}
       <Divider />
-      <div style={{justifyContent: "center", alignItems: "flex-start", paddingTop: "20px", paddingRight: "20px"}}>
+      <div style={{display: 'flex', justifyContent: "center", alignItems: "flex-start", paddingTop: "20px", paddingRight: "20px"}}>
         <img style={{display: "inline-block"}} alt="AWS Logo" width={140} src="/img/aws_logo.png" />
       </div>
     </div>
