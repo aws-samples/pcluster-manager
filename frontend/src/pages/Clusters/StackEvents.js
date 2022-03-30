@@ -152,8 +152,8 @@ export default function ClusterStackEvents() {
         preferences={
           <CollectionPreferences
             onConfirm={({detail}) => {
-              setState(['app', 'clusters', 'logs', 'columns'], detail.visibleContent);
-              setState(['app', 'clusters', 'logs', 'pageSize'], detail.pageSize);
+              setState(['app', 'clusters', 'stackevents', 'columns'], detail.visibleContent);
+              setState(['app', 'clusters', 'stackevents', 'pageSize'], detail.pageSize);
             }}
             title="Preferences"
             confirmLabel="Confirm"
@@ -175,12 +175,10 @@ export default function ClusterStackEvents() {
                 {
                   label: "Log columns",
                   options: [
-                    {
-                      id: "timestamp",
-                      label: "Timestamp",
-                    },
-                    { id: "message", label: "Message", editable: false
-                    }
+                    { id: "timestamp", label: "Timestamp",},
+                    { id: "logicalId", label: "Logical ID"},
+                    { id: "status", label: "Status"},
+                    { id: "statusReason", label: "Status reason"},
                   ]
                 }
               ]

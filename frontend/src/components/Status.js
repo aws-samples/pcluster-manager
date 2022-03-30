@@ -9,11 +9,10 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import React from 'react';
+import { Link as InternalLink } from "react-router-dom"
 import { useNavigate } from "react-router-dom"
 
 import { selectCluster } from '../pages/Clusters/util'
-import { DescribeCluster } from '../model'
-import { consoleDomain } from '../store'
 
 // UI Elements
 import { useTheme } from '@mui/material/styles';
@@ -29,30 +28,19 @@ import { Link } from "@awsui/components-react";
 import { useState } from '../store'
 
 function ClusterFailedHelp({clusterName}) {
-  const defaultRegion = useState(['aws', 'region']);
-  const region = useState(['app', 'selectedRegion']) || defaultRegion;
   let navigate = useNavigate();
 
   const clusterPath = ['clusters', 'index', clusterName];
-  const cluster = useState(clusterPath);
   const headNode = useState([...clusterPath, 'headNode']);
   let href = `/clusters/${clusterName}/logs`;
-  let cfnHref = `${consoleDomain(region)}/cloudformation/home?region=${region}#/stacks?filteringStatus=active&filteringText=${clusterName}`;
+  let cfnHref = `/clusters/${clusterName}/stack-events`;
   if(headNode)
     href += `?instance=${headNode.instanceId}`
 
-  if(cluster)
-    cfnHref = `${consoleDomain(region)}/cloudformation/home?region=${region}#/stacks/events?filteringStatus=active&filteringText=${clusterName}&viewNested=true&hideStacks=false&stackId=${encodeURIComponent(cluster.cloudformationStackArn)}`
-
-  React.useEffect(() => {
-    if(!headNode)
-      DescribeCluster(clusterName)
-  }, [headNode, clusterName])
-
   return <HelpTooltip>
-    Stack failed to create, see <Link external href={cfnHref}>CloudFormation Stack Events</Link> 
+    Stack failed to create, see <InternalLink to={cfnHref}>CloudFormation Stack Events</InternalLink> 
     &nbsp; or see the &nbsp;
-    <Link onFollow={() => {navigate(href); selectCluster(clusterName)}}>Cluster Logs</Link>
+    <Link onFollow={(e) => {navigate(href); selectCluster(clusterName); e.preventDefault()}}>Cluster Logs</Link>
     &nbsp; to see why.
   </HelpTooltip>
 }

@@ -185,7 +185,7 @@ function LogStreamList() {
     <div><b>HeadNode</b></div>
     {instanceId && <StreamList instanceId={instanceId} />}
     <div><b>Compute</b></div>
-    {Object.keys(logStreamIndex).filter(k => k !== instanceId).sort().map(instanceId => <StreamList key={instanceId} instanceId={instanceId} />)}
+    {logStreamIndex && Object.keys(logStreamIndex).filter(k => k !== instanceId).sort().map(instanceId => <StreamList key={instanceId} instanceId={instanceId} />)}
   </div>
 }
 
