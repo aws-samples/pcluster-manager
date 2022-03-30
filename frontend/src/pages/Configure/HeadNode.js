@@ -17,6 +17,8 @@ import { findFirst, getIn } from '../../util'
 // UI Elements
 import {
   Box,
+  Button,
+  ColumnLayout,
   Container,
   ExpandableSection,
   FormField,
@@ -108,7 +110,7 @@ function headNodeValidate() {
 
 
   const config = getState(['app', 'wizard', 'config']);
-  console.log(config);
+  //console.log(config);
 
   return valid;
 }
@@ -247,6 +249,42 @@ function DcvSettings() {
   </div>
 }
 
+function IamPoliciesEditor() {
+  const policiesPath = [...headNodePath, 'Iam', 'AdditionalIamPolicies']
+  const policies = useState(policiesPath) || [];
+  const policyPath = ['app', 'wizard', 'headNode', 'iamPolicy'];
+  const policy = useState(policyPath) || '';
+
+  const addPolicy = () => {
+    updateState(policiesPath, (existing) => [...(existing || []), {Policy: policy}])
+    setState(policyPath, "");
+  }
+
+  const removePolicy = (index) => {
+    setState(policiesPath, [...policies.slice(0, index), ...policies.slice(index + 1)]);
+    if(policies.length === 0)
+      clearState(policiesPath)
+  }
+
+  return <SpaceBetween direction="vertical" size="s">
+    <FormField errorText={findFirst(policies, x => x.Policy === policy) ? "Policy already added." : ""}>
+      <SpaceBetween direction="horizontal" size="s">
+        <div style={{width: "400px"}}>
+          <Input
+            placeholder="arn:aws:iam::aws:policy/SecretsManager:ReadWrite"
+            value={policy}
+            onChange={({detail}) => setState(policyPath, detail.value)} />
+        </div>
+        <Button onClick={addPolicy} disabled={policy.length === 0 || findFirst(policies, x => x.Policy === policy)}>Add</Button>
+      </SpaceBetween>
+    </FormField>
+    {policies.map((p, i) => p.Policy !== ssmPolicy && <SpaceBetween key={p.Policy} direction="horizontal" size="s">
+      <div style={{width: "400px"}}>{p.Policy}</div>
+      <Button onClick={() => removePolicy(i)}>Remove</Button>
+    </SpaceBetween>)}
+  </SpaceBetween>
+}
+
 function HeadNode() {
   const rootVolumeSizePath = [...headNodePath, 'LocalStorage', 'RootVolume', 'Size'];
   const rootVolumeSize = useState(rootVolumeSizePath);
@@ -363,6 +401,10 @@ function HeadNode() {
       </div>
       <ExpandableSection header="Advanced options">
         <ActionsEditor basePath={headNodePath} errorsPath={errorsPath}/>
+        <ExpandableSection header="IAM Policies">
+          <IamPoliciesEditor />
+        </ExpandableSection>
+
       </ExpandableSection>
     </SpaceBetween>
   </Container>

@@ -25,7 +25,6 @@ case $key in
     shift # past argument
     ;;
     --tag)
-    TAG=latest
     TAG=$2
     shift # past argument
     shift # past value

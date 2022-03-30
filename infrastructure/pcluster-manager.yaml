@@ -517,6 +517,8 @@ Resources:
             Principal:
               Service: lambda.amazonaws.com
       ManagedPolicyArns:
+        # Required for cost estimation
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/AWSPriceListServiceFullAccess
         # Required for Lambda logging and XRay
         - !Sub arn:${AWS::Partition}:iam::aws:policy/AWSXRayDaemonWriteAccess
         - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole

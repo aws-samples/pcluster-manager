@@ -21,6 +21,8 @@ from api.PclusterApiHandler import (
     authenticate,
     authenticated,
     cancel_job,
+    create_user,
+    delete_user,
     ec2_action,
     get_aws_config,
     get_cluster_config,
@@ -29,11 +31,12 @@ from api.PclusterApiHandler import (
     get_identity,
     get_version,
     list_users,
-    create_user,
-    delete_user,
     login,
     logout,
+    price_estimate,
     queue_status,
+    sacct,
+    scontrol_job,
     set_user_role,
     submit_job,
 )
@@ -136,9 +139,20 @@ def run():
     def cancel_job_():
         return cancel_job()
 
+    @app.route("/manager/price_estimate")
+    @authenticated()
+    def price_estimate_():
+        return price_estimate()
+
     @app.route("/manager/submit_job", methods=["POST"])
+    @authenticated()
     def submit_job_():
         return submit_job()
+
+    @app.route("/manager/scontrol_job")
+    @authenticated()
+    def scontrol_job_():
+        return scontrol_job()
 
     @app.route("/login")
     def login_():
