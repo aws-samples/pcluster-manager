@@ -21,7 +21,6 @@ import {
   Container,
   CollectionPreferences,
   Header,
-  Link,
   Pagination,
   SpaceBetween,
   StatusIndicator,
@@ -99,8 +98,6 @@ export default function ClusterStackEvents() {
       selection: {},
     }
   );
-
-  console.log(events)
 
   return events ?
     <Container
