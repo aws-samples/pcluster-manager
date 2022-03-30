@@ -12,6 +12,7 @@ import React from 'react';
 import { useNavigate } from "react-router-dom"
 
 import { selectCluster } from '../pages/Clusters/util'
+import { DescribeCluster } from '../model'
 
 // UI Elements
 import { useTheme } from '@mui/material/styles';
@@ -30,7 +31,17 @@ function ClusterFailedHelp({clusterName}) {
   const defaultRegion = useState(['aws', 'region']);
   const region = useState(['app', 'selectedRegion']) || defaultRegion;
   let navigate = useNavigate();
-  const href = `/clusters/${clusterName}/logs`;
+
+  const clusterPath = ['clusters', 'index', clusterName];
+  const headNode = useState([...clusterPath, 'headNode']);
+  let href = `/clusters/${clusterName}/logs`;
+  if(headNode)
+    href += `?instance=${headNode.instanceId}`
+
+  React.useEffect(() => {
+    if(!headNode)
+      DescribeCluster(clusterName)
+  }, [])
 
   return <HelpTooltip>
     Stack failed to create, see <Link external href={`https://${region}.console.aws.amazon.com/cloudformation/home?region=${region}#/stacks?filteringStatus=active&filteringText=${clusterName}`}>CloudFormation Stack Events</Link> 

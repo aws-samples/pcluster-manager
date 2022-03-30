@@ -57,7 +57,6 @@ function ClusterList() {
     return () => { clearInterval(timerId); }
   }, [])
 
-
   const configure = () => {
     wizardShow(navigate);
   }
