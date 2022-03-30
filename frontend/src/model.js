@@ -461,6 +461,30 @@ function GetCustomImageLogEvents(imageId, logStreamName) {
   })
 }
 
+function GetInstanceTypes(region = null, callback) {
+  var url;
+  if(region === null) {
+    url = `manager/get_instance_types`
+  } else {
+    url = `manager/get_instance_types?region=${region}`
+  }
+
+  request('get', url).then(response => {
+    if(response.status === 200) {
+      console.log(response.data);
+      setState(['aws', 'instanceTypes'], response.data.instance_types);
+    }
+    callback && callback(response.data);
+  }).catch(error => {
+    if(error.response)
+    {
+      console.log(error.response)
+      notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
+    }
+    console.log(error)
+  })
+}
+
 function LoadAwsConfig(region = null, callback) {
   var url;
 
@@ -477,6 +501,7 @@ function LoadAwsConfig(region = null, callback) {
     if(response.status === 200) {
       console.log("aws", response.data);
       setState(['aws'], response.data);
+      GetInstanceTypes(region);
     }
     callback && callback(response.data);
   }).catch(error => {
