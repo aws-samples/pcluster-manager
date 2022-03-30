@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom"
 
 import { selectCluster } from '../pages/Clusters/util'
 import { DescribeCluster } from '../model'
+import { consoleDomain } from '../store'
 
 // UI Elements
 import { useTheme } from '@mui/material/styles';
@@ -33,10 +34,15 @@ function ClusterFailedHelp({clusterName}) {
   let navigate = useNavigate();
 
   const clusterPath = ['clusters', 'index', clusterName];
+  const cluster = useState(clusterPath);
   const headNode = useState([...clusterPath, 'headNode']);
   let href = `/clusters/${clusterName}/logs`;
+  let cfnHref = `${consoleDomain(region)}/cloudformation/home?region=${region}#/stacks?filteringStatus=active&filteringText=${clusterName}`;
   if(headNode)
     href += `?instance=${headNode.instanceId}`
+
+  if(cluster)
+    cfnHref = `${consoleDomain(region)}/cloudformation/home?region=${region}#/stacks/events?filteringStatus=active&filteringText=${clusterName}&viewNested=true&hideStacks=false&stackId=${encodeURIComponent(cluster.cloudformationStackArn)}`
 
   React.useEffect(() => {
     if(!headNode)
@@ -44,7 +50,7 @@ function ClusterFailedHelp({clusterName}) {
   }, [headNode, clusterName])
 
   return <HelpTooltip>
-    Stack failed to create, see <Link external href={`https://${region}.console.aws.amazon.com/cloudformation/home?region=${region}#/stacks?filteringStatus=active&filteringText=${clusterName}`}>CloudFormation Stack Events</Link> 
+    Stack failed to create, see <Link external href={cfnHref}>CloudFormation Stack Events</Link> 
     &nbsp; or see the &nbsp;
     <Link onFollow={() => {navigate(href); selectCluster(clusterName)}}>Cluster Logs</Link>
     &nbsp; to see why.
