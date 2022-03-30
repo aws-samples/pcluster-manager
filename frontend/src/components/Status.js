@@ -33,7 +33,7 @@ function ClusterFailedHelp({clusterName}) {
   const clusterPath = ['clusters', 'index', clusterName];
   const headNode = useState([...clusterPath, 'headNode']);
   let href = `/clusters/${clusterName}/logs`;
-  let cfnHref = `/clusters/${clusterName}/stack-events`;
+  let cfnHref = `/clusters/${clusterName}/stack-events?filter=FAILED`;
   if(headNode)
     href += `?instance=${headNode.instanceId}`
 

@@ -9,7 +9,7 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import React from 'react';
-import { Link } from "react-router-dom"
+import { Link, useSearchParams } from "react-router-dom"
 
 // Model
 import { DescribeCluster, GetClusterStackEvents } from '../../model'
@@ -83,6 +83,7 @@ export default function ClusterStackEvents() {
   const pageSize = useState(['app', 'clusters', 'stackevents', 'pageSize']) || 100
   const defaultRegion = useState(['aws', 'region']);
   const region = useState(['app', 'selectedRegion']) || defaultRegion;
+  let [searchParams, setSearchParams] = useSearchParams();
 
   const clusterPath = ['clusters', 'index', clusterName];
   const cluster = useState(clusterPath);
@@ -144,6 +145,10 @@ export default function ClusterStackEvents() {
     }
   );
 
+  React.useEffect(() => {
+    filterProps.onChange({detail: {filteringText: searchParams.get("filter") || ""}})
+  }, [searchParams]);
+
   return events ?
     <Container
       header={<Header
@@ -190,6 +195,8 @@ export default function ClusterStackEvents() {
         filter={
           <TextFilter
             {...filterProps}
+            filteringText={searchParams.get('filter') || ''}
+            onChange={(e) => {searchParams.set('filter', e.detail.filteringText); setSearchParams(searchParams); filterProps.onChange(e);}}
             countText={`Results: ${filteredItemsCount}`}
             filteringAriaLabel="Filter logs"
           />
