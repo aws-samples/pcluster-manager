@@ -187,8 +187,11 @@ Resources:
       EnabledMfas: !If [MFA, [SMS_MFA], !Ref AWS::NoValue]
       MfaConfiguration: !If [MFA, 'ON', 'OFF']
       SmsConfiguration:
-        ExternalId: !Sub ${AWS::StackName}-external
-        SnsCallerArn: !GetAtt SNSRole.Arn
+        Fn::If:
+          - MFA
+          - ExternalId: !Sub ${AWS::StackName}-external
+            SnsCallerArn: !GetAtt SNSRole.Arn
+          - !Ref AWS::NoValue
       Schema: !If
         - MFA
         - [{Name: email, AttributeDataType: String, Mutable: false, Required: true}, {Name: phone_number, AttributeDataType: String, Mutable: false, Required: true}]
