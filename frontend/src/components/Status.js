@@ -41,7 +41,7 @@ function ClusterFailedHelp({clusterName}) {
   React.useEffect(() => {
     if(!headNode)
       DescribeCluster(clusterName)
-  }, [])
+  }, [headNode, clusterName])
 
   return <HelpTooltip>
     Stack failed to create, see <Link external href={`https://${region}.console.aws.amazon.com/cloudformation/home?region=${region}#/stacks?filteringStatus=active&filteringText=${clusterName}`}>CloudFormation Stack Events</Link> 

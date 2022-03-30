@@ -165,7 +165,7 @@ function StreamList({instanceId}) {
       setState(['app', 'clusters', 'selectedLogStreamName'], logStreamName);
       GetClusterLogEvents(selected, logStreamName);
     }
-  }, []);
+  }, [searchParams, instanceId]);
 
 
   return <div title={instanceId}>
