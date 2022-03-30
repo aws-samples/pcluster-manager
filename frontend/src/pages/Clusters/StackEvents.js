@@ -25,18 +25,17 @@ import { Button } from '@awsui/components-react';
 import DateView from '../../components/DateView'
 import Loading from '../../components/Loading'
 
-function EventDetails(props) {
-  return (
-    <div style={{marginLeft: "20px"}}>
-      <div>Status {props.event.resourceStatus} (<DateView date={props.event.timestamp} />)</div>
-      <div>Reason: {props.event.resourceStatusReason}</div>
+function EventDetails({event}) {
+  return <div style={{marginLeft: "20px"}}>
+      <div>Status {event.resourceStatus} (<DateView date={event.timestamp} />)</div>
+      <div>Reason: {event.resourceStatusReason}</div>
     </div>
-  );
 }
 
 export default function ClusterStackEvents() {
   const selected = useState(['app', 'clusters', 'selected']);
   const events = useState(['clusters', 'index', selected, 'stackevents', 'events']);
+  const failedStatuses = new Set(['CREATE_FAILED', 'DELETE_FAILED', 'UPDATE_FAILED']);
 
   React.useEffect(() => {
     const selected = getState(['app', 'clusters', 'selected']);
@@ -56,8 +55,10 @@ export default function ClusterStackEvents() {
         defaultCollapseIcon={<ExpandMoreIcon />}
         defaultExpandIcon={<ChevronRightIcon />}
         sx={{ textAlign: 'left'}}>
-        {events.map((event, i) => <TreeItem nodeId={event.eventId} label={event.eventId} key={event.eventId}>
-          <TreeItem nodeId={event.eventId + 'details'}/><EventDetails event={event} /></TreeItem>)}
+        {events.map((event, i) => <div style={{color: failedStatuses.has(event.resourceStatus) ? 'red' : 'black'}}>
+          <TreeItem nodeId={event.eventId} label={event.eventId} key={event.eventId}>
+            <TreeItem nodeId={event.eventId + 'details'}/><EventDetails event={event} /></TreeItem>
+        </div>)}
       </TreeView>
     </div>
     : <Loading />}
