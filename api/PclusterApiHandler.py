@@ -247,8 +247,8 @@ def submit_job():
 
     print(job_cmd)
 
-    ret = ssm_command(args.get("region"), instance_id, user, f"sbatch {job_cmd}")
-    print(ret)
+    resp = ssm_command(args.get("region"), instance_id, user, f"sbatch {job_cmd}")
+    print(resp)
 
     return resp if type(resp) == tuple else {"success": "true"}
 

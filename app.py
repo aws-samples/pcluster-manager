@@ -35,7 +35,6 @@ from api.PclusterApiHandler import (
     logout,
     price_estimate,
     queue_status,
-    sacct,
     scontrol_job,
     set_user_role,
     submit_job,

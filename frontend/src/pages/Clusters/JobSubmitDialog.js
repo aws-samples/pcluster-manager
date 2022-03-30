@@ -276,7 +276,7 @@ export default function JobSubmitDialog({submitCallback}) {
         <JobCostEstimate />
       </ExpandableSection>
       </SpaceBetween>
-      <div style={{color: 'red', marginTop: "20px"}}>{(error || "").split('\n').map((line) => <div>{line}</div>)}</div>
+      <div style={{color: 'red', marginTop: "20px"}}>{(error || "").split('\n').map((line, i) => <div key={i}>{line}</div>)}</div>
     </Modal>
   );
 }
