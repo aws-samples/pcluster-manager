@@ -40,7 +40,7 @@ function ClusterFailedHelp({clusterName}) {
   return <HelpTooltip>
     Stack failed to create, see <InternalLink to={cfnHref}>CloudFormation Stack Events</InternalLink> 
     &nbsp; or see the &nbsp;
-    <Link onFollow={(e) => {navigate(href); selectCluster(clusterName); e.preventDefault()}}>Cluster Logs</Link>
+    <Link onFollow={(e) => {navigate(href); e.preventDefault()}}>Cluster Logs</Link>
     &nbsp; to see why.
   </HelpTooltip>
 }

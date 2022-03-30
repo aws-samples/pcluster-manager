@@ -42,7 +42,7 @@ export default function ClusterTabs() {
         {label: "Logs", id: "logs", content: <Logs />}
       ]}
         onChange={({detail}) => {navigate(`/clusters/${params.clusterName}/${detail.activeTabId}`)}}
-        activeTabId={params.tab}
+        activeTabId={params.tab || 'details'}
     />
       : <div style={{textAlign: "center", paddingTop: "40px"}}>
         <Loading />

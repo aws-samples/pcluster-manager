@@ -26,7 +26,7 @@ export default function ConfigView({config, pending, onChange}){
     onDelayedChange={onChange}
     preferences={preferences}
     onPreferencesChange={e => setPreferences(e.detail)}
-    onValidate={e => {console.log(e)}}
+    onValidate={e => {}}
     loading={pending ? true : false}
     i18nStrings={{
       loadingState: "Loading code editor",

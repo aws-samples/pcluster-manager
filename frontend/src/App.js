@@ -55,8 +55,8 @@ export default function App() {
             <Route index element={isGuest() ? <Home /> : <Navigate replace to='/clusters' />} />
             <Route path="home" element={<Home />} />
             <Route path="clusters" element={<Clusters />}>
-              <Route path=":clusterName">
-                <Route path=":tab" />
+              <Route path=":clusterName" element={<div></div>}>
+                <Route path=":tab" element={<div></div>}/>
               </Route>
             </Route>
             <Route path="configure" element={<Configure />} />
