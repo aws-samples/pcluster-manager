@@ -40,6 +40,8 @@ function LogEvents() {
 
   const pending = useState(['app', 'clusters', 'logs', 'pending']);
 
+  let [searchParams, setSearchParams] = useSearchParams();
+
   const refresh = () => {
     setState(['app', 'clusters', 'logs', 'pending'], true);
     const clusterName = getState(['app', 'clusters', 'selected']);
@@ -75,6 +77,10 @@ function LogEvents() {
     }
   );
 
+  React.useEffect(() => {
+    filterProps.onChange({detail: {filteringText: searchParams.get("filter") || ""}})
+  }, [searchParams]);
+
   return <div><div style={{marginBottom: '10px', display: 'flex', direction: 'row', gap: '16px', alignItems: 'center'}}><div>{selectedLogStreamName}</div><Button loading={pending} onClick={refresh} iconName='refresh' /></div>
     <div style={{borderTop: '1px solid #AAA', fontSize: '10pt', overflow: 'auto', whiteSpace: 'nowrap'}}>
       <Table
@@ -103,6 +109,8 @@ function LogEvents() {
         filter={
           <TextFilter
             {...filterProps}
+            filteringText={searchParams.get('filter') || ''}
+            onChange={(e) => {searchParams.set('filter', e.detail.filteringText); setSearchParams(searchParams); filterProps.onChange(e);}}
             countText={`Results: ${filteredItemsCount}`}
             filteringAriaLabel="Filter logs"
           />
@@ -150,7 +158,6 @@ function LogEvents() {
 }
 
 function StreamList({instanceId}) {
-  const logStreamIndex = useState(['app', 'clusters', 'logs', 'index']);
   const logStreams = useState(['app', 'clusters', 'logs', 'index', instanceId, 'streams']) || [];
   const ip = useState(['app', 'clusters', 'logs', 'index', instanceId, 'ip']);
   const fnames = Object.keys(logStreams).sort()

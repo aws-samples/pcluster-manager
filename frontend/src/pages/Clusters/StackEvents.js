@@ -9,11 +9,13 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import React from 'react';
+import { Link } from "react-router-dom"
 
 // Model
-import { GetClusterStackEvents } from '../../model'
+import { DescribeCluster, GetClusterStackEvents } from '../../model'
 import { consoleDomain, getState, setState, clearState, useState } from '../../store'
 import { useCollection } from '@awsui/collection-hooks';
+import { findFirst } from '../../util'
 
 // UI Elements
 import {
@@ -33,7 +35,8 @@ import DateView from '../../components/DateView'
 import Loading from '../../components/Loading'
 import EmptyState from '../../components/EmptyState';
 
-function EventStatus({status}) {
+
+function EventStatus({logicalId, status}) {
   const statusIndicatorMap = {'DELETE_FAILED': 'error',
     'UPDATE_FAILED': 'error',
     'ROLLBACK_FAILED': 'error',
@@ -47,7 +50,30 @@ function EventStatus({status}) {
     'UPDATE_IN_PROGRESS': 'info',
     'ROLLBACK_IN_PROGRESS': 'error'
   }
-  return <StatusIndicator type={status in statusIndicatorMap ? statusIndicatorMap[status] : 'info'}>{status}</StatusIndicator>
+
+  const clusterName = useState(['app', 'clusters', 'selected']);
+  const clusterPath = ['clusters', 'index', clusterName];
+  let headNode = useState([...clusterPath, 'headNode']);
+
+  const events = useState(['clusters', 'index', clusterName, 'stackevents', 'events']);
+
+  let getHeadNode = (events) => {
+    let event = findFirst(events, e => e.logicalResourceId === 'HeadNode');
+    if(event)
+      return {instanceId: event.physicalResourceId};
+  }
+
+  if(logicalId.startsWith('HeadNodeWaitCondition') && status === 'CREATE_FAILED' && !headNode)
+  {
+    headNode = getHeadNode(events);
+  }
+
+  return <SpaceBetween direction='horizotnal' size='s'>
+    <StatusIndicator type={status in statusIndicatorMap ? statusIndicatorMap[status] : 'info'}>{status}</StatusIndicator>
+    {headNode && logicalId.startsWith('HeadNodeWaitCondition') && status === 'CREATE_FAILED' && <div>
+      &nbsp; Logs: <Link to={`/clusters/${clusterName}/logs?instance=${headNode.instanceId}&filename=cfn-init&filter=ERROR`}>cfn-init</Link>
+      </div>}
+  </SpaceBetween>
 }
 
 export default function ClusterStackEvents() {
@@ -66,16 +92,21 @@ export default function ClusterStackEvents() {
 
   React.useEffect(() => {
     const clusterName = getState(['app', 'clusters', 'selected']);
-    const cluster = getState(['clusters', 'index', clusterName]);
+    const clusterPath = ['clusters', 'index', clusterName];
+    const cluster = getState(clusterPath);
+    const headNode = getState([...clusterPath, 'headNode']);
     GetClusterStackEvents(clusterName);
+    console.log("describing: ", clusterName);
+    DescribeCluster(clusterName);
 
     let timerId = (setInterval(() => {
       if(cluster.clusterStatus !== 'CREATE_IN_PROGRESS')
       {
-        console.log("done creating...")
         clearInterval(timerId);
+        timerId = null;
       } else {
-        console.log("getting more events...")
+        if(!headNode)
+          DescribeCluster(clusterName);
         GetClusterStackEvents(clusterName);
       }
     }, 5000));
@@ -144,7 +175,7 @@ export default function ClusterStackEvents() {
           {
             id: 'status',
             header: 'Status',
-            cell: item => <EventStatus status={item.resourceStatus} />,
+            cell: item => <EventStatus logicalId={item.logicalResourceId} status={item.resourceStatus} />,
           },
           {
             id: 'statusReason',
