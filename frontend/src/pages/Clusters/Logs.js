@@ -151,7 +151,7 @@ function LogEvents() {
 
 function StreamList({instanceId}) {
   const logStreamIndex = useState(['app', 'clusters', 'logs', 'index']);
-  const logStreams = logStreamIndex[instanceId].streams;
+  const logStreams = useState(['app', 'clusters', 'logs', 'index', instanceId, 'streams']) || [];
   const ip = logStreamIndex[instanceId].ip;
   const fnames = Object.keys(logStreams).sort()
   const selectedLogStreamName = useState(['app', 'clusters', 'selectedLogStreamName']);
