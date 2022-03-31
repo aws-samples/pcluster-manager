@@ -15,6 +15,7 @@ import { SubmitJob, PriceEstimate } from '../../model'
 
 // UI Elements
 import {
+  Alert,
   Box,
   Button,
   ColumnLayout,
@@ -94,7 +95,7 @@ function JobCostEstimate() {
       clearState(errorsPath);
       clearState(costEstimatePendingPath);
       setState(priceEstimatePath, data.estimate);
-      setState(costEstimatePath, data.estimate * (jobRuntime / 3600.0) * nodes)
+      setState(costEstimatePath, data.estimate * jobRuntime * nodes)
     }
     const failure = (data) => {
       clearState(costEstimatePendingPath);
@@ -118,23 +119,27 @@ function JobCostEstimate() {
   }
 
   return <>
-    <b>Experimental!</b> This provides a basic cost estimate based on the expected job run-time, the number of nodes and their instance type. Actual costs will vary based on node uptime, storage, and other factors. Please refer to Cost Explorer for actual cluster costs.
-    <FormField errorText={errors}>
-      Your estimate of the total runtime of the job (in Seconds).
-      <SpaceBetween direction="horizontal" size="s" key="command">
-        <div style={{flexGrow: 1}}>
-          <Input
-            onChange={({ detail }) => {setState(jobRuntimePath, detail.value);}}
-            value={jobRuntime}
-            inputMode='numeric'
-            placeholder={'300'}
-          />
-        </div>
-        <Button loading={costEstimatePending} onClick={estimateCost}>Estimate</Button>
-      </SpaceBetween>
-    </FormField>
-    {costEstimate && <FormField>Estimated job cost: ${costEstimate.toFixed(2)}</FormField>}
-    {costEstimate && <div>Price ($/h) * Time (h) * NodeCount =&gt; {priceEstimate} * {(jobRuntime / 3600.0).toFixed(2)} * {nodes}</div>}
+    <Alert visible header="Experimental!">
+      This provides a basic cost estimate based on the expected job run-time, the number of nodes and their instance type. Actual costs will vary based on node uptime, storage, and other factors. Please refer to Cost Explorer for actual cluster costs.
+    </Alert>
+    <div style={{marginTop: "10px"}}>
+      <FormField errorText={errors}>
+        Your estimate of the total runtime of the job (in Hours).
+        <SpaceBetween direction="horizontal" size="s" key="command">
+          <div style={{flexGrow: 1}}>
+            <Input
+              onChange={({ detail }) => {setState(jobRuntimePath, detail.value);}}
+              value={jobRuntime}
+              inputMode='numeric'
+              placeholder={'2.5'}
+            />
+          </div>
+          <Button loading={costEstimatePending} onClick={estimateCost}>Estimate</Button>
+        </SpaceBetween>
+      </FormField>
+      {costEstimate && <FormField>Estimated job cost: ${costEstimate.toFixed(2)}</FormField>}
+      {costEstimate && <pre>Price ($/h) * Time (h) * NodeCount =&gt; {priceEstimate} * {jobRuntime} * {nodes}</pre>}
+    </div>
   </>
 }
 
@@ -276,7 +281,7 @@ export default function JobSubmitDialog({submitCallback}) {
         <JobCostEstimate />
       </ExpandableSection>
       </SpaceBetween>
-      <div style={{color: 'red', marginTop: "20px"}}>{(error || "").split('\n').map((line) => <div>{line}</div>)}</div>
+      <div style={{color: 'red', marginTop: "20px"}}>{(error || "").split('\n').map((line, i) => <div key={i}>{line}</div>)}</div>
     </Modal>
   );
 }

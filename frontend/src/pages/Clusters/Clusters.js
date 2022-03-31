@@ -48,12 +48,8 @@ function ClusterList() {
   }, [])
 
   React.useEffect(() => {
-    if(selectedClusterName !== params.clusterName)
-    {
-      const name = params.clusterName;
-      if(name)
-        selectCluster(name);
-    }
+    if(params.clusterName && selectedClusterName !== params.clusterName)
+      selectCluster(params.clusterName);
   }, [selectedClusterName, params])
 
   const configure = () => {

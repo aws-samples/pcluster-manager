@@ -303,7 +303,7 @@ function Cluster() {
       <SchedulerSelect />
       <OsSelect />
       <VpcSelect />
-      {versionMinor && versionMinor >= 1 && true &&
+      {versionMinor && versionMinor >= 1 &&
       <FormField>
         <Header variant="h4" description="Enable Multi-User cluster through Active Directory integration.">Multi User</Header>
         <Toggle disabled={editing} checked={multiUserEnabled} onChange={() => setState(['app', 'wizard', 'multiUser'], !multiUserEnabled)}>Multi User Cluster</Toggle>

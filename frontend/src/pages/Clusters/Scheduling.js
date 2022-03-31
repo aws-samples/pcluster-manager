@@ -10,7 +10,7 @@
 // limitations under the License.
 import React from 'react';
 
-import { useState, getState, setState, clearState } from '../../store'
+import { useState, getState, setState, clearState, consoleDomain } from '../../store'
 import { QueueStatus, CancelJob, JobInfo } from '../../model'
 import { clusterDefaultUser } from '../../util'
 import { useCollection } from '@awsui/collection-hooks';
@@ -54,12 +54,13 @@ const ValueWithLabel = ({ label, children }) => (
 
 function refreshQueues(callback) {
   const clusterName = getState(['app', 'clusters', 'selected']);
+  const region = getState(['aws', 'region']);
   if(clusterName){
     const clusterPath = ['clusters', 'index', clusterName];
     const cluster = getState(clusterPath);
     let user = clusterDefaultUser(cluster);
     const headNode = getState([...clusterPath, 'headNode']);
-    headNode && QueueStatus(clusterName, headNode.instanceId, user, callback);
+    headNode && region && QueueStatus(clusterName, headNode.instanceId, user, callback);
   }
 }
 
@@ -114,7 +115,7 @@ function FileLink({path, isFile}) {
 
   const linkPath = isFile ? path.slice(0, path.lastIndexOf('/')) : path;
 
-  return <a href={`https://${region}.console.aws.amazon.com/systems-manager/managed-instances/${headNode.instanceId}/file-system?region=${region}&osplatform=Linux#%7B%22path%22%3A%22${linkPath}%22%7D`} rel="noreferrer" target="_blank">{path}</a>
+  return <a href={`${consoleDomain(region)}/systems-manager/managed-instances/${headNode.instanceId}/file-system?region=${region}&osplatform=Linux#%7B%22path%22%3A%22${linkPath}%22%7D`} rel="noreferrer" target="_blank">{path}</a>
 }
 
 function JobProperties({job}) {

@@ -30,6 +30,7 @@ from api.PclusterApiHandler import (
     get_dcv_session,
     get_identity,
     get_version,
+    get_instance_types,
     list_users,
     login,
     logout,
@@ -94,6 +95,11 @@ def run():
     @authenticated()
     def get_aws_config_():
         return get_aws_config()
+
+    @app.route("/manager/get_instance_types")
+    @authenticated()
+    def get_instance_types_():
+        return get_instance_types()
 
     @app.route("/manager/get_dcv_session")
     @authenticated()

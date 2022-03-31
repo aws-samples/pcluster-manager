@@ -247,8 +247,8 @@ def submit_job():
 
     print(job_cmd)
 
-    ret = ssm_command(args.get("region"), instance_id, user, f"sbatch {job_cmd}")
-    print(ret)
+    resp = ssm_command(args.get("region"), instance_id, user, f"sbatch {job_cmd}")
+    print(resp)
 
     return resp if type(resp) == tuple else {"success": "true"}
 
@@ -527,6 +527,33 @@ def get_aws_config():
         "efs_filesystems": efs_filesystems,
         "efa_instance_types": efa_instance_types,
     }
+
+
+def get_instance_types():
+    parser = reqparse.RequestParser()
+    parser.add_argument("region", type=str)
+    args = parser.parse_args()
+    if args.get("region"):
+        config = botocore.config.Config(region_name=args.get("region"))
+        ec2 = boto3.client("ec2", config=config)
+    else:
+        ec2 = boto3.client("ec2")
+    filters = [
+        {"Name": "current-generation", "Values": ["true"]},
+        {"Name": "instance-type", "Values": ["c5*", "c6*", "g4*", "g5*", "hpc*", "p3*", "p4*", "t2*", "m6*", "r*"]},
+    ]
+    instance_paginator = ec2.get_paginator("describe_instance_types")
+    instances_paginator = instance_paginator.paginate(Filters=filters)
+    instance_types = []
+    for ec2_instances in instances_paginator:
+        for e in ec2_instances["InstanceTypes"]:
+            ret_e = {"InstanceType": e["InstanceType"]}
+            ret_e["NetworkInfo"] = {"EfaSupported": e["NetworkInfo"].get("EfaSupported", False)}
+            ret_e["MemoryInfo"] = e["MemoryInfo"]
+            ret_e["VCpuInfo"] = {"DefaultVCpus": e["VCpuInfo"]["DefaultVCpus"]}
+            ret_e["GpuInfo"] = e.get("GpuInfo", {"Gpus": [{}]})["Gpus"][0]
+            instance_types.append(ret_e)
+    return {"instance_types": sorted(instance_types, key=lambda x: x["InstanceType"])}
 
 
 def get_identity():
