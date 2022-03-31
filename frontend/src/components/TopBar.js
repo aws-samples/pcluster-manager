@@ -116,8 +116,8 @@ export default function Topbar(props) {
         className="top-bar"
         expandToViewport
         identity={{
-          title: "Pcluster Manager",
-          logo: {src: "/img/pcluster.svg", alt: "Pcluster Manager Logo"}}}
+          title: "AWS ParallelCluster Manager",
+          logo: {src: "/img/pcluster.svg", alt: "AWS ParallelCluster Manager Logo"}}}
         utilities={[
           ...[username ? {
             type: 'menu-dropdown',

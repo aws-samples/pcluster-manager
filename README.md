@@ -3,7 +3,7 @@ PCluster Manager - Make HPC Easy
 
 This project is a front-end for [AWS Parallel Cluster](https://github.com/aws/aws-parallelcluster)
 
-Quickly and easily create HPC cluster in AWS using Pcluster Manager. This UI uses the AWS ParallelCluster 3.0 API to Create, Update and Delete Clusters as well as access, view logs, and build Amazon Machine Images (AMI's).
+Quickly and easily create HPC cluster in AWS using ParallelCluster Manager. This UI uses the AWS ParallelCluster 3.0 API to Create, Update and Delete Clusters as well as access, view logs, and build Amazon Machine Images (AMI's).
 
 Want to request a new feature? 
 
@@ -57,7 +57,7 @@ For more details see the [Getting Started Guide](https://aws-samples.github.io/p
 
 ## System Architecture
 
-![Pcluster Manager Architecture](docs/static/architecture.png)
+![ParallelCluster Manager Architecture](docs/static/architecture.png)
 
 ## Updating
 
@@ -71,7 +71,7 @@ cd pcluster-manager/
 
 ## Local Development
 
-To run Pcluster Manager locally, start by setting the following environment variables:
+To run AWS ParallelCluster Manager locally, start by setting the following environment variables:
 
 ```bash
 export AWS_ACCESS_KEY_ID=[...]
