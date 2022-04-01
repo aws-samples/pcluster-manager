@@ -45,6 +45,8 @@ sudo cinc-client \
   -j dna_combined.json \
   -z slurm_accounting.rb
 
+exit 0
+
 # FIXME: make idempotent?
 sleep 5
 set +e
