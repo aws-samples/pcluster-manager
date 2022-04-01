@@ -265,7 +265,7 @@ function ArgEditor({path, i, multi, scriptIndex}) {
 
   return <SpaceBetween direction="horizontal" size="s">
     <div style={{marginLeft: "25px", width: "120px"}}>{argName}: </div>
-    <div style={{width: "480px"}}>
+    <div style={{width: "440px"}}>
       <Input value={multi? arg.slice(1) : arg} onChange={({detail}) => {setState([...path, i], multi? '-' + detail.value : detail.value)}} InputStyle={{width: "200px"}}/>
     </div>
     <Button onClick={remove}>Remove</Button>
