@@ -6,7 +6,7 @@ ECR_REPO=pcluster-manager
 PUBLIC_REPO=public.ecr.aws/n0x0o5k1
 
 pushd frontend
-docker build -t frontend .
+docker build -t frontend /
 popd
 docker build -t ${ECR_REPO} .
 
