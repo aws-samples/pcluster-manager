@@ -40,7 +40,7 @@ pushd frontend
 if [ ! -d node_modules ]; then
   npm install
 fi
-docker build --build-arg PUBLIC_URL=. -t frontend-awslambda .
+docker build --build-arg PUBLIC_URL=/ -t frontend-awslambda .
 popd
 docker build -f Dockerfile.awslambda -t ${ECR_REPO} .
 
