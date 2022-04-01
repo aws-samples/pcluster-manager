@@ -619,7 +619,16 @@ class PclusterApiHandler(Resource):
         auth_response = authenticate("admin")
         if auth_response:
             abort(401)
-        resp = sigv4_request("DELETE", API_BASE_URL, request.args.get("path"), _get_params(request), body=request.json)
+
+        body = None
+        try:
+            if "Content-Type" in request.headers and request.headers.get("ContentType") == "application/json":
+                body = request.json
+        except Exception as e:
+            print("Exception retrieving body of delete call.")
+            raise e
+
+        resp = sigv4_request("DELETE", API_BASE_URL, request.args.get("path"), _get_params(request), body=body)
         return resp.json(), resp.status_code
 
     def patch(self):
