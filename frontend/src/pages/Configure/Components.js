@@ -16,7 +16,7 @@ import { useSelector } from 'react-redux'
 import { findFirst } from '../../util'
 
 // State / Model
-import { setState, getState, useState, updateState, clearState } from '../../store'
+import { setState, getState, useState, updateState, clearState, clearEmptyNest } from '../../store'
 
 // UI Elements
 import {
@@ -24,6 +24,7 @@ import {
   Button,
   FormField,
   Input,
+  Link,
   SpaceBetween,
   Toggle,
   TokenGroup,
@@ -32,6 +33,10 @@ import {
 
 // Components
 import HelpTooltip from '../../components/HelpTooltip'
+
+const multiRunner = 'https://raw.githubusercontent.com/aws-samples/pcluster-manager/post-install-scripts/resources/scripts/multi-runner.py'
+const knownExtensions = [{name: 'Cloud9', path: 'cloud9.sh', description: 'Cloud9 Install', args: [{name: 'Output File'}]},
+  {name: 'Spack', path: "spack.sh", description: 'Install Spack package manager.', args:[{name: 'Spack Root'}]}]
 
 // Selectors
 const selectVpc = state => getState(state, ['app', 'wizard', 'vpc']);
@@ -224,19 +229,7 @@ function CustomAMISettings({basePath, appPath, errorsPath, validate}) {
   )
 }
 
-function cleanEmptyNest(path, depth){
-  if(depth === 0)
-    return;
-
-  let parentPath = path.slice(0, -1)
-  if(Object.keys(getState(parentPath)).length === 0)
-  {
-    clearState(parentPath);
-    cleanEmptyNest(parentPath, depth - 1)
-  }
-}
-
-function ArgEditor({path, i}) {
+function ArgEditor({path, i, multi, scriptIndex}) {
   const args = useState(path);
   const arg = useState([...path, i]);
   const remove = () => {
@@ -245,29 +238,137 @@ function ArgEditor({path, i}) {
     else
       clearState(path);
 
-    cleanEmptyNest(path, 3);
+    clearEmptyNest(path, 3);
   }
-  return <div>
-    <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
-      <span>Arg {i}: </span>
-      <Input value={arg} onChange={({detail}) => {setState([...path, i], detail.value)}} />
-      <Button onClick={remove}>Remove</Button>
+
+  let argName = 'Arg';
+  if(multi && scriptIndex > -1 && scriptIndex < args.length - 1)
+  {
+    const basePath = path.slice(0, -1);
+    const script = getState([...basePath, 'Script']) || '';
+    const baseScriptPath = script.slice(0, script.lastIndexOf('/') + 1);
+    let multiScriptPath = args[scriptIndex];
+    if(multiScriptPath.startsWith(baseScriptPath))
+    {
+      let multiScriptShortPath = multiScriptPath.slice(baseScriptPath.length);
+      let knownExtension = findFirst(knownExtensions, (e) => e.path === multiScriptShortPath);
+      if(knownExtension && i - scriptIndex <= knownExtension.args.length)
+      {
+        argName = knownExtension.args[i - scriptIndex - 1].name;
+      } else {
+        argName = `Arg ${i - scriptIndex}`;
+      }
+    } else {
+      argName = `Arg ${i - scriptIndex}`;
+    }
+  }
+
+  return <SpaceBetween direction="horizontal" size="s">
+    <div style={{marginLeft: "25px", width: "120px"}}>{argName}: </div>
+    <div style={{width: "480px"}}>
+      <Input value={multi? arg.slice(1) : arg} onChange={({detail}) => {setState([...path, i], multi? '-' + detail.value : detail.value)}} InputStyle={{width: "200px"}}/>
     </div>
-  </div>;
+    <Button onClick={remove}>Remove</Button>
+  </SpaceBetween>;
 }
 
-function ActionsEditor({basePath, errorsPath}) {
-  const actionsPath = [...basePath, 'CustomActions'];
-  const onStartPath = [...actionsPath, 'OnNodeStart'];
-  const onConfiguredPath = [...actionsPath, 'OnNodeConfigured'];
+function MultiRunnerScriptEditor({path, i}) {
+  const basePath = path.slice(0, -1);
+  const script = useState([...basePath, 'Script']) || '';
+  const baseScriptPath = script.slice(0, script.lastIndexOf('/') + 1);
+  const args = useState(path);
+  const arg = useState([...path, i]);
+  const knownScripts = knownExtensions.map(({path}) => path);
+  const knownScriptNames = knownExtensions.map(({name}) => name.toLowerCase());
+  const remove = () => {
+    if(args.length > 1)
+      setState([...path], [...args.slice(0, i), ...args.slice(i + 1)]);
+    else
+      clearState(path);
+    clearEmptyNest(path, 3);
+  }
 
-  const onStart = useState([...onStartPath, 'Script']) || '';
-  const onStartArgs = useState([...onStartPath, 'Args']) || [];
-  const onStartErrors = useState([...errorsPath, 'onStart']);
+  const addArg = () => {
+    let insertPoint = 0;
+    for(insertPoint = i + 1; insertPoint < args.length; insertPoint++)
+    {
+      let arg = getState([...path, insertPoint]) || '';
+      if((arg.length > 0 && arg[0] !== '-') || arg.length === 0)
+        break;
+    }
+    setState([...path], [...args.slice(0, insertPoint), '-', ...args.slice(insertPoint)]);
+  }
 
-  const onConfigured = useState([...onConfiguredPath, 'Script']) || '';
-  const onConfiguredArgs = useState([...onConfiguredPath, 'Args']) || [];
-  const onConfiguredErrors = useState([...errorsPath, 'onConfigured']);
+  const setKnownScript = (scriptPath) => {
+    let end = 0;
+    for(end = i + 1; end < args.length; end++)
+    {
+      let arg = getState([...path, end]) || '';
+      if((arg.length > 0 && arg[0] !== '-') || arg.length === 0)
+        break;
+    }
+
+    let knownExtension = findFirst(knownExtensions, e => e.path === scriptPath);
+    let scriptArgs = knownExtension ? knownExtension.args.map(a => `-${a.default || ''}`) : []
+
+    let currentArgs = getState(path);
+    setState(path, [...currentArgs.slice(0, i), baseScriptPath + scriptPath, ...scriptArgs, ...currentArgs.slice(end)]);
+
+  }
+
+  const scriptToName = (script) => {
+    if(script.startsWith(baseScriptPath) && knownScripts.includes(script.slice(baseScriptPath.length)))
+    {
+      const path = script.slice(baseScriptPath.length);
+      const extension = findFirst(knownExtensions, (e) => e.path === path)
+      return extension.name;
+    } else {
+      return script;
+    }
+  }
+
+  return <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
+    <span style={{whiteSpace: "nowrap"}}>Script:</span>
+    <Autosuggest
+      value={scriptToName(arg)}
+      onChange={({ detail }) => {
+        if(detail.value !== arg && baseScriptPath + detail.value !== arg)
+        {
+          if(knownScripts.includes(detail.value))
+            setKnownScript(detail.value)
+          else
+            setState([...path, i], detail.value);
+        }
+      }}
+      enteredTextLabel={(newValue) => {
+        if(newValue !== arg)
+          setState([...path, i], newValue);
+      }}
+      ariaLabel="Script Selector"
+      placeholder="http://path/to/script"
+      empty="No matches found"
+      options={knownExtensions.map((({name, path, description}) => {return {label: name, value: path, description: description}}))}/>
+    <Button style={{whiteSpace: "nowrap"}} onClick={remove}><span style={{whiteSpace: "nowrap", marginRight: "40px"}}>Remove</span></Button>
+    <Button style={{whiteSpace: "nowrap"}} onClick={addArg}><span style={{whiteSpace: "nowrap", marginRight: "40px"}}>Add Arg</span></Button>
+  </div>
+}
+
+function MultiRunnerEditor({path}) {
+  const data = useState(path) || [];
+  const addScript = () => {
+    setState(path, [...data, '']);
+  }
+  let scriptIndex = -1;
+  return <SpaceBetween direction="vertical" size="xs">
+    <Button onClick={addScript}>Add Script</Button>
+    {data.map((a, i) => a.length > 0 && a[0] === '-' ? <ArgEditor key={`osa${i}`} arg={a} i={i} path={path} multi={true} scriptIndex={scriptIndex}/> : (() => {scriptIndex = i; return <MultiRunnerScriptEditor key={`msa${i}`} path={path} i={i} />})())}
+  </SpaceBetween>
+}
+
+function ActionEditor({label, actionKey, errorPath, path}) {
+  const script = useState([...path, 'Script']) || '';
+  const args = useState([...path, 'Args']) || [];
+  const baseScriptPath = script.slice(0, script.lastIndexOf('/') + 1);
 
   const addArg = (path) => {
     updateState(path, (old) => [...(old || []), '']);
@@ -278,47 +379,59 @@ function ActionsEditor({basePath, errorsPath}) {
       setState(path, val);
     else
       clearState(path);
-    cleanEmptyNest(path, 3);
+    clearEmptyNest(path, 3);
+  }
+
+  var useMultiRunner = script === multiRunner;
+
+  const toggleUseMultiRunner = () => {
+    if(useMultiRunner)
+    {
+      editScript([...path, 'Script'], '');
+      clearState([...path, 'Args']);
+    } else {
+      editScript([...path, 'Script'], multiRunner);
+    }
   }
 
   return <>
+      <FormField label={<div>{label} <Toggle checked={useMultiRunner} onChange={toggleUseMultiRunner}>Use Multi-Script Runner?</Toggle></div>} errorText={errorPath}>
+        {useMultiRunner && <div><b>Experimental!</b> The Multi-Script Runner is experimental and uses scripts stored as a sibling <Link external href={script}>here</Link> which are maintained separate from the AWS ParallelCluster project. Please evaluate these scripts before running them and valiate that they are compatible with your environment.</div>}
+        {useMultiRunner && <MultiRunnerEditor path={[...path, 'Args']}/>}
+        {!useMultiRunner &&
+        <SpaceBetween direction="vertical" size="xs">
+          <div key={actionKey} style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
+            <div style={{flexGrow: 1}}>
+              <Input
+                placeholder="/home/ec2-user/start.sh"
+                value={script}
+                onChange={({detail}) => editScript([...path, 'Script'], detail.value)} />
+            </div>
+            <div style={{flexShrink: 1}}>
+              <Button onClick={() => addArg([...path, 'Args'])}>+ Arg</Button>
+            </div>
+          </div>
+          <SpaceBetween direction="vertical" size="xxs">
+            {args.map((a, i) => <ArgEditor key={`osa${i}`}arg={a} i={i} path={[...path, 'Args']} />)}
+          </SpaceBetween>
+        </SpaceBetween>
+        }
+      </FormField>
+  </>
+}
+
+function ActionsEditor({basePath, errorsPath}) {
+  const actionsPath = [...basePath, 'CustomActions'];
+  const onStartPath = [...actionsPath, 'OnNodeStart'];
+  const onConfiguredPath = [...actionsPath, 'OnNodeConfigured'];
+
+  const onStartErrors = useState([...errorsPath, 'onStart']);
+  const onConfiguredErrors = useState([...errorsPath, 'onConfigured']);
+
+  return <>
     <SpaceBetween direction="vertical" size="xs">
-      <FormField label="On Start" errorText={onStartErrors}>
-        <SpaceBetween direction="vertical" size="xs">
-          <div key="on-configured" style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
-            <div style={{flexGrow: 1}}>
-              <Input
-                placeholder="/home/ec2-user/start.sh"
-                value={onStart}
-                onChange={({detail}) => editScript([...onStartPath, 'Script'], detail.value)} />
-            </div>
-            <div style={{flexShrink: 1}}>
-              <Button onClick={() => addArg([...onStartPath, 'Args'])}>+ Arg</Button>
-            </div>
-          </div>
-          <SpaceBetween direction="vertical" size="xxs">
-            {onStartArgs.map((a, i) => <ArgEditor key={`osa${i}`}arg={a} i={i} path={[...onStartPath, 'Args']} />)}
-          </SpaceBetween>
-        </SpaceBetween>
-      </FormField>
-      <FormField label="On Configured" errorText={onConfiguredErrors}>
-        <SpaceBetween direction="vertical" size="xs">
-          <div key="on-start" style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
-            <div style={{flexGrow: 1}}>
-              <Input
-                placeholder="/home/ec2-user/start.sh"
-                value={onConfigured}
-                onChange={({detail}) => {editScript([...onConfiguredPath, 'Script'], detail.value)}} />
-            </div>
-            <div style={{flexShrink: 1}}>
-              <Button onClick={() => addArg([...onConfiguredPath, 'Args'])}>+ Arg</Button>
-            </div>
-          </div>
-          <SpaceBetween direction="vertical" size="xxs">
-            {onConfiguredArgs.map((a, i) => <ArgEditor key={`oca${i}`} arg={a} i={i} path={[...onConfiguredPath, 'Args']} />)}
-          </SpaceBetween>
-        </SpaceBetween>
-      </FormField>
+      <ActionEditor label="On Start" errorPath={onStartErrors} path={onStartPath}/>
+      <ActionEditor label="On Configured" errorPath={onConfiguredErrors} path={onConfiguredPath}/>
     </SpaceBetween>
   </>
 }
