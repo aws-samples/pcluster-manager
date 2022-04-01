@@ -1,0 +1,211 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Parameters:
+  AdminUserEmail:
+    Description: Email address of administrative user setup by default.
+    Type: String
+    Default: user@amazon.com
+  EnableMFA:
+    AllowedValues: [true, false]
+    Default: false
+    Description: Whether or not to enable MFA through SMS.
+    Type: String
+  AdminUserPhone:
+    Description: Phone number of administrative user setup by default. This is only required if MFA is enabled.
+    Type: String
+    Default: '+10000000000'
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Authentication
+        Parameters:
+          - EnableAuth
+          - EnableMFA
+      - Label:
+          default: Initial Admin User
+        Parameters:
+          - AdminUserEmail
+          - AdminUserPhone
+    ParameterLabels:
+      EnableMFA:
+        default: Require Multi-Factor Authentication for all Users
+      AdminUserEmail:
+        default: Initial Administrator user's email address
+      AdminUserPhone:
+        default: Initial Administrator user's phone number
+
+Resources:
+
+  PclusterManagerCognito:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        UserPoolAuthDomain: ''
+        CognitoARN: ''
+        AdminUserEmail: !Ref AdminUserEmail
+        EnableMFA: !Ref EnableMFA
+        LogoutURL: ''
+        CallbackURL: ''
+      TemplateURL: !Sub https://pcluster-manager-${AWS::Region}.s3.${AWS::Region}.amazonaws.com/pcluster-manager-cognito.yaml
+      TimeoutInMinutes: 10
+
+  CognitoPostActions:
+    Type: Custom::CognitoPostActions
+    Properties:
+      ServiceToken: !GetAtt CognitoPostActionsFunction.Arn
+      LoginURL: ''
+      UserPoolId: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]
+
+  CognitoPostActionsFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: index.handler
+      Runtime: python3.9
+      MemorySize: 128
+      Timeout: 20
+      TracingConfig:
+        Mode: Active
+      Role: !GetAtt CognitoPostActionsRole.Arn
+      Code:
+        ZipFile: |
+          import cfnresponse
+          import boto3
+          import random
+          import string
+          import json
+
+          cognito = boto3.client("cognito-idp")
+
+          def create_physical_resource_id():
+              alnum = string.ascii_uppercase + string.ascii_lowercase + string.digits
+              return "".join(random.choice(alnum) for _ in range(16))
+
+          def handler(event, context):
+              print(event)
+              print("boto version {}".format(boto3.__version__))
+
+              stack_name = event["StackId"].split("/")[1]
+              user_pool_id = event["ResourceProperties"]["UserPoolId"]
+              login_url = event["ResourceProperties"]["LoginURL"]
+              logical_resource_id = event["LogicalResourceId"]
+
+              response_data = {}
+              reason = None
+              response_status = cfnresponse.SUCCESS
+
+              if event['RequestType'] == 'Create':
+                  physical_resource_id = create_physical_resource_id()
+              else:
+                  physical_resource_id = event['PhysicalResourceId']
+
+              try:
+                  if event["RequestType"] == "Create" or event["RequestType"] == "Update":
+                      response_data["Message"] = "Resource creation successful!"
+
+                      user_pool = cognito.describe_user_pool(UserPoolId=user_pool_id)['UserPool']
+                      known_keys = {"UserPoolId", "Policies", "LambdaConfig", "AutoVerifiedAttributes", "SmsVerificationMessage", "EmailVerificationMessage", "EmailVerificationSubject", "VerificationMessageTemplate", "SmsAuthenticationMessage", "MfaConfiguration", "DeviceConfiguration", "EmailConfiguration",
+                                    "SmsConfiguration", "UserPoolTags", "AdminCreateUserConfig", "UserPoolAddOns", "AccountRecoverySetting"}
+                      user_pool = {k: v for k,v in user_pool.items() if k in known_keys}
+                      if login_url != '':
+                        user_pool['AdminCreateUserConfig']['InviteMessageTemplate']['EmailMessage'] = f"Thanks for installing PclusterManager on your AWS account. The following user has been created: {{username}}<br /><br />Please use this temporary password to login to your account: {{####}}<br /><br />Please click <a href=\"{login_url}\">here</a> to login."
+                      else:
+                        user_pool['AdminCreateUserConfig']['InviteMessageTemplate']['EmailMessage'] = f"Thanks for installing PclusterManager on your AWS account. The following user has been created: {{username}}<br /><br />Please use this temporary password to login to your account: {{####}}"
+                      if 'UnusedAccountValidityDays' in user_pool['AdminCreateUserConfig']:
+                        del user_pool['AdminCreateUserConfig']['UnusedAccountValidityDays']
+                      if login_url != '':
+                        user_pool['EmailVerificationMessage'] = f"Thanks for installing PclusterManager on your AWS account. Please click the link below to verify your email address. {{####}}<br /><br />Click <a href=\"{login_url}\">here</a> to login."
+                      else:
+                        user_pool['EmailVerificationMessage'] = f"Thanks for installing PclusterManager on your AWS account. The following is your access code: {{####}}"
+                      print("user_pool", user_pool)
+                      cognito.update_user_pool(UserPoolId=user_pool_id, **user_pool)
+
+                  elif event["RequestType"] == "Delete":
+                      response_data["Message"] = "Resource deletion successful!"
+
+              except Exception as exception:
+                  response_data["Message"] = "Resource failure!"
+                  response_status = cfnresponse.FAILED
+                  reason = "Failed {}: {}".format(event["RequestType"], exception)
+
+              cfnresponse.send(event, context, response_status, response_data, physical_resource_id, reason)
+
+  # Add the Admin User after updating the validation message(s)
+  CognitoAdminUser:
+    Type: AWS::Cognito::UserPoolUser
+    DependsOn: [CognitoPostActions]
+    Properties:
+      DesiredDeliveryMediums:
+        - EMAIL
+      UserAttributes:
+        - Name: email
+          Value: !Ref AdminUserEmail
+        - Name: phone_number
+          Value: !Ref AdminUserPhone
+      Username: !Ref AdminUserEmail
+      UserPoolId: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]
+
+  CognitoUserToAdminGroup:
+    Type: AWS::Cognito::UserPoolUserToGroupAttachment
+    Properties:
+      GroupName: !GetAtt [ PclusterManagerCognito, Outputs.CognitoAdminGroup ]
+      Username: !Ref CognitoAdminUser
+      UserPoolId: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]
+
+  CognitoUserToUserGroup:
+    Type: AWS::Cognito::UserPoolUserToGroupAttachment
+    Properties:
+      GroupName: !GetAtt [ PclusterManagerCognito, Outputs.CognitoUserGroup ]
+      Username: !Ref CognitoAdminUser
+      UserPoolId: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]
+
+  # Roles
+
+  CognitoPostActionsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        # Required for Lambda logging and XRay
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/AWSXRayDaemonWriteAccess
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: CognitoPermissions
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cognito-idp:DescribeUserPool
+                  - cognito-idp:UpdateUserPool
+                Resource:
+                  - !Sub
+                    - arn:${AWS::Partition}:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}
+                    - { UserPoolId: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]}
+        - PolicyName: PassRole
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - iam:PassRole
+                Resource:
+                  - !GetAtt [ PclusterManagerCognito, Outputs.SNSRole ]
+
+# Outputs
+
+Outputs:
+  CognitoAuthDomain:
+    Description: 'AuthDomain for Cognito'
+    Value: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolAuthDomain ]
+  CognitoUserPoolId:
+    Description: 'UserPoolId for Cognito'
+    Value: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]
