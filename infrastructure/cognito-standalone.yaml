@@ -43,7 +43,7 @@ Resources:
     Properties:
       Parameters:
         UserPoolAuthDomain: ''
-        CognitoARN: ''
+        CognitoUserPoolId: ''
         AdminUserEmail: !Ref AdminUserEmail
         EnableMFA: !Ref EnableMFA
         LogoutURL: ''
