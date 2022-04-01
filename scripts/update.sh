@@ -5,7 +5,7 @@ REGION_SET=false
 LOCAL=false
 TAG=latest
 
-USAGE="$(basename "$0") [-h] [--region REGION] [--tag TAG]"
+USAGE="$(basename "$0") [-h] [--region REGION] [--tag TAG] [--local]"
 
 while [[ $# -gt 0 ]]
 do
@@ -27,7 +27,7 @@ case $key in
     shift # past argument
     shift # past value
     ;;
-    --tag)
+    --local)
     LOCAL=true
     shift # past argument
     ;;
@@ -52,6 +52,13 @@ PRIVATE_ECR_REPO=$(aws ecr describe-repositories --query "repositories[?contains
 IMAGE=${ECR_ENDPOINT}/${PRIVATE_ECR_REPO}:latest
 
 if [ "$LOCAL" == "true" ]; then
+    pushd frontend
+    if [ ! -d node_modules ]; then
+      npm install
+    fi
+    docker build --build-arg PUBLIC_URL=/ -t frontend-awslambda .
+    popd
+    docker build -f Dockerfile.awslambda -t ${IMAGE} .
 else
     echo "Logging in to docker..."
     AWS_SESSION_TOKEN= AWS_ACCESS_KEY_ID= AWS_SECRET_ACCESS_KEY= aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin "${PUBLIC_ECR_ENDPOINT}"
