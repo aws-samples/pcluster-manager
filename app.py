@@ -14,6 +14,7 @@ from flask import Flask, Response, request, send_from_directory
 from flask.json import JSONEncoder
 from flask_cors import CORS  # comment this on deployment
 from flask_restful import Api
+from werkzeug.routing import BaseConverter
 
 import api.utils as utils
 from api.PclusterApiHandler import (
@@ -43,6 +44,12 @@ from api.PclusterApiHandler import (
 )
 
 
+class RegexConverter(BaseConverter):
+    def __init__(self, url_map, *items):
+        super(RegexConverter, self).__init__(url_map)
+        self.regex = items[0]
+
+
 class PClusterJSONEncoder(JSONEncoder):
     """Make the model objects JSON serializable."""
 
@@ -57,6 +64,7 @@ class PClusterJSONEncoder(JSONEncoder):
 def run():
     app = Flask(__name__, static_url_path="", static_folder="frontend/public")
     app.json_encoder = PClusterJSONEncoder
+    app.url_map.converters["regex"] = RegexConverter
     CORS(app)  # comment this on deployment
     api = Api(app)
 
@@ -172,6 +180,21 @@ def run():
     @app.route("/logout")
     def logout_():
         return logout()
+
+    @app.route(
+        '/<regex("(home|clusters|users|configure|custom-images|official-images).*"):base>', defaults={"base": ""}
+    )
+    @authenticated()
+    def catch_all(base):
+        return send_from_directory(app.static_folder, "index.html")
+
+    @app.route(
+        '/<regex("(home|clusters|users|configure|custom-images|official-images).*"):base>/<path:u_path>',
+        defaults={"base": "", "u_path": ""},
+    )
+    @authenticated()
+    def catch_all2(base, u_path):
+        return send_from_directory(app.static_folder, "index.html")
 
     api.add_resource(PclusterApiHandler, "/api")
     return app

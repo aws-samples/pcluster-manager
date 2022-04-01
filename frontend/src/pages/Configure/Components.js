@@ -34,7 +34,7 @@ import {
 // Components
 import HelpTooltip from '../../components/HelpTooltip'
 
-const multiRunner = 'https://raw.githubusercontent.com/aws-samples/pcluster-manager/post-install-scripts/resources/scripts/multi-runner.py'
+const multiRunner = 'https://raw.githubusercontent.com/aws-samples/pcluster-manager/main/resources/scripts/multi-runner.py'
 const knownExtensions = [{name: 'Cloud9', path: 'cloud9.sh', description: 'Cloud9 Install', args: [{name: 'Output File'}]},
   {name: 'Slurm Accounting', path: 'slurm-accounting.sh', description: 'Slurm Accounting', args: [{name: 'Secret ARN'}, {name: 'RDS Endpoint'}, {name: 'RDS Port', default: '3306'}]},
   {name: 'Spack', path: "spack.sh", description: 'Install Spack package manager.', args:[{name: 'Spack Root'}]}]
@@ -266,7 +266,7 @@ function ArgEditor({path, i, multi, scriptIndex}) {
 
   return <SpaceBetween direction="horizontal" size="s">
     <div style={{marginLeft: "25px", width: "120px"}}>{argName}: </div>
-    <div style={{width: "480px"}}>
+    <div style={{width: "440px"}}>
       <Input value={multi? arg.slice(1) : arg} onChange={({detail}) => {setState([...path, i], multi? '-' + detail.value : detail.value)}} InputStyle={{width: "200px"}}/>
     </div>
     <Button onClick={remove}>Remove</Button>
