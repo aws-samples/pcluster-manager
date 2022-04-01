@@ -139,26 +139,20 @@ def get_version():
 
 
 def ec2_action():
-    parser = reqparse.RequestParser()
-    parser.add_argument("instance_ids", type=str)
-    parser.add_argument("action", type=str)
-    parser.add_argument("region", type=str)
-    args = parser.parse_args()
-
-    if args.get("region"):
-        config = botocore.config.Config(region_name=args.get("region"))
+    if request.args.get("region"):
+        config = botocore.config.Config(region_name=request.args.get("region"))
         ec2 = boto3.client("ec2", config=config)
     else:
         ec2 = boto3.client("ec2")
 
     try:
-        instance_ids = args.get("instance_ids").split(",")
+        instance_ids = request.args.get("instance_ids").split(",")
     except:
         return {"message": "You must specify instances."}, 400
 
-    if args.get("action") == "stop_instances":
+    if request.args.get("action") == "stop_instances":
         resp = ec2.stop_instances(InstanceIds=instance_ids)
-    elif args.get("action") == "start_instances":
+    elif request.args.get("action") == "start_instances":
         resp = ec2.start_instances(InstanceIds=instance_ids)
     else:
         return {"message": "You must specify an action."}, 400
@@ -183,11 +177,7 @@ def get_cluster_config_text(cluster_name, region=None):
 
 
 def get_cluster_config():
-    parser = reqparse.RequestParser()
-    parser.add_argument("cluster_name", type=str)
-    parser.add_argument("region", type=str)
-    args = parser.parse_args()
-    return get_cluster_config_text(args["cluster_name"], args.get("region"))
+    return get_cluster_config_text(request.args.get("cluster_name"), request.args.get("region"))
 
 
 def ssm_command(region, instance_id, user, run_command):
@@ -230,13 +220,8 @@ def ssm_command(region, instance_id, user, run_command):
 
 
 def submit_job():
-    parser = reqparse.RequestParser()
-    parser.add_argument("instance_id", type=str)
-    parser.add_argument("user", type=str)
-    parser.add_argument("region", type=str)
-    args = parser.parse_args()
-    user = args.get("user", "ec2-user")
-    instance_id = args.get("instance_id")
+    user = request.args.get("user", "ec2-user")
+    instance_id = request.args.get("instance_id")
     body = request.json
 
     wrap = body.pop("wrap", False)
@@ -247,7 +232,7 @@ def submit_job():
 
     print(job_cmd)
 
-    resp = ssm_command(args.get("region"), instance_id, user, f"sbatch {job_cmd}")
+    resp = ssm_command(request.args.get("region"), instance_id, user, f"sbatch {job_cmd}")
     print(resp)
 
     return resp if type(resp) == tuple else {"success": "true"}
@@ -285,30 +270,23 @@ def _price_estimate(cluster_name, region, queue_name):
 
 
 def price_estimate():
-    parser = reqparse.RequestParser()
-    parser.add_argument("region", type=str)
-    parser.add_argument("cluster_name", type=str)
-    parser.add_argument("queue_name", type=str)
-    args = parser.parse_args()
-    price_guess = _price_estimate(args.get("cluster_name"), args.get("region"), args.get("queue_name"))
+    price_guess = _price_estimate(
+        request.args.get("cluster_name"), request.args.get("region"), request.args.get("queue_name")
+    )
     return price_guess if isinstance(price_guess, tuple) else {"estimate": price_guess}
 
 
 def scontrol_job():
-    parser = reqparse.RequestParser()
-    parser.add_argument("instance_id", type=str)
-    parser.add_argument("user", type=str)
-    parser.add_argument("region", type=str)
-    parser.add_argument("job_id", type=str)
-    args = parser.parse_args()
-    user = args.get("user", "ec2-user")
-    instance_id = args.get("instance_id")
-    job_id = args.get("job_id")
+    user = request.args.get("user", "ec2-user")
+    instance_id = request.args.get("instance_id")
+    job_id = request.args.get("job_id")
 
     if not job_id:
         return {"message": "You must specify a job id."}, 400
 
-    job_data = ssm_command(args.get("region"), instance_id, user, f"scontrol show job {job_id} -o").strip().split(" ")
+    job_data = (
+        ssm_command(request.args.get("region"), instance_id, user, f"scontrol show job {job_id} -o").strip().split(" ")
+    )
     if isinstance(job_data, tuple):
         return job_data
 
@@ -318,16 +296,11 @@ def scontrol_job():
 
 
 def queue_status():
-    parser = reqparse.RequestParser()
-    parser.add_argument("instance_id", type=str)
-    parser.add_argument("user", type=str)
-    parser.add_argument("region", type=str)
-    args = parser.parse_args()
-    user = args.get("user", "ec2-user")
-    instance_id = args.get("instance_id")
+    user = request.args.get("user", "ec2-user")
+    instance_id = request.args.get("instance_id")
 
     jobs = ssm_command(
-        args.get("region"),
+        request.args.get("region"),
         instance_id,
         user,
         "squeue --json | jq .jobs\\|\\map\\({name,nodes,partition,job_state,job_id,time\\}\\)",
@@ -337,33 +310,22 @@ def queue_status():
 
 
 def cancel_job():
-    parser = reqparse.RequestParser()
-    parser.add_argument("instance_id", type=str)
-    parser.add_argument("job_id", type=str)
-    parser.add_argument("user", type=str)
-    parser.add_argument("region", type=str)
-    args = parser.parse_args()
-    user = args.get("user", "ec2-user")
-    instance_id = args.get("instance_id")
-    job_id = args.get("job_id")
-    ssm_command(args.get("region"), instance_id, user, f"scancel {job_id}")
+    user = request.args.get("user", "ec2-user")
+    instance_id = request.args.get("instance_id")
+    job_id = request.args.get("job_id")
+    ssm_command(request.args.get("region"), instance_id, user, f"scancel {job_id}")
     return {"status": "success"}
 
 
 def get_dcv_session():
-    parser = reqparse.RequestParser()
-    parser.add_argument("instance_id", type=str)
-    parser.add_argument("user", type=str)
-    parser.add_argument("region", type=str)
-    args = parser.parse_args()
     start = time.time()
-    user = args.get("user", "ec2-user")
-    instance_id = args.get("instance_id")
+    user = request.args.get("user", "ec2-user")
+    instance_id = request.args.get("instance_id")
     dcv_command = "/opt/parallelcluster/scripts/pcluster_dcv_connect.sh"
     session_directory = f"/home/{user}"
 
-    if args.get("region"):
-        config = botocore.config.Config(region_name=args.get("region"))
+    if request.args.get("region"):
+        config = botocore.config.Config(region_name=request.args.get("region"))
         ssm = boto3.client("ssm", config=config)
     else:
         ssm = boto3.client("ssm")
@@ -411,19 +373,13 @@ def get_dcv_session():
 
 
 def get_custom_image_config():
-    parser = reqparse.RequestParser()
-    parser.add_argument("image_id", type=str)
-    args = parser.parse_args()
-    image_info = sigv4_request("GET", API_BASE_URL, f"/v3/images/custom/{args['image_id']}").json()
+    image_info = sigv4_request("GET", API_BASE_URL, f"/v3/images/custom/{request.args.get('image_id')}").json()
     configuration = requests.get(image_info["imageConfiguration"]["url"])
     return configuration.text
 
 
 def get_aws_config():
-    parser = reqparse.RequestParser()
-    parser.add_argument("region", type=str)
-    args = parser.parse_args()
-    if args.get("region"):
+    if request.args.get("region"):
         config = botocore.config.Config(region_name=args.get("region"))
         ec2 = boto3.client("ec2", config=config)
         fsx = boto3.client("fsx", config=config)
@@ -478,10 +434,7 @@ def get_aws_config():
 
 
 def get_instance_types():
-    parser = reqparse.RequestParser()
-    parser.add_argument("region", type=str)
-    args = parser.parse_args()
-    if args.get("region"):
+    if request.args.get("region"):
         config = botocore.config.Config(region_name=args.get("region"))
         ec2 = boto3.client("ec2", config=config)
     else:
@@ -549,11 +502,8 @@ def list_users():
 
 def delete_user():
     try:
-        parser = reqparse.RequestParser()
-        parser.add_argument("username", type=str)
-        args = parser.parse_args()
         cognito = boto3.client("cognito-idp")
-        username = args.get("username")
+        username = request.args.get("username")
         cognito.admin_delete_user(UserPoolId=USER_POOL_ID, Username=username)
         return {"Username": username}
     except Exception as e:
@@ -600,10 +550,7 @@ def set_user_role():
 def login():
     redirect_uri = f"{SITE_URL}/login"
     auth_redirect_path = f"{AUTH_PATH}/login?response_type=code&client_id={CLIENT_ID}&redirect_uri={redirect_uri}"
-    parser = reqparse.RequestParser()
-    parser.add_argument("code", type=str)
-    args = parser.parse_args()
-    code = args.get("code")
+    code = request.args.get("code")
     if not code:
         return redirect(auth_redirect_path, code=302)
 
@@ -619,9 +566,13 @@ def login():
         headers={"Content-Type": "application/x-www-form-urlencoded"},
     )
 
+    access_token = code_resp.json().get("access_token")
+    if not access_token:
+        return redirect(auth_redirect_path, code=302)
+
     # give the jwt to the client for future requests
     resp = redirect("/index.html", code=302)
-    resp.set_cookie("accessToken", code_resp.json()["access_token"])
+    resp.set_cookie("accessToken", access_token)
     return resp
 
 
@@ -644,52 +595,36 @@ class PclusterApiHandler(Resource):
     method_decorators = [authenticated("user", redirect=False)]
 
     def get(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument("path", type=str)
-        parser.add_argument("params", type=dict)
-        args = parser.parse_args()
         # if re.match(r".*images.*logstreams/+", args["path"]):
         #    left, right = args["path"].split("logstreams")
         #    args["path"] = "{}logstreams/{}".format(left, right[1:].replace("/", "%2F"))
-        response = sigv4_request("GET", API_BASE_URL, args["path"], _get_params(request))
+        response = sigv4_request("GET", API_BASE_URL, request.args.get("path"), _get_params(request))
         return response.json(), response.status_code
 
     def post(self):
         auth_response = authenticate("admin")
         if auth_response:
             abort(401)
-        parser = reqparse.RequestParser()
-        parser.add_argument("path", type=str)
-        args = parser.parse_args()
-        resp = sigv4_request("POST", API_BASE_URL, args["path"], _get_params(request), body=request.json)
+        resp = sigv4_request("POST", API_BASE_URL, request.args.get("path"), _get_params(request), body=request.json)
         return resp.json(), resp.status_code
 
     def put(self):
         auth_response = authenticate("admin")
         if auth_response:
             abort(401)
-        parser = reqparse.RequestParser()
-        parser.add_argument("path", type=str)
-        args = parser.parse_args()
-        resp = sigv4_request("PUT", API_BASE_URL, args["path"], _get_params(request), body=request.json)
+        resp = sigv4_request("PUT", API_BASE_URL, request.args.get("path"), _get_params(request), body=request.json)
         return resp.json(), resp.status_code
 
     def delete(self):
         auth_response = authenticate("admin")
         if auth_response:
             abort(401)
-        parser = reqparse.RequestParser()
-        parser.add_argument("path", type=str)
-        args = parser.parse_args()
-        resp = sigv4_request("DELETE", API_BASE_URL, args["path"], _get_params(request), body=request.json)
+        resp = sigv4_request("DELETE", API_BASE_URL, request.args.get("path"), _get_params(request), body=request.json)
         return resp.json(), resp.status_code
 
     def patch(self):
         auth_response = authenticate("admin")
         if auth_response:
             abort(401)
-        parser = reqparse.RequestParser()
-        parser.add_argument("path", type=str)
-        args = parser.parse_args()
-        resp = sigv4_request("PATCH", API_BASE_URL, args["path"], _get_params(request), body=request.json)
+        resp = sigv4_request("PATCH", API_BASE_URL, request.args.get("path"), _get_params(request), body=request.json)
         return resp.json(), resp.status_code

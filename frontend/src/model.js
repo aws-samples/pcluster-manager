@@ -33,7 +33,7 @@ function notify(text, type = 'info', duration = 5000, dismissButton = false) {
 function getHost() {
   if (process.env.NODE_ENV !== 'production')
     return 'http://localhost:5000/';
-  return '';
+  return '/';
 }
 
 function request(method, url, body = null) {

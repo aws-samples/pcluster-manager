@@ -1,7 +1,8 @@
 {
-  "name": "frontend",
+  "name": "ParallelClusterManager",
   "version": "0.1.0",
   "private": true,
+  "homepage": "/",
   "dependencies": {
     "@awsui/components-react": "^3.0.340",
     "@awsui/global-styles": "^1.0.9",
