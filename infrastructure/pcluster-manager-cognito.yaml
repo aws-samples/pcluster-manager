@@ -4,6 +4,12 @@ Description: >
   Pcluster Manager Cognito User Pool
 
 Parameters:
+  UserPoolAuthDomain:
+    Description: Auth domain of an existing Cognito User Pool. Leave blank to create a new one.
+    Type: String
+  CognitoUserPoolId:
+    Description: ARN of an existing Cognito User Pool. Leave blank to create a new one.
+    Type: String
   CallbackURL:
     Description: Allowed CallbackURL pointing back to the application.
     Type: String
@@ -23,11 +29,14 @@ Parameters:
     Type: String
 
 Conditions:
+  CreateCognito: !Equals [!Ref CognitoUserPoolId, '']
+  CreateApp: !Not [!Equals [!Ref CallbackURL, '']]
   GovCloud: !Equals [!Ref AWS::Region, 'us-gov-west-1']
   MFA: !Equals [!Ref EnableMFA, true]
 
 Resources:
   SNSRole:
+    Condition: CreateCognito
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -49,13 +58,15 @@ Resources:
                 Resource: '*'
 
   UserPoolClientSecret:
+    Condition: CreateApp
     Type: Custom::UserPoolClientSecret
     Properties:
       ServiceToken: !GetAtt UserPoolClientSecretFunction.Arn
-      UserPoolId:  !Ref CognitoUserPool
+      UserPoolId:  !If [CreateCognito, !Ref CognitoUserPool, !Ref CognitoUserPoolId]
       AppClientId: !Ref CognitoAppClient
 
   UserPoolClientSecretFunction:
+    Condition: CreateApp
     Type: AWS::Lambda::Function
     Properties:
       Handler: index.handler
@@ -137,6 +148,7 @@ Resources:
               cfnresponse.send(event, context, response_status, response_data, secret_name, reason)
 
   UserPoolClientSecretRole:
+    Condition: CreateApp
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -158,7 +170,7 @@ Resources:
                 Resource:
                   - !Sub
                     - arn:${AWS::Partition}:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}
-                    - { UserPoolId: !Ref CognitoUserPool }
+                    - { UserPoolId: !If [CreateCognito, !Ref CognitoUserPool, !Ref CognitoUserPoolId]}
         - PolicyName: SecretsManagerPermissions
           PolicyDocument:
             Version: 2012-10-17
@@ -173,12 +185,14 @@ Resources:
                   - !Sub arn:${AWS::Partition}:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${AWS::StackName}*
 
   UserPoolDomain:
+    Condition: CreateCognito
     Type: AWS::Cognito::UserPoolDomain
     Properties:
       UserPoolId: !Ref CognitoUserPool
       Domain: !Join [ "-", ["pcluster-manager-auth", !Select [2, !Split [ "/", !Ref 'AWS::StackId']]]]
 
   CognitoUserPool:
+    Condition: CreateCognito
     Type: AWS::Cognito::UserPool
     Properties:
       AutoVerifiedAttributes:
@@ -214,6 +228,7 @@ Resources:
       EmailVerificationMessage: "Thanks for installing PclusterManager on your AWS account. Please click the link below to verify your email address. {####}"
 
   CognitoAppClient:
+    Condition: CreateApp
     Type: AWS::Cognito::UserPoolClient
     Properties:
       GenerateSecret: true
@@ -232,7 +247,7 @@ Resources:
         - !Sub ${LogoutURL}
       SupportedIdentityProviders:
         - COGNITO
-      UserPoolId: !Ref CognitoUserPool
+      UserPoolId: !If [CreateCognito, !Ref CognitoUserPool, !Ref CognitoUserPoolId]
       PreventUserExistenceErrors: ENABLED
       RefreshTokenValidity: 7 #days
       AccessTokenValidity: 1
@@ -242,6 +257,7 @@ Resources:
         IdToken: "days"
 
   CognitoUserGroup:
+    Condition: CreateCognito
     Type: AWS::Cognito::UserPoolGroup
     Properties:
       Description: User group that can view and manage clusters
@@ -250,6 +266,7 @@ Resources:
       UserPoolId: !Ref CognitoUserPool
 
   CognitoAdminGroup:
+    Condition: CreateCognito
     Type: AWS::Cognito::UserPoolGroup
     Properties:
       Description: Administrator group that can promote users to be admins.
@@ -259,36 +276,36 @@ Resources:
 
 Outputs:
 
-  UserPoolAuthPrefix:
-    Description: The prefix of the domain of the authorization server.
-    Value: !Ref UserPoolDomain
-
   UserPoolAuthDomain:
     Description: The domain of the authorization server.
-    Value: !Sub
-      - https://${Domain}.${Auth}.${AWS::Region}.amazoncognito.com
-      - {Domain: !Ref UserPoolDomain, Auth: !If [GovCloud, 'auth-fips', 'auth']}
+    Value:
+      Fn::If:
+        - CreateCognito
+        - !Sub
+          - https://${Domain}.${Auth}.${AWS::Region}.amazoncognito.com
+          - {Domain: !Ref UserPoolDomain, Auth: !If [GovCloud, 'auth-fips', 'auth']}
+        - !Ref UserPoolAuthDomain
 
   UserPoolId:
     Description: Cognito UserPool Id
-    Value:  !Ref CognitoUserPool
+    Value:  !If [CreateCognito, !Ref CognitoUserPool, !Ref CognitoUserPoolId]
 
   CognitoUserGroup:
     Description: Cognito User Group
-    Value:  !Ref CognitoUserGroup
+    Value:  !If [CreateCognito, !Ref CognitoUserGroup, '']
 
   CognitoAdminGroup:
     Description: Cognito Admin Group
-    Value:  !Ref CognitoAdminGroup
+    Value:  !If [CreateCognito, !Ref CognitoAdminGroup, '']
 
   UserPoolClientSecretArn:
     Description: The app client secret ARN for PclusterManager.
-    Value: !GetAtt UserPoolClientSecret.SecretArn
+    Value: !If [CreateApp, !GetAtt UserPoolClientSecret.SecretArn, '']
 
   SNSRole:
     Description: Role for SNS
-    Value: !GetAtt SNSRole.Arn
+    Value: !If [CreateCognito, !GetAtt SNSRole.Arn, '']
 
   UserPoolClientSecretName:
     Description: The app client secret name for PclusterManager.
-    Value: !GetAtt UserPoolClientSecret.SecretName
+    Value: !If [CreateApp, !GetAtt UserPoolClientSecret.SecretName, '']

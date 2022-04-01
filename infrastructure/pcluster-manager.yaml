@@ -1,3 +1,5 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
 Parameters:
   AdminUserEmail:
     Description: Email address of administrative user setup by default.
@@ -7,8 +9,14 @@ Parameters:
     Description: When specified, the URI of the Docker image for the Lambda of the PclusterManager container
     Type: String
     Default: public.ecr.aws/n0x0o5k1/pcluster-manager-awslambda:latest
+  CognitoUserPoolId:
+    Description: ARN of an existing Cognito User Pool. Leave blank to create a new one.
+    Type: String
+  CognitoAuthDomain:
+    Description: Auth domain of an existing Cognito User Pool. Leave blank to create a new one.
+    Type: String
   EnableAuth:
-    Description: When false this enables all users to create an account & login with Admin privileges. Only use this value for tutorials or short-lived deployments.
+    Description: When false this exposes the service to the outside without any authentication. Only use this value for tutorials or short-lived deployments.
     Type: String
     Default: true
     AllowedValues: [true, false]
@@ -40,11 +48,13 @@ Metadata:
       - Label:
           default: Authentication
         Parameters:
+          - CognitoAuthDomain
+          - CognitoUserPoolId
           - EnableAuth
           - EnableMFA
-      - Label: 
+      - Label:
           default: Initial Admin User
-        Parameters: 
+        Parameters:
           - AdminUserEmail
           - AdminUserPhone
       - Label:
@@ -56,12 +66,14 @@ Metadata:
       EnableMFA:
         default: Require Multi-Factor Authentication for all Users
       EnableAuth:
-        default: Enable Auth Roles (e.g., Admin, User, Guest)
+        default: Enable Authentication
       AdminUserEmail:
-        default: Initial Admin's Email 
+        default: Initial Administrator user's email address
       AdminUserPhone:
-        default: Initial Admin's Phone Number
- 
+        default: Initial Administrator user's phone number
+
+Conditions:
+  CreateCognito: !Equals [!Ref CognitoUserPoolId, '']
 
 Mappings:
   PclusterManager:
@@ -75,6 +87,8 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       Parameters:
+        UserPoolAuthDomain: !Ref CognitoAuthDomain
+        CognitoUserPoolId: !Ref CognitoUserPoolId
         AdminUserEmail: !Ref AdminUserEmail
         EnableMFA: !Ref EnableMFA
         LogoutURL: !Sub
@@ -401,6 +415,7 @@ Resources:
       RetentionInDays: 90
 
   CognitoPostActions:
+    Condition: CreateCognito
     Type: Custom::CognitoPostActions
     Properties:
       ServiceToken: !GetAtt CognitoPostActionsFunction.Arn
@@ -410,6 +425,7 @@ Resources:
       UserPoolId: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]
 
   CognitoPostActionsFunction:
+    Condition: CreateCognito
     Type: AWS::Lambda::Function
     Properties:
       Handler: index.handler
@@ -478,6 +494,7 @@ Resources:
 
   # Add the Admin User after updating the validation message(s)
   CognitoAdminUser:
+    Condition: CreateCognito
     Type: AWS::Cognito::UserPoolUser
     DependsOn: [CognitoPostActions, PclusterManagerFunction]
     Properties:
@@ -492,6 +509,7 @@ Resources:
       UserPoolId: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]
 
   CognitoUserToAdminGroup:
+    Condition: CreateCognito
     Type: AWS::Cognito::UserPoolUserToGroupAttachment
     Properties:
       GroupName: !GetAtt [ PclusterManagerCognito, Outputs.CognitoAdminGroup ]
@@ -499,6 +517,7 @@ Resources:
       UserPoolId: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]
 
   CognitoUserToUserGroup:
+    Condition: CreateCognito
     Type: AWS::Cognito::UserPoolUserToGroupAttachment
     Properties:
       GroupName: !GetAtt [ PclusterManagerCognito, Outputs.CognitoUserGroup ]
@@ -517,10 +536,7 @@ Resources:
             Principal:
               Service: lambda.amazonaws.com
       ManagedPolicyArns:
-        # Required for cost estimation
-        - !Sub arn:${AWS::Partition}:iam::aws:policy/AWSPriceListServiceFullAccess
         # Required for Lambda logging and XRay
-        - !Sub arn:${AWS::Partition}:iam::aws:policy/AWSXRayDaemonWriteAccess
         - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
         # Access to the ParllelCluster API
         - !Ref ParallelClusterApiGatewayInvoke
@@ -531,9 +547,11 @@ Resources:
         - !Ref PclusterManagerEfsPolicy
         - !Ref PclusterManagerSsmSendPolicy
         - !Ref PclusterManagerSsmGetCommandInvocationPolicy
-        - !Ref PclusterManagerCognitoSecretPolicy
+        # Required for cost estimation
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/AWSPriceListServiceFullAccess
 
   CognitoPostActionsRole:
+    Condition: CreateCognito
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -614,6 +632,12 @@ Resources:
               - { UserPoolId: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]}
             Effect: Allow
             Sid: CognitoPolicy
+          - Action:
+            - secretsmanager:GetSecretValue
+            Resource:
+              - !GetAtt [ PclusterManagerCognito, Outputs.UserPoolClientSecretArn ]
+            Effect: Allow
+            Sid: SecretsRole
 
   PclusterManagerEC2Policy:
     Type: AWS::IAM::ManagedPolicy
@@ -702,20 +726,6 @@ Resources:
               - '*'
             Effect: Allow
             Sid: SsmGetCommandInvocationPolicy
-
-
-  PclusterManagerCognitoSecretPolicy:
-    Type: AWS::IAM::ManagedPolicy
-    Properties:
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Action:
-            - secretsmanager:GetSecretValue
-            Resource:
-              - !GetAtt [ PclusterManagerCognito, Outputs.UserPoolClientSecretArn ]
-            Effect: Allow
-            Sid: SecretsRole
 
 # Outputs
 
