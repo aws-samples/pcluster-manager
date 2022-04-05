@@ -304,15 +304,11 @@ Resources:
 
 Outputs:
   SlurmDbEndpoint:
-    Description: Database endpoint address
+    Description: RDS Endpoint: Database endpoint address
     Value: !GetAtt SlurmDbInstance.Endpoint.Address
 
-  SlurmDbInstanceId:
-    Description: RDS instance ID
-    Value: !Ref SlurmDbInstance
-
   SlurmDbPasswordSecretArn:
-    Description: Database username and password secret ARN
+    Description: Secret ARN: Database username and password secret ARN
     Condition: CreateSlurmDbPasswordSecret
     Value: !Ref SlurmDbPasswordSecret
 

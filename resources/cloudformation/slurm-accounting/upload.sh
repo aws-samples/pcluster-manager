@@ -4,7 +4,7 @@
 REGIONS=(us-east-1)
 PREFIX=slurm-accounting
 
-FILES=(accounting-cluster-template.yaml slurmdb-template.yaml vpc-template.yaml)
+FILES=(accounting-cluster-template.yaml)
 
 for REGION in "${REGIONS[@]}"
 do
