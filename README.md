@@ -59,6 +59,20 @@ For more details see the [Getting Started Guide](https://aws-samples.github.io/p
 
 ![ParallelCluster Manager Architecture](docs/static/architecture.png)
 
+## Costs
+
+ParallelCluster Manager is built on a serverless architecture and falls into the free tier for most uses. I've detailed the dependency services and their free-tier limits below:
+
+| Service       | Free Tier                                                        |
+|---------------|------------------------------------------------------------------|
+| Cognito       | 50,000 Monthly Active Users                                      |
+| API Gateway   | 1M Rest API Calls                                                |
+| Lambda        | 1M free requests / month & 400,000 GB-seconds of compute / month |
+| Image Builder | No-Cost except EC2                                               |
+| EC2           | ~15 mins one-time to build Container Image                       |
+
+Typical usage will likely cost < $1 / month.
+
 ## Updating
 
 To update the the latest version, run the following, make sure to set the region to where you deployed the stack:
