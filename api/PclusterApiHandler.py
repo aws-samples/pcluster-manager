@@ -276,6 +276,58 @@ def price_estimate():
     return price_guess if isinstance(price_guess, tuple) else {"estimate": price_guess}
 
 
+def sacct():
+    parser = reqparse.RequestParser()
+    parser.add_argument("instance_id", type=str)
+    parser.add_argument("user", type=str, location="args")
+    parser.add_argument("region", type=str)
+    parser.add_argument("cluster_name", type=str)
+    args = parser.parse_args()
+    user = args.get("user", "ec2-user")
+    instance_id = args.get("instance_id")
+    cluster_name = args.get("cluster_name")
+    region = args.get("region")
+    body = request.json
+
+    price_guess = None
+    sacct_args = " ".join(f"--{k} {v}" for k, v in body.items())
+    sacct_args += " --allusers" if "user" not in body else ""
+    print(f"sacct {sacct_args} --json " + "| jq -c .jobs\\|\\map\\({name,nodes,partition,state,job_id,exit_code\\}\\)")
+    if "jobs" not in body:
+        accounting = ssm_command(
+            region,
+            instance_id,
+            user,
+            f"sacct {sacct_args} --json "
+            + "| jq -c .jobs[0:120]\\|\\map\\({name,user,partition,state,job_id,exit_code\\}\\)",
+        )
+        if type(accounting) is tuple:
+            return accounting
+    else:
+
+        accounting = ssm_command(region, instance_id, user, f"sacct {sacct_args} --json | jq -c .jobs")
+        if isinstance(accounting, tuple):
+            return accounting
+        # Try to retrieve relevant cost information
+        try:
+            queue_name = json.loads(accounting)[0]["partition"]
+            _price_guess = _price_estimate(cluster_name, region, queue_name)
+            if not isinstance(_price_guess, tuple):
+                price_guess = _price_guess
+        except Exception as e:
+            print(e)
+    try:
+        if accounting == "":
+            return {"jobs": []}
+        accounting_ret = {"jobs": json.loads(accounting)}
+        if "jobs" in sacct_args and price_guess:
+            accounting_ret["jobs"][0]["price_estimate"] = price_guess
+        return accounting_ret
+    except Exception as e:
+        print(accounting)
+        raise e
+
+
 def scontrol_job():
     user = request.args.get("user", "ec2-user")
     instance_id = request.args.get("instance_id")

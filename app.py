@@ -37,6 +37,7 @@ from api.PclusterApiHandler import (
     logout,
     price_estimate,
     queue_status,
+    sacct,
     scontrol_job,
     set_user_role,
     submit_job,
@@ -161,6 +162,11 @@ def run():
     @authenticated()
     def submit_job_():
         return submit_job()
+
+    @app.route("/manager/sacct", methods=["POST"])
+    @authenticated()
+    def sacct_():
+        return sacct()
 
     @app.route("/manager/scontrol_job")
     @authenticated()

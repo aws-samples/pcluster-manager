@@ -55,6 +55,7 @@ function updateIn(state, path, update) {
   return swapIn(state, path[0], update(existing));
 }
 
+
 function clusterDefaultUser(cluster) {
   let os = getIn(cluster.config, ['Image', 'Os'])
   return {"alinux2": "ec2-user",

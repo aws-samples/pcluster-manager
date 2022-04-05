@@ -672,6 +672,24 @@ function PriceEstimate(clusterName, queueName, callback, failure) {
   })
 }
 
+function SlurmAccounting(clusterName, instanceId, user, args, callback, failure) {
+  const region = getState(['app', 'selectedRegion']) || getState(['aws', 'region']);
+  let url = `manager/sacct?instance_id=${instanceId}&cluster_name=${clusterName}&user=${user || 'ec2-user'}&region=${region}`
+  request('post', url, args).then(response => {
+    if(response.status === 200) {
+      console.log(response.data)
+      callback && callback(response.data)
+    }
+  }).catch(error => {
+    if(error.response)
+    {
+      failure && failure(error.response)
+      console.log(error.response)
+      notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
+    }
+    console.log(error)
+  })
+}
 
 function GetIdentity(callback) {
   const url = "manager/get_identity"
@@ -715,5 +733,5 @@ export {CreateCluster, UpdateCluster, ListClusters, DescribeCluster,
   BuildImage, GetCustomImageStackEvents, ListCustomImageLogStreams,
   GetCustomImageLogEvents, ListOfficialImages, LoadInitialState,
   Ec2Action,LoadAwsConfig, GetDcvSession, QueueStatus, CancelJob, SubmitJob,
-  PriceEstimate, JobInfo, ListUsers, SetUserRole, notify,
+  PriceEstimate, SlurmAccounting, JobInfo, ListUsers, SetUserRole, notify,
   CreateUser, DeleteUser}

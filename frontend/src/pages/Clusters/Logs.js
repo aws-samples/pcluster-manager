@@ -18,6 +18,7 @@ import { useCollection } from '@awsui/collection-hooks';
 
 // UI Elements
 import Loading from '../../components/Loading'
+import HelpTooltip from '../../components/HelpTooltip'
 import {
   Button,
   CollectionPreferences,
