@@ -517,8 +517,6 @@ Resources:
             Principal:
               Service: lambda.amazonaws.com
       ManagedPolicyArns:
-        # Required for cost estimation
-        - !Sub arn:${AWS::Partition}:iam::aws:policy/AWSPriceListServiceFullAccess
         # Required for Lambda logging and XRay
         - !Sub arn:${AWS::Partition}:iam::aws:policy/AWSXRayDaemonWriteAccess
         - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
@@ -527,8 +525,7 @@ Resources:
         # Required to run PclusterManager functionalities
         - !Ref PclusterManagerCognitoPolicy
         - !Ref PclusterManagerEC2Policy
-        - !Ref PclusterManagerFsxLustrePolicy
-        - !Ref PclusterManagerEfsPolicy
+        - !Ref PclusterManagerExtraPolicies
         - !Ref PclusterManagerSsmSendPolicy
         - !Ref PclusterManagerSsmGetCommandInvocationPolicy
         - !Ref PclusterManagerCognitoSecretPolicy
@@ -642,7 +639,7 @@ Resources:
             Effect: Allow
             Sid: EC2ManagePolicy
 
-  PclusterManagerFsxLustrePolicy:
+  PclusterManagerExtraPolicies:
     Type: AWS::IAM::ManagedPolicy
     Properties:
       PolicyDocument:
@@ -654,19 +651,18 @@ Resources:
             - '*'
             Effect: Allow
             Sid: FsxLustrePolicy
-
-  PclusterManagerEfsPolicy:
-    Type: AWS::IAM::ManagedPolicy
-    Properties:
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
           - Action:
             - elasticfilesystem:DescribeFileSystems
             Resource:
               - !Sub arn:${AWS::Partition}:elasticfilesystem:*:${AWS::AccountId}:file-system/*
             Effect: Allow
             Sid: EfsPolicy
+          - Action:
+            - pricing:GetProducts
+            Resource:
+            - '*'
+            Effect: Allow
+            Sid: PricePolicy
 
   PclusterManagerSsmSendPolicy:
     Type: AWS::IAM::ManagedPolicy
