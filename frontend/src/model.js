@@ -106,7 +106,7 @@ function UpdateCluster(clusterName, clusterConfig, dryrun=false, forceUpdate, su
   })
 }
 
-function DescribeCluster(clusterName) {
+function DescribeCluster(clusterName, errorCallback) {
   var url = `api?path=/v3/clusters/${clusterName}`;
   request('get', url).then(response => {
     //console.log("Describe Success", response)
@@ -116,6 +116,7 @@ function DescribeCluster(clusterName) {
   }).catch(error => {
     if(error.response)
     {
+      errorCallback && errorCallback();
       var selected = getState(['app', 'clusters', 'selected'])
       if(selected === clusterName) {
         clearState(['app', 'clusters', 'selected']);
