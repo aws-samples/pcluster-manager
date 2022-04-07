@@ -2,7 +2,7 @@ Parameters:
   AdminUserEmail:
     Description: Email address of administrative user setup by default.
     Type: String
-    Default: user@amazon.com
+    MinLength: 1 # Force this to be selected
   PublicEcrImageUri:
     Description: When specified, the URI of the Docker image for the Lambda of the PclusterManager container
     Type: String
