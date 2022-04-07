@@ -115,10 +115,10 @@ HeadNode:
   CustomActions:
     OnNodeConfigured:
       Script: >-
-        https://raw.githubusercontent.com/aws-samples/pcluster-manager/post-install-scripts/resources/scripts/multi-runner.py
+        https://raw.githubusercontent.com/aws-samples/pcluster-manager/main/resources/scripts/multi-runner.py
       Args:
         - >-
-          https://raw.githubusercontent.com/aws-samples/pcluster-manager/post-install-scripts/resources/scripts/slurm-accounting.sh
+          https://raw.githubusercontent.com/aws-samples/pcluster-manager/main/resources/scripts/slurm-accounting.sh
         - >-
           -${SECRET_ARN}
         - '-${RDS_ENDPOINT}'
