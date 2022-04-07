@@ -15,10 +15,10 @@ Parameters:
   EnableMFA:
     AllowedValues: [true, false]
     Default: false
-    Description: Whether or not to enable MFA through SMS.
+    Description: Whether or not to enable MFA through SMS. See https://aws-samples.github.io/pcluster-manager/02-tutorials/01-setup-sms.html
     Type: String
   AdminUserPhone:
-    Description: Phone number of administrative user setup by default. This is only required if MFA is enabled.
+    Description: (Optional) Phone number of administrative user setup by default. This is required if MFA is enabled.
     Type: String
     Default: '+10000000000'
   Version:
@@ -26,13 +26,13 @@ Parameters:
     Type: String
     Default: 3.1.2
   ImageBuilderVpcId:
-    Description: Select the VPC to use for building the container images.
-    Type: AWS::EC2::VPC::Id
-    MinLength: 1 # Force this to be selected
+    Description: (Optional) Select the VPC to use for building the container images. If not selected, default VPC will be used.
+    Type: String
+    Default: ''
   ImageBuilderSubnetId:
-    Description: Select the subnet to use for building the container images.
-    Type: AWS::EC2::Subnet::Id
-    MinLength: 1 # Force this to be selected
+    Description: (Optional) Select the subnet to use for building the container images. If not selected, Subnet in the default VPC will be used.
+    Type: String
+    Default: ''
 
 Metadata:
   AWS::CloudFormation::Interface:
@@ -61,7 +61,12 @@ Metadata:
         default: Initial Admin's Email 
       AdminUserPhone:
         default: Initial Admin's Phone Number
- 
+
+Conditions:
+   NonDefaultVpc:
+    Fn::And:
+      - !Not [!Equals [!Ref ImageBuilderVpcId, ""]]
+      - !Not [!Equals [!Ref ImageBuilderSubnetId, ""]]
 
 Mappings:
   PclusterManager:
@@ -94,8 +99,16 @@ Resources:
         CreateApiUserRole: False
         EnableIamAdminAccess: True
         PublicEcrImageUri: !Sub public.ecr.aws/parallelcluster/pcluster-api:${Version}
-        ImageBuilderVpcId: !Ref ImageBuilderVpcId
-        ImageBuilderSubnetId: !Ref ImageBuilderSubnetId
+        ImageBuilderSubnetId:
+          Fn::If:
+            - NonDefaultVpc
+            - !Ref ImageBuilderSubnetId
+            - !Ref AWS::NoValue
+        ImageBuilderVpcId:
+          Fn::If:
+            - NonDefaultVpc
+            - !Ref ImageBuilderVpcId
+            - !Ref AWS::NoValue
       # TemplateURL: !Sub https://${AWS::Region}-aws-parallelcluster.s3.${AWS::Region}.amazonaws.com/parallelcluster/${Version}/api/parallelcluster-api.yaml
       TemplateURL: !Sub https://pcluster-manager-${AWS::Region}.s3.${AWS::Region}.amazonaws.com/parallelcluster-api.yaml
       TimeoutInMinutes: 30
@@ -202,6 +215,7 @@ Resources:
         - !Ref ImageBuilderInstanceRole
 
   InfrastructureConfigurationSecurityGroup:
+    Condition: NonDefaultVpc
     Type: AWS::EC2::SecurityGroup
     Properties:
       VpcId: !Ref ImageBuilderVpcId
@@ -216,8 +230,16 @@ Resources:
       InstanceProfileName: !Ref ImageBuilderInstanceProfile
       TerminateInstanceOnFailure: true
       SnsTopicArn: !Ref EcrImageBuilderSNSTopic
-      SubnetId: !Ref ImageBuilderSubnetId
-      SecurityGroupIds: [!Ref InfrastructureConfigurationSecurityGroup]
+      SubnetId:
+        Fn::If:
+          - NonDefaultVpc
+          - !Ref ImageBuilderSubnetId
+          - !Ref AWS::NoValue
+      SecurityGroupIds:
+        Fn::If:
+          - NonDefaultVpc
+          - [!Ref InfrastructureConfigurationSecurityGroup]
+          - !Ref AWS::NoValue
 
   EcrImageRecipe:
     Type: AWS::ImageBuilder::ContainerRecipe
