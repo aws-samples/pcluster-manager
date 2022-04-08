@@ -21,7 +21,7 @@ chown $USER: $USER_SPACK_ROOT
 
 mkdir -p $SPACK_ROOT
 cd $SPACK_ROOT
-git clone -c feature.manyFiles=true https://github.com/spack/spack -b $SPACK_RELEASE
+git clone -c feature.manyFiles=true https://github.com/spack/spack -b $SPACK_RELEASE .
 
 echo "export SPACK_ROOT=$SPACK_ROOT" >> /root/.bashrc
 echo "source \$SPACK_ROOT/share/spack/setup-env.sh" >> /root/.bashrc
