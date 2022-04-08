@@ -18,7 +18,6 @@ import { findFirst, getIn } from '../../util'
 import {
   Box,
   Button,
-  ColumnLayout,
   Container,
   ExpandableSection,
   FormField,
@@ -85,6 +84,9 @@ function headNodeValidate() {
   if(rootVolumeValue === '')
   {
     setState([...errorsPath, 'rootVolume'], 'You must set a RootVolume size.');
+    valid = false;
+  } else if(!Number.isInteger(rootVolumeValue) || rootVolumeValue < 35) {
+    setState([...errorsPath, 'rootVolume'], 'You must use an integer >= 35GB for RootVolume size.');
     valid = false;
   } else {
     clearState([...errorsPath, 'rootVolume']);
