@@ -86,7 +86,7 @@ function headNodeValidate() {
     setState([...errorsPath, 'rootVolume'], 'You must set a RootVolume size.');
     valid = false;
   } else if(!Number.isInteger(rootVolumeValue) || rootVolumeValue < 35) {
-    setState([...errorsPath, 'rootVolume'], 'You must use an integer >= 35GB for RootVolume size.');
+    setState([...errorsPath, 'rootVolume'], 'You must use an integer >= 35GB for Root Volume Size.');
     valid = false;
   } else {
     clearState([...errorsPath, 'rootVolume']);
