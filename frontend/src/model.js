@@ -52,10 +52,11 @@ function request(method, url, body = null) {
   return requestFunc(url, body, headers)
 }
 
-function CreateCluster(clusterName, clusterConfig, region, dryrun=false, successCallback=null, errorCallback=null) {
+function CreateCluster(clusterName, clusterConfig, region, disableRollback=false, dryrun=false, successCallback=null, errorCallback=null) {
   const selectedRegion = getState(['app', 'selectedRegion']);
   var url = 'api?path=/v3/clusters';
   url += dryrun ? "&dryrun=true" : ""
+  url += disableRollback ? "&disableRollback=true" : ""
   url += region ? `&region=${region}` : ""
   var body = {clusterName: clusterName, clusterConfiguration: clusterConfig}
   request('post', url, body).then(response => {
