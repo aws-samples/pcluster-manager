@@ -144,11 +144,12 @@ function DeleteCluster(clusterName, callback=null) {
   })
 }
 
-function ListClusters() {
+function ListClusters(callback) {
   var url = 'api?path=/v3/clusters';
   request('get', url).then(response => {
     //console.log("List Success", response)
     if(response.status === 200) {
+      callback && callback(response.data.clusters);
       setState(['clusters', 'list'], response.data.clusters);
     }
   }).catch(error => {

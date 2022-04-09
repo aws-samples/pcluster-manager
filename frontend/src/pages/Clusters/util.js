@@ -21,7 +21,7 @@ export function selectCluster(clusterName, navigate)
   GetConfiguration(name, (configuration) => {
     setState(['clusters', 'index', name, 'configYaml'], configuration);
     setState(config_path, jsyaml.load(configuration))});
-  DescribeCluster(name, () => {navigate('/clusters')});
+  DescribeCluster(name, () => {navigate && navigate('/clusters')});
   if(oldClusterName !== clusterName)
     setState(['app', 'clusters', 'selected'], name);
 }
