@@ -67,19 +67,19 @@ function OfficialImagesList(props) {
           id: "id",
           header: "Id",
           cell: item => item.amiId,
-          sortingField: "imageId"
+          sortingField: "amiId"
         },
         {
           id: "os",
           header: "OS",
           cell: item => item.os || "-",
-          sortingField: "imageBuildStatus"
+          sortingField: "os"
         },
         {
           id: "architecture",
           header: "Architecture",
           cell: item => item.architecture || "-",
-          sortingField: "region"
+          sortingField: "architecture"
         },
         {
           id: "version",
