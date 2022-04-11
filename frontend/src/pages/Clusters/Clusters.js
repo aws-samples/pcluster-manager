@@ -50,7 +50,8 @@ function updateClusterList() {
         if(oldStatus !== selectedCluster.clusterStatus)
           setState(['app', 'clusters', 'selectedStatus'], selectedCluster.clusterStatus);
 
-        if(oldStatus === 'CREATE_IN_PROGRESS' && selectedCluster.clusterStatus === 'CREATE_COMPLETE')
+        if((oldStatus === 'CREATE_IN_PROGRESS' && selectedCluster.clusterStatus === 'CREATE_COMPLETE') ||
+          (oldStatus === 'UPDATE_IN_PROGRESS' && selectedCluster.clusterStatus === 'UPDATE_COMPLETE'))
           selectCluster(selectedClusterName);
       }
     }
