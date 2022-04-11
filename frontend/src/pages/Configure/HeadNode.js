@@ -32,17 +32,12 @@ import {
 import { setState, getState, useState, clearState, updateState, ssmPolicy } from '../../store'
 
 // Components
-import { ActionsEditor, InstanceSelect, SecurityGroups, SubnetSelect } from './Components'
+import { ActionsEditor, InstanceSelect, RootVolume, SecurityGroups, SubnetSelect } from './Components'
 import HelpTooltip from '../../components/HelpTooltip'
 
 // Constants
 const headNodePath = ['app', 'wizard', 'config', 'HeadNode'];
 const errorsPath = ['app', 'wizard', 'errors', 'headNode'];
-
-// Helper Functions
-function strToOption(str){
-  return {value: str, label: str}
-}
 
 
 function headNodeValidate() {
@@ -288,50 +283,14 @@ function IamPoliciesEditor() {
 }
 
 function HeadNode() {
-  const rootVolumeSizePath = [...headNodePath, 'LocalStorage', 'RootVolume', 'Size'];
-  const rootVolumeSize = useState(rootVolumeSizePath);
-
-  const rootVolumeEncryptedPath = [...headNodePath, 'LocalStorage', 'RootVolume', 'Encrypted'];
-  const rootVolumeEncrypted = useState(rootVolumeEncryptedPath);
-
-  const rootVolumeTypePath = [...headNodePath, 'LocalStorage', 'RootVolume', 'VolumeType'];
-  const rootVolumeType = useState(rootVolumeTypePath);
-  const volumeTypes = ['gp2', 'gp3', 'io1', 'io2', 'sc1', 'stl', 'standard'];
-
   const imdsSecuredPath = [...headNodePath, 'Imds', 'Secured'];
   const imdsSecured = useState(imdsSecuredPath);
-
 
   const subnetPath = [...headNodePath, 'Networking', 'SubnetId'];
   const instanceTypeErrors = useState([...errorsPath, 'instanceType'])
   const subnetErrors = useState([...errorsPath, 'subnet']);
-  const rootVolumeErrors = useState([...errorsPath, 'rootVolume']);
   const subnetValue = useState(subnetPath) || "";
   const editing = useState(['app', 'wizard', 'editing']);
-
-  const clearEmpty = () => {
-    const headStorage = getState([...headNodePath, 'LocalStorage', 'RootVolume']) || {};
-    if(Object.keys(headStorage).length === 0)
-      clearState([...headNodePath, 'LocalStorage']);
-    console.log("config: ", getState(headNodePath));
-  }
-
-  const setRootVolume = (size) => {
-    if(size === '')
-      clearState(rootVolumeSizePath);
-    else
-      setState(rootVolumeSizePath, parseInt(size));
-    clearEmpty();
-  }
-
-  const toggleEncrypted = () => {
-    const setEncrypted = !rootVolumeEncrypted;
-    if(setEncrypted)
-      setState(rootVolumeEncryptedPath, setEncrypted);
-    else
-      clearState(rootVolumeEncryptedPath);
-    clearEmpty();
-  }
 
   const toggleImdsSecured = () => {
     const setImdsSecured = !imdsSecured;
@@ -347,52 +306,30 @@ function HeadNode() {
 
   return <Container header={<Header variant="h2">Head Node Properties</Header>}>
     <SpaceBetween direction="vertical" size="s">
-        <Box>
-          <FormField
-            errorText={instanceTypeErrors}
-            label="Head Node Instance Type">
-            <InstanceSelect disabled={editing} selectId="head-node" path={[...headNodePath, 'InstanceType']} />
-          </FormField>
-        </Box>
+      <Box>
         <FormField
-          label="Subnet ID"
-          errorText={subnetErrors}
-          description="Subnet ID for HeadNode.">
-          <SubnetSelect disabled={editing} value={subnetValue} onChange={(subnetId) => setState(subnetPath, subnetId)}/>
+          errorText={instanceTypeErrors}
+          label="Head Node Instance Type">
+          <InstanceSelect disabled={editing} selectId="head-node" path={[...headNodePath, 'InstanceType']} />
         </FormField>
-        <KeypairSelect />
-        <FormField
-          label="Root Volume Size (GB)"
-          errorText={rootVolumeErrors}
-          description="Typically users will use a shared storage option for application data so a smaller root volume size is suitable. Blank will use the default from the AMI.">
-          <Input
-            disabled={editing}
-            placeholder="Enter root volume size."
-            value={rootVolumeSize || ''}
-            inputMode="decimal"
-            onChange={({detail}) => setRootVolume(detail.value)} />
-        </FormField>
-        <SsmSettings />
-        <DcvSettings />
+      </Box>
+      <FormField
+        label="Subnet ID"
+        errorText={subnetErrors}
+        description="Subnet ID for HeadNode.">
+        <SubnetSelect disabled={editing} value={subnetValue} onChange={(subnetId) => setState(subnetPath, subnetId)}/>
+      </FormField>
+      <KeypairSelect />
+      <RootVolume basePath={headNodePath} errorsPath={errorsPath} />
+      <SsmSettings />
+      <DcvSettings />
+      <div key="imds-secured" style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
         <Toggle
-          disabled={editing}
-          checked={rootVolumeEncrypted || false} onChange={toggleEncrypted}>Encrypted Root Volume</Toggle>
-        <div key="volume-type" style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
-          Volume Type:
-          <Select
-            disabled={editing}
-            placeholder="Default (gp2)"
-            selectedOption={rootVolumeType && strToOption(rootVolumeType)} label="Volume Type" onChange={({detail}) => {setState(rootVolumeTypePath, detail.selectedOption.value)}}
-            options={volumeTypes.map(strToOption)}
-          />
-        </div>
-        <div key="imds-secured" style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
-          <Toggle
-            checked={imdsSecured || false} onChange={toggleImdsSecured}>IMDS Secured</Toggle>
-          <HelpTooltip>
-            If enabled, restrict access to IMDS (and thus instance credentials) to users with superuser permissions. For more information, see <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html#instance-metadata-v2-how-it-works'>How instance metadata service version 2 works</a> in the <i>Amazon EC2 User Guide for Linux Instances</i>.
-          </HelpTooltip>
-        </div>
+          checked={imdsSecured || false} onChange={toggleImdsSecured}>IMDS Secured</Toggle>
+        <HelpTooltip>
+          If enabled, restrict access to IMDS (and thus instance credentials) to users with superuser permissions. For more information, see <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html#instance-metadata-v2-how-it-works'>How instance metadata service version 2 works</a> in the <i>Amazon EC2 User Guide for Linux Instances</i>.
+        </HelpTooltip>
+      </div>
       <div key="sgs" style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
         <FormField label="Additional Security Groups">
           <SecurityGroups basePath={headNodePath} />

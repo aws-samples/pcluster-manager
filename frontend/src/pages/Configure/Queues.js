@@ -31,7 +31,7 @@ import {
 import { setState, getState, useState, clearState } from '../../store'
 
 // Components
-import { ActionsEditor, CustomAMISettings, InstanceSelect, LabeledIcon, SubnetSelect, SecurityGroups } from './Components'
+import { ActionsEditor, CustomAMISettings, InstanceSelect, LabeledIcon, RootVolume, SubnetSelect, SecurityGroups } from './Components'
 import HelpTooltip from '../../components/HelpTooltip'
 
 // Constants
@@ -65,6 +65,20 @@ function queueValidate(queueIndex) {
 
   const customAmiEnabled = getState(['app', 'wizard', 'queues', queueIndex, 'customAMI', 'enabled']);
   const customAmi = getState([...queuesPath, queueIndex, 'Image', 'CustomAmi']);
+
+  const rootVolumeSizePath = [...queuesPath, queueIndex, 'ComputeSettings', 'LocalStorage', 'RootVolume', 'Size'];
+  const rootVolumeValue = getState(rootVolumeSizePath);
+
+  if(rootVolumeValue === '')
+  {
+    setState([...errorsPath, 'rootVolume'], 'You must set a RootVolume size.');
+    valid = false;
+  } else if(rootVolumeValue && (!Number.isInteger(rootVolumeValue) || rootVolumeValue < 35)) {
+    setState([...errorsPath, 'rootVolume'], 'You must use an integer >= 35GB for Root Volume Size.');
+    valid = false;
+  } else {
+    clearState([...errorsPath, 'rootVolume']);
+  }
 
   if(onStart && getState([...onStartPath, 'Args']) && !getState([...onStartPath, 'Script']))
   {
@@ -348,11 +362,14 @@ function Queue({index}) {
         </ColumnLayout>
         <ComputeResources queue={queue} index={index}/>
         <ExpandableSection header="Advanced options">
-          <FormField label="Additional Security Groups">
-            <SecurityGroups basePath={[...queuesPath, index]} />
-          </FormField>
-          <ActionsEditor basePath={[...queuesPath, index]} errorsPath={errorsPath}/>
-          <CustomAMISettings basePath={[...queuesPath, index]} appPath={['app', 'wizard', 'queues', index]} errorsPath={errorsPath} validate={queuesValidate}/>
+          <SpaceBetween direction="vertical" size="s">
+            <FormField label="Additional Security Groups">
+              <SecurityGroups basePath={[...queuesPath, index]} />
+            </FormField>
+            <ActionsEditor basePath={[...queuesPath, index]} errorsPath={errorsPath}/>
+            <CustomAMISettings basePath={[...queuesPath, index]} appPath={['app', 'wizard', 'queues', index]} errorsPath={errorsPath} validate={queuesValidate}/>
+            <RootVolume basePath={[...queuesPath, index, 'ComputeSettings']} errorsPath={errorsPath} />
+          </SpaceBetween>
         </ExpandableSection>
       </div>
     </div>
