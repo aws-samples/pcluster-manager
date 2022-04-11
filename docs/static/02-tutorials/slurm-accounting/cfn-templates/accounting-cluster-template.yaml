@@ -250,6 +250,17 @@ Resources:
         - Key: StackName
           Value: !Ref AWS::StackName
 
+  SecretsManagerPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Condition: CreateSlurmDbPasswordSecret
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: 'secretsmanager:GetSecretValue'
+            Resource: !Ref SlurmDbPasswordSecret
+
   SlurmDbSubnetGroup:
     Type: AWS::RDS::DBSubnetGroup
     Properties:
@@ -319,3 +330,8 @@ Outputs:
   SlurmDbSecurityGroupId:
     Description: The secrity group ID for the RDS instance
     Value: !Ref SlurmDbSecurityGroup
+
+  SecretsManagerPolicy:
+    Condition: CreateSlurmDbPasswordSecret
+    Description: IAM Policy to retreive Db Password from Secrets Manager
+    Value: !Ref SecretsManagerPolicy
