@@ -20,7 +20,6 @@ import { findFirst } from '../../util'
 // UI Elements
 import {
   Button,
-  Container,
   CollectionPreferences,
   Header,
   Pagination,
@@ -97,7 +96,6 @@ export default function ClusterStackEvents() {
     const cluster = getState(clusterPath);
     const headNode = getState([...clusterPath, 'headNode']);
     GetClusterStackEvents(clusterName);
-    console.log("describing: ", clusterName);
     DescribeCluster(clusterName);
 
     let timerId = (setInterval(() => {

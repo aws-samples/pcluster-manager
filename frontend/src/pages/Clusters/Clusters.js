@@ -12,8 +12,9 @@ import { useNavigate, useParams } from "react-router-dom"
 
 import { ListClusters } from '../../model'
 
-import { useState, isAdmin } from '../../store'
+import { useState, getState, setState, isAdmin } from '../../store'
 import { selectCluster } from './util'
+import { findFirst } from '../../util'
 
 // UI Elements
 import {
@@ -36,6 +37,28 @@ import Actions from './Actions';
 import Details from "./Details";
 import { wizardShow } from '../Configure/Configure';
 
+function updateClusterList() {
+  const selectedClusterName = getState(['app', 'clusters', 'selected']);
+  const oldStatus = getState(['app', 'clusters', 'selectedStatus']);
+
+  ListClusters((clusterList) => {
+    if(selectedClusterName)
+    {
+      const selectedCluster = findFirst(clusterList, c => c.clusterName === selectedClusterName);
+      if(selectedCluster)
+      {
+        if(oldStatus !== selectedCluster.clusterStatus)
+          setState(['app', 'clusters', 'selectedStatus'], selectedCluster.clusterStatus);
+
+        if((oldStatus === 'CREATE_IN_PROGRESS' && selectedCluster.clusterStatus === 'CREATE_COMPLETE') ||
+          (oldStatus === 'UPDATE_IN_PROGRESS' && selectedCluster.clusterStatus === 'UPDATE_COMPLETE'))
+          selectCluster(selectedClusterName);
+      }
+    }
+
+  })
+}
+
 function ClusterList() {
   let clusters = useState(['clusters', 'list']);
   const selectedClusterName = useState(['app', 'clusters', 'selected']);
@@ -43,7 +66,7 @@ function ClusterList() {
   let params = useParams();
 
   React.useEffect(() => {
-    const timerId = (setInterval(ListClusters, 5000));
+    const timerId = (setInterval(updateClusterList, 5000));
     return () => { clearInterval(timerId); }
   }, [])
 
