@@ -487,7 +487,7 @@ def get_aws_config():
 
 def get_instance_types():
     if request.args.get("region"):
-        config = botocore.config.Config(region_name=args.get("region"))
+        config = botocore.config.Config(region_name=request.args.get("region"))
         ec2 = boto3.client("ec2", config=config)
     else:
         ec2 = boto3.client("ec2")
