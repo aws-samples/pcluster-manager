@@ -200,9 +200,9 @@ export default function ClusterScheduling() {
 
   React.useEffect(() => {
     const tick = () => {
-      refreshQueues();
+      cluster_minor > 0 && refreshQueues();
     }
-    refreshQueues();
+    cluster_minor > 0 && refreshQueues();
     const timerId = setInterval(tick, 10000);
     return () => { clearInterval(timerId); }
   }, [])
