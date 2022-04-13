@@ -12,11 +12,13 @@ import React from 'react';
 import { useNavigate, useParams } from "react-router-dom"
 
 import { useState } from '../../store'
+import { getIn } from '../../util'
 
 // UI Elements
 import Tabs from "@awsui/components-react/tabs"
 
 // Components
+import Accounting from './Accounting'
 import StackEvents from './StackEvents'
 import Instances from './Instances'
 import Filesystems from './Filesystems'
@@ -28,7 +30,28 @@ import Loading from '../../components/Loading'
 export default function ClusterTabs() {
 
   const clusterName = useState(['app', 'clusters', 'selected']);
-  const cluster = useState(['clusters', 'index', clusterName]);
+  const clusterPath = ['clusters', 'index', clusterName];
+  const cluster = useState(clusterPath);
+  const customActions = useState([...clusterPath, 'config', 'HeadNode', 'CustomActions']);
+
+  let allScripts = [];
+  const scriptName = (script) => {
+    let suffix = script.slice(script.lastIndexOf('/') + 1);
+    return suffix.slice(0, suffix.lastIndexOf('.'));
+  }
+
+  for(let actionName of ['OnNodeStart', 'OnNodeConfigured'])
+  {
+    if(getIn(customActions, [actionName, 'Script']))
+      allScripts.push(scriptName(getIn(customActions, [actionName, 'Script'])));
+    for(let arg of (getIn(customActions, [actionName, 'Args']) || []))
+    {
+      if(arg.length > 0 && arg[0] !== '-')
+        allScripts.push(scriptName(arg));
+    }
+  }
+
+  let accountingEnabled = allScripts.includes('slurm-accounting');
   let navigate = useNavigate();
   let params = useParams();
 
@@ -38,6 +61,7 @@ export default function ClusterTabs() {
         {label: "Instances", id: "instances", content: <Instances />},
         {label: "Storage", id: "storage", content: <Filesystems />},
         {label: "Job Scheduling", id: "scheduling", content: <Scheduling />},
+        ...(accountingEnabled ? [{label: "Accounting", id: "accounting", content: <Accounting />}] : []),
         {label: "Stack Events", id: "stack-events", content: <StackEvents />},
         {label: "Logs", id: "logs", content: <Logs />}
       ]}

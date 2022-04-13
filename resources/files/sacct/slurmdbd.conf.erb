@@ -1,15 +1,12 @@
-#
-# Slurm Database Daemon configuration
-#
 ArchiveEvents=yes
 ArchiveJobs=yes
 ArchiveResvs=yes
-ArchiveSteps=yes
-ArchiveSuspend=yes
-ArchiveTXN=yes
-ArchiveUsage=yes
+ArchiveSteps=no
+ArchiveSuspend=no
+ArchiveTXN=no
+ArchiveUsage=no
 AuthType=auth/munge
-DbdHost=@SLURM_DBD_HOST@
+DbdHost=<%= @slurm_dbd_host %>
 DbdPort=6819
 DebugLevel=info
 PurgeEventAfter=1month
@@ -22,9 +19,8 @@ PurgeUsageAfter=24month
 SlurmUser=slurm
 LogFile=/var/log/slurmdbd.log
 PidFile=/var/run/slurmdbd.pid
-PrivateData=accounts,events,jobs,reservations,usage,users
 StorageType=accounting_storage/mysql
-StorageUser=@RDS_USER@
-StoragePass=@RDS_PASS@
-StorageHost=@RDS_ENDPOINT@
-StoragePort=@RDS_PORT@
+StorageUser=<%= @slurm_db_user %>
+StoragePass=<%= @slurm_db_password %>
+StorageHost=<%= node['slurm_accounting']['rds_endpoint'] %>
+StoragePort=<%= node['slurm_accounting']['rds_port'] %>

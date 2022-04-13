@@ -240,7 +240,7 @@ Resources:
       Name: !Sub DbPasswdSecret-${AWS::StackName}
       Description: Slurm database password secret
       GenerateSecretString:
-        ExcludeCharacters: "\"@/\\"
+        ExcludeCharacters: "\"@/\\#|"
         GenerateStringKey: password
         PasswordLength: 15
         SecretStringTemplate: !Sub '{"username": "${SlurmDbUsername}"}'
@@ -249,17 +249,6 @@ Resources:
           Value: !Sub ${EnvironmentName}-db-secret
         - Key: StackName
           Value: !Ref AWS::StackName
-
-  SecretsManagerPolicy:
-    Type: 'AWS::IAM::ManagedPolicy'
-    Condition: CreateSlurmDbPasswordSecret
-    Properties:
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action: 'secretsmanager:GetSecretValue'
-            Resource: !Ref SlurmDbPasswordSecret
 
   SlurmDbSubnetGroup:
     Type: AWS::RDS::DBSubnetGroup
@@ -315,23 +304,14 @@ Resources:
 
 Outputs:
   SlurmDbEndpoint:
-    Description: Database endpoint address
+    Description: "RDS Endpoint: Database endpoint address."
     Value: !GetAtt SlurmDbInstance.Endpoint.Address
 
-  SlurmDbInstanceId:
-    Description: RDS instance ID
-    Value: !Ref SlurmDbInstance
-
   SlurmDbPasswordSecretArn:
-    Description: Database username and password secret ARN
+    Description: "Secret ARN: Database username and password secret ARN."
     Condition: CreateSlurmDbPasswordSecret
     Value: !Ref SlurmDbPasswordSecret
 
   SlurmDbSecurityGroupId:
     Description: The secrity group ID for the RDS instance
     Value: !Ref SlurmDbSecurityGroup
-
-  SecretsManagerPolicy:
-    Condition: CreateSlurmDbPasswordSecret
-    Description: IAM Policy to retreive Db Password from Secrets Manager
-    Value: !Ref SecretsManagerPolicy

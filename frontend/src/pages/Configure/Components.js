@@ -20,6 +20,7 @@ import { setState, getState, useState, updateState, clearState, clearEmptyNest }
 
 // UI Elements
 import {
+  Alert,
   Autosuggest,
   Button,
   FormField,
@@ -34,8 +35,14 @@ import {
 // Components
 import HelpTooltip from '../../components/HelpTooltip'
 
-const multiRunner = 'https://raw.githubusercontent.com/aws-samples/pcluster-manager/post-install-scripts/resources/scripts/multi-runner.py'
+// Helper Functions
+function strToOption(str){
+  return {value: str, label: str}
+}
+
+const multiRunner = 'https://raw.githubusercontent.com/aws-samples/pcluster-manager/main/resources/scripts/multi-runner.py'
 const knownExtensions = [{name: 'Cloud9', path: 'cloud9.sh', description: 'Cloud9 Install', args: [{name: 'Output File'}]},
+  {name: 'Slurm Accounting', path: 'slurm-accounting.sh', description: 'Slurm Accounting', args: [{name: 'Secret ARN'}, {name: 'RDS Endpoint'}, {name: 'RDS Port', default: '3306'}]},
   {name: 'Spack', path: "spack.sh", description: 'Install Spack package manager.', args:[{name: 'Spack Root'}]}]
 
 // Selectors
@@ -265,7 +272,7 @@ function ArgEditor({path, i, multi, scriptIndex}) {
 
   return <SpaceBetween direction="horizontal" size="s">
     <div style={{marginLeft: "25px", width: "120px"}}>{argName}: </div>
-    <div style={{width: "480px"}}>
+    <div style={{width: "440px"}}>
       <Input value={multi? arg.slice(1) : arg} onChange={({detail}) => {setState([...path, i], multi? '-' + detail.value : detail.value)}} InputStyle={{width: "200px"}}/>
     </div>
     <Button onClick={remove}>Remove</Button>
@@ -396,7 +403,7 @@ function ActionEditor({label, actionKey, errorPath, path}) {
 
   return <>
       <FormField label={<div>{label} <Toggle checked={useMultiRunner} onChange={toggleUseMultiRunner}>Use Multi-Script Runner?</Toggle></div>} errorText={errorPath}>
-        {useMultiRunner && <div><b>Experimental!</b> The Multi-Script Runner is experimental and uses scripts stored as a sibling <Link external href={script}>here</Link> which are maintained separate from the AWS ParallelCluster project. Please evaluate these scripts before running them and valiate that they are compatible with your environment.</div>}
+        {useMultiRunner && <div style={{marginBottom: "10px"}}><Alert><b>Experimental!</b> The Multi-Script Runner is experimental and uses scripts stored as a sibling <Link external href={script}>here</Link> which are maintained separate from the AWS ParallelCluster project. Please evaluate these scripts before running them and valiate that they are compatible with your environment.</Alert></div>}
         {useMultiRunner && <MultiRunnerEditor path={[...path, 'Args']}/>}
         {!useMultiRunner &&
         <SpaceBetween direction="vertical" size="xs">
@@ -467,4 +474,62 @@ function SecurityGroups({basePath}) {
   </SpaceBetween>
 }
 
-export { SubnetSelect, SecurityGroups, InstanceSelect, LabeledIcon, ActionsEditor, CustomAMISettings }
+function RootVolume({basePath, errorsPath}) {
+  const rootVolumeSizePath = [...basePath, 'LocalStorage', 'RootVolume', 'Size'];
+  const rootVolumeSize = useState(rootVolumeSizePath);
+
+  const rootVolumeEncryptedPath = [...basePath, 'LocalStorage', 'RootVolume', 'Encrypted'];
+  const rootVolumeEncrypted = useState(rootVolumeEncryptedPath);
+
+  const rootVolumeTypePath = [...basePath, 'LocalStorage', 'RootVolume', 'VolumeType'];
+  const rootVolumeType = useState(rootVolumeTypePath);
+  const volumeTypes = ['gp2', 'gp3', 'io1', 'io2', 'sc1', 'stl', 'standard'];
+
+  const rootVolumeErrors = useState([...errorsPath, 'rootVolume']);
+  const editing = useState(['app', 'wizard', 'editing']);
+
+  const setRootVolume = (size) => {
+    if(size === '')
+      clearState(rootVolumeSizePath);
+    else
+      setState(rootVolumeSizePath, parseInt(size));
+    clearEmptyNest(rootVolumeSizePath, 3);
+  }
+
+  const toggleEncrypted = () => {
+    const setEncrypted = !rootVolumeEncrypted;
+    if(setEncrypted)
+      setState(rootVolumeEncryptedPath, setEncrypted);
+    else
+      clearState(rootVolumeEncryptedPath);
+    clearEmptyNest(rootVolumeSizePath, 3);
+  }
+
+  return <>
+    <FormField
+      label="Root Volume Size (GB)"
+      errorText={rootVolumeErrors}
+      description="Typically users will use a shared storage option for application data so a smaller root volume size is suitable. Blank will use the default from the AMI.">
+      <Input
+        disabled={editing}
+        placeholder="Enter root volume size."
+        value={rootVolumeSize || ''}
+        inputMode="decimal"
+        onChange={({detail}) => setRootVolume(detail.value)} />
+    </FormField>
+    <Toggle
+      disabled={editing}
+      checked={rootVolumeEncrypted || false} onChange={toggleEncrypted}>Encrypted Root Volume</Toggle>
+    <div key="volume-type" style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
+      Volume Type:
+      <Select
+        disabled={editing}
+        placeholder="Default (gp2)"
+        selectedOption={rootVolumeType && strToOption(rootVolumeType)} label="Volume Type" onChange={({detail}) => {setState(rootVolumeTypePath, detail.selectedOption.value)}}
+        options={volumeTypes.map(strToOption)}
+      />
+    </div>
+  </>
+}
+
+export { SubnetSelect, SecurityGroups, InstanceSelect, LabeledIcon, ActionsEditor, CustomAMISettings, RootVolume }

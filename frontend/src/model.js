@@ -33,7 +33,7 @@ function notify(text, type = 'info', duration = 5000, dismissButton = false) {
 function getHost() {
   if (process.env.NODE_ENV !== 'production')
     return 'http://localhost:5000/';
-  return '';
+  return '/';
 }
 
 function request(method, url, body = null) {
@@ -52,10 +52,11 @@ function request(method, url, body = null) {
   return requestFunc(url, body, headers)
 }
 
-function CreateCluster(clusterName, clusterConfig, region, dryrun=false, successCallback=null, errorCallback=null) {
+function CreateCluster(clusterName, clusterConfig, region, disableRollback=false, dryrun=false, successCallback=null, errorCallback=null) {
   const selectedRegion = getState(['app', 'selectedRegion']);
   var url = 'api?path=/v3/clusters';
   url += dryrun ? "&dryrun=true" : ""
+  url += disableRollback ? "&disableRollback=true" : ""
   url += region ? `&region=${region}` : ""
   var body = {clusterName: clusterName, clusterConfiguration: clusterConfig}
   request('post', url, body).then(response => {
@@ -106,7 +107,7 @@ function UpdateCluster(clusterName, clusterConfig, dryrun=false, forceUpdate, su
   })
 }
 
-function DescribeCluster(clusterName) {
+function DescribeCluster(clusterName, errorCallback) {
   var url = `api?path=/v3/clusters/${clusterName}`;
   request('get', url).then(response => {
     //console.log("Describe Success", response)
@@ -116,6 +117,7 @@ function DescribeCluster(clusterName) {
   }).catch(error => {
     if(error.response)
     {
+      errorCallback && errorCallback();
       var selected = getState(['app', 'clusters', 'selected'])
       if(selected === clusterName) {
         clearState(['app', 'clusters', 'selected']);
@@ -143,11 +145,12 @@ function DeleteCluster(clusterName, callback=null) {
   })
 }
 
-function ListClusters() {
+function ListClusters(callback) {
   var url = 'api?path=/v3/clusters';
   request('get', url).then(response => {
     //console.log("List Success", response)
     if(response.status === 200) {
+      callback && callback(response.data.clusters);
       setState(['clusters', 'list'], response.data.clusters);
     }
   }).catch(error => {
@@ -672,6 +675,24 @@ function PriceEstimate(clusterName, queueName, callback, failure) {
   })
 }
 
+function SlurmAccounting(clusterName, instanceId, user, args, callback, failure) {
+  const region = getState(['app', 'selectedRegion']) || getState(['aws', 'region']);
+  let url = `manager/sacct?instance_id=${instanceId}&cluster_name=${clusterName}&user=${user || 'ec2-user'}&region=${region}`
+  request('post', url, args).then(response => {
+    if(response.status === 200) {
+      console.log(response.data)
+      callback && callback(response.data)
+    }
+  }).catch(error => {
+    if(error.response)
+    {
+      failure && failure(error.response)
+      console.log(error.response)
+      notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
+    }
+    console.log(error)
+  })
+}
 
 function GetIdentity(callback) {
   const url = "manager/get_identity"
@@ -715,5 +736,5 @@ export {CreateCluster, UpdateCluster, ListClusters, DescribeCluster,
   BuildImage, GetCustomImageStackEvents, ListCustomImageLogStreams,
   GetCustomImageLogEvents, ListOfficialImages, LoadInitialState,
   Ec2Action,LoadAwsConfig, GetDcvSession, QueueStatus, CancelJob, SubmitJob,
-  PriceEstimate, JobInfo, ListUsers, SetUserRole, notify,
+  PriceEstimate, SlurmAccounting, JobInfo, ListUsers, SetUserRole, notify,
   CreateUser, DeleteUser}

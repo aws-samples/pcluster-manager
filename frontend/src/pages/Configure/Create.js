@@ -42,6 +42,7 @@ function handleWarnings(resp) {
 function handleCreate(handleClose, navigate) {
   const clusterName = getState(['app', 'wizard', 'clusterName']);
   const editing = getState(['app', 'wizard', 'editing']);
+  const disableRollback = getState(['app', 'wizard', 'disableRollback']) || false;
   const forceUpdate = getState(['app', 'wizard', 'forceUpdate']);
   const clusterConfig = getState(configPath) || "";
   const dryRun = false;
@@ -68,7 +69,7 @@ function handleCreate(handleClose, navigate) {
   else
   {
     setState(['app', 'wizard', 'pending'], "Create");
-    CreateCluster(clusterName, clusterConfig, region, dryRun, successHandler, errHandler);
+    CreateCluster(clusterName, clusterConfig, region, disableRollback, dryRun, successHandler, errHandler);
   }
 }
 
@@ -78,6 +79,7 @@ function handleDryRun(handleClose) {
   const forceUpdate = getState(['app', 'wizard', 'forceUpdate']);
   const clusterConfig = getState(configPath) || '';
   const region = getState(['app', 'wizard', 'config', 'Region']);
+  const disableRollback = false;
   const dryRun = true;
   var errHandler = (err) => {setState(['app', 'wizard', 'errors', 'create'], err); setState(['app', 'wizard','pending'], false);}
   var successHandler = (resp) => {
@@ -89,7 +91,7 @@ function handleDryRun(handleClose) {
   if(editing)
     UpdateCluster(clusterName, clusterConfig, dryRun, forceUpdate, successHandler, errHandler);
   else
-    CreateCluster(clusterName, clusterConfig, region, dryRun, successHandler, errHandler);
+    CreateCluster(clusterName, clusterConfig, region, disableRollback, dryRun, successHandler, errHandler);
 }
 
 function createValidate() {
@@ -98,7 +100,8 @@ function createValidate() {
 
 function Create() {
   const clusterConfig = useState(configPath);
-  const forceUpdate = getState(['app', 'wizard', 'forceUpdate']) || false;
+  const forceUpdate = useState(['app', 'wizard', 'forceUpdate']) || false;
+  const disableRollback = useState(['app', 'wizard', 'disableRollback']) || false;
   const errors = useState(['app', 'wizard', 'errors', 'create']);
   const pending = useState(['app', 'wizard', 'pending']);
   const editing = getState(['app', 'wizard', 'editing']);
@@ -107,6 +110,7 @@ function Create() {
     {errors && <ValidationErrors errors={errors} /> }
     {pending && <div><Spinner size="normal" /> {pending} request pending...</div>}
     {editing && <Toggle checked={forceUpdate} onChange={() => setState(['app', 'wizard', 'forceUpdate'], !forceUpdate)}>Force Update: Enable this to perform an update while the ComputeFleet is still running.</Toggle>}
+    {!editing && <Toggle checked={disableRollback} onChange={() => setState(['app', 'wizard', 'disableRollback'], !disableRollback)}>Disable Rollback: Enable this to retain resources in the event of creation failure.</Toggle>}
   </Container>
 }
 

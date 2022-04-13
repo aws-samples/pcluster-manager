@@ -21,7 +21,7 @@ Launch the stack in your AWS account by clicking on one of the below regions:
 | Ohio (us-east-2)   | [![Launch](https://samdengler.github.io/cloudformation-launch-stack-button-svg/images/us-east-2.svg)](https://us-east-2.console.aws.amazon.com/cloudformation/home?region=us-east-2#/stacks/create/review?stackName=pcluster-manager&templateURL=https://pcluster-manager-us-east-2.s3.amazonaws.com/pcluster-manager.yaml)       |
 | North Virginia (us-east-1)   | [![Launch](https://samdengler.github.io/cloudformation-launch-stack-button-svg/images/us-east-1.svg)](https://us-east-1.console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/review?stackName=pcluster-manager&templateURL=https://pcluster-manager-us-east-1.s3.amazonaws.com/pcluster-manager.yaml)
 | Ireland (eu-west-1)    | [![Launch](https://samdengler.github.io/cloudformation-launch-stack-button-svg/images/eu-west-1.svg)](https://eu-west-1.console.aws.amazon.com/cloudformation/home?region=eu-west-1#/stacks/create/review?stackName=pcluster-manager&templateURL=https://pcluster-manager-eu-west-1.s3.amazonaws.com/pcluster-manager.yaml)       |
-| Frankfurt (eu-central-1) | [![Launch](https://samdengler.github.io/cloudformation-launch-stack-button-svg/images/eu-west-1.svg)](https://eu-central-1.console.aws.amazon.com/cloudformation/home?region=eu-central-1#/stacks/create/review?stackName=pcluster-manager&templateURL=https://pcluster-manager-eu-central-1.s3.amazonaws.com/pcluster-manager.yaml) |
+| Frankfurt (eu-central-1) | [![Launch](https://samdengler.github.io/cloudformation-launch-stack-button-svg/images/eu-central-1.svg)](https://eu-central-1.console.aws.amazon.com/cloudformation/home?region=eu-central-1#/stacks/create/review?stackName=pcluster-manager&templateURL=https://pcluster-manager-eu-central-1.s3.amazonaws.com/pcluster-manager.yaml) |
 
 <details>
     <summary>More Regions (Click to expand)</summary>
@@ -58,6 +58,20 @@ For more details see the [Getting Started Guide](https://aws-samples.github.io/p
 ## System Architecture
 
 ![ParallelCluster Manager Architecture](docs/static/architecture.png)
+
+## Costs
+
+ParallelCluster Manager is built on a serverless architecture and falls into the free tier for most uses. I've detailed the dependency services and their free-tier limits below:
+
+| Service       | Free Tier                                                        |
+|---------------|------------------------------------------------------------------|
+| Cognito       | 50,000 Monthly Active Users                                      |
+| API Gateway   | 1M Rest API Calls                                                |
+| Lambda        | 1M free requests / month & 400,000 GB-seconds of compute / month |
+| Image Builder | No-Cost except EC2                                               |
+| EC2           | ~15 mins one-time to build Container Image                       |
+
+Typical usage will likely cost < $1 / month.
 
 ## Updating
 

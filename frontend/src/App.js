@@ -52,6 +52,7 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Layout />}>
+            <Route path="index.html" element={isGuest() ? <Home /> : <Navigate replace to='/clusters' />} />
             <Route index element={isGuest() ? <Home /> : <Navigate replace to='/clusters' />} />
             <Route path="home" element={<Home />} />
             <Route path="clusters" element={<Clusters />}>

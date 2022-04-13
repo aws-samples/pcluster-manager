@@ -10,16 +10,18 @@
 import jsyaml from 'js-yaml';
 
 import { DescribeCluster, GetConfiguration } from '../../model'
-import { clearState, setState } from '../../store'
+import { clearState, getState, setState } from '../../store'
 
-export function selectCluster(clusterName)
+export function selectCluster(clusterName, navigate)
 {
+  const oldClusterName = getState(['app', 'clusters', 'selected']);
   const name = clusterName;
   let config_path = ['clusters', 'index', name, 'config'];
   clearState(['clusters', 'index', name]);
   GetConfiguration(name, (configuration) => {
     setState(['clusters', 'index', name, 'configYaml'], configuration);
     setState(config_path, jsyaml.load(configuration))});
-  DescribeCluster(name);
-  setState(['app', 'clusters', 'selected'], name);
+  DescribeCluster(name, () => {navigate && navigate('/clusters')});
+  if(oldClusterName !== clusterName)
+    setState(['app', 'clusters', 'selected'], name);
 }
