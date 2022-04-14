@@ -35,7 +35,7 @@ import { Queues, queuesValidate } from './Queues'
 import { Create, createValidate, handleCreate as wizardHandleCreate, handleDryRun as wizardHandleDryRun } from './Create'
 
 // Components
-import { stopComputeFleet } from '../Clusters/StopDialog'
+import { stopComputeFleet, StopDialog } from '../Clusters/StopDialog'
 import Loading from '../../components/Loading'
 
 // Icons
@@ -247,6 +247,7 @@ function Configure() {
   },[])
 
   return <div style={{minWidth: '1200px'}}>
+    <StopDialog />
     <SpaceBetween direction="vertical" size="l">
       <BreadcrumbGroup items={[{text: "Clusters", href: "#clusters"}, {text: (editing ? "Update" : "Create") }]}
         onClick={() => handleClose(true)}
