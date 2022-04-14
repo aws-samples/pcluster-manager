@@ -550,7 +550,6 @@ Resources:
         - !Ref PclusterManagerExtraPolicies
         - !Ref PclusterManagerSsmSendPolicy
         - !Ref PclusterManagerSsmGetCommandInvocationPolicy
-        - !Ref PclusterManagerCognitoSecretPolicy
 
   CognitoPostActionsRole:
     Type: AWS::IAM::Role
@@ -633,6 +632,12 @@ Resources:
               - { UserPoolId: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]}
             Effect: Allow
             Sid: CognitoPolicy
+          - Action:
+            - secretsmanager:GetSecretValue
+            Resource:
+              - !GetAtt [ PclusterManagerCognito, Outputs.UserPoolClientSecretArn ]
+            Effect: Allow
+            Sid: SecretsRole
 
   PclusterManagerEC2Policy:
     Type: AWS::IAM::ManagedPolicy
@@ -720,20 +725,6 @@ Resources:
               - '*'
             Effect: Allow
             Sid: SsmGetCommandInvocationPolicy
-
-
-  PclusterManagerCognitoSecretPolicy:
-    Type: AWS::IAM::ManagedPolicy
-    Properties:
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Action:
-            - secretsmanager:GetSecretValue
-            Resource:
-              - !GetAtt [ PclusterManagerCognito, Outputs.UserPoolClientSecretArn ]
-            Effect: Allow
-            Sid: SecretsRole
 
 # Outputs
 
