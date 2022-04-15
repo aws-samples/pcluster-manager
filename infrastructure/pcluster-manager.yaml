@@ -568,8 +568,11 @@ Resources:
         - !Ref PclusterManagerExtraPolicies
         - !Ref PclusterManagerSsmSendPolicy
         - !Ref PclusterManagerSsmGetCommandInvocationPolicy
+<<<<<<< cognito-standalone
         # Required for cost estimation
         - !Sub arn:${AWS::Partition}:iam::aws:policy/AWSPriceListServiceFullAccess
+=======
+>>>>>>> main
 
   CognitoPostActionsRole:
     Condition: CreateCognito
