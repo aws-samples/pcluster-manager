@@ -93,12 +93,14 @@ Resources:
 
   ParallelClusterApi:
     Type: AWS::CloudFormation::Stack
+    DependsOn: Pipeline
     Properties:
       Parameters:
         ApiDefinitionS3Uri: !Sub s3://${AWS::Region}-aws-parallelcluster/parallelcluster/${Version}/api/ParallelCluster.openapi.yaml
         CreateApiUserRole: False
         EnableIamAdminAccess: True
-        PublicEcrImageUri: !Sub public.ecr.aws/parallelcluster/pcluster-api:${Version}
+        #PublicEcrImageUri: !Sub public.ecr.aws/parallelcluster/pcluster-api:${Version}
+        EcrImageUri: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/ecr-public/parallelcluster/pcluster-api:${Version}
         ImageBuilderSubnetId:
           Fn::If:
             - NonDefaultVpc
@@ -258,7 +260,534 @@ Resources:
         RepositoryName: !Ref PrivateEcrRepository
       DockerfileTemplateData: 'FROM {{{ imagebuilder:parentImage }}}'
       WorkingDirectory: '/tmp'
+  
+  TestLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+  TestLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ZipFile: '# NOTE: this file is not used, all code is in layer'
+#          Fn::Sub: |
+#            import os
+#            import logging
+#            import boto3
+#            from datetime import datetime
+#
+#            import json
+#            import boto3
+#            import cfnresponse
+#            import docker
+#
+#            logger = logging.getLogger()
+#            logger.setLevel(logging.INFO)
+#
+#            client = docker.from_env()
+#
+#            def lambda_handler(event, context):
+#                pullresponse = client.images.pull('public.ecr.aws/parallelcluster/pcluster-api:3.1.2')
+#                logger.info(pullresponse)
+#                pushresponse = client.images.pull('${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/ecr-public/parallelcluster/pcluster-api:3.1.2')
+#                logger.info(pushresponse)
+#                results = pushresponse[0]
+#                logger.info(results)
+#                responseData = {}
+#                responseData['Data'] = results['Id']
+#                cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData)
+      Description: Test Function
+      FunctionName: testlambda
+      Handler: testlambda.handler
+      MemorySize: 128
+      Role: !GetAtt TestLambdaRole.Arn
+      Runtime: python3.8
+      Layers:
+        - !Ref TestLambdaLayer
+  TestLambdaLayer:
+    Type: Custom::CodeLayer
+    Properties:
+      ServiceToken: !GetAtt CodeLayerLambda.Arn
+      LayerName: TestLambdaLayer
+      Packages:
+        - numpy==1.20
+      Files:
+        testlambda.py: |
+          import numpy as np
+          def handler(event, context):
+              print(np.arange(10) ** 2)
+  
+  CodeLayerLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+      Policies:
+        - PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+                Effect: Allow
+                Resource:
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/CodeLayer-${AWS::StackName}:*
+              - Action:
+                - lambda:PublishLayerVersion
+                - lambda:DeleteLayerVersion
+                Effect: Allow
+                Resource:
+                  - "*"
+          PolicyName: lambda
+  
+  CodeLayerLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: Create layers based on pip and code
+      FunctionName: !Sub "CodeLayer-${AWS::StackName}"
+      Handler: index.handler
+      MemorySize: 1024
+      Role: !GetAtt CodeLayerLambdaRole.Arn
+      Runtime: python3.8
+      Timeout: 300
+      Code:
+        ZipFile: |
+          # Code accompanying https://blog.claude.nl/tech/howto/2021/02/15/better-lambdas-with-pip-packages-in-cloudformation.html
+          import json
+          import logging
+          import pathlib
+          import re
+          import subprocess as sp
+          import sys
+          import tempfile
+          import typing as t
+          import shutil
+          
+          import cfnresponse as cfnr
+          import boto3
+          
+          logger = logging.getLogger()
+          logger.setLevel(logging.INFO)
+          
+          
+          class CodeLayerException(Exception):
+              pass
+          
+          
+          def _create(properties) -> t.Tuple[str, t.Mapping[str, str]]:
+              layername = properties["LayerName"]
+              description = properties.get("Description", "CodeLayer")
+              files = properties.get("Files", {})
+              packages = properties.get("Packages", [])
+              description += " ({})".format(", ".join(packages))
+          
+              assert isinstance(layername, str)
+              assert isinstance(description, str)
+              assert isinstance(packages, list) \
+                      and all(isinstance(p, str) for p in packages)
+              assert isinstance(files, dict) and all(isinstance(k, str)
+                                                     for _k, _v in files.items()
+                                                     for k in (_k, _v))
+          
+              if not packages and not files:
+                  raise CodeLayerException("Cowardly refusing to create empty layer")
+          
+              with tempfile.TemporaryDirectory() as parenttmpdir:
+                  tempdir = pathlib.Path(parenttmpdir) / "python"
+                  if packages:
+                      try:
+                          sp.check_call([sys.executable, "-m", "pip", "install",
+                                                 *packages, "-t", tempdir])
+                      except sp.CalledProcessError:
+                          raise CodeLayerException("Error while installing %s" % str(packages))
+                  for filename, content in files.items():
+                      filepath = tempdir / filename
+                      filepath.parent.mkdir(parents=True, exist_ok=True)
+                      filepath.write_text(content)
+                      if filepath.suffix == ".py":
+                          try:
+                              sp.check_call([
+                                  sys.executable, "-m", "py_compile", filepath])
+                          except sp.CalledProcessError:
+                              raise CodeLayerException(
+                                  "File %s is not valid python" % filename)
+          
+                  zipfilename = pathlib.Path(tempfile.NamedTemporaryFile(suffix=".zip").name)
+                  shutil.make_archive(
+                      zipfilename.with_suffix(""), format="zip", root_dir=parenttmpdir)
+          
+                  client = boto3.client("lambda")
+                  layer = client.publish_layer_version(
+                      LayerName=layername,
+                      Description=description,
+                      Content={"ZipFile": zipfilename.read_bytes()},
+                      CompatibleRuntimes=["python%d.%d" % sys.version_info[:2]],
+                  )
+          
+              return (layer["LayerVersionArn"], {})
+          
+          def _delete(physical_id):
+              match = re.fullmatch(
+                  r"arn:aws:lambda:(?P<region>[^:]+):(?P<account>\d+):layer:"
+                  r"(?P<layername>[^:]+):(?P<version_number>\d+)", physical_id)
+              if not match:
+                  logger.warning("Cannot parse physical id %s, not deleting", physical_id)
+                  return
+              layername = match.group("layername")
+              version_number = int(match.group("version_number"))
+          
+              client = boto3.client("lambda")
+              client.delete_layer_version(
+                  LayerName=layername,
+                  VersionNumber=version_number)
+          
+          
+          def handler(e, c):
+              try:
+                  if e["RequestType"].upper() in ("CREATE", "UPDATE"):
+                      physicalId, attributes = _create(e["ResourceProperties"])
+                      cfnr.send(
+                          event=e,
+                          context=c,
+                          responseData=attributes,
+                          responseStatus=cfnr.SUCCESS,
+                          physicalResourceId=physicalId,
+                      )
+                  else:
+                      assert e["RequestType"].upper() == "DELETE"
+                      _delete(e["PhysicalResourceId"])
+                      cfnr.send(
+                          event=e,
+                          context=c,
+                          responseData={},
+                          responseStatus=cfnr.SUCCESS,
+                          physicalResourceId=e["PhysicalResourceId"],
+                      )
+              except Exception as exc:
+                  logger.exception("Internal Error")
+                  cfnr.send(
+                      event=e,
+                      context=c,
+                      responseData=None,
+                      responseStatus=cfnr.FAILED,
+                      reason=str(exc))
 
+
+  Pipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      Name: PipelineForFlaskApi
+      RoleArn: !GetAtt PipelineRole.Arn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref ArtifactBucket
+      Stages:
+#        - Name: Source
+#          Actions:
+#            - Name: Source
+#              ActionTypeId:
+#                Category: Source
+#                Owner: ThirdParty
+#                Provider: GitHub
+#                Version: "1"
+#              OutputArtifacts:
+#                - Name: SourceCode
+#              Configuration:
+#                Owner: !Ref GithubAccount
+#                Repo: !Ref GithubRepository
+#                PollForSourceChanges: false
+#                Branch: !Ref GithubBranch
+#                OAuthToken: !Ref GithubAuthToken
+        - Name: Build
+          Actions:
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: "1"
+              InputArtifacts:
+                - Name: SourceCode
+              Configuration:
+                ProjectName: !Ref CodeBuildProject
+    DependsOn: EcrRepository
+
+  CodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: CODEPIPELINE
+      Description: "Codebuild project to push flask api image to ecr"
+      Environment:
+        ComputeType: 'BUILD_GENERAL1_SMALL'
+        EnvironmentVariables:
+          - Name: AWS_DEFAULT_REGION
+            Value: !Ref AWS::Region
+          - Name: AWS_ACCOUNT_ID
+            Value: !Ref "AWS::AccountId"
+          - Name: AWS_ECR_REPOSITORY_URI
+            Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${EcrRepository}
+          - Name: IMAGE_REPO_NAME
+            Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/ecr-public/parallelcluster/pcluster-api
+            #Value: 'public.ecr.aws/parallelcluster/pcluster-api'
+          - Name: IMAGE_TAG
+            Value: "3.1.2"
+        Image: "aws/codebuild/standard:5.0"
+        PrivilegedMode: true
+        Type: "LINUX_CONTAINER"
+      ServiceRole: !GetAtt CodeBuildRole.Arn
+      Source:
+        Type: "CODEPIPELINE"
+#        BuildSpec: pipeline/buildspec.yml
+        BuildSpec: |
+          version: 0.2
+  
+          phases:
+            pre_build:
+              commands:
+                - echo Logging in to Amazon ECR...
+                - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+            build:
+              commands:
+                - echo Build started on `date`
+                - echo Pulling the Docker image...
+                - docker pull $IMAGE_REPO_NAME:$IMAGE_TAG .
+                - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ECR_REPOSITORY_URI:$IMAGE_TAG
+            post_build:
+              commands:
+                - echo Build completed on `date`
+                - echo Pushing the Docker image...
+                - docker push $AWS_ECR_REPOSITORY_URI:$IMAGE_TAG
+
+  EcrRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: 'parallelcluster-local'
+
+  PipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: "GetAndPutArtifacts"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:ListBucket
+                Resource:
+                  - !GetAtt ArtifactBucket.Arn
+                  - !Sub ${ArtifactBucket.Arn}/*
+        - PolicyName: "StartCodeBuild"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - codebuild:StartBuild
+                  - codebuild:BatchGetBuilds
+                Resource:
+                  - !GetAtt CodeBuildProject.Arn
+
+  CodeBuildRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codebuild.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        - PolicyName: "PushImageToEcr"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ecr:BatchGetImage
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:CompleteLayerUpload
+                  - ecr:GetDownloadUrlForLayer
+                  - ecr:InitiateLayerUpload
+                  - ecr:PutImage
+                  - ecr:UploadLayerPart
+                  - ecr:GetAuthorizationToken
+                Resource: "*"
+        - PolicyName: "CodeBuildLogsRole"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/*"
+        - PolicyName: "GetAndPutArtifacts"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:ListBucket
+                Resource:
+                  - !GetAtt ArtifactBucket.Arn
+                  - !Sub ${ArtifactBucket.Arn}/*
+
+  ArtifactBucket:
+    Type: AWS::S3::Bucket
+  
+  EcrPullThroughImageRule:
+    Type: AWS::ECR::PullThroughCacheRule
+    Properties: 
+      EcrRepositoryPrefix: 'ecr-public'
+      UpstreamRegistryUrl: 'public.ecr.aws'
+  
+#  EcrPullThroughImageExecutionDEL:
+#    Type: AWS::Lambda::Function
+#    Properties:
+#      PackageType: Image
+#      Role: !GetAtt EcrPullThroughImageLambdaRole.Arn
+#      Code:
+#        #ImageUri: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/ecr-public/parallelcluster/pcluster-api:${Version}
+#        ImageUri: public.ecr.aws/parallelcluster/parallelcluster-api:3.1.2
+#      ImageConfig: 
+#        Command: 
+#          - echo 'Hello World'
+#  EcrPullThroughImageExecution:
+#    Type: AWS::Lambda::Function
+#    Properties:
+#      Code:
+#        ZipFile: 
+#          Fn::Sub: |
+#            import os
+#            import logging
+#            import boto3
+#            from datetime import datetime
+#
+#            import json
+#            import boto3
+#            import cfnresponse
+#            import docker
+#
+#            logger = logging.getLogger()
+#            logger.setLevel(logging.INFO)
+#
+#            client = docker.from_env()
+#
+#            def lambda_handler(event, context):
+#                pullresponse = client.images.pull('public.ecr.aws/parallelcluster/pcluster-api:3.1.2')
+#                logger.info(pullresponse)
+#                pushresponse = client.images.pull('${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/ecr-public/parallelcluster/pcluster-api:3.1.2')
+#                logger.info(pushresponse)
+#                results = pushresponse[0]
+#                logger.info(results)
+#                responseData = {}
+#                responseData['Data'] = results['Id']
+#                cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData)
+#      Handler: 'index.lambda_handler'
+#      Role: !GetAtt 'EcrPullThroughImageLambdaRole.Arn'
+#      Runtime: python3.8
+#      Timeout: 30
+#
+#  EcrPullThroughImageLambdaRole:
+#    Type: AWS::IAM::Role
+#    Properties:
+#      AssumeRolePolicyDocument:
+#        Version: '2012-10-17'
+#        Statement:
+#          - Effect: Allow
+#            Principal:
+#              Service:
+#                - lambda.amazonaws.com
+#            Action:
+#              - sts:AssumeRole
+#      Path: /
+#      Policies:
+#        - PolicyName: root
+#          PolicyDocument:
+#            Version: '2012-10-17'
+#            Statement:
+#              - Effect: Allow
+#                Action:
+#                  - ecr:DescribeImageScanFindings
+#                  - ecr:GetLifecyclePolicyPreview
+#                  - ecr:GetDownloadUrlForLayer
+#                  - ecr:DescribeImageReplicationStatus
+#                  - ecr:ListTagsForResource
+#                  - ecr:ListImages
+#                  - ecr:BatchGetRepositoryScanningConfiguration
+#                  - ecr:UntagResource
+#                  - ecr:BatchGetImage
+#                  - ecr:DescribeImages
+#                  - ecr:TagResource
+#                  - ecr:DescribeRepositories
+#                  - ecr:BatchCheckLayerAvailability
+#                  - ecr:GetRepositoryPolicy
+#                  - ecr:GetLifecyclePolicy
+#                Resource: !Sub 'arn:${AWS::Partition}:ecr:*:${AWS::AccountId}:repository/*'
+#              - Effect: Allow
+#                Action:
+#                  - ecr-public:DescribeImageTags
+#                  - ecr:GetRegistryPolicy
+#                  - ecr-public:DescribeImages
+#                  - ecr-public:GetAuthorizationToken
+#                  - ecr:DescribeRegistry
+#                  - ecr:DescribePullThroughCacheRules
+#                  - ecr-public:DescribeRegistries
+#                  - ecr-public:GetRepositoryCatalogData
+#                  - ecr:GetAuthorizationToken
+#                  - ecr:GetRegistryScanningConfiguration
+#                  - ecr-public:GetRepositoryPolicy
+#                  - ecr-public:DescribeRepositories
+#                  - ecr-public:GetRegistryCatalogData
+#                  - ecr-public:ListTagsForResource
+#                  - ecr-public:BatchCheckLayerAvailability
+#                Resource: '*'
+#              - Effect: Allow
+#                Action:
+#                  - 'ecr:*'
+#                Resource: '*'
+#  CustomResource:
+#    DependsOn: EcrPullThroughImageRule
+#    Type: Custom::CustomResource
+#    Properties:
+#      ServiceToken: !GetAtt 'EcrPullThroughImageExecution.Arn'
+#      ParameterOne: Parameter to pass into Custom Lambda Function
+#
   EcrImage:
     Type: AWS::ImageBuilder::Image
     Properties:

@@ -9,7 +9,8 @@
 
 random-string()
 {
-    cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w ${1:-32} | head -n 1
+#    cat /dev/urandom | tr -d -c 'a-zA-Z0-9' | fold -w ${1:-32} | head -n 1
+    uuidgen | sed 's/-//g' | fold -w ${1:-32} | head -n 1
 }
 
 STACK_NAME=$(echo "PclusterManager"-`random-string 7`)
@@ -19,22 +20,29 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 cognito_infrastructure_file=${SCRIPT_DIR}/pcluster-manager-cognito.yaml
 echo "Deploying: " ${cognito_infrastructure_file} "->" ${STACK_NAME}
 
-aws cloudformation create-stack \
-    --stack-name ${STACK_NAME} \
-    --parameters ParameterKey=AdminUserEmail,ParameterValue=cgruenwa@amazon.com \
-    --disable-rollback \
-    --template-body file:///${cognito_infrastructure_file} \
-    --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
-
-
-exit 0
-
+#aws cloudformation create-stack \
+#    --stack-name ${STACK_NAME} \
+#    --parameters ParameterKey=AdminUserEmail,ParameterValue=cgruenwa@amazon.com \
+#    --disable-rollback \
+#    --template-body file:///${cognito_infrastructure_file} \
+#    --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
+#
+#
+#exit 0
+#
 # deploy the full stack
 infrastructure_file=${SCRIPT_DIR}/pcluster-manager.yaml
 echo "Deploying: " ${infrastructure_file} "->" ${STACK_NAME}
-
-aws cloudformation deploy \
+#
+#aws cloudformation deploy \
+#    --stack-name ${STACK_NAME} \
+#    --parameter-overrides AdminUserEmail=user@amazon.com \
+#    --template-file ${infrastructure_file} \
+#    --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
+#
+aws cloudformation create-stack \
     --stack-name ${STACK_NAME} \
-    --parameter-overrides AdminUserEmail=user@amazon.com \
-    --template-file ${infrastructure_file} \
+    --parameters ParameterKey=AdminUserEmail,ParameterValue=user@amazon.com \
+    --template-body file:///${infrastructure_file} \
+    --disable-rollback \
     --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND
