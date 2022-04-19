@@ -1,4 +1,4 @@
-PCluster Manager - Make HPC Easy
+ParallelCluster Manager - Make HPC Easy
 ================================
 
 This project is a front-end for [AWS Parallel Cluster](https://github.com/aws/aws-parallelcluster)
