@@ -300,7 +300,6 @@ function Cluster() {
   return <Container header={<Header variant="h2">Cluster Properties</Header>}>
     <SpaceBetween direction="vertical" size="s">
       <RegionSelect />
-      <SchedulerSelect />
       <OsSelect />
       <VpcSelect />
       {versionMinor && versionMinor >= 1 &&
