@@ -117,7 +117,7 @@ export default function Actions () {
           Filesystem
         </div>
       </Button>}
-      {headNode && headNode.publicIpAddress && headNode.publicIpAddress !== "" && 
+      {headNode && headNode.publicIpAddress && headNode.publicIpAddress !== "" && ssmEnabled &&
       <Button className="action" disabled={clusterStatus === 'DELETE_IN_PROGRESS'} onClick={() => {shellCluster(headNode.instanceId)}}>
         <div className="container">
           <FeaturedPlayListIcon />
