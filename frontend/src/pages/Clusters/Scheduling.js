@@ -10,9 +10,9 @@
 // limitations under the License.
 import React from 'react';
 
-import { useState, getState, setState, clearState, consoleDomain } from '../../store'
+import { clearState, consoleDomain, getState, setState, ssmPolicy, useState } from '../../store'
 import { QueueStatus, CancelJob, JobInfo } from '../../model'
-import { clusterDefaultUser } from '../../util'
+import { clusterDefaultUser, findFirst } from '../../util'
 import { useCollection } from '@awsui/collection-hooks';
 
 import { useTheme } from '@mui/material/styles';
@@ -195,14 +195,23 @@ export default function ClusterScheduling() {
   const clusterPath = ['clusters', 'index', clusterName];
   const cluster = useState(clusterPath);
   const fleetStatus = useState([...clusterPath, 'computeFleetStatus']);
-  const cluster_minor = cluster.version ? parseInt(cluster.version.split(".")[1]) : 0;
+  const clusterMinor = cluster.version ? parseInt(cluster.version.split(".")[1]) : 0;
   const jobs = useState(['clusters', 'index', clusterName, 'jobs']);
+  const defaultRegion = useState(['aws', 'region']);
+  const region = useState(['app', 'selectedRegion']) || defaultRegion;
+
+  function isSsmPolicy(p) {
+    return p.hasOwnProperty('Policy') && p.Policy === ssmPolicy(region);
+  }
+
+  const iamPolicies = useState([...clusterPath, 'config', 'HeadNode', 'Iam', 'AdditionalIamPolicies']);
+  const ssmEnabled = iamPolicies && findFirst(iamPolicies, isSsmPolicy);
 
   React.useEffect(() => {
     const tick = () => {
-      cluster_minor > 0 && refreshQueues();
+      clusterMinor > 0 && ssmEnabled && refreshQueues();
     }
-    cluster_minor > 0 && refreshQueues();
+    clusterMinor > 0 && ssmEnabled && refreshQueues();
     const timerId = setInterval(tick, 10000);
     return () => { clearInterval(timerId); }
   }, [])
@@ -252,8 +261,8 @@ export default function ClusterScheduling() {
   return <SpaceBetween direction="vertical" size="s" >
     <JobModal />
     <JobSubmitDialog submitCallback={refreshQueues} />
-    <Button variant="primary" disabled={fleetStatus !== "RUNNING"} onClick={() => setState(['app', 'clusters', 'jobSubmit', 'dialog'], true)}>Submit Job</Button>
-    {cluster_minor > 0 &&
+    {ssmEnabled && <Button variant="primary" disabled={fleetStatus !== "RUNNING"} onClick={() => setState(['app', 'clusters', 'jobSubmit', 'dialog'], true)}>Submit Job</Button>}
+    {clusterMinor > 0 && ssmEnabled &&
     (jobs ? <Table
       {...collectionProps}
       trackBy="job_id"
@@ -312,6 +321,7 @@ export default function ClusterScheduling() {
       }
     /> : <div style={{textAlign: "center", paddingTop: "40px"}}><Loading /></div>)
     }
-    {cluster_minor === 0 && <div>Scheduling is only available in clusters with version 3.1.x and greater.</div>}
+    {clusterMinor === 0 && <div>Scheduling is only available in clusters with version 3.1.x and greater.</div>}
+    {!ssmEnabled && <div>You must enable SSM to monitor jobs.</div>}
   </SpaceBetween>
 }
