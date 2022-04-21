@@ -226,7 +226,7 @@ function DcvSettings() {
           <FormField label="Allowed IPs">
             <Input
               value={allowedIps}
-              onChange={(({detail}) => {setState([...headNodePath, 'Dcv', 'allowedIps'], detail.value)})} />
+              onChange={(({detail}) => {setState([...headNodePath, 'Dcv', 'AllowedIps'], detail.value)})} />
           </FormField>
           }
           {dcvEnabled &&
@@ -234,7 +234,7 @@ function DcvSettings() {
               <Input
                 inputMode="decimal"
                 value={port}
-                onChange={(({detail}) => setState([...headNodePath, 'Dcv', 'port'], parseInt(detail.value)))} />
+                onChange={(({detail}) => setState([...headNodePath, 'Dcv', 'Port'], parseInt(detail.value)))} />
             </FormField>
           }
         </SpaceBetween>
