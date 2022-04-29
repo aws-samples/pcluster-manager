@@ -198,7 +198,9 @@ export default function Users() {
           <SpaceBetween direction="horizontal" size="xs">
             {enableMfa && <Input inputMode='tel' onChange={({ detail }) => setState(userphonePath, detail.value)} value={userphone} placeholder='+11234567890'></Input>}
             <div onKeyPress={e => e.key === 'Enter' && createUser()}>
-              <Input onChange={({ detail }) => setState(usernamePath, detail.value)} value={username} placeholder='email@domain.com' onSubmit={createUser}></Input>
+              <Input onChange={({ detail }) => setState(usernamePath, detail.value)} value={username} 
+               errorText={!"^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$".filter.test(username) ? "Please provide a valid email." : ""}
+               type='email' inputMode='email' placeholder='email@domain.com' onSubmit={createUser}></Input>
             </div>
             <Button className="action" onClick={createUser}>Create User</Button>
             <Button className="action" onClick={refreshUsers} iconName={"refresh"}>Refresh</Button>
