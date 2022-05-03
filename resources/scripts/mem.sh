@@ -11,6 +11,9 @@
 #   AdditionalIamPolicies:
 #       - Policy: arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
 # ```
+
+source /opt/parallelcluster/cfnconfig
+
 FILELIST=$(ls /opt/slurm/etc/pcluster/slurm_parallelcluster*_partition.conf)
 
 for PARTFILE in $FILELIST; do
