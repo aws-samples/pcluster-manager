@@ -11,7 +11,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux'
 import { useCollection } from '@awsui/collection-hooks';
-import { clearState, setState, useState } from '../../store'
+import { clearState, setState, getState, useState } from '../../store'
 
 import { CreateUser, DeleteUser, ListUsers, SetUserRole } from '../../model'
 
@@ -19,6 +19,7 @@ import { CreateUser, DeleteUser, ListUsers, SetUserRole } from '../../model'
 import {
   Button,
   Container,
+  FormField,
   Header,
   Input,
   Pagination,
@@ -32,9 +33,13 @@ import {
 import EmptyState from '../../components/EmptyState';
 import Loading from '../../components/Loading'
 import DateView from '../../components/DateView'
+import HelpTooltip from '../../components/HelpTooltip'
 import { DeleteDialog,
  showDialog,
  hideDialog } from '../../components/DeleteDialog';
+
+// Constants
+const errorsPath = ['app', 'wizard', 'errors', 'user'];
 
 // selectors
 const selectUserIndex = state => state.users.index
@@ -136,7 +141,7 @@ function UserList(props) {
         },
         {
           id: "role",
-          header: "Role",
+          header: <div className='whiteSpace'>Role<HelpTooltip><b>Guest</b> can login but not see any clusters.<b>User</b> can see clusters and access clusters but not create or delete. <b>Admin</b> has full access.</HelpTooltip></div>,
           cell: item => <RoleSelector user={item} />,
           sortingField: "Groups"
         },
@@ -164,8 +169,27 @@ function UserList(props) {
   );
 }
 
+function userValidate() {
+  const username = getState(['app', 'users', 'newUser', 'Username']);
+  setState([...errorsPath, 'validated'], true);
+  let valid = true;
+
+  const regex = /^([a-zA-Z0-9_.-])+@(([a-zA-Z0-9-])+.)+([a-zA-Z0-9]{2,4})+$/;
+  if (!regex.test(username))
+  {
+    setState([...errorsPath, 'username'], 'You must enter a valid email.');
+    valid = false;
+    setState([...errorsPath, 'validated'], false);
+  } else {
+    clearState([...errorsPath, 'username']);
+  }
+
+  return valid;
+}
+
 export default function Users() {
   const users = useSelector(selectUserIndex);
+  const error = useState([...errorsPath, 'username']);
 
   const user = useState(['app', 'users', 'newUser'])
 
@@ -181,7 +205,11 @@ export default function Users() {
   }
 
   const createUser = () => {
-    CreateUser(user, () => {clearState(['app', 'users', 'newUser'])});
+    userValidate();
+    const validated = getState([...errorsPath, 'validated']);
+    if (validated) {
+      CreateUser(user, () => {clearState(['app', 'users', 'newUser'])});
+    }
   }
 
   React.useEffect(() => {
@@ -198,9 +226,9 @@ export default function Users() {
           <SpaceBetween direction="horizontal" size="xs">
             {enableMfa && <Input inputMode='tel' onChange={({ detail }) => setState(userphonePath, detail.value)} value={userphone} placeholder='+11234567890'></Input>}
             <div onKeyPress={e => e.key === 'Enter' && createUser()}>
-              <Input onChange={({ detail }) => setState(usernamePath, detail.value)} value={username} 
-               errorText={!"^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$".filter.test(username) ? "Please provide a valid email." : ""}
-               type='email' inputMode='email' placeholder='email@domain.com' onSubmit={createUser}></Input>
+              <FormField errorText={error}>
+                <Input onChange={({ detail }) => setState(usernamePath, detail.value)} value={username} placeholder='email@domain.com' onSubmit={createUser}></Input>
+              </FormField>
             </div>
             <Button className="action" onClick={createUser}>Create User</Button>
             <Button className="action" onClick={refreshUsers} iconName={"refresh"}>Refresh</Button>
