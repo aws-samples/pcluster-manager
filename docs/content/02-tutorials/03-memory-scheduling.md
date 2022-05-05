@@ -19,7 +19,7 @@ In order to add in memory information, we have a managed post-install script tha
 
 To enable this, create a new cluster and one the **HeadNode** configuration screen, click on the "Advanced" dropdown and add in the managed `Memory` script:
 
-![Enable Memory Script](memory.png)
+![Enable Memory Script](memory-scheduling/memory.png)
 
 Then add the following managed IAM policy to the head node:
 
