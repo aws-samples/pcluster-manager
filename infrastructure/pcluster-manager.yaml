@@ -93,7 +93,7 @@ Resources:
 
   ParallelClusterApi:
     Type: AWS::CloudFormation::Stack
-    DependsOn: Pipeline
+    DependsOn: TestLambda
     Properties:
       Parameters:
         ApiDefinitionS3Uri: !Sub s3://${AWS::Region}-aws-parallelcluster/parallelcluster/${Version}/api/ParallelCluster.openapi.yaml
@@ -275,35 +275,10 @@ Resources:
                 - lambda.amazonaws.com
   TestLambda:
     Type: AWS::Lambda::Function
+    DependsOn: EcrPullThroughImageRule
     Properties:
       Code:
         ZipFile: '# NOTE: this file is not used, all code is in layer'
-#          Fn::Sub: |
-#            import os
-#            import logging
-#            import boto3
-#            from datetime import datetime
-#
-#            import json
-#            import boto3
-#            import cfnresponse
-#            import docker
-#
-#            logger = logging.getLogger()
-#            logger.setLevel(logging.INFO)
-#
-#            client = docker.from_env()
-#
-#            def lambda_handler(event, context):
-#                pullresponse = client.images.pull('public.ecr.aws/parallelcluster/pcluster-api:3.1.2')
-#                logger.info(pullresponse)
-#                pushresponse = client.images.pull('${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/ecr-public/parallelcluster/pcluster-api:3.1.2')
-#                logger.info(pushresponse)
-#                results = pushresponse[0]
-#                logger.info(results)
-#                responseData = {}
-#                responseData['Data'] = results['Id']
-#                cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData)
       Description: Test Function
       FunctionName: testlambda
       Handler: testlambda.handler
@@ -318,13 +293,66 @@ Resources:
       ServiceToken: !GetAtt CodeLayerLambda.Arn
       LayerName: TestLambdaLayer
       Packages:
-        - numpy==1.20
+        - udocker
+        - boto3
       Files:
         testlambda.py: |
-          import numpy as np
+          import os
+          import sys
+          import base64
+
+          from udocker.msg import Msg
+          from udocker.umain import UMain
+          from udocker.utils.fileutil import FileUtil
+
+          import boto3
           def handler(event, context):
-              print(np.arange(10) ** 2)
-  
+              """Program start and exception handling"""
+              ecr_client = boto3.client('ecr', region_name='us-east-1')
+              token = ecr_client.get_authorization_token()
+              username, password = base64.b64decode(token['authorizationData'][0]['authorizationToken']).decode().split(':')
+              registry = token['authorizationData'][0]['proxyEndpoint']
+              exit_status = 0
+              try:
+                  exit_status = UMain(['udocker','login', '--username', username, '--password', password, '--registry', registry]).execute()
+                  print(exit_status)
+              except KeyboardInterrupt:
+                  Msg().out("Info: keyboard interrupt", l=Msg.INF)
+                  FileUtil().cleanup()
+                  exit_status = 1
+              except SystemExit as error:
+                  FileUtil().cleanup()
+                  try:
+                      exit_status = int(error.args[0])
+                  except (ValueError, TypeError):
+                      exit_status = 1
+              except:
+                  FileUtil().cleanup()
+              exit_status = 0
+              try:
+                  exit_status = UMain(['udocker','pull', registry.split("//")[-1] + '/ecr-public/parallelcluster/pcluster-api:3.1.1']).execute()
+                  print(exit_status)
+              except KeyboardInterrupt:
+                  Msg().out("Info: keyboard interrupt", l=Msg.INF)
+                  FileUtil().cleanup()
+                  exit_status = 1
+              except SystemExit as error:
+                  FileUtil().cleanup()
+                  try:
+                      exit_status = int(error.args[0])
+              exit_status = 0
+              try:
+                  exit_status = UMain(['udocker','pull', registry.split("//")[-1] + '/ecr-public/n0x0o5k1/pcluster-manager-awslambda:latest']).execute()
+                  print(exit_status)
+              except KeyboardInterrupt:
+                  Msg().out("Info: keyboard interrupt", l=Msg.INF)
+                  FileUtil().cleanup()
+                  exit_status = 1
+              except SystemExit as error:
+                  FileUtil().cleanup()
+                  try:
+                      exit_status = int(error.args[0])
+
   CodeLayerLambdaRole:
     Type: AWS::IAM::Role
     Properties:
@@ -488,184 +516,6 @@ Resources:
                       responseStatus=cfnr.FAILED,
                       reason=str(exc))
 
-
-  Pipeline:
-    Type: AWS::CodePipeline::Pipeline
-    Properties:
-      Name: PipelineForFlaskApi
-      RoleArn: !GetAtt PipelineRole.Arn
-      ArtifactStore:
-        Type: S3
-        Location: !Ref ArtifactBucket
-      Stages:
-#        - Name: Source
-#          Actions:
-#            - Name: Source
-#              ActionTypeId:
-#                Category: Source
-#                Owner: ThirdParty
-#                Provider: GitHub
-#                Version: "1"
-#              OutputArtifacts:
-#                - Name: SourceCode
-#              Configuration:
-#                Owner: !Ref GithubAccount
-#                Repo: !Ref GithubRepository
-#                PollForSourceChanges: false
-#                Branch: !Ref GithubBranch
-#                OAuthToken: !Ref GithubAuthToken
-        - Name: Build
-          Actions:
-            - Name: Build
-              ActionTypeId:
-                Category: Build
-                Owner: AWS
-                Provider: CodeBuild
-                Version: "1"
-              InputArtifacts:
-                - Name: SourceCode
-              Configuration:
-                ProjectName: !Ref CodeBuildProject
-    DependsOn: EcrRepository
-
-  CodeBuildProject:
-    Type: AWS::CodeBuild::Project
-    Properties:
-      Artifacts:
-        Type: CODEPIPELINE
-      Description: "Codebuild project to push flask api image to ecr"
-      Environment:
-        ComputeType: 'BUILD_GENERAL1_SMALL'
-        EnvironmentVariables:
-          - Name: AWS_DEFAULT_REGION
-            Value: !Ref AWS::Region
-          - Name: AWS_ACCOUNT_ID
-            Value: !Ref "AWS::AccountId"
-          - Name: AWS_ECR_REPOSITORY_URI
-            Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${EcrRepository}
-          - Name: IMAGE_REPO_NAME
-            Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/ecr-public/parallelcluster/pcluster-api
-            #Value: 'public.ecr.aws/parallelcluster/pcluster-api'
-          - Name: IMAGE_TAG
-            Value: "3.1.2"
-        Image: "aws/codebuild/standard:5.0"
-        PrivilegedMode: true
-        Type: "LINUX_CONTAINER"
-      ServiceRole: !GetAtt CodeBuildRole.Arn
-      Source:
-        Type: "CODEPIPELINE"
-#        BuildSpec: pipeline/buildspec.yml
-        BuildSpec: |
-          version: 0.2
-  
-          phases:
-            pre_build:
-              commands:
-                - echo Logging in to Amazon ECR...
-                - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
-            build:
-              commands:
-                - echo Build started on `date`
-                - echo Pulling the Docker image...
-                - docker pull $IMAGE_REPO_NAME:$IMAGE_TAG .
-                - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ECR_REPOSITORY_URI:$IMAGE_TAG
-            post_build:
-              commands:
-                - echo Build completed on `date`
-                - echo Pushing the Docker image...
-                - docker push $AWS_ECR_REPOSITORY_URI:$IMAGE_TAG
-
-  EcrRepository:
-    Type: AWS::ECR::Repository
-    Properties:
-      RepositoryName: 'parallelcluster-local'
-
-  PipelineRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: codepipeline.amazonaws.com
-            Action:
-              - "sts:AssumeRole"
-      Policies:
-        - PolicyName: "GetAndPutArtifacts"
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: "Allow"
-                Action:
-                  - s3:GetObject
-                  - s3:PutObject
-                  - s3:ListBucket
-                Resource:
-                  - !GetAtt ArtifactBucket.Arn
-                  - !Sub ${ArtifactBucket.Arn}/*
-        - PolicyName: "StartCodeBuild"
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: "Allow"
-                Action:
-                  - codebuild:StartBuild
-                  - codebuild:BatchGetBuilds
-                Resource:
-                  - !GetAtt CodeBuildProject.Arn
-
-  CodeBuildRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - codebuild.amazonaws.com
-            Action:
-              - "sts:AssumeRole"
-      Policies:
-        - PolicyName: "PushImageToEcr"
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action:
-                  - ecr:BatchGetImage
-                  - ecr:BatchCheckLayerAvailability
-                  - ecr:CompleteLayerUpload
-                  - ecr:GetDownloadUrlForLayer
-                  - ecr:InitiateLayerUpload
-                  - ecr:PutImage
-                  - ecr:UploadLayerPart
-                  - ecr:GetAuthorizationToken
-                Resource: "*"
-        - PolicyName: "CodeBuildLogsRole"
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource:
-                  - !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/*"
-        - PolicyName: "GetAndPutArtifacts"
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: "Allow"
-                Action:
-                  - s3:GetObject
-                  - s3:PutObject
-                  - s3:ListBucket
-                Resource:
-                  - !GetAtt ArtifactBucket.Arn
-                  - !Sub ${ArtifactBucket.Arn}/*
 
   ArtifactBucket:
     Type: AWS::S3::Bucket
