@@ -93,14 +93,14 @@ Resources:
 
   ParallelClusterApi:
     Type: AWS::CloudFormation::Stack
-    DependsOn: TestLambda
+    DependsOn: UDockerPullThroughCache
     Properties:
       Parameters:
         ApiDefinitionS3Uri: !Sub s3://${AWS::Region}-aws-parallelcluster/parallelcluster/${Version}/api/ParallelCluster.openapi.yaml
         CreateApiUserRole: False
         EnableIamAdminAccess: True
         #PublicEcrImageUri: !Sub public.ecr.aws/parallelcluster/pcluster-api:${Version}
-        EcrImageUri: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/ecr-public/parallelcluster/pcluster-api:${Version}
+        EcrImageUri: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/ecr-public-3/parallelcluster/pcluster-api:${Version}
         ImageBuilderSubnetId:
           Fn::If:
             - NonDefaultVpc
@@ -261,97 +261,104 @@ Resources:
       DockerfileTemplateData: 'FROM {{{ imagebuilder:parentImage }}}'
       WorkingDirectory: '/tmp'
   
-  TestLambdaRole:
+  BuildLambdaLayerRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
-          - Action:
-              - sts:AssumeRole
-            Effect: Allow
+          - Effect: Allow
+            Action: sts:AssumeRole
             Principal:
-              Service:
-                - lambda.amazonaws.com
-  TestLambda:
+              Service: lambda.amazonaws.com
+      ManagedPolicyArns:
+        # Required for Lambda logging and XRay
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/AWSXRayDaemonWriteAccess
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+
+  UDockerLambdaLayerFunction:
     Type: AWS::Lambda::Function
-    DependsOn: EcrPullThroughImageRule
     Properties:
       Code:
         ZipFile: '# NOTE: this file is not used, all code is in layer'
       Description: Test Function
-      FunctionName: testlambda
       Handler: testlambda.handler
       MemorySize: 128
-      Role: !GetAtt TestLambdaRole.Arn
+      Role: !GetAtt BuildLambdaLayerRole.Arn
       Runtime: python3.8
+      Timeout: 60
       Layers:
-        - !Ref TestLambdaLayer
-  TestLambdaLayer:
+        - !Ref UDockerLambdaLayer 
+  UDockerLambdaLayer:
+    DependsOn: EcrPullThroughImageRule
     Type: Custom::CodeLayer
     Properties:
       ServiceToken: !GetAtt CodeLayerLambda.Arn
-      LayerName: TestLambdaLayer
+      LayerName: UDockerLambdaLayer
       Packages:
-        - udocker
         - boto3
+        - cfnresponse
+        - pycurl
+        - udocker
       Files:
-        testlambda.py: |
+        testlambda.py: !Sub |
           import os
           import sys
+          import logging
           import base64
-
+          import boto3
+          import cfnresponse
+          import json
           from udocker.msg import Msg
           from udocker.umain import UMain
           from udocker.utils.fileutil import FileUtil
 
-          import boto3
+          logger = logging.getLogger()
+          logger.setLevel(logging.INFO)
+
           def handler(event, context):
-              """Program start and exception handling"""
-              ecr_client = boto3.client('ecr', region_name='us-east-1')
+              response_data = {}
+              response_status = cfnresponse.SUCCESS
+              ecr_client = boto3.client('ecr', region_name='${AWS::Region}')
+
               token = ecr_client.get_authorization_token()
               username, password = base64.b64decode(token['authorizationData'][0]['authorizationToken']).decode().split(':')
               registry = token['authorizationData'][0]['proxyEndpoint']
+
+              logger.info('Registry: %s' % (registry))
               exit_status = 0
               try:
                   exit_status = UMain(['udocker','login', '--username', username, '--password', password, '--registry', registry]).execute()
                   print(exit_status)
+                  logger.info('Login: %s' % (exit_status))
+                  exit_status = UMain(['udocker','pull', registry.split("//")[-1] + '/ecr-public-3/parallelcluster/pcluster-api:${Version}']).execute()
+                  print(exit_status)
+                  logger.info('Pull pcluster-api: %s' % (exit_status))
+                  exit_status = UMain(['udocker','pull', registry.split("//")[-1] + '/ecr-public-3/n0x0o5k1/pcluster-manager-awslambda:latest']).execute()
+                  print(exit_status)
+                  logger.info('Pull pcluster-manager-awslambda: %s' % (exit_status))
+                  response_status = cfnresponse.SUCCESS
+                  response_data['Registry'] = '%s/ecr-public-3/' % registry
               except KeyboardInterrupt:
                   Msg().out("Info: keyboard interrupt", l=Msg.INF)
                   FileUtil().cleanup()
                   exit_status = 1
+                  response_status = cfnresponse.Failed
+                  response_data['ErrorType'] = 'KeyboardInterrupt'
               except SystemExit as error:
                   FileUtil().cleanup()
+                  response_status = cfnresponse.Failed
                   try:
                       exit_status = int(error.args[0])
+                      response_data['ErrorType'] = '%s' % error
                   except (ValueError, TypeError):
                       exit_status = 1
+                      response_data['ErrorType'] = 'ValueError/TypeError'
               except:
                   FileUtil().cleanup()
-              exit_status = 0
-              try:
-                  exit_status = UMain(['udocker','pull', registry.split("//")[-1] + '/ecr-public/parallelcluster/pcluster-api:3.1.1']).execute()
-                  print(exit_status)
-              except KeyboardInterrupt:
-                  Msg().out("Info: keyboard interrupt", l=Msg.INF)
-                  FileUtil().cleanup()
-                  exit_status = 1
-              except SystemExit as error:
-                  FileUtil().cleanup()
-                  try:
-                      exit_status = int(error.args[0])
-              exit_status = 0
-              try:
-                  exit_status = UMain(['udocker','pull', registry.split("//")[-1] + '/ecr-public/n0x0o5k1/pcluster-manager-awslambda:latest']).execute()
-                  print(exit_status)
-              except KeyboardInterrupt:
-                  Msg().out("Info: keyboard interrupt", l=Msg.INF)
-                  FileUtil().cleanup()
-                  exit_status = 1
-              except SystemExit as error:
-                  FileUtil().cleanup()
-                  try:
-                      exit_status = int(error.args[0])
+                  response_status = cfnresponse.Failed
+              cfnresponse.send(event, context, response_status, response_data)
 
   CodeLayerLambdaRole:
     Type: AWS::IAM::Role
@@ -388,7 +395,6 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       Description: Create layers based on pip and code
-      FunctionName: !Sub "CodeLayer-${AWS::StackName}"
       Handler: index.handler
       MemorySize: 1024
       Role: !GetAtt CodeLayerLambdaRole.Arn
@@ -523,7 +529,7 @@ Resources:
   EcrPullThroughImageRule:
     Type: AWS::ECR::PullThroughCacheRule
     Properties: 
-      EcrRepositoryPrefix: 'ecr-public'
+      EcrRepositoryPrefix: 'ecr-public-3'
       UpstreamRegistryUrl: 'public.ecr.aws'
   
 #  EcrPullThroughImageExecutionDEL:
@@ -532,7 +538,7 @@ Resources:
 #      PackageType: Image
 #      Role: !GetAtt EcrPullThroughImageLambdaRole.Arn
 #      Code:
-#        #ImageUri: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/ecr-public/parallelcluster/pcluster-api:${Version}
+#        #ImageUri: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/ecr-public-3/parallelcluster/pcluster-api:${Version}
 #        ImageUri: public.ecr.aws/parallelcluster/parallelcluster-api:3.1.2
 #      ImageConfig: 
 #        Command: 
@@ -561,7 +567,7 @@ Resources:
 #            def lambda_handler(event, context):
 #                pullresponse = client.images.pull('public.ecr.aws/parallelcluster/pcluster-api:3.1.2')
 #                logger.info(pullresponse)
-#                pushresponse = client.images.pull('${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/ecr-public/parallelcluster/pcluster-api:3.1.2')
+#                pushresponse = client.images.pull('${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/ecr-public-3/parallelcluster/pcluster-api:3.1.2')
 #                logger.info(pushresponse)
 #                results = pushresponse[0]
 #                logger.info(results)
@@ -631,13 +637,13 @@ Resources:
 #                Action:
 #                  - 'ecr:*'
 #                Resource: '*'
-#  CustomResource:
-#    DependsOn: EcrPullThroughImageRule
-#    Type: Custom::CustomResource
-#    Properties:
-#      ServiceToken: !GetAtt 'EcrPullThroughImageExecution.Arn'
-#      ParameterOne: Parameter to pass into Custom Lambda Function
-#
+  UDockerPullThroughCache:
+    Type: Custom::CustomResource
+    Properties:
+      ServiceToken: !GetAtt 'UDockerLambdaLayerFunction.Arn'
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+
   EcrImage:
     Type: AWS::ImageBuilder::Image
     Properties:
