@@ -296,11 +296,13 @@ Resources:
     Properties:
       ServiceToken: !GetAtt CodeLayerLambda.Arn
       LayerName: UDockerLambdaLayer
+      YumPackages:
+        - libcurl-devel
       Packages:
+        - udocker
+        - pycurl
         - boto3
         - cfnresponse
-        - pycurl
-        - udocker
       Files:
         testlambda.py: !Sub |
           import os
@@ -329,6 +331,9 @@ Resources:
               logger.info('Registry: %s' % (registry))
               exit_status = 0
               try:
+                  exit_status = UMain(['udocker','install']).execute()
+                  print(exit_status)
+                  logger.info('Login: %s' % (exit_status))
                   exit_status = UMain(['udocker','login', '--username', username, '--password', password, '--registry', registry]).execute()
                   print(exit_status)
                   logger.info('Login: %s' % (exit_status))
@@ -372,6 +377,10 @@ Resources:
             Principal:
               Service:
                 - lambda.amazonaws.com
+      ManagedPolicyArns:
+        # Required for Lambda logging and XRay
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/AWSXRayDaemonWriteAccess
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
       Policies:
         - PolicyDocument:
             Version: 2012-10-17
@@ -428,6 +437,7 @@ Resources:
               layername = properties["LayerName"]
               description = properties.get("Description", "CodeLayer")
               files = properties.get("Files", {})
+              yum_packages = properties.get("YumPackages", [])
               packages = properties.get("Packages", [])
               description += " ({})".format(", ".join(packages))
           
@@ -435,21 +445,28 @@ Resources:
               assert isinstance(description, str)
               assert isinstance(packages, list) \
                       and all(isinstance(p, str) for p in packages)
+              assert isinstance(yum_packages, list) \
+                      and all(isinstance(p, str) for p in yum_packages)
               assert isinstance(files, dict) and all(isinstance(k, str)
                                                      for _k, _v in files.items()
                                                      for k in (_k, _v))
           
-              if not packages and not files:
+              if not packages and not yum_packages and not files:
                   raise CodeLayerException("Cowardly refusing to create empty layer")
           
               with tempfile.TemporaryDirectory() as parenttmpdir:
                   tempdir = pathlib.Path(parenttmpdir) / "python"
+                  if yum_packages:
+                      try:
+                          sp.check_call([ 'yum', 'install', '-y', *yum_packages])
+                      except sp.CalledProcessError as ype: 
+                          raise CodeLayerException("Error while yum installing %s ; %s" % (str(packages), str(cpe)))
                   if packages:
                       try:
                           sp.check_call([sys.executable, "-m", "pip", "install",
                                                  *packages, "-t", tempdir])
-                      except sp.CalledProcessError:
-                          raise CodeLayerException("Error while installing %s" % str(packages))
+                      except sp.CalledProcessError as cpe:
+                          raise CodeLayerException("Error while pip installing %s ; %s" % (str(packages), str(cpe)))
                   for filename, content in files.items():
                       filepath = tempdir / filename
                       filepath.parent.mkdir(parents=True, exist_ok=True)
