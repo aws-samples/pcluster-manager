@@ -247,7 +247,7 @@ function Configure() {
   },[])
 
   return <div style={{minWidth: '1200px'}}>
-    <StopDialog />
+    <StopDialog clusterName={clusterName} />
     <SpaceBetween direction="vertical" size="l">
       <BreadcrumbGroup items={[{text: "Clusters", href: "#clusters"}, {text: (editing ? "Update" : "Create") }]}
         onClick={() => handleClose(true)}
