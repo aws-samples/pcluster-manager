@@ -16,7 +16,7 @@ import { useSelector } from 'react-redux'
 import { findFirst } from '../../util'
 
 // State / Model
-import { setState, getState, useState, updateState, clearState, clearEmptyNest } from '../../store'
+import { setState, getState, useState, updateState, clearState, clearEmptyNest, ssmPolicy } from '../../store'
 
 // UI Elements
 import {
@@ -533,4 +533,40 @@ function RootVolume({basePath, errorsPath}) {
   </>
 }
 
-export { SubnetSelect, SecurityGroups, InstanceSelect, LabeledIcon, ActionsEditor, CustomAMISettings, RootVolume }
+function IamPoliciesEditor({basePath}) {
+  const policiesPath = [...basePath, 'Iam', 'AdditionalIamPolicies']
+  const policies = useState(policiesPath) || [];
+  const policyPath = ['app', 'wizard', 'headNode', 'iamPolicy'];
+  const policy = useState(policyPath) || '';
+
+  const addPolicy = () => {
+    updateState(policiesPath, (existing) => [...(existing || []), {Policy: policy}])
+    setState(policyPath, "");
+  }
+
+  const removePolicy = (index) => {
+    setState(policiesPath, [...policies.slice(0, index), ...policies.slice(index + 1)]);
+    if(policies.length === 0)
+      clearState(policiesPath)
+  }
+
+  return <SpaceBetween direction="vertical" size="s">
+    <FormField errorText={findFirst(policies, x => x.Policy === policy) ? "Policy already added." : ""}>
+      <SpaceBetween direction="horizontal" size="s">
+        <div style={{width: "400px"}}>
+          <Input
+            placeholder="arn:aws:iam::aws:policy/SecretsManager:ReadWrite"
+            value={policy}
+            onChange={({detail}) => setState(policyPath, detail.value)} />
+        </div>
+        <Button onClick={addPolicy} disabled={policy.length === 0 || findFirst(policies, x => x.Policy === policy)}>Add</Button>
+      </SpaceBetween>
+    </FormField>
+    {policies.map((p, i) => p.Policy !== ssmPolicy && <SpaceBetween key={p.Policy} direction="horizontal" size="s">
+      <div style={{width: "400px"}}>{p.Policy}</div>
+      <Button onClick={() => removePolicy(i)}>Remove</Button>
+    </SpaceBetween>)}
+  </SpaceBetween>
+}
+
+export { SubnetSelect, SecurityGroups, InstanceSelect, LabeledIcon, ActionsEditor, CustomAMISettings, RootVolume, IamPoliciesEditor }

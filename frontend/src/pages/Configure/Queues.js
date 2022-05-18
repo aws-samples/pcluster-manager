@@ -31,7 +31,7 @@ import {
 import { setState, getState, useState, clearState } from '../../store'
 
 // Components
-import { ActionsEditor, CustomAMISettings, InstanceSelect, LabeledIcon, RootVolume, SubnetSelect, SecurityGroups } from './Components'
+import { ActionsEditor, CustomAMISettings, InstanceSelect, LabeledIcon, RootVolume, SubnetSelect, SecurityGroups, IamPoliciesEditor } from './Components'
 import HelpTooltip from '../../components/HelpTooltip'
 
 // Constants
@@ -369,6 +369,9 @@ function Queue({index}) {
             <ActionsEditor basePath={[...queuesPath, index]} errorsPath={errorsPath}/>
             <CustomAMISettings basePath={[...queuesPath, index]} appPath={['app', 'wizard', 'queues', index]} errorsPath={errorsPath} validate={queuesValidate}/>
             <RootVolume basePath={[...queuesPath, index, 'ComputeSettings']} errorsPath={errorsPath} />
+            <ExpandableSection header="IAM Policies">
+              <IamPoliciesEditor basePath={[...queuesPath, index]} />
+            </ExpandableSection>
           </SpaceBetween>
         </ExpandableSection>
       </div>
