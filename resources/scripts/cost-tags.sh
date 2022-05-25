@@ -163,7 +163,7 @@ EOF
     # Configure sbatch wrapper
     mv /opt/slurm/bin/sbatch /opt/slurm/sbin/sbatch
 
-    wget -O /opt/slurm/bin/sbatch https://raw.githubusercontent.com/sean-smith/pcluster-manager/cost-explorer/resources/scripts/sbatch
+    wget -O /opt/slurm/bin/sbatch https://raw.githubusercontent.com/aws-samples/pcluster-manager/main/resources/scripts/sbatch
     chmod +x /opt/slurm/bin/sbatch
 
     mv /opt/slurm/bin/srun /opt/slurm/sbin/srun
