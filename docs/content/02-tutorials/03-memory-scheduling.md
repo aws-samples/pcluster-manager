@@ -1,5 +1,5 @@
 +++
-title = "c. Memory Scheduling"
+title = "c. Memory Scheduling 💾"
 weight = 23
 +++
 
