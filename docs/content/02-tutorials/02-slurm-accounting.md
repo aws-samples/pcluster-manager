@@ -1,5 +1,5 @@
 +++
-title = "b. Slurm Accounting"
+title = "b. Slurm Accounting 🪄"
 weight = 22
 +++
 
@@ -25,24 +25,24 @@ instance type depending on your workload needs.
 Change the region in the URL to create the stack in a region separate from `us-east-1`.
 {{% /notice %}}
 
-![CloudFormation Settings](cfn-properties.png)
+![CloudFormation Settings](accounting/cfn-properties.png)
 
 ## Step 2- Retrieve the outputs from the CloudFormation stack
 
 Once the stack has reached a Completed state. You will need to go to the `Outputs` tab of the stack and make note of the properties as they will be used in the creation of your cluster.
 
-![CloudFormation Outputs](cfn-outputs.png)
+![CloudFormation Outputs](accounting/cfn-outputs.png)
 
 ## Step 3 - Add permissions to your lambda
 
 In order to allow our cluster access to secrets we need to add an additional IAM policy.
 
-1. Go to the [Lambda Console (deeplink)](https://console.aws.amazon.com/lambda/home?#/functions?f0=true&n0=false&op=and&v0=PclusterManagerFunction) and search for `PclusterManagerFunction`
+1. Go to the [Lambda Console (deeplink)](https://console.aws.amazon.com/lambda/home?#/functions?f0=true&n0=false&op=and&v0=ParallelClusterFunction) and search for `ParallelClusterFunction`
 2. Select the function then `Configuration` > `Permissions` > Click on the role under `Role name`.
 3. Select `Add permissions` > `Attach policies` > search for `SecretsManagerPolicy`
 4. Click `Attach policies`
 
-![Attach Policies](attach-policies.png)
+![Attach Policies](accounting/attach-policies.png)
 
 ## Step 4 - Create Your Cluster
 
@@ -54,13 +54,13 @@ Next, go to Pcluster Manager and choose the ![Create](create.png) option to crea
 
 Choose a suitable name for your cluster, and then in the Cluster Properties window, be sure to choose the VPC that you used when creating the slurm-accounting CloudFormation stack.
 
-![Cluster Properties](cluster-properties.png)
+![Cluster Properties](accounting/cluster-properties.png)
 
 ### HeadNode Properties
 
 You will need to enable the `Virtual Console` option as that allows Pcluster Manager to interact with the cluster directly:
 
-![Cluster Properties](headnode-virtual-console.png)
+![Cluster Properties](accounting/headnode-virtual-console.png)
 
 Be sure to also enable the Security Group referenced in the CloudFormation outputs so that the HeadNode can access the database.
 
@@ -71,7 +71,7 @@ Next we'll enable a known script that will install slurm accounting on the HeadN
 - Fill in the values for the `Secret ARN` and `RDS Endpoint` from the CloudFormation output
 - Under `IAM Policies` add the arn from the CloudFormation Stack output `SecretsManagerPolicy` so that the HeadNode can access the password to the database. Be sure to actually click `Add` so that it is added to the list.
 
-![Cluster Properties](headnode-additional.png)
+![Cluster Properties](accounting/headnode-additional.png)
 
 ## Review Config
 
@@ -131,11 +131,11 @@ Image:
 
 Once the cluster has been successfully created, go to the `Scheduling` tab and select `Submit Job`
 
-![Cluster Properties](submit-job.png)
+![Cluster Properties](accounting/submit-job.png)
 
 Choose a name for your job, a number of nodes to run under, choose to `Run a command` and provide a simple `sleep 30` command.
 
-![Cluster Properties](submit-job-dialog.png)
+![Cluster Properties](accounting/submit-job-dialog.png)
 
 ## Step 5 - View the Accounting Tab
 
@@ -143,8 +143,8 @@ Once you've submitted a job, you can see the job information under the `Accounti
 
 You can use any of the filters at the top to narrow down the number of jobs in the view to select specific jobs. 
 
-![Cluster Properties](job-list.png)
+![Cluster Properties](accounting/job-list.png)
 
 If you choose the Job ID in the left column you can see further detials about the job.
 
-![Cluster Properties](job-details.png)
+![Cluster Properties](accounting/job-details.png)
