@@ -27,6 +27,7 @@ USER_POOL_ID = os.getenv("USER_POOL_ID")
 AUTH_PATH = os.getenv("AUTH_PATH")
 API_BASE_URL = os.getenv("API_BASE_URL")
 API_VERSION = os.getenv("API_VERSION", "3.1.0")
+API_USER_ROLE = os.getenv("API_USER_ROLE")
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 SECRET_ID = os.getenv("SECRET_ID")
@@ -60,6 +61,20 @@ def jwt_decode(token, user_pool_id):
     return jwt.decode(token, requests.get(jwks_url).json())
 
 
+def setup_api_credentials(role_arn, credential_external_id=None):
+    sts = boto3.client("sts")
+
+    assume_role_kwargs = {
+        "RoleArn": role_arn,
+        "RoleSessionName": "api_session",
+    }
+    if credential_external_id:
+        assume_role_kwargs["ExternalId"] = credential_external_id
+
+    assumed_role_object = sts.assume_role(**assume_role_kwargs)
+    return assumed_role_object["Credentials"]
+
+
 def sigv4_request(method, host, path, params={}, headers={}, body=None):
     "Make a signed request to an api-gateway hosting an AWS ParallelCluster API."
     endpoint = host.replace("https://", "").replace("http://", "")
@@ -68,7 +83,16 @@ def sigv4_request(method, host, path, params={}, headers={}, body=None):
     request_parameters = "&".join([f"{k}={v}" for k, v in (params or {}).items()])
     url = f"{host}{path}?{request_parameters}"
 
-    session = botocore.session.Session()
+    if API_USER_ROLE:
+        sts_credentials = setup_api_credentials(API_USER_ROLE)
+        session = boto3.session.Session(
+            aws_access_key_id=sts_credentials["AccessKeyId"],
+            aws_secret_access_key=sts_credentials["SecretAccessKey"],
+            aws_session_token=sts_credentials["SessionToken"]
+        )
+    else:
+        session = boto3.session.Session()
+
     body_data = json.dumps(body) if body else None
     new_request = botocore.awsrequest.AWSRequest(method=method, url=url, data=body_data)
     botocore.auth.SigV4Auth(session.get_credentials(), "execute-api", region).add_auth(new_request)
