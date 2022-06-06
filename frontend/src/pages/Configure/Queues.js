@@ -167,9 +167,9 @@ function ComputeResource({index, queueIndex, computeResource}) {
 
   const efaInstances = new Set(useState(['aws', 'efa_instance_types']));
   const enableEFAPath = [...path, "Efa", "Enabled"]
-  const enableEFA = useState(enableEFAPath);
+  const enableEFA = useState(enableEFAPath) || false;
 
-  const enablePlacementGroupPath = [parentPath, 'Networking', "PlacementGroup", "Enabled"]
+  const enablePlacementGroupPath = [...parentPath, 'Networking', "PlacementGroup", "Enabled"]
 
   const enableGPUDirectPath = [...path, "Efa", "GdrSupport"] || false;
   const enableGPUDirect = useState(enableGPUDirectPath);
@@ -205,13 +205,13 @@ function ComputeResource({index, queueIndex, computeResource}) {
   }
 
   const setEnableEFA = (enable) => {
-    if(enable)
-    {
+    if(enable) {
       setState(enableEFAPath, enable);
       setState(enablePlacementGroupPath, enable);
-    }
-    else
+    } else {
       clearState(efaPath);
+      clearState(enablePlacementGroupPath);
+    }
   }
 
   const setEnableGPUDirect = (enable) => {
@@ -225,12 +225,18 @@ function ComputeResource({index, queueIndex, computeResource}) {
     // setting the instance type on the queue happens in the component
     // this updates the name which is derived from the instance type
     setState([...path, 'Name'], `${queue.Name}-${instanceType.replace(".", "")}`);
+
+    if (!getState(enableEFAPath) && efaInstances.has(instanceType))
+      setEnableEFA(true);
+    else if (getState(enableEFAPath) && !efaInstances.has(instanceType))
+      setEnableEFA(false);
   }
 
   React.useEffect(() => {
     if(!instanceType)
       setState([...queuesPath, queueIndex, 'ComputeResources', index, "InstanceType"], defaultInstanceType);
   }, [queueIndex, index, instanceType]);
+
 
   return (
     <div className="compute-resource">
