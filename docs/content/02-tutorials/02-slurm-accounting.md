@@ -39,10 +39,14 @@ In order to allow our cluster access to secrets we need to add an additional IAM
 
 1. Go to the [Lambda Console (deeplink)](https://console.aws.amazon.com/lambda/home?#/functions?f0=true&n0=false&op=and&v0=ParallelClusterFunction) and search for `ParallelClusterFunction`
 2. Select the function then `Configuration` > `Permissions` > Click on the role under `Role name`.
-3. Select `Add permissions` > `Attach policies` > search for `SecretsManagerPolicy`
+3. Select `Add permissions` > `Attach policies` > search for `AdminstratorAccess`
 4. Click `Attach policies`
 
-![Attach Policies](accounting/attach-policies.png)
+![Attach Policies](accounting/attach-policy.png)
+
+5. Select the `AWSXRayDaemonWriteAcess` policy then click `Remove`
+
+![Attach Policies](accounting/remove-policy.png)
 
 ## Step 4 - Create Your Cluster
 
