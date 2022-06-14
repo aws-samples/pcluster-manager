@@ -123,6 +123,36 @@ function ClusterSelect() {
   </FormField>
 }
 
+function TemplateSelect() {
+  const selectedPath = ['app', 'wizard', 'source', 'selectedTemplate'];
+  const templates = [
+    {templateName: "Tightly Coupled", path: 'tightly-coupled.yaml'},
+    {templateName: "Weather Forecasting", path: 'weather.yaml'}, 
+    {templateName: "Spot", path: "spot.yaml"}
+  ];
+  const selected = useState(selectedPath);
+  const errors = useState([...sourceErrorsPath, 'sourceTemplate']);
+  let source = useState([...sourcePath, 'type']);
+  let validated = useState([...sourceErrorsPath, 'validated']);
+
+  const itemToOption = (item) => {
+    if(item)
+      return {label: item.templateName, value: item.path}
+    else
+      return {label: "Please select a template:"}
+  }
+
+  return <FormField errorText={errors}>
+    <Select
+    disabled = {source !== 'wizard'}
+    selectedOption={itemToOption(findFirst(templates, x => {return x.templateName === selected}))}
+    onChange={({detail}) => {setState(selectedPath, detail.selectedOption.value); validated && sourceValidate(true);}}
+    selectedAriaLabel="Selected"
+    options={templates.map(itemToOption)}
+  />
+  </FormField>
+}
+
 function Source() {
   let clusterName = useState(['app', 'wizard', 'clusterName']) || "";
   let source = useState([...sourcePath, 'type']);
@@ -181,7 +211,13 @@ function Source() {
               {
                 value: "wizard",
                   label: "Wizard",
-                  description: "Choose this to start a new cluster configuration."
+                  description: <Box margin={{bottom: "xs"}} >
+                  <SpaceBetween direction="vertical" size="xxs">
+                    <FormField description="Pick from a cluster template to get started.">
+                      <TemplateSelect />
+                    </FormField>
+                  </SpaceBetween>
+                </Box>
               },
               {
                 value: "template",

@@ -1,0 +1,39 @@
+HeadNode:
+  InstanceType: c5a.2xlarge
+  Ssh:
+    KeyName: your-key
+  Networking:
+    SubnetId: subnet-1234567  # make sure this is us-east-2b
+  Iam:
+    AdditionalIamPolicies:
+      - Policy: arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+  Dcv:
+    Enabled: true
+Scheduling:
+  Scheduler: slurm
+  SlurmQueues:
+    - Name: compute
+      ComputeResources:
+        - Name: hpc6a
+          MinCount: 0
+          MaxCount: 64
+          InstanceType: hpc6a.48xlarge
+          Efa:
+            Enabled: true
+      Networking:
+        SubnetIds:
+          - subnet-1234567   # make sure this is us-east-2b
+        PlacementGroup:
+          Enabled: true
+Region: us-east-2
+Image:
+  Os: alinux2
+SharedStorage:
+  - Name: FsxLustre0
+    StorageType: FsxLustre
+    MountDir: /shared
+    FsxLustreSettings:
+      StorageCapacity: 1200
+      DeploymentType: PERSISTENT_1
+      PerUnitStorageThroughput: 200
+      DataCompressionType: LZ4
