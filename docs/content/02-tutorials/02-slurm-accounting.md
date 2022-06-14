@@ -39,14 +39,16 @@ In order to allow our cluster access to secrets we need to add an additional IAM
 
 1. Go to the [Lambda Console (deeplink)](https://console.aws.amazon.com/lambda/home?#/functions?f0=true&n0=false&op=and&v0=ParallelClusterFunction) and search for `ParallelClusterFunction`
 2. Select the function then `Configuration` > `Permissions` > Click on the role under `Role name`.
-3. Select `Add permissions` > `Attach policies` > search for `AdminstratorAccess`
-4. Click `Attach policies`
+3. Select the `AWSXRayDaemonWriteAcess` policy then click `Remove`
+
+![Attach Policies](accounting/remove-policy.png)
+
+
+4. Select `Add permissions` > `Attach policies` > search for `SecretsManagerReadWrite`
+5. Click `Attach policies`
 
 ![Attach Policies](accounting/attach-policy.png)
 
-5. Select the `AWSXRayDaemonWriteAcess` policy then click `Remove`
-
-![Attach Policies](accounting/remove-policy.png)
 
 ## Step 4 - Create Your Cluster
 
@@ -73,9 +75,9 @@ Next we'll enable a known script that will install slurm accounting on the HeadN
 - Under the `On Configured` option, Choose the `Multi-Script Runner` which has some pre-programmed scripts in it
 - In the search box choose `Slurm Accounting`
 - Fill in the values for the `Secret ARN` and `RDS Endpoint` from the CloudFormation output
-- Under `IAM Policies` add the arn from the CloudFormation Stack output `SecretsManagerPolicy` so that the HeadNode can access the password to the database. Be sure to actually click `Add` so that it is added to the list.
+- Under `IAM Policies` add `arn:aws:iam::aws:policy/SecretsManagerReadWrite` so that the HeadNode can access the password to the database. Be sure to actually click `Add` so that it is added to the list.
 
-![Cluster Properties](accounting/headnode-additional.png)
+![Cluster Properties](accounting/headnode-additionals.png)
 
 ## Review Config
 
@@ -84,7 +86,7 @@ After you've configured the HeadNode, Filesystem and Queues, you'll be asked to 
 | Parameter                      | Description                                        |
 |--------------------------------|----------------------------------------------------|
 | [AdditionalSecurityGroups](https://docs.aws.amazon.com/parallelcluster/latest/ug/HeadNode-v3.html#yaml-HeadNode-Networking-AdditionalSecurityGroups)       | `SlurmDbSecurityGroupId` (CloudFormation)            |
-| [AdditionalIamPolicies](https://docs.aws.amazon.com/parallelcluster/latest/ug/HeadNode-v3.html#yaml-HeadNode-Iam-AdditionalIamPolicies)          | `AmazonSSMManagedInstanceCore`, `SecretsManagerPolicy` (CloudFormation) |
+| [AdditionalIamPolicies](https://docs.aws.amazon.com/parallelcluster/latest/ug/HeadNode-v3.html#yaml-HeadNode-Iam-AdditionalIamPolicies)          | `AmazonSSMManagedInstanceCore`, `SecretsManagerReadWrite` (CloudFormation) |
 | [CustomActions/OnNodeConfigured](https://docs.aws.amazon.com/parallelcluster/latest/ug/HeadNode-v3.html#yaml-HeadNode-CustomActions-OnNodeConfigured) | [multi-runner.py](https://raw.githubusercontent.com/aws-samples/pcluster-manager/main/resources/scripts/multi-runner.py)                                                   |
 | **Arg 0:** Accounting Script                         | [slurm-accounting.py](https://raw.githubusercontent.com/aws-samples/pcluster-manager/main/resources/scripts/slurm-accounting.sh)                         |
 | **Arg 1:** SECRET_ARN              | `SlurmDbPasswordSecretArn` (CloudFormation)          |
@@ -103,7 +105,7 @@ HeadNode:
   Iam:
     AdditionalIamPolicies:
       - Policy: arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
-      - Policy: arn:aws:iam::12345678910:policy/accounting-SecretsManagerPolicy-1ULXG84GWOZ05 # Policy `SecretsManagerPolicy`
+      - Policy: arn:aws:iam::aws:policy/SecretsManagerReadWrite # Policy `SecretsManagerReadWrite`
   CustomActions:
     OnNodeConfigured:
       Script: >-
