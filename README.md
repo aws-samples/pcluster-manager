@@ -94,6 +94,12 @@ export AWS_DEFAULT_REGION=us-east-2
 export API_BASE_URL=https://[API_ID].execute-api.us-east-2.amazonaws.com/prod  # get this from ParallelClusterApi stack outputs
 ```
 
+Install dependencies by running:
+
+```bash
+pip3 install -r requirements.txt
+```
+
 Start the API backend by running:
 
 ```bash
