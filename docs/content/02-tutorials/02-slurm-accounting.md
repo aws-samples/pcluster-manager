@@ -88,7 +88,7 @@ After you've configured the HeadNode, Filesystem and Queues, you'll be asked to 
 | [AdditionalSecurityGroups](https://docs.aws.amazon.com/parallelcluster/latest/ug/HeadNode-v3.html#yaml-HeadNode-Networking-AdditionalSecurityGroups)       | `SlurmDbSecurityGroupId` (CloudFormation)            |
 | [AdditionalIamPolicies](https://docs.aws.amazon.com/parallelcluster/latest/ug/HeadNode-v3.html#yaml-HeadNode-Iam-AdditionalIamPolicies)          | `AmazonSSMManagedInstanceCore`, `SecretsManagerReadWrite` (CloudFormation) |
 | [CustomActions/OnNodeConfigured](https://docs.aws.amazon.com/parallelcluster/latest/ug/HeadNode-v3.html#yaml-HeadNode-CustomActions-OnNodeConfigured) | [multi-runner.py](https://raw.githubusercontent.com/aws-samples/pcluster-manager/main/resources/scripts/multi-runner.py)                                                   |
-| **Arg 0:** Accounting Script                         | [slurm-accounting.py](https://raw.githubusercontent.com/aws-samples/pcluster-manager/main/resources/scripts/slurm-accounting.sh)                         |
+| **Arg 0:** Accounting Script                         | [slurm-accounting.sh](https://raw.githubusercontent.com/aws-samples/pcluster-manager/main/resources/scripts/slurm-accounting.sh)                         |
 | **Arg 1:** SECRET_ARN              | `SlurmDbPasswordSecretArn` (CloudFormation)          |
 | **Arg 2:** RDS Endpoint            | `SlurmDbEndpoint` (CloudFormation)                   |
 | **Arg 3:** Port                    | Default is `3306`                                    |
