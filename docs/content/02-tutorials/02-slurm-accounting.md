@@ -14,7 +14,7 @@ your AWS account. Note that if you would like to create the databas in a
 different region, change the value of the `region` parameter in the URL to the
 region of your choice and reload the page.
 
-[![Launch](https://samdengler.github.io/cloudformation-launch-stack-button-svg/images/launch-stack.svg)](https://us-east-1.console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/quickcreate?stackName=slurm-accounting&templateURL=https://pcluster-manager-us-east-1.s3.amazonaws.com/slurm-accounting/accounting-cluster-template.yaml)
+{{% button href="https://console.aws.amazon.com/cloudformation/home?#/stacks/quickcreate?stackName=slurm-accounting&templateURL=https://pcluster-manager-us-east-1.s3.amazonaws.com/slurm-accounting/accounting-cluster-template.yaml" icon="fas fa-rocket" %}}Deploy Accounting Database{{% /button %}}
 
 When you're creating the stack, be sure to specify the `VPC ID` and `Subnets`
 parameters to correspond to the VPC where you are creating the stack. All other
@@ -37,17 +37,19 @@ Once the stack has reached a Completed state. You will need to go to the `Output
 
 In order to allow our cluster access to secrets we need to add an additional IAM policy.
 
-1. Go to the [Lambda Console (deeplink)](https://console.aws.amazon.com/lambda/home?#/functions?f0=true&n0=false&op=and&v0=ParallelClusterFunction) and search for `ParallelClusterFunction`
+1. Go to the [Lambda Console (deeplink)](https://console.aws.amazon.com/lambda/home?#/functions?f0=true&fo=and&k0=functionName&n0=false&o0=%3A&op=and&v0=ParallelClusterFunction) and search for `ParallelClusterFunction`
 2. Select the function then `Configuration` > `Permissions` > Click on the role under `Role name`.
-3. Select the `AWSXRayDaemonWriteAcess` policy then click `Remove`
 
-![Attach Policies](accounting/remove-policy.png)
+![Attach Policies](accounting/lambda-permissions.jpeg)
 
+3. Select the `AWSXRayDaemonWriteAccess` policy and remove it
+4. Select `Add permissions` > `Attach policies`
 
-4. Select `Add permissions` > `Attach policies` > search for `SecretsManagerReadWrite`
-5. Click `Attach policies`
+![Attach Policies](accounting/attach-policies.jpeg)
 
-![Attach Policies](accounting/attach-policy.png)
+5. Search for `AdministratorAccess` > click `Attach policies`
+
+![Attach Policies](accounting/attach-admin.png)
 
 
 ## Step 4 - Create Your Cluster
