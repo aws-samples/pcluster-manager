@@ -10,7 +10,7 @@ In this tutorial we will work through setting up Slurm Accounting. This enables 
 The first requirement is to setup an external database that Slurm can use to store the accounting data.
 
 Use the following CloudFormation Quick-Create link to create the database in
-your AWS account. Note that if you would like to create the databas in a
+your AWS account. Note that if you would like to create the database in a
 different region, change the value of the `region` parameter in the URL to the
 region of your choice and reload the page.
 
