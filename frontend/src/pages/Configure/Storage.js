@@ -322,7 +322,8 @@ function EfsSettings({index}) {
 function EbsSettings({index}) {
   const ebsPath = [...storagePath, index, 'EbsSettings'];
   const volumeTypePath = [...ebsPath, 'VolumeType'];
-  const volumeTypes = ['gp2', 'gp3', 'io1', 'io2', 'sc1', 'stl', 'standard']
+  const volumeTypes = ['gp3', 'gp2', 'io1', 'io2', 'sc1', 'stl', 'standard']
+  const defaultVolumeType = 'gp3';
   const volumeSizePath = [...ebsPath, 'Size'];
   const encryptedPath = [...ebsPath, 'Encrypted'];
   const kmsPath = [...ebsPath, 'KmsKeyId'];
@@ -349,7 +350,7 @@ function EbsSettings({index}) {
     const deletionPolicyPath = [...ebsPath, 'DeletionPolicy']
     const volumeSizePath = [...ebsPath, 'Size'];
     if(volumeType === null)
-      setState(volumeTypePath, 'gp2');
+      setState(volumeTypePath, defaultVolumeType);
     if(deletionPolicy === null)
       setState(deletionPolicyPath, 'Delete');
     if(volumeSize === null)
@@ -370,7 +371,7 @@ function EbsSettings({index}) {
           Volume Type:
           <Select
             disabled={editing}
-            placeholder="Default (gp2)"
+            placeholder={`Default (${defaultVolumeType})`}
             selectedOption={volumeType && strToOption(volumeType)} label="Volume Type" onChange={({detail}) => {setState(volumeTypePath, detail.selectedOption.value)}}
             options={volumeTypes.map(strToOption)}
           />
