@@ -486,7 +486,8 @@ function RootVolume({basePath, errorsPath}) {
 
   const rootVolumeTypePath = [...basePath, 'LocalStorage', 'RootVolume', 'VolumeType'];
   const rootVolumeType = useState(rootVolumeTypePath);
-  const volumeTypes = ['gp2', 'gp3', 'io1', 'io2', 'sc1', 'stl', 'standard'];
+  const defaultRootVolumeType = 'gp3';
+  const volumeTypes = ['gp3', 'gp2', 'io1', 'io2', 'sc1', 'stl', 'standard'];
 
   const rootVolumeErrors = useState([...errorsPath, 'rootVolume']);
   const editing = useState(['app', 'wizard', 'editing']);
@@ -508,6 +509,11 @@ function RootVolume({basePath, errorsPath}) {
     clearEmptyNest(rootVolumeSizePath, 3);
   }
 
+  React.useEffect(() => {
+    if(rootVolumeType === null)
+      setState(rootVolumeTypePath, defaultRootVolumeType);
+  }, [rootVolumeType, rootVolumeTypePath]);
+
   return <>
     <FormField
       label="Root Volume Size (GB)"
@@ -527,7 +533,7 @@ function RootVolume({basePath, errorsPath}) {
       Volume Type:
       <Select
         disabled={editing}
-        placeholder="Default (gp2)"
+        placeholder={`Default (${defaultRootVolumeType})`}
         selectedOption={rootVolumeType && strToOption(rootVolumeType)} label="Volume Type" onChange={({detail}) => {setState(rootVolumeTypePath, detail.selectedOption.value)}}
         options={volumeTypes.map(strToOption)}
       />
