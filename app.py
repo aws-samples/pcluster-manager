@@ -142,6 +142,19 @@ def run():
     @authenticated("admin")
     def set_user_role_():
         return set_user_role()
+    
+    # Andy
+    @app.route("/manager/check_tag_status", methods=["GET"])
+    @authenticated()
+    def check_tags():
+        return check_tags()
+
+    @app.route("/manager/activate_tags")
+    @authenticated()
+    def activate_tags():
+        return activate_tags()
+
+    # End
 
     @app.route("/manager/queue_status")
     @authenticated()
