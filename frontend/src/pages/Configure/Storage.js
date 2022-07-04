@@ -448,19 +448,28 @@ function EbsSettings({index}) {
   )
 }
 
+/*
+  Used to discriminate between a storage type with a file system that can be mounted fully
+  versus one that is only allowed to mount a specific volume
+*/
+const isOnlyVolumesStorage = (storageType) => {
+  return storageType !== "FsxOntap" && storageType !== "FsxOpenZfs";
+}
+
 function StorageInstance({index}) {
   const path = [...storagePath, index]
   const storageAppPath = ['app', 'wizard', 'storage', index];
   const storageType = useState([...path, 'StorageType']) || "none";
   const storageName = useState([...path, 'Name']) || "";
   const mountPoint = useState([...path, 'MountDir']);
-  const useExisting = useState([...storageAppPath, 'useExisting']) || false;
+  const useExisting = useState([...storageAppPath, 'useExisting']) || !isOnlyVolumesStorage(storageType);
   const settingsPath = [...path, `${storageType}Settings`]
-  const existingPath = [...settingsPath, 'FileSystemId']
+  const existingPath = !isOnlyVolumesStorage ? [...settingsPath, 'FileSystemId'] : [...settingsPath, 'VolumeId'];
   const existingId = useState(existingPath) || "";
   const storages = useState(storagePath);
 
   const fsxFilesystems = useState(['aws', 'fsxFilesystems']);
+  const fsxVolumes = useState(['aws', 'fsxVolumes']);
   const efsFilesystems = useState(['aws', 'efs_filesystems']) || [];
   const editing = useState(['app', 'wizard', 'editing']);
 
@@ -513,8 +522,8 @@ function StorageInstance({index}) {
               Where to mount the shared storage on both the Head Node and Compute Fleet instances.
             </HelpTooltip>
           </div>
-          <div style={{marginTop: "10px", display: "flex", flexDirection: "column" }}>
-            <div style={{marginTop: "10px", display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            {isOnlyVolumesStorage(storageType) ? <div style={{marginTop: "10px", display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
               <Toggle disabled={editing} checked={useExisting} onChange={toggleUseExisting}>Use Existing Filesystem</Toggle>
               <HelpTooltip>
                 Specify an existing fileystem and mount it to all instances in the cluster.
@@ -522,7 +531,7 @@ function StorageInstance({index}) {
                 , <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EfsSettings-FileSystemId'>EFS Filesystem ID</a>
                 , <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EbsSettings-VolumeId'>EBS Volume ID</a>
               </HelpTooltip>
-            </div>
+            </div> : null} 
             { useExisting &&
                 {
                   "Ebs":
@@ -539,6 +548,19 @@ function StorageInstance({index}) {
                       selectedOption={existingId && idToOption(existingId)} label="FSx Filesystem" onChange={({detail}) => {setState(existingPath, detail.selectedOption.value)}}
                       options={fsxFilesystems.lustre.map((fs) => {return {value: fs.id, label: fs.name}})}
                     />
+                  </FormField>,
+                  "FsxOpenZfs": <FormField label="Existing FSx OpenZFS volume">
+                    <Select
+                      placeholder="Please Select"
+                      selectedOption={existingId && idToOption(existingId)} label="FSx OpenZFS volume" onChange={({detail}) => {setState(existingPath, detail.selectedOption.value)}}
+                      options={fsxVolumes.zfs.map((fs) => {return {value: fs.id, label: fs.name}})}
+                    />
+                  </FormField>,
+                  "FsxOntap": <FormField label="Existing FSx NetApp ONTAP volume">
+                    <Select
+                      placeholder="Please Select"
+                      selectedOption={existingId && idToOption(existingId)} label="FSx ONTAP volume" onChange={({detail}) => {setState(existingPath, detail.selectedOption.value)}}
+                      options={fsxVolumes.ontap.map((fs) => {return {value: fs.id, label: fs.name}})}
                     />
                   </FormField>,
                   "Efs": <FormField label="EFS Filesystem">
@@ -563,10 +585,20 @@ function Storage() {
   const storages = useState(storagePath);
   const editing = useState(['app', 'wizard', 'editing']);
   const storageType = useState(['app', 'wizard', 'storage', 'type']);
+  const versionMinor = useState(['app', 'version', 'minor']);
 
-  const storageMaxes = {"FsxLustre": 1, "Efs": 1, "Ebs": 5}
+  const storageMaxes = {"FsxLustre": 1, "FsxOntap": 1, "FsxOpenZfs": 1, "Efs": 1, "Ebs": 5}
 
-  const storageTypesSource = [
+  /*
+    Activate ONTAP/OpenZFS only from ParallelCluster 3.2.0
+   */
+  const storageTypesSource = versionMinor >= 2 ? [
+    ["FsxLustre", "Amazon FSx for Lustre (FSX)", "/img/fsx.svg"],
+    ["FsxOntap", "Amazon FSx for NetApp ONTAP (FSX)", "/img/fsx.svg"],
+    ["FsxOpenZfs", "Amazon FSx for OpenZFS (FSX)", "/img/fsx.svg"],
+    ["Efs", "Amazon Elastic File System (EFS)", "/img/efs.svg"],
+    ["Ebs", "Amazon Elastic Block Store (EBS)", "/img/ebs.svg"],
+  ] : [
     ["FsxLustre", "Amazon FSx for Lustre (FSX)", "/img/fsx.svg"],
     ["Efs", "Amazon Elastic File System (EFS)", "/img/efs.svg"],
     ["Ebs", "Amazon Elastic Block Store (EBS)", "/img/ebs.svg"],
