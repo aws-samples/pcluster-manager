@@ -449,6 +449,11 @@ function EbsSettings({index}) {
   )
 }
 
+/*
+ * Used to configure the Storage part of the Cluster wizard:
+ *  - controls whether a storage type can be created or just linked
+ *  - specify if a storage type can be mounted as a file system or just one of its volumes
+ */
 const STORAGE_TYPE_PROPS = {
   "FsxLustre": {
     canCreate: true,
