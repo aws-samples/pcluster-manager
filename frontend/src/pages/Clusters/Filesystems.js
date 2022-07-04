@@ -27,22 +27,27 @@ import {
 import EmptyState from '../../components/EmptyState';
 
 function StorageId({storage}){
-  const settingsKey = `${storage.StorageType}Settings`
-  const fs_id = getIn(storage, [settingsKey, 'FileSystemId'])
+  const settingsKey = `${storage.StorageType}Settings`;
+  const canMountFileSystem = ['Efs', 'FsxLustre'].includes(storage.StorageType);
+  const idKey = canMountFileSystem ? 'FileSystemId' : 'VolumeId';
+  const detailsFragment = canMountFileSystem ? '#file-system-details' : '#volume-details';
+  const id = getIn(storage, [settingsKey, idKey]);
   const defaultRegion = useState(['aws', 'region']);
   const region = useState(['app', 'selectedRegion']) || defaultRegion;
+  const versionMinor = useState(['app', 'version', 'minor']);
+  const fsxStorageTypes = (versionMinor && versionMinor >= 2) ? ['FsxLustre', 'FsxOntap', 'FsxOpenZfs'] : ['FsxLustre'];
 
   return <>
-    {fs_id && storage.StorageType === 'FsxLustre' && <Link external externalIconAriaLabel="Opens a new tab"
-      href={`${consoleDomain(region)}/fsx/home?region=${region}#file-system-details/${fs_id}`}
-    >{fs_id}</Link>}
-    {fs_id && storage.StorageType === 'Ebs' && <Link external externalIconAriaLabel="Opens a new tab"
-      href={`${consoleDomain(region)}/efs/home?region=${region}#/file-systems/${fs_id}`}
-    >{fs_id}</Link>}
-    {fs_id && storage.StorageType === 'Efs' && <Link external externalIconAriaLabel="Opens a new tab"
-      href={`${consoleDomain(region)}/ec2/v2/home?region=${region}#VolumeDetails:volumeId=${fs_id}`}
-    >{fs_id}</Link>}
-    {!fs_id && "internal"}
+    {id && fsxStorageTypes.includes(storage.StorageType) && <Link external externalIconAriaLabel="Opens a new tab"
+      href={`${consoleDomain(region)}/fsx/home?region=${region}${detailsFragment}/${id}`}
+    >{id}</Link>}
+    {id && storage.StorageType === 'Efs' && <Link external externalIconAriaLabel="Opens a new tab"
+      href={`${consoleDomain(region)}/efs/home?region=${region}#/file-systems/${id}`}
+    >{id}</Link>}
+    {id && storage.StorageType === 'Ebs' && <Link external externalIconAriaLabel="Opens a new tab"
+      href={`${consoleDomain(region)}/ec2/v2/home?region=${region}#VolumeDetails:volumeId=${id}`}
+    >{id}</Link>}
+    {!id && "internal"}
   </>
 
 }
