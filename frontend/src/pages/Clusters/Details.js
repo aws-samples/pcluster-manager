@@ -33,6 +33,7 @@ export default function ClusterTabs() {
   const clusterPath = ['clusters', 'index', clusterName];
   const cluster = useState(clusterPath);
   const customActions = useState([...clusterPath, 'config', 'HeadNode', 'CustomActions']);
+  const selectedClusterName = useState(['app', 'clusters', 'selected']);
 
   let allScripts = [];
   const scriptName = (script) => {
@@ -65,7 +66,7 @@ export default function ClusterTabs() {
         {label: "Stack Events", id: "stack-events", content: <StackEvents />},
         {label: "Logs", id: "logs", content: <Logs />}
       ]}
-        onChange={({detail}) => {navigate(`/clusters/${params.clusterName}/${detail.activeTabId}`)}}
+        onChange={({detail}) => {navigate(`/clusters/${selectedClusterName}/${detail.activeTabId}`)}}
         activeTabId={params.tab || 'details'}
     />
       : <div style={{textAlign: "center", paddingTop: "40px"}}>
