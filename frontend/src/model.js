@@ -503,9 +503,10 @@ function LoadAwsConfig(region = null, callback) {
   request('get', url).then(response => {
     if(response.status === 200) {
       console.log("aws", response.data);
-      const { fsx_filesystems, ...data} = response.data;
+      const { fsx_filesystems, fsx_volumes, ...data} = response.data;
       setState(['aws'], {
         fsxFilesystems: extractFsxFilesystems(fsx_filesystems),
+        fsxVolumes: extractFsxVolumes(fsx_volumes),
         ...data,
       });
       GetInstanceTypes(region);
@@ -542,6 +543,18 @@ const nameFromFilesystem = (filesystem) => {
   }
   const nameTag = filesystem.Tags.find((tag) => tag.Key === "Name");
   return nameTag ? nameTag.Value : null;
+}
+
+const extractFsxVolumes = (volumes) => {
+  const mappedVolumes = volumes.map(vol => ({
+    id: vol.VolumeId,
+    name: vol.Name,
+    type: vol.VolumeType,
+  }));
+  return {
+    zfs: mappedVolumes.filter(vol => vol.type === "OPENZFS"),
+    ontap: mappedVolumes.filter(vol => vol.type === "ONTAP"),
+  };
 }
 
 function GetVersion() {
