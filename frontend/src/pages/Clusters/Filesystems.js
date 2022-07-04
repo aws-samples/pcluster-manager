@@ -37,17 +37,18 @@ function StorageId({storage}){
   const versionMinor = useState(['app', 'version', 'minor']);
   const fsxStorageTypes = (versionMinor && versionMinor >= 2) ? ['FsxLustre', 'FsxOntap', 'FsxOpenZfs'] : ['FsxLustre'];
 
+  if (!id) return 'internal'
+  
   return <>
-    {id && fsxStorageTypes.includes(storage.StorageType) && <Link external externalIconAriaLabel="Opens a new tab"
+    {fsxStorageTypes.includes(storage.StorageType) && <Link external externalIconAriaLabel="Opens a new tab"
       href={`${consoleDomain(region)}/fsx/home?region=${region}${detailsFragment}/${id}`}
     >{id}</Link>}
-    {id && storage.StorageType === 'Efs' && <Link external externalIconAriaLabel="Opens a new tab"
+    {storage.StorageType === 'Efs' && <Link external externalIconAriaLabel="Opens a new tab"
       href={`${consoleDomain(region)}/efs/home?region=${region}#/file-systems/${id}`}
     >{id}</Link>}
-    {id && storage.StorageType === 'Ebs' && <Link external externalIconAriaLabel="Opens a new tab"
+    {storage.StorageType === 'Ebs' && <Link external externalIconAriaLabel="Opens a new tab"
       href={`${consoleDomain(region)}/ec2/v2/home?region=${region}#VolumeDetails:volumeId=${id}`}
     >{id}</Link>}
-    {!id && "internal"}
   </>
 
 }
