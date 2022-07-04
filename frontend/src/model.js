@@ -503,7 +503,11 @@ function LoadAwsConfig(region = null, callback) {
   request('get', url).then(response => {
     if(response.status === 200) {
       console.log("aws", response.data);
-      setState(['aws'], response.data);
+      const { fsx_filesystems, ...data} = response.data;
+      setState(['aws'], {
+        fsxFilesystems: extractFsxFilesystems(fsx_filesystems),
+        ...data,
+      });
       GetInstanceTypes(region);
     }
     callback && callback(response.data);
@@ -515,6 +519,29 @@ function LoadAwsConfig(region = null, callback) {
     }
     console.log(error)
   })
+}
+
+const extractFsxFilesystems = (filesystems) => {
+  const mappedFilesystems = filesystems.map(fs => ({
+    id: fs.FileSystemId,
+    name: nameFromFilesystem(fs),
+    type: fs.FileSystemType,
+  }));
+
+  return {
+    lustre: mappedFilesystems.filter(fs => fs.type === "LUSTRE"),
+    zfs: mappedFilesystems.filter(fs => fs.type === "OPENZFS"),
+    ontap: mappedFilesystems.filter(fs => fs.type === "ONTAP"),
+  }
+}
+
+const nameFromFilesystem = (filesystem) => {
+  const { Tags: tags } = filesystem;
+  if(!tags) {
+    return null;
+  }
+  const nameTag = filesystem.Tags.find((tag) => tag.Key === "Name");
+  return nameTag ? nameTag.Value : null;
 }
 
 function GetVersion() {

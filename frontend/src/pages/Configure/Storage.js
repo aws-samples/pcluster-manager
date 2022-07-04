@@ -460,18 +460,9 @@ function StorageInstance({index}) {
   const existingId = useState(existingPath) || "";
   const storages = useState(storagePath);
 
-  const fsxFilesystems = useState(['aws', 'fsx_filesystems']) || [];
+  const fsxFilesystems = useState(['aws', 'fsxFilesystems']);
   const efsFilesystems = useState(['aws', 'efs_filesystems']) || [];
   const editing = useState(['app', 'wizard', 'editing']);
-
-  const fsxName = (fsx) => {
-    var tags = fsx.Tags;
-    if(!tags) {
-      return null;
-    }
-    tags = fsx.Tags.filter((t) => {return t.Key === "Name"})
-    return (tags.length > 0) ? tags[0].Value : null
-  }
 
   const removeStorage = (type) => {
     if(index === 0 && storages.length === 1)
@@ -542,11 +533,12 @@ function StorageInstance({index}) {
                         value={existingId}
                         onChange={(({detail}) => {setState(existingPath, detail.value)})} />
                     </div>,
-                  "FsxLustre": <FormField label="FSx Filesystem">
+                  "FsxLustre": <FormField label="FSx Lustre Filesystem">
                     <Select
                       placeholder="Please Select"
                       selectedOption={existingId && idToOption(existingId)} label="FSx Filesystem" onChange={({detail}) => {setState(existingPath, detail.selectedOption.value)}}
-                      options={fsxFilesystems.map((x, i) => {return {value: x.FileSystemId, label: (x.FileSystemId + (fsxName(x) ? ` (${fsxName(x)})` : ""))}})}
+                      options={fsxFilesystems.lustre.map((fs) => {return {value: fs.id, label: fs.name}})}
+                    />
                     />
                   </FormField>,
                   "Efs": <FormField label="EFS Filesystem">
