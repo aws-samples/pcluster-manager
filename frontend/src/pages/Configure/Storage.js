@@ -63,8 +63,9 @@ function storageValidate() {
       const settingsType = getState([...storagePath, i, 'StorageType']);
       if(settingsType === 'Ebs')
       {
+        const volumeId = getState([...storagePath, i, 'EbsSettings', 'VolumeId']);
         const volumeSize = getState([...storagePath, i, 'EbsSettings', 'Size']);
-        if(volumeSize === null || volumeSize === '' || volumeSize < 35 || volumeSize > 2048)
+        if(!volumeId && (volumeSize === null || volumeSize === '' || volumeSize < 35 || volumeSize > 2048))
         {
           setState([...errorsPath, i, 'EbsSettings', 'Size'], 'You must specify a valid Volume Size.');
           valid = false;
@@ -448,12 +449,27 @@ function EbsSettings({index}) {
   )
 }
 
-/*
-  Used to discriminate between a storage type with a file system that can be mounted fully
-  versus one that is only allowed to mount a specific volume
-*/
-const isOnlyVolumesStorage = (storageType) => {
-  return storageType !== "FsxOntap" && storageType !== "FsxOpenZfs";
+const STORAGE_TYPE_PROPS = {
+  "FsxLustre": {
+    canCreate: true,
+    mountFilesystem: true,
+  },
+  "FsxOntap": {
+    canCreate: false,
+    mountFilesystem: false,
+  },
+  "FsxOpenZfs": {
+    canCreate: false,
+    mountFilesystem: false,
+  },
+  "Efs": {
+    canCreate: true,
+    mountFilesystem: true,
+  },
+  "Ebs": {
+    canCreate: true,
+    mountFilesystem: false,
+  },
 }
 
 function StorageInstance({index}) {
@@ -462,9 +478,9 @@ function StorageInstance({index}) {
   const storageType = useState([...path, 'StorageType']) || "none";
   const storageName = useState([...path, 'Name']) || "";
   const mountPoint = useState([...path, 'MountDir']);
-  const useExisting = useState([...storageAppPath, 'useExisting']) || !isOnlyVolumesStorage(storageType);
+  const useExisting = useState([...storageAppPath, 'useExisting']) || !STORAGE_TYPE_PROPS[storageType].canCreate;
   const settingsPath = [...path, `${storageType}Settings`]
-  const existingPath = !isOnlyVolumesStorage ? [...settingsPath, 'FileSystemId'] : [...settingsPath, 'VolumeId'];
+  const existingPath = STORAGE_TYPE_PROPS[storageType].mountFilesystem ? [...settingsPath, 'FileSystemId'] : [...settingsPath, 'VolumeId'];
   const existingId = useState(existingPath) || "";
   const storages = useState(storagePath);
 
@@ -523,7 +539,7 @@ function StorageInstance({index}) {
             </HelpTooltip>
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
-            {isOnlyVolumesStorage(storageType) ? <div style={{marginTop: "10px", display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+            {STORAGE_TYPE_PROPS[storageType].canCreate ? <div style={{marginTop: "10px", display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
               <Toggle disabled={editing} checked={useExisting} onChange={toggleUseExisting}>Use Existing Filesystem</Toggle>
               <HelpTooltip>
                 Specify an existing fileystem and mount it to all instances in the cluster.
