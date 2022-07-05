@@ -567,21 +567,21 @@ function StorageInstance({index}) {
                     <Select
                       placeholder="Please Select"
                       selectedOption={existingId && idToOption(existingId)} label="FSx Filesystem" onChange={({detail}) => {setState(existingPath, detail.selectedOption.value)}}
-                      options={fsxFilesystems.lustre.map((fs) => {return {value: fs.id, label: fs.name}})}
+                      options={fsxFilesystems.lustre.map((fs) => ({value: fs.id, label: fs.displayName}))}
                     />
                   </FormField>,
                   "FsxOpenZfs": <FormField label="Existing FSx OpenZFS volume">
                     <Select
                       placeholder="Please Select"
                       selectedOption={existingId && idToOption(existingId)} label="FSx OpenZFS volume" onChange={({detail}) => {setState(existingPath, detail.selectedOption.value)}}
-                      options={fsxVolumes.zfs.map((fs) => {return {value: fs.id, label: fs.name}})}
+                      options={fsxVolumes.zfs.map((vol) => ({value: vol.id, label: vol.displayName}))}
                     />
                   </FormField>,
                   "FsxOntap": <FormField label="Existing FSx NetApp ONTAP volume">
                     <Select
                       placeholder="Please Select"
                       selectedOption={existingId && idToOption(existingId)} label="FSx ONTAP volume" onChange={({detail}) => {setState(existingPath, detail.selectedOption.value)}}
-                      options={fsxVolumes.ontap.map((fs) => {return {value: fs.id, label: fs.name}})}
+                      options={fsxVolumes.ontap.map((vol) => ({value: vol.id, label: vol.displayName}))}
                     />
                   </FormField>,
                   "Efs": <FormField label="EFS Filesystem">

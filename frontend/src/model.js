@@ -523,11 +523,16 @@ function LoadAwsConfig(region = null, callback) {
 }
 
 const extractFsxFilesystems = (filesystems) => {
-  const mappedFilesystems = filesystems.map(fs => ({
-    id: fs.FileSystemId,
-    name: nameFromFilesystem(fs),
-    type: fs.FileSystemType,
-  }));
+  const mappedFilesystems = filesystems
+    .map(fs => ({
+      id: fs.FileSystemId,
+      name: nameFromFilesystem(fs),
+      type: fs.FileSystemType,
+    }))
+    .map(fs => ({
+      ...fs,
+      displayName: `${fs.id} ${fs.name}`,
+    }));
 
   return {
     lustre: mappedFilesystems.filter(fs => fs.type === "LUSTRE"),
@@ -539,18 +544,24 @@ const extractFsxFilesystems = (filesystems) => {
 const nameFromFilesystem = (filesystem) => {
   const { Tags: tags } = filesystem;
   if(!tags) {
-    return null;
+    return "";
   }
   const nameTag = filesystem.Tags.find((tag) => tag.Key === "Name");
-  return nameTag ? nameTag.Value : null;
+  return nameTag ? nameTag.Value : "";
 }
 
 const extractFsxVolumes = (volumes) => {
-  const mappedVolumes = volumes.map(vol => ({
-    id: vol.VolumeId,
-    name: vol.Name,
-    type: vol.VolumeType,
-  }));
+  const mappedVolumes = volumes
+    .map(vol => ({
+      id: vol.VolumeId,
+      name: vol.Name,
+      type: vol.VolumeType,
+    }))
+    .map(vol => ({
+      ...vol,
+      displayName: `${vol.id} ${vol.name}`,
+    }));
+
   return {
     zfs: mappedVolumes.filter(vol => vol.type === "OPENZFS"),
     ontap: mappedVolumes.filter(vol => vol.type === "ONTAP"),
