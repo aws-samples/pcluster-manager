@@ -83,16 +83,18 @@ function storageValidate() {
 }
 
 function FsxLustreSettings({index}) {
-
+  const versionMinor = useState(['app', 'version', 'minor']);
   const storageAppPath = ['app', 'wizard', 'storage', index];
   const useExisting = useState([...storageAppPath, 'useExisting']) || false;
 
   const fsxPath = [...storagePath, index, 'FsxLustreSettings']
   const storageCapacityPath = [...fsxPath, 'StorageCapacity'];
   const lustreTypePath = [...fsxPath, 'DeploymentType'];
-  const lustreTypes = ['PERSISTENT_1', 'SCRATCH_1', 'SCRATCH_2'];
+  // support FSx Lustre PERSISTENT_2 only in >= 3.2.0
+  const lustreTypes = versionMinor >= 2 ? ['PERSISTENT_2', 'PERSISTENT_1', 'SCRATCH_1', 'SCRATCH_2'] : ['PERSISTENT_1', 'SCRATCH_1', 'SCRATCH_2'];
   const storageThroughputPath = [...fsxPath, 'PerUnitStorageThroughput'];
-  const storageThroughputs = [50, 100, 200];
+  const storageThroughputsP1 = [50, 100, 200];
+  const storageThroughputsP2 = [125, 250, 500, 1000];
   const importPathPath = [...fsxPath, 'ImportPath'];
   const exportPathPath = [...fsxPath, 'ExportPath'];
   const compressionPath = [...fsxPath, 'DataCompressionType'];
@@ -113,7 +115,7 @@ function FsxLustreSettings({index}) {
     if(storageCapacity === null && !useExisting)
       setState(storageCapacityPath, 1200);
     if(lustreType === null && !useExisting)
-      setState(lustreTypePath, "SCRATCH_2");
+      setState(lustreTypePath, versionMinor >= 2 ? 'PERSISTENT_2' : 'PERSISTENT_1');
   }, [storageCapacity, lustreType, storageThroughput]);
 
   const toggleCompression = () => {
@@ -171,42 +173,46 @@ function FsxLustreSettings({index}) {
           />
         </div>
         <HelpTooltip>
-          Choose SCRATCH_1 and SCRATCH_2 deployment types when you need temporary storage and shorter-term processing of data. The SCRATCH_2 deployment type provides in-transit encryption of data and higher burst throughput capacity than SCRATCH_1. Choose PERSISTENT_1 deployment type for longer-term storage and workloads and encryption of data in transit. See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-DeploymentType'>DeploymentType</a>.
-        </HelpTooltip>
-      </div>
-
-      <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
-        <FormField label="Import Path">
-          <Input
-            disabled={editing}
-            placeholder="s3://yourbucket"
-            value={importPath} onChange={({detail}) => setImportPath(detail.value)} />
-        </FormField>
-        <HelpTooltip>
-          Set Import Path to read files into your filesystem from an S3 bucket. See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-ImportPath'>ImportPath</a>.
-        </HelpTooltip>
-      </div>
-
-      <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
-        <FormField label="Export Path">
-          <Input
-            disabled={editing}
-            placeholder="s3://yourbucket"
-            value={exportPath} onChange={({detail}) => {setExportPath(detail.value)}} />
-        </FormField>
-        <HelpTooltip>
-          Set Export Path to write files from your filesystem into an S3 bucket. See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-ExportPath'>ExportPath</a>.
+          Choose SCRATCH_1 and SCRATCH_2 deployment types when you need temporary storage and shorter-term processing of data. The SCRATCH_2 deployment type provides in-transit encryption of data and higher burst throughput capacity than SCRATCH_1. Choose PERSISTENT_2 deployment type for longer-term storage and workloads and encryption of data in transit, choose PERSISTENT_1 only for backwards compatibility. See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-DeploymentType'>DeploymentType</a>.
         </HelpTooltip>
       </div>
 
       { lustreType === 'PERSISTENT_1' &&
+      <>
+        <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+          <FormField label="Import Path">
+            <Input
+              disabled={editing}
+              placeholder="s3://yourbucket"
+              value={importPath} onChange={({detail}) => setImportPath(detail.value)} />
+          </FormField>
+          <HelpTooltip>
+            Set Import Path to read files into your filesystem from an S3 bucket. See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-ImportPath'>ImportPath</a>.
+          </HelpTooltip>
+        </div>
+
+        <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+          <FormField label="Export Path">
+            <Input
+              disabled={editing}
+              placeholder="s3://yourbucket"
+              value={exportPath} onChange={({detail}) => {setExportPath(detail.value)}} />
+          </FormField>
+          <HelpTooltip>
+            Set Export Path to write files from your filesystem into an S3 bucket. See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-ExportPath'>ExportPath</a>.
+          </HelpTooltip>
+        </div>
+      </>
+      }
+
+      { ['PERSISTENT_1', 'PERSISTENT_2'].includes(lustreType) &&
       <div style={{display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
         <FormField label="Per Unit Storage Throughput">
           <Select
-            selectedOption={strToOption(storageThroughput || 200)} onChange={({detail}) => {
+            selectedOption={strToOption(storageThroughput || 125)} onChange={({detail}) => {
               setState(storageThroughputPath, detail.selectedOption.value);
             }}
-            options={storageThroughputs.map(strToOption)}
+            options={lustreType == 'PERSISTENT_1'? storageThroughputsP1.map(strToOption) : storageThroughputsP2.map(strToOption)}
           />
         </FormField>
         <HelpTooltip>
