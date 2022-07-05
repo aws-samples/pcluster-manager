@@ -503,7 +503,12 @@ function LoadAwsConfig(region = null, callback) {
   request('get', url).then(response => {
     if(response.status === 200) {
       console.log("aws", response.data);
-      setState(['aws'], response.data);
+      const { fsx_filesystems, fsx_volumes, ...data} = response.data;
+      setState(['aws'], {
+        fsxFilesystems: extractFsxFilesystems(fsx_filesystems),
+        fsxVolumes: extractFsxVolumes(fsx_volumes),
+        ...data,
+      });
       GetInstanceTypes(region);
     }
     callback && callback(response.data);
@@ -515,6 +520,52 @@ function LoadAwsConfig(region = null, callback) {
     }
     console.log(error)
   })
+}
+
+const extractFsxFilesystems = (filesystems) => {
+  const mappedFilesystems = filesystems
+    .map(fs => ({
+      id: fs.FileSystemId,
+      name: nameFromFilesystem(fs),
+      type: fs.FileSystemType,
+    }))
+    .map(fs => ({
+      ...fs,
+      displayName: `${fs.id} ${fs.name}`,
+    }));
+
+  return {
+    lustre: mappedFilesystems.filter(fs => fs.type === "LUSTRE"),
+    zfs: mappedFilesystems.filter(fs => fs.type === "OPENZFS"),
+    ontap: mappedFilesystems.filter(fs => fs.type === "ONTAP"),
+  }
+}
+
+const nameFromFilesystem = (filesystem) => {
+  const { Tags: tags } = filesystem;
+  if(!tags) {
+    return "";
+  }
+  const nameTag = filesystem.Tags.find((tag) => tag.Key === "Name");
+  return nameTag ? nameTag.Value : "";
+}
+
+const extractFsxVolumes = (volumes) => {
+  const mappedVolumes = volumes
+    .map(vol => ({
+      id: vol.VolumeId,
+      name: vol.Name,
+      type: vol.VolumeType,
+    }))
+    .map(vol => ({
+      ...vol,
+      displayName: `${vol.id} ${vol.name}`,
+    }));
+
+  return {
+    zfs: mappedVolumes.filter(vol => vol.type === "OPENZFS"),
+    ontap: mappedVolumes.filter(vol => vol.type === "ONTAP"),
+  };
 }
 
 function GetVersion() {

@@ -485,6 +485,12 @@ def get_aws_config():
     except:
         pass
 
+    fsx_volumes = []
+    try:
+        fsx_volumes = list(filter(lambda vol: (vol["Lifecycle"] == "CREATED" or vol["Lifecycle"] == "AVAILABLE"), fsx.describe_volumes()["Volumes"]))
+    except:
+        pass
+
     efs_filesystems = []
     try:
         efs_filesystems = efs.describe_file_systems()["FileSystems"]
@@ -504,6 +510,7 @@ def get_aws_config():
         "subnets": subnets,
         "region": region,
         "fsx_filesystems": fsx_filesystems,
+        "fsx_volumes": fsx_volumes,
         "efs_filesystems": efs_filesystems,
         "efa_instance_types": efa_instance_types,
     }
