@@ -1,5 +1,5 @@
 ---
-title: "Setup Pcluster Manager"
+title: "Setup"
 date: 2019-01-24T09:05:54Z
 weight: 10
 pre: "<b>I ⁃ </b>"
