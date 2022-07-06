@@ -41,6 +41,15 @@ JWKS_URL = os.getenv("JWKS_URL")
 AUDIENCE = os.getenv("AUDIENCE")
 USER_ROLES_CLAIM = os.getenv("USER_ROLES_CLAIM", "cognito:groups")
 REDIRECT_URL = f"{SITE_URL}/login"
+PCluster_tags = ['parallelcluster:attributes', 
+        'parallelcluster:cluster-name', 'parallelcluster:compute-resource-name', 'parallelcluster:filesystem', 
+        'parallelcluster:networking', 'parallelcluster:node-type', 'parallelcluster:queue-name', 
+        'parallelcluster:resource', 'parallelcluster:version']
+cost_explorer = boto3.client('ce',)
+
+
+
+
 
 try:
     if (not USER_POOL_ID or USER_POOL_ID == "") and SECRET_ID:
@@ -696,14 +705,9 @@ def _get_params(_request):
     return params
 
 # Check if parallelcluster tags are active
-def check_tags(self, inactive_tags):
+def check_tags():
     try:
-        cost_explorer = boto3.client('ce',)
-        tags = ['parallelcluster:attributes', 
-        'parallelcluster:cluster-name', 'parallelcluster:compute-resource-name', 'parallelcluster:filesystem', 
-        'parallelcluster:networking', 'parallelcluster:node-type', 'parallelcluster:queue-name', 
-        'parallelcluster:resource', 'parallelcluster:version']
-        inactive_tags = cost_explorer.list_cost_allocation_tags(Status='Inactive',TagKeys=tags)
+        inactive_tags = cost_explorer.list_cost_allocation_tags(Status='Inactive',TagKeys=PCluster_tags)
         if len(inactive_tags['CostAllocationtTags']) > 0:
             return True
         else:
@@ -712,44 +716,10 @@ def check_tags(self, inactive_tags):
         return {"message": str(e)}, 500
 
 # Activate parallelcluster tags in cost explorer
-def activate_tags(self, cost_explorer):
+def activate_tags():
     try:
-        updated_tags = cost_explorer.update_cost_allocation_tags_status(
-            CostAllocationTagsStatus=[
-                {
-                    'TagKey': 'parallelcluster:attributes',
-                    'Status': 'Active'
-                },
-                {
-                    'TagKey': 'parallelcluster:cluster-name',
-                    'Status': 'Active'
-                },
-                {
-                    'TagKey': 'parallelcluster:compute-resource-name',
-                    'Status': 'Active'
-                },
-                {
-                    'TagKey': 'parallelcluster:filesystem',
-                    'Status': 'Active'
-                },
-                {
-                    'TagKey': 'parallelcluster:node-type',
-                    'Status': 'Active'
-                },
-                {
-                    'TagKey': 'parallelcluster:queue-name',
-                    'Status': 'Active'
-                },
-                {
-                    'TagKey': 'parallelcluster:resource',
-                    'Status': 'Active'
-                },
-                {
-                    'TagKey': 'parallelcluster:version',
-                    'Status': 'Active'
-                }
-            ]
-        )
+        for tag in PCluster_tags:
+            updated_tags = cost_explorer.CostAllocationTagStatus.append({'Tagkey': tag, 'Value': 'Active'})
     except Exception as e:
         return {"message": str(e)}, 500
     
