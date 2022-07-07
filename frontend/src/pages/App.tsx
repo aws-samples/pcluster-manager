@@ -12,36 +12,32 @@
 import React from 'react';
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom"
 
-import { LoadInitialState} from './model'
+import { LoadInitialState} from '../model'
 
-import { useState } from './store'
-import './App.css';
+import { useState } from '../store'
 
-import Layout from "./pages/Layout"
-import Clusters from "./pages/Clusters/Clusters"
-import Configure from "./pages/Configure/Configure"
-import CustomImages from "./pages/CustomImages/CustomImages"
-import OfficialImages from "./pages/OfficialImages/OfficialImages"
-import Users from "./pages/Users/Users"
-import Home from "./pages/Home/Home"
-
-import "@awsui/global-styles/index.css"
+import Layout from "../old-pages/Layout"
+import Clusters from "../old-pages/Clusters/Clusters"
+import Configure from "../old-pages/Configure/Configure"
+import CustomImages from "../old-pages/CustomImages/CustomImages"
+import OfficialImages from "../old-pages/OfficialImages/OfficialImages"
+import Users from "../old-pages/Users/Users"
+import Home from "../old-pages/Home/Home"
 
 // UI Elements
 import CssBaseline from '@mui/material/CssBaseline';
 
 // Components
-import Loading from './components/Loading'
+import Loading from '../components/Loading'
 
 export default function App() {
-
   const identity = useState(['identity']);
   const groups = useState(['identity', 'cognito:groups']);
-
+  
   const isGuest = () => {
     return identity && (!groups || ((!groups.includes("admin")) && (!groups.includes("user"))));
   }
-
+  
   React.useEffect(() => {
     LoadInitialState();
   }, [])
