@@ -42,13 +42,13 @@ if [ "$REGION_SET" == "false" ]; then
     echo "Warning: Using default region $REGION from your environment. Please ensure this is where pcluster manager is deployed.";
 fi
 
-LAMBDA_ARN=$(aws lambda list-functions --query "Functions[?contains(FunctionName, 'PclusterManagerFunction')] | [0].FunctionArn" | xargs echo)
+LAMBDA_ARN=$(aws lambda --region ${REGION} list-functions --query "Functions[?contains(FunctionName, 'PclusterManagerFunction')] | [0].FunctionArn" | xargs echo)
 ECR_REPO=pcluster-manager-awslambda
 
 PUBLIC_ECR_ENDPOINT="public.ecr.aws/n0x0o5k1"
 ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
 ECR_ENDPOINT="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com"
-PRIVATE_ECR_REPO=$(aws ecr describe-repositories --query "repositories[?contains(repositoryName, 'pcluster-manager')] | [0].repositoryName" --output text)
+PRIVATE_ECR_REPO=$(aws ecr --region ${REGION} describe-repositories --query "repositories[?contains(repositoryName, 'pcluster-manager')] | [0].repositoryName" --output text)
 IMAGE=${ECR_ENDPOINT}/${PRIVATE_ECR_REPO}:latest
 
 if [ "$LOCAL" == "true" ]; then
@@ -71,4 +71,4 @@ aws ecr get-login-password --region ${REGION} | docker login --username AWS --pa
 echo "Pushing private docker container..."
 docker push ${IMAGE}
 echo "Updating lambda..."
-aws lambda update-function-code --function-name ${LAMBDA_ARN} --image-uri ${IMAGE} --publish
+aws lambda --region ${REGION} update-function-code --function-name ${LAMBDA_ARN} --image-uri ${IMAGE} --publish
