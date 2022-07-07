@@ -4,7 +4,7 @@
   "private": true,
   "homepage": "/",
   "dependencies": {
-    "@awsui/components-react": "^3.0.340",
+    "@awsui/components-react": "^3.0.534",
     "@awsui/global-styles": "^1.0.9",
     "@emotion/react": "^11.4.1",
     "@emotion/styled": "^11.3.0",
@@ -17,25 +17,21 @@
     "@reduxjs/toolkit": "^1.6.1",
     "axios": "^0.21.4",
     "js-yaml": "^4.1.0",
+    "next": "^12.2.0",
+    "next-transpile-modules": "^9.0.0",
     "notistack": "^2.0.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-redux": "^7.2.5",
     "react-router-dom": "^6.2.2",
-    "react-scripts": "^5.0.0",
     "web-vitals": "^1.1.2"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+    "start": "next start",
+    "build": "next build",
+    "lint": "next lint",
+    "dev": "next dev",
+    "export": "next build && next export -o build"
   },
   "browserslist": {
     "production": [
@@ -48,5 +44,11 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "eslint": "^8.19.0",
+    "eslint-config-next": "12.2.0",
+    "typescript": "^4.7.4"
   }
 }
