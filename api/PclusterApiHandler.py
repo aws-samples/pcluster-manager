@@ -33,6 +33,13 @@ CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 SECRET_ID = os.getenv("SECRET_ID")
 ENABLE_MFA = os.getenv("ENABLE_MFA")
 SITE_URL = os.getenv("SITE_URL", API_BASE_URL)
+SCOPES_LIST = os.getenv("SCOPES_LIST")
+REGION = os.getenv("AWS_DEFAULT_REGION")
+REDIRECT_URL = os.getenv("REDIRECT_URL", f"{SITE_URL}/login")
+TOKEN_URL = os.getenv("TOKEN_URL", f"{AUTH_PATH}/oauth2/token")
+AUTH_URL = os.getenv("AUTH_URL")
+JWKS_URL = os.getenv("JWKS_URL")
+AUDIENCE = os.getenv("AUDIENCE")
 USER_ROLES_CLAIM = os.getenv("USER_ROLES_CLAIM", "cognito:groups")
 
 try:
@@ -42,6 +49,15 @@ try:
         USER_POOL_ID = secret.get("userPoolId")
         CLIENT_ID = secret.get("clientId")
         CLIENT_SECRET = secret.get("clientSecret")
+        if not SCOPES_LIST:
+            SCOPES_LIST = "openid"
+        elif "openid" not in SCOPES_LIST:
+            SCOPES_LIST += " openid"
+        if not AUTH_URL:
+            AUTH_URL = f"{AUTH_PATH}/login?response_type=code&client_id={CLIENT_ID}&scope={SCOPES_LIST}&redirect_uri={REDIRECT_URL}"
+        if not JWKS_URL:
+            JWKS_URL = os.getenv("JWKS_URL",
+                                 f"https://cognito-idp.{REGION}.amazonaws.com/{USER_POOL_ID}/" ".well-known/jwks.json")
 except Exception:
     pass
 
@@ -55,10 +71,8 @@ def disable_auth():
     return os.getenv("ENABLE_AUTH") == "false"
 
 
-def jwt_decode(token, user_pool_id):
-    region = user_pool_id.split("_")[0]
-    jwks_url = "https://cognito-idp.{}.amazonaws.com/{}/" ".well-known/jwks.json".format(region, user_pool_id)
-    return jwt.decode(token, requests.get(jwks_url).json())
+def jwt_decode(token, audience=None, access_token=None):
+    return jwt.decode(token, requests.get(JWKS_URL).json(), audience=audience, access_token=access_token)
 
 
 def setup_api_credentials(role_arn, credential_external_id=None):
@@ -119,9 +133,7 @@ def sigv4_request(method, host, path, params={}, headers={}, body=None):
 
 
 def auth_redirect():
-    redirect_uri = f"{SITE_URL}/login"
-    auth_redirect_path = f"{AUTH_PATH}/login?response_type=code&client_id={CLIENT_ID}&redirect_uri={redirect_uri}"
-    return redirect(auth_redirect_path, code=302)
+    return redirect(AUTH_URL, code=302)
 
 
 def authenticate(group):
@@ -132,7 +144,7 @@ def authenticate(group):
     if not access_token:
         return auth_redirect()
     try:
-        decoded = jwt_decode(access_token, USER_POOL_ID)
+        decoded = jwt_decode(access_token)
     except jwt.ExpiredSignatureError:
         return auth_redirect()
     except jose.exceptions.JWSSignatureError:
@@ -555,7 +567,7 @@ def get_identity():
     if not access_token:
         return {"message": "No access token."}, 401
     try:
-        decoded = jwt_decode(access_token, USER_POOL_ID)
+        decoded = jwt_decode(access_token)
         decoded["user_roles"] = _get_user_roles(decoded)
         decoded.pop(USER_ROLES_CLAIM)
 
@@ -641,27 +653,25 @@ def set_user_role():
 
 
 def login():
-    redirect_uri = f"{SITE_URL}/login"
-    auth_redirect_path = f"{AUTH_PATH}/login?response_type=code&client_id={CLIENT_ID}&redirect_uri={redirect_uri}"
     code = request.args.get("code")
     if not code:
-        return redirect(auth_redirect_path, code=302)
+        return redirect(AUTH_URL, code=302)
 
     # Convert the authorization code into a jwt
     auth = requests.auth.HTTPBasicAuth(CLIENT_ID, CLIENT_SECRET)
     grant_type = "authorization_code"
 
-    url = f"{AUTH_PATH}/oauth2/token"
+    url = TOKEN_URL
     code_resp = requests.post(
         url,
-        data={"grant_type": grant_type, "code": code, "client_id": CLIENT_ID, "redirect_uri": redirect_uri},
+        data={"grant_type": grant_type, "code": code, "client_id": CLIENT_ID, "redirect_uri": REDIRECT_URL},
         auth=auth,
         headers={"Content-Type": "application/x-www-form-urlencoded"},
     )
 
     access_token = code_resp.json().get("access_token")
     if not access_token:
-        return redirect(auth_redirect_path, code=302)
+        return redirect(AUTH_URL, code=302)
 
     # give the jwt to the client for future requests
     resp = redirect("/index.html", code=302)
