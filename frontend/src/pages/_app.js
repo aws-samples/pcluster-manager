@@ -27,39 +27,77 @@ import { store } from '../store';
 const queryClient = new QueryClient();
 
 const theme = createTheme({
-    components: {
-        MuiButton: {
-            styleOverrides: {
-                root: {
-                    fontSize: "14px",
-                }
-            }
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          fontSize: "14px",
         }
-    },
-    palette: {
-        primary: {
-            main: "rgb(236, 114, 17)",
-        },
-        default: {
-            contrastText: '#fff',
-            main: "rgb(84, 91, 100)"
-        },
-        dark: {
-            main: "rgb(35, 47, 62)",
-            contrastText: '#fff',
-        },
-    },
-    shape: {
-        borderRadius: "1px"
-    },
-    typography: {
-        fontSize: 20,
-        button: {
-            fontWeight: "700",
-            textTransform: "None"
-        }
+      }
     }
+  },
+  palette: {
+    primary: {
+      main: "rgb(236, 114, 17)",
+    },
+    default: {
+      contrastText: '#fff',
+      main: "rgb(84, 91, 100)"
+    },
+    dark: {
+      main: "rgb(35, 47, 62)",
+      contrastText: '#fff',
+    },
+  },
+  shape: {
+    borderRadius: "1px"
+  },
+  typography: {
+    fontSize: 20,
+    button: {
+      fontWeight: "700",
+      textTransform: "None"
+    }
+  }
 });
+
+function App({ Component, pageProps }) {
+  const onAceLoad = useCallback(() => {
+    window.editor = window.ace.edit('editor')
+    window.ace.config.set('basePath', 'https://pagecdn.io/lib/ace/1.4.13/')
+    window.ace.config.set('loadWorkerFromBlob', false);
+    window.ace.config.set('showFoldWidgets', false);
+    window.ace.config.set('showPrintMargin', false);
+  }, [])
+
+
+  return (
+    <>
+      <Head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Pcluster Manager</title>
+      </Head>
+      <QueryClientProvider client={queryClient}>
+        <I18nextProvider i18n={i18n}>
+          <Provider store={store}>
+            <ThemeProvider theme={theme}>
+              <SnackbarProvider>
+                <Component {...pageProps} />
+              </SnackbarProvider>
+            </ThemeProvider>
+          </Provider>
+        </I18nextProvider>
+      </QueryClientProvider>
+      <div id="editor"></div>
+      <Script
+        src="https://pagecdn.io/lib/ace/1.4.13/ace.min.js"
+        crossOrigin="anonymous"
+        integrity="sha256-GjtAsBCI/KPlEYQf0I8yNimcThRoWMnk7Vpi+dUt+GY="
+        onLoad={onAceLoad}
+      />
+    </>
+  )
+}
 
 /**
  * Disable SSR
@@ -76,55 +114,6 @@ const theme = createTheme({
  * currently being built as a static export,
  * thus SSR is not relevant.
  */
-function SafeHydrate({ children }) {
-    // return children
-    return (
-        <div suppressHydrationWarning>
-            {typeof window === 'undefined' ? null : children}
-        </div>
-    )
-}
-
-function App({ Component, pageProps }) {
-    const onAceLoad = useCallback(() => {
-        window.editor = window.ace.edit('editor')
-        window.ace.config.set('basePath', 'https://pagecdn.io/lib/ace/1.4.13/')
-        window.ace.config.set('loadWorkerFromBlob', false);
-        window.ace.config.set('showFoldWidgets', false);
-        window.ace.config.set('showPrintMargin', false);
-    }, [])
-
-
-    return (
-        <>
-            <Head>
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
-                <title>Pcluster Manager</title>
-            </Head>
-            <SafeHydrate>
-                <QueryClientProvider client={queryClient}>
-                    <I18nextProvider i18n={i18n}>
-                        <Provider store={store}>
-                            <ThemeProvider theme={theme}>
-                                <SnackbarProvider>
-                                    <Component {...pageProps} />
-                                </SnackbarProvider>
-                            </ThemeProvider>
-                        </Provider>
-                    </I18nextProvider>
-                </QueryClientProvider>
-                <div id="editor"></div>
-                <Script
-                    src="https://pagecdn.io/lib/ace/1.4.13/ace.min.js"
-                    crossOrigin="anonymous"
-                    integrity="sha256-GjtAsBCI/KPlEYQf0I8yNimcThRoWMnk7Vpi+dUt+GY="
-                    onLoad={onAceLoad}
-                />
-            </SafeHydrate>
-        </>
-    )
-}
-
 export default dynamic(() => Promise.resolve(App), {
-    ssr: false
+  ssr: false
 });
