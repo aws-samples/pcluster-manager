@@ -1,9 +1,7 @@
 # Use Michael Nygard format for ADR
 
 - Status: accepted
-- Deciders: [list everyone involved in the decision] <!-- optional -->
-- Date: [YYYY-MM-DD when the decision was last updated] <!-- optional. To customize the ordering without relying on last edit dates -->
-- Tags: adr, general
+- Tags: dev-tools, doc
 
 ## Context
 Adopting a format for ADR which is too verbose might prevent people from writing them, as they might consider the activity too time consuming.
