@@ -499,7 +499,8 @@ def get_aws_config():
 
     fsx_volumes = []
     try:
-        fsx_volumes = list(filter(lambda vol: (vol["Lifecycle"] == "CREATED" or vol["Lifecycle"] == "AVAILABLE"), fsx.describe_volumes()["Volumes"]))
+        fsx_volumes = list(filter(lambda vol: (vol["Lifecycle"] == "CREATED" or vol["Lifecycle"] == "AVAILABLE"),
+                                  fsx.describe_volumes()["Volumes"]))
     except:
         pass
 
@@ -554,9 +555,7 @@ def get_instance_types():
 
 
 def _get_user_roles(decoded):
-    print(os.environ.get("USER_ROLES_CLAIM"))
     return decoded[USER_ROLES_CLAIM] if USER_ROLES_CLAIM in decoded else ["user"]
-
 
 
 def get_identity():
