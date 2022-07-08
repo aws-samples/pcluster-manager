@@ -1,0 +1,5 @@
+project:
+  name: ParallelCluster Manager (PCM)
+  tz: Europe/Rome
+  adrFolder: ./decisions
+  packages: []
