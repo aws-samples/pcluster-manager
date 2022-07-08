@@ -678,9 +678,9 @@ def login():
 
     # give the jwt to the client for future requests
     resp = redirect("/index.html", code=302)
-    resp.set_cookie("accessToken", access_token, httponly=True, secure=True, samesite="lax")
-    resp.set_cookie("idToken", id_token, httponly=True, secure=True, samesite="lax")
-    resp.set_cookie("refreshToken", refresh_token, httponly=True, secure=True, samesite="lax")
+    resp.set_cookie("accessToken", access_token, httponly=True, secure=True, samesite="Lax")
+    resp.set_cookie("idToken", id_token, httponly=True, secure=True, samesite="Lax")
+    resp.set_cookie("refreshToken", refresh_token, httponly=True, secure=True, samesite="Lax")
     return resp
 
 
