@@ -28,9 +28,14 @@ import {
 import EmptyState from '../../components/EmptyState';
 import Loading from '../../components/Loading'
 
-function OfficialImagesList(props) {
-  const images = useState(['officialImages', 'list']);
+type Image = {
+  amiId: string,
+  os: string,
+  architecture: string,
+  version: string,
+}
 
+function OfficialImagesList({ images}: { images: Image[]}) {
   const { items, actions, filteredItemsCount, collectionProps, filterProps, paginationProps } = useCollection(
     images,
     {
@@ -118,6 +123,6 @@ export default function OfficialImages() {
         Official Images
       </Header>
     }>
-    {images ? <OfficialImagesList /> : <Loading />}
+    {images ? <OfficialImagesList images={images} /> : <Loading />}
   </Container>
 }
