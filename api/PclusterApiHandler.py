@@ -35,12 +35,12 @@ ENABLE_MFA = os.getenv("ENABLE_MFA")
 SITE_URL = os.getenv("SITE_URL", API_BASE_URL)
 SCOPES_LIST = os.getenv("SCOPES_LIST")
 REGION = os.getenv("AWS_DEFAULT_REGION")
-REDIRECT_URL = os.getenv("REDIRECT_URL", f"{SITE_URL}/login")
 TOKEN_URL = os.getenv("TOKEN_URL", f"{AUTH_PATH}/oauth2/token")
-AUTH_URL = os.getenv("AUTH_URL")
+AUTH_URL = os.getenv("AUTH_URL", f"{AUTH_PATH}/login")
 JWKS_URL = os.getenv("JWKS_URL")
 AUDIENCE = os.getenv("AUDIENCE")
 USER_ROLES_CLAIM = os.getenv("USER_ROLES_CLAIM", "cognito:groups")
+REDIRECT_URL = f"{SITE_URL}/login"
 
 try:
     if (not USER_POOL_ID or USER_POOL_ID == "") and SECRET_ID:
@@ -49,17 +49,20 @@ try:
         USER_POOL_ID = secret.get("userPoolId")
         CLIENT_ID = secret.get("clientId")
         CLIENT_SECRET = secret.get("clientSecret")
-        if not SCOPES_LIST:
-            SCOPES_LIST = "openid"
-        elif "openid" not in SCOPES_LIST:
-            SCOPES_LIST += " openid"
-        if not AUTH_URL:
-            AUTH_URL = f"{AUTH_PATH}/login?response_type=code&client_id={CLIENT_ID}&scope={SCOPES_LIST}&redirect_uri={REDIRECT_URL}"
-        if not JWKS_URL:
-            JWKS_URL = os.getenv("JWKS_URL",
-                                 f"https://cognito-idp.{REGION}.amazonaws.com/{USER_POOL_ID}/" ".well-known/jwks.json")
 except Exception:
     pass
+
+if not SCOPES_LIST:
+    SCOPES_LIST = "openid"
+elif "openid" not in SCOPES_LIST:
+    SCOPES_LIST += " openid"
+if not JWKS_URL:
+    JWKS_URL = os.getenv("JWKS_URL",
+                         f"https://cognito-idp.{REGION}.amazonaws.com/{USER_POOL_ID}/" ".well-known/jwks.json")
+
+AUTH_URL_WITH_PARAMS = f"{AUTH_URL}?response_type=code&client_id={CLIENT_ID}" \
+                       f"&scope={SCOPES_LIST}" \
+                       f"&redirect_uri={REDIRECT_URL} "
 
 
 # Helpers
@@ -133,7 +136,7 @@ def sigv4_request(method, host, path, params={}, headers={}, body=None):
 
 
 def auth_redirect():
-    return redirect(AUTH_URL, code=302)
+    return redirect(AUTH_URL_WITH_PARAMS, code=302)
 
 
 def authenticate(group):
@@ -653,7 +656,7 @@ def set_user_role():
 def login():
     code = request.args.get("code")
     if not code:
-        return redirect(AUTH_URL, code=302)
+        return redirect(AUTH_URL_WITH_PARAMS, code=302)
 
     # Convert the authorization code into a jwt
     auth = requests.auth.HTTPBasicAuth(CLIENT_ID, CLIENT_SECRET)
@@ -671,7 +674,7 @@ def login():
     id_token = code_resp.json().get("id_token")
     refresh_token = code_resp.json().get("refresh_token")
     if not access_token:
-        return redirect(AUTH_URL, code=302)
+        return redirect(AUTH_URL_WITH_PARAMS, code=302)
 
     # give the jwt to the client for future requests
     resp = redirect("/index.html", code=302)
