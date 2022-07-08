@@ -111,7 +111,7 @@ Start the React frontend by running:
 ```bash
 cd frontend/
 npm install # if this is your first time starting the frontend
-npm start
+npm run dev
 ```
 
 Then navigate to [http://localhost:3000](http://localhost:3000)
