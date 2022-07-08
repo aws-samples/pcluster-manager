@@ -564,6 +564,7 @@ def get_identity():
         return {"user_roles": ["user", "admin"], "username": "username", "attributes": {"email": "user@domain.com"}}
 
     access_token = request.cookies.get("accessToken")
+    id_token = request.cookies.get("idToken")
     if not access_token:
         return {"message": "No access token."}, 401
     try:
@@ -571,12 +572,10 @@ def get_identity():
         decoded["user_roles"] = _get_user_roles(decoded)
         decoded.pop(USER_ROLES_CLAIM)
 
+        decoded_id = jwt_decode(id_token, audience=AUDIENCE, access_token=access_token)
         username = decoded.get("username")
         if username:
-            cognito = boto3.client("cognito-idp")
-            filter_ = f'username = "{username}"'
-            user = cognito.list_users(UserPoolId=USER_POOL_ID, Filter=filter_)["Users"][0]
-            decoded["attributes"] = {ua["Name"]: ua["Value"] for ua in user["Attributes"]}
+            decoded["attributes"] = {key: value for key, value in decoded_id.items()}
     except jwt.ExpiredSignatureError:
         return {"message": "Signature expired."}, 401
 
