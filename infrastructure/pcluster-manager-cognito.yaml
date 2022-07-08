@@ -259,6 +259,10 @@ Resources:
 
 Outputs:
 
+  AppClientId:
+    Description: The id of the Cognito app client
+    Value: !Ref CognitoAppClient
+
   UserPoolAuthPrefix:
     Description: The prefix of the domain of the authorization server.
     Value: !Ref UserPoolDomain
