@@ -324,28 +324,17 @@ function BuildImage(imageId, imageConfig, successCallback=null, errorCallback=nu
   })
 }
 
-function ListOfficialImages(region, callback) {
-  var url;
-  if(region === null || region === undefined)
-    url = `api?path=/v3/images/official`;
-  else
-    url = `api?path=/v3/images/official&region=${region}`;
-
-  request('get', url
-  ).then(response => {
-    if(response.status === 200) {
-      if(callback)
-        callback(response.data.images);
-      else
-        setState(['officialImages', 'list'], response.data.images);
-    } else {
-      console.log(response)
-    }
-  }).catch(error => {
-    if(error.response)
+async function ListOfficialImages(region) {
+  const url = `api?path=/v3/images/official${region ? `&region=${region}`: ""}`;
+  try {
+    const { data } = await request('get', url);
+    return data?.images || [];
+  } catch (error) {
+    if(error.response) {
       notify(`Error: ${error.response.data.message}`, 'error');
-    console.log(error.response)
-  })
+    }
+    throw error;
+  }
 }
 
 function ListUsers() {

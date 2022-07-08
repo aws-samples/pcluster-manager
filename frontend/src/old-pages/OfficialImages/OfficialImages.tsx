@@ -10,7 +10,6 @@
 // limitations under the License.
 import React from 'react';
 
-import { useState } from '../../store'
 import { ListOfficialImages } from '../../model'
 import { useCollection } from '@awsui/collection-hooks';
 
@@ -27,6 +26,8 @@ import {
 // Components
 import EmptyState from '../../components/EmptyState';
 import Loading from '../../components/Loading'
+import { useQuery } from 'react-query';
+import { useState } from '../../store';
 
 type Image = {
   amiId: string,
@@ -108,21 +109,19 @@ function OfficialImagesList({ images}: { images: Image[]}) {
 }
 
 export default function OfficialImages() {
-  const images = useState(['officialImages', 'list']);
-
-  React.useEffect(() => {
-    ListOfficialImages();
-  }, [])
+  const defaultRegion = useState(['aws', 'region']);
+  const region = useState(['app', 'selectedRegion']) || defaultRegion;
+  const { data } = useQuery('OFFICIAL_IMAGES', () => ListOfficialImages(region));
 
   return <Container
     header={
       <Header
         variant="h2"
         description=""
-        counter={ images && `(${images.length})` }>
+        counter={ data && `(${data.length})` }>
         Official Images
       </Header>
     }>
-    {images ? <OfficialImagesList images={images} /> : <Loading />}
+    {data ? <OfficialImagesList images={data} /> : <Loading />}
   </Container>
 }
