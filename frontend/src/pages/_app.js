@@ -15,11 +15,16 @@ import "@awsui/global-styles/index.css";
 import './App.css';
 import './index.css';
 
+import { QueryClient, QueryClientProvider } from 'react-query'
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { I18nextProvider } from 'react-i18next';
 import { SnackbarProvider } from 'notistack';
 import { Provider } from 'react-redux';
 
+import i18n from '../i18n';
 import { store } from '../store';
+
+const queryClient = new QueryClient();
 
 const theme = createTheme({
     components: {
@@ -97,13 +102,17 @@ function App({ Component, pageProps }) {
                 <title>Pcluster Manager</title>
             </Head>
             <SafeHydrate>
-                <Provider store={store}>
-                    <ThemeProvider theme={theme}>
-                        <SnackbarProvider>
-                            <Component {...pageProps} />
-                        </SnackbarProvider>
-                    </ThemeProvider>
-                </Provider>
+                <QueryClientProvider client={queryClient}>
+                    <I18nextProvider i18n={i18n}>
+                        <Provider store={store}>
+                            <ThemeProvider theme={theme}>
+                                <SnackbarProvider>
+                                    <Component {...pageProps} />
+                                </SnackbarProvider>
+                            </ThemeProvider>
+                        </Provider>
+                    </I18nextProvider>
+                </QueryClientProvider>
                 <div id="editor"></div>
                 <Script
                     src="https://pagecdn.io/lib/ace/1.4.13/ace.min.js"

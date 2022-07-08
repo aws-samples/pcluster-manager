@@ -22,6 +22,7 @@ import ImageIcon from '@mui/icons-material/Image';
 import LayersIcon from '@mui/icons-material/Layers';
 import HomeIcon from '@mui/icons-material/Home';
 import GroupIcon from '@mui/icons-material/Group';
+import { useTranslation } from 'react-i18next';
 
 export function SideBarIcons(props) {
   const drawerOpen = useState(['app', 'sidebar', 'drawerOpen']);
@@ -63,6 +64,7 @@ export function SideBarIcons(props) {
 
 export default function SideBar(props) {
   const drawerOpen = useState(['app', 'sidebar', 'drawerOpen']);
+  const { t } = useTranslation();
   useNotifier();
 
   const location = useLocation();
@@ -79,7 +81,7 @@ export default function SideBar(props) {
   return (
     <div className="sidebar">
       <Link to='/home' className={section === "home" ? "selected" : ""} key="Home">
-        <HomeIcon />Home
+        <HomeIcon />{t("global.menu.home")}
       </Link>
       {isUser() &&
       <Link to='/clusters' className={section === "clusters" ? "selected" : ""} key="Clusters">
