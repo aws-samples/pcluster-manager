@@ -29,6 +29,7 @@
   "scripts": {
     "start": "next start",
     "build": "next build",
+    "test": "jest test",
     "lint": "next lint",
     "dev": "next dev",
     "export": "next build && next export -o build"
@@ -46,9 +47,15 @@
     ]
   },
   "devDependencies": {
+    "@awsui/jest-preset": "^2.0.5",
+    "@testing-library/react": "^12.1.5",
+    "@types/jest": "^28.1.4",
     "@types/node": "^18.0.0",
     "eslint": "^8.19.0",
     "eslint-config-next": "12.2.0",
+    "jest": "^28.1.2",
+    "jest-environment-jsdom": "^28.1.2",
+    "lodash": "^4.17.21",
     "typescript": "^4.7.4"
   }
 }
