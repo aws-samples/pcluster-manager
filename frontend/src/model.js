@@ -482,7 +482,7 @@ function LoadAwsConfig(region = null, callback) {
   var url;
 
   ListCustomImages("AVAILABLE", region, images => setState(['app', 'wizard', 'customImages'], images));
-  ListOfficialImages(region, images => setState(['app', 'wizard', 'officialImages'], images));
+  ListOfficialImages(region).then(images => setState(['app', 'wizard', 'officialImages'], images));
 
   if(region === null) {
     url = `manager/get_aws_configuration`
