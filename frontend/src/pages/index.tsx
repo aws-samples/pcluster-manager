@@ -30,14 +30,12 @@ import CssBaseline from '@mui/material/CssBaseline';
 // Components
 import Loading from '../components/Loading'
 
+import { isGuest } from '../store';
+
+
 export default function App() {
   const identity = useState(['identity']);
-  const groups = useState(['identity', 'cognito:groups']);
-  
-  const isGuest = () => {
-    return identity && (!groups || ((!groups.includes("admin")) && (!groups.includes("user"))));
-  }
-  
+
   React.useEffect(() => {
     LoadInitialState();
   }, [])

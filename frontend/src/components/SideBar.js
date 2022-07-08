@@ -10,7 +10,7 @@
 // limitations under the License.
 import * as React from 'react';
 import { Link, useLocation } from "react-router-dom"
-import { setState, useState, isAdmin} from '../store'
+import { setState, useState, isGuest, isUser, isAdmin } from '../store'
 
 // UI Elements
 import Divider from '@mui/material/Divider';
@@ -24,18 +24,8 @@ import HomeIcon from '@mui/icons-material/Home';
 import GroupIcon from '@mui/icons-material/Group';
 
 export function SideBarIcons(props) {
-  let identity = useState(['identity']);
-  let groups = useState(['identity', 'cognito:groups']) || [];
   const drawerOpen = useState(['app', 'sidebar', 'drawerOpen']);
-
-  const isGuest = () => {
-    return identity && (!groups || ((!groups.includes("admin")) && (!groups.includes("user"))));
-  }
-
-  const isUser = () => {
-    return groups && ((groups.includes("admin")) || (groups.includes("user")));
-  }
-
+  
   const location = useLocation();
   let defaultPage = isGuest() ? "home" : "clusters";
   let section = location && location.pathname && location.pathname.substring(1);
@@ -72,18 +62,7 @@ export function SideBarIcons(props) {
 }
 
 export default function SideBar(props) {
-  let identity = useState(['identity']);
-  let groups = useState(['identity', 'cognito:groups']);
   const drawerOpen = useState(['app', 'sidebar', 'drawerOpen']);
-
-  const isGuest = () => {
-    return identity && (!groups || ((!groups.includes("admin")) && (!groups.includes("user"))));
-  }
-
-  const isUser = () => {
-    return groups && ((groups.includes("admin")) || (groups.includes("user")));
-  }
-
   useNotifier();
 
   const location = useLocation();

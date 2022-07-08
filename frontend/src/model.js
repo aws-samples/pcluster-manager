@@ -12,6 +12,7 @@ import axios from 'axios'
 import { store, setState, getState, clearState, updateState, clearAllState } from './store'
 import { enqueueSnackbar as enqueueSnackbarAction } from './redux/snackbar_actions';
 import { closeSnackbar as closeSnackbarAction } from './redux/snackbar_actions';
+import { USER_ROLES_CLAIM } from './auth/constants';
 
 // UI Elements
 import Button from '@mui/material/Button';
@@ -768,7 +769,7 @@ function LoadInitialState() {
   clearAllState();
   GetVersion();
   GetIdentity((identity) => {
-    let groups = identity['cognito:groups'];
+    let groups = identity[USER_ROLES_CLAIM];
     if(groups && (groups.includes("admin") || groups.includes("user")))
     {
       ListUsers();

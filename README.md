@@ -116,6 +116,15 @@ npm run dev
 
 Then navigate to [http://localhost:3000](http://localhost:3000)
 
+## Testing
+
+Launch tests of the API backend by running:
+
+```bash
+pytest
+```
+For detailed information on how to invoke `pytest`, see this [resource](https://docs.pytest.org/en/7.1.x/how-to/usage.html). 
+
 ## Security
 
 See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
