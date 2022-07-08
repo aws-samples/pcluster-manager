@@ -33,7 +33,7 @@ CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 SECRET_ID = os.getenv("SECRET_ID")
 ENABLE_MFA = os.getenv("ENABLE_MFA")
 SITE_URL = os.getenv("SITE_URL", API_BASE_URL)
-USER_ROLES_CLAIM = os.getenv("USER_ROLES_CLAIM")
+USER_ROLES_CLAIM = os.getenv("USER_ROLES_CLAIM", "cognito:groups")
 
 try:
     if (not USER_POOL_ID or USER_POOL_ID == "") and SECRET_ID:
