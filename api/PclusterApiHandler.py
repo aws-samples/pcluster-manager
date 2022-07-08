@@ -575,9 +575,7 @@ def get_identity():
         decoded.pop(USER_ROLES_CLAIM)
 
         decoded_id = jwt_decode(id_token, audience=AUDIENCE, access_token=access_token)
-        username = decoded.get("username")
-        if username:
-            decoded["attributes"] = {key: value for key, value in decoded_id.items()}
+        decoded["attributes"] = {key: value for key, value in decoded_id.items()}
     except jwt.ExpiredSignatureError:
         return {"message": "Signature expired."}, 401
 
