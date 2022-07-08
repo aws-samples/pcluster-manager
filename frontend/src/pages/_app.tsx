@@ -9,6 +9,7 @@
 // limitations under the License.
 import Head from 'next/head';
 import Script from 'next/script'
+import type { AppProps } from 'next/app';
 import { useCallback } from 'react'
 import dynamic from 'next/dynamic';
 import "@awsui/global-styles/index.css";
@@ -40,14 +41,6 @@ const theme = createTheme({
     primary: {
       main: "rgb(236, 114, 17)",
     },
-    default: {
-      contrastText: '#fff',
-      main: "rgb(84, 91, 100)"
-    },
-    dark: {
-      main: "rgb(35, 47, 62)",
-      contrastText: '#fff',
-    },
   },
   shape: {
     borderRadius: "1px"
@@ -56,12 +49,19 @@ const theme = createTheme({
     fontSize: 20,
     button: {
       fontWeight: "700",
-      textTransform: "None"
+      textTransform: "none"
     }
   }
 });
 
-function App({ Component, pageProps }) {
+declare global {
+  interface Window { 
+    ace: any; 
+    editor: any; 
+  }
+}
+
+function App({ Component, pageProps }: AppProps) {
   const onAceLoad = useCallback(() => {
     window.editor = window.ace.edit('editor')
     window.ace.config.set('basePath', 'https://pagecdn.io/lib/ace/1.4.13/')
