@@ -669,18 +669,24 @@ def login():
     )
 
     access_token = code_resp.json().get("access_token")
+    id_token = code_resp.json().get("id_token")
+    refresh_token = code_resp.json().get("refresh_token")
     if not access_token:
         return redirect(AUTH_URL, code=302)
 
     # give the jwt to the client for future requests
     resp = redirect("/index.html", code=302)
-    resp.set_cookie("accessToken", access_token)
+    resp.set_cookie("accessToken", access_token, httponly=True, secure=True, samesite="lax")
+    resp.set_cookie("idToken", id_token, httponly=True, secure=True, samesite="lax")
+    resp.set_cookie("refreshToken", refresh_token, httponly=True, secure=True, samesite="lax")
     return resp
 
 
 def logout():
     resp = redirect("/login", code=302)
     resp.set_cookie("accessToken", "", expires=0)
+    resp.set_cookie("idToken", "", expires=0)
+    resp.set_cookie("refreshToken", "", expires=0)
     return resp
 
 
