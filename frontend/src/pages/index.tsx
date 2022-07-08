@@ -30,10 +30,18 @@ import CssBaseline from '@mui/material/CssBaseline';
 // Components
 import Loading from '../components/Loading'
 
+import { USER_ROLES_CLAIM } from './auth/constants';
+
+
 export default function App() {
   const identity = useState(['identity']);
+<<<<<<< HEAD:frontend/src/pages/index.tsx
   const groups = useState(['identity', 'cognito:groups']);
   
+=======
+  const groups = useState(['identity', USER_ROLES_CLAIM]);
+
+>>>>>>> feat(frontend): remove 'cognito:groups' occurrences in favor of USER_ROLES_CLAIM constant:frontend/src/App.js
   const isGuest = () => {
     return identity && (!groups || ((!groups.includes("admin")) && (!groups.includes("user"))));
   }

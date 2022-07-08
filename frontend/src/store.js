@@ -12,6 +12,7 @@ import { createStore, combineReducers } from '@reduxjs/toolkit'
 import { useSelector } from 'react-redux'
 import notifications from './redux/snackbar_reducer'
 import { getIn, swapIn } from './util'
+import { USER_ROLES_CLAIM } from './auth/constants'
 
 // These are identity reducers that allow the names to be at the top level for combining
 function clusters(state = {}, action){ return state }
@@ -143,12 +144,12 @@ function useState(path) {
 }
 
 function isAdmin() {
-  let groups = getState(['identity', 'cognito:groups']) || [];
+  let groups = getState(['identity', USER_ROLES_CLAIM]) || [];
   return groups && groups.includes("admin");
 }
 
 function isUser() {
-  let groups = getState(['identity', 'cognito:groups']) || [];
+  let groups = getState(['identity', USER_ROLES_CLAIM]) || [];
   return groups && ((groups.includes("admin")) || (groups.includes("user")));
 }
 

@@ -11,6 +11,7 @@
 import * as React from 'react';
 import { Link, useLocation } from "react-router-dom"
 import { setState, useState, isAdmin} from '../store'
+import { USER_ROLES_CLAIM } from '../auth/constants';
 
 // UI Elements
 import Divider from '@mui/material/Divider';
@@ -25,7 +26,7 @@ import GroupIcon from '@mui/icons-material/Group';
 
 export function SideBarIcons(props) {
   let identity = useState(['identity']);
-  let groups = useState(['identity', 'cognito:groups']) || [];
+  let groups = useState(['identity', USER_ROLES_CLAIM]) || [];
   const drawerOpen = useState(['app', 'sidebar', 'drawerOpen']);
 
   const isGuest = () => {
@@ -73,7 +74,7 @@ export function SideBarIcons(props) {
 
 export default function SideBar(props) {
   let identity = useState(['identity']);
-  let groups = useState(['identity', 'cognito:groups']);
+  let groups = useState(['identity', USER_ROLES_CLAIM]);
   const drawerOpen = useState(['app', 'sidebar', 'drawerOpen']);
 
   const isGuest = () => {
