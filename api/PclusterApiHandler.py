@@ -33,6 +33,7 @@ CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 SECRET_ID = os.getenv("SECRET_ID")
 ENABLE_MFA = os.getenv("ENABLE_MFA")
 SITE_URL = os.getenv("SITE_URL", API_BASE_URL)
+USER_ROLES_CLAIM = os.getenv("USER_ROLES_CLAIM")
 
 try:
     if (not USER_POOL_ID or USER_POOL_ID == "") and SECRET_ID:
@@ -137,7 +138,7 @@ def authenticate(group):
         return auth_redirect()
     except jose.exceptions.JWSSignatureError:
         return logout()
-    if not disable_auth() and (group != "guest") and (group not in set(decoded.get("cognito:groups", []))):
+    if not disable_auth() and (group != "guest") and (group not in set(decoded.get(USER_ROLES_CLAIM, []))):
         return auth_redirect()
 
 
@@ -540,15 +541,24 @@ def get_instance_types():
     return {"instance_types": sorted(instance_types, key=lambda x: x["InstanceType"])}
 
 
+def _get_user_roles(decoded):
+    print(os.environ.get("USER_ROLES_CLAIM"))
+    return decoded[USER_ROLES_CLAIM] if USER_ROLES_CLAIM in decoded else ["user"]
+
+
+
 def get_identity():
     if running_local():
-        return {"cognito:groups": ["user", "admin"], "username": "username", "attributes": {"email": "user@domain.com"}}
+        return {"user_roles": ["user", "admin"], "username": "username", "attributes": {"email": "user@domain.com"}}
 
     access_token = request.cookies.get("accessToken")
     if not access_token:
         return {"message": "No access token."}, 401
     try:
         decoded = jwt_decode(access_token, USER_POOL_ID)
+        decoded["user_roles"] = _get_user_roles(decoded)
+        decoded.pop(USER_ROLES_CLAIM)
+
         username = decoded.get("username")
         if username:
             cognito = boto3.client("cognito-idp")
@@ -559,7 +569,7 @@ def get_identity():
         return {"message": "Signature expired."}, 401
 
     if disable_auth():
-        decoded["cognito:groups"] = ["user", "admin"]
+        decoded["user_roles"] = ["user", "admin"]
 
     return decoded
 
