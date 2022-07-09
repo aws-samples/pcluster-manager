@@ -14,7 +14,7 @@ import React from 'react';
 import { useState, setState, getState, clearState } from '../../store'
 import { loadTemplate } from './util'
 import { findFirst } from '../../util'
-import { GetConfiguration } from '../../model'
+import { GetConfiguration, GetClusterTemplate } from '../../model'
 
 import jsyaml from 'js-yaml';
 
@@ -38,10 +38,18 @@ import Loading from '../../components/Loading'
 const sourcePath = ['app', 'wizard', 'source'];
 const sourceErrorsPath = ['app', 'wizard', 'errors', 'source'];
 
-function copyFrom(sourceClusterName)
+function copyFromCluster(sourceClusterName)
 {
   const loadingPath = ['app', 'wizard', 'source', 'loading'];
   GetConfiguration(sourceClusterName, (configuration) => {
+    loadTemplate(jsyaml.load(configuration), () => setState(loadingPath, false));
+  });
+}
+
+function copyFromTemplate(sourceTemplatePath)
+{
+  const loadingPath = ['app', 'wizard', 'source', 'loading'];
+  GetClusterTemplate(sourceTemplatePath, (configuration) => {
     loadTemplate(jsyaml.load(configuration), () => setState(loadingPath, false));
   });
 }
@@ -90,35 +98,34 @@ function sourceValidate(suppressUpload = false) {
   if(valid && (source === 'cluster') & !suppressUpload)
   {
     setState(loadingPath, true);
-    copyFrom(sourceClusterName);
+    copyFromCluster(sourceClusterName);
+    return false;
+  }
+
+  if(valid && (source === 'wizard') && (sourceClusterName != null) & !suppressUpload)
+  {
+    setState(loadingPath, true);
+    copyFromTemplate(sourceClusterName);
     return false;
   }
 
   return valid;
 }
 
-function ClusterSelect() {
+function ClusterSelect({clusters, screen}) {
   const selectedPath = ['app', 'wizard', 'source', 'selectedCluster'];
-  const clusters = useState(['clusters', 'list']) ||  [];
   const selected = useState(selectedPath);
   const errors = useState([...sourceErrorsPath, 'sourceClusterName']);
   let source = useState([...sourcePath, 'type']);
   let validated = useState([...sourceErrorsPath, 'validated']);
 
-  const itemToOption = (item) => {
-    if(item)
-      return {label: item.clusterName, value: item.clusterName}
-    else
-      return {label: "Please select a cluster."}
-  }
-
   return <FormField errorText={errors}>
     <Select
-    disabled = {source !== 'cluster'}
-    selectedOption={itemToOption(findFirst(clusters, x => {return x.clusterName === selected}))}
+    disabled = {source !== screen}
+    selectedOption={findFirst(clusters, x => {return x.value === selected}) || {label: 'Please Select a Cluster'}}
     onChange={({detail}) => {setState(selectedPath, detail.selectedOption.value); validated && sourceValidate(true);}}
     selectedAriaLabel="Selected"
-    options={clusters.map(itemToOption)}
+    options={clusters}
   />
   </FormField>
 }
@@ -130,6 +137,12 @@ function Source() {
   let clusterNameError = useState([...sourceErrorsPath, 'clusterName']);
   const loadingPath = ['app', 'wizard', 'source', 'loading'];
   const loading = useState(loadingPath);
+  const clusters = useState(['clusters', 'list']) || [];
+
+  const clusterTemplates = [
+    { label: "Default", value: "templates/default.yaml" },
+    { label: "Numerical Weather Prediction", value: "templates/weather.yaml" },
+  ];
 
   React.useEffect(() => {
     if(!getState([...sourcePath, 'type']))
@@ -181,7 +194,13 @@ function Source() {
               {
                 value: "wizard",
                   label: "Wizard",
-                  description: "Choose this to start a new cluster configuration."
+                  description: <Box margin={{bottom: "xs"}} >
+                  <SpaceBetween direction="vertical" size="xxs">
+                    <FormField description="Select from a Cluster Template (Optional)">
+                      <ClusterSelect clusters={clusterTemplates} screen={'wizard'}/>
+                    </FormField>
+                  </SpaceBetween>
+                </Box>
               },
               {
                 value: "template",
@@ -194,7 +213,7 @@ function Source() {
                 description: <Box margin={{bottom: "xs"}} >
                   <SpaceBetween direction="vertical" size="xxs">
                     <FormField description="Use an existing cluster as a starting point for the configuration of your new cluster.">
-                      <ClusterSelect />
+                      <ClusterSelect clusters={clusters.map((x) => {return {label: x.clusterName, value: x.clusterName}})} screen={'cluster'}/>
                     </FormField>
                   </SpaceBetween>
                 </Box>

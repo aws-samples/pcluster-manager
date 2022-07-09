@@ -27,6 +27,7 @@ from api.PclusterApiHandler import (
     ec2_action,
     get_aws_config,
     get_cluster_config,
+    get_cluster_template,
     get_custom_image_config,
     get_dcv_session,
     get_identity,
@@ -93,6 +94,11 @@ def run():
     @authenticated()
     def get_cluster_config_():
         return get_cluster_config()
+
+    @app.route("/manager/get_cluster_template")
+    @authenticated()
+    def get_cluster_template_():
+        return get_cluster_template()
 
     @app.route("/manager/get_custom_image_configuration")
     @authenticated()

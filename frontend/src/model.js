@@ -175,6 +175,20 @@ function GetConfiguration(clusterName, callback=null) {
   })
 }
 
+function GetClusterTemplate(clusterTemplatePath, callback=null) {
+  request('get', `manager/get_cluster_template?template_path=${clusterTemplatePath}`).then(response => {
+    console.log("Configuration Success", response)
+    if(response.status === 200) {
+      setState(['clusters', 'index', clusterTemplatePath, 'configuration'], response.data);
+      callback && callback(response.data)
+    }
+  }).catch(error => {
+    if(error.response)
+      notify(`Error (${clusterTemplatePath}): ${error.response.data.message}`, 'error');
+    console.log(error)
+  })
+}
+
 function UpdateComputeFleet(clusterName, fleetStatus) {
   request('patch', `api?path=/v3/clusters/${clusterName}/computefleet`,
     {"status": fleetStatus}
@@ -778,4 +792,4 @@ export {CreateCluster, UpdateCluster, ListClusters, DescribeCluster,
   GetCustomImageLogEvents, ListOfficialImages, LoadInitialState,
   Ec2Action,LoadAwsConfig, GetDcvSession, QueueStatus, CancelJob, SubmitJob,
   PriceEstimate, SlurmAccounting, JobInfo, ListUsers, SetUserRole, notify,
-  CreateUser, DeleteUser}
+  CreateUser, DeleteUser, GetClusterTemplate}

@@ -204,6 +204,15 @@ def get_cluster_config_text(cluster_name, region=None):
 def get_cluster_config():
     return get_cluster_config_text(request.args.get("cluster_name"), request.args.get("region"))
 
+def get_cluster_template():
+    try:
+        template_path = request.args.get("template_path")
+        url = f"https://raw.githubusercontent.com/aws-samples/pcluster-manager/main/{template_path}"
+        with requests.get(url) as f:
+            template = f.content
+            return template
+    except Exception as e:
+        return {"message": str(e)}, 500
 
 def ssm_command(region, instance_id, user, run_command):
     # working_directory |= f"/home/{user}"
