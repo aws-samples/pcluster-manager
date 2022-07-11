@@ -137,6 +137,7 @@ Resources:
            - Api: !Ref ApiGateway
           AUTH_PATH: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolAuthDomain ]
           SECRET_ID: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolClientSecretName ]
+          AUDIENCE: !GetAtt [ PclusterManagerCognito, Outputs.AppClientId ]
           ENABLE_AUTH: !Ref EnableAuth
           ENABLE_MFA: !Ref EnableMFA
       FunctionName: !Sub

@@ -33,7 +33,14 @@ CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 SECRET_ID = os.getenv("SECRET_ID")
 ENABLE_MFA = os.getenv("ENABLE_MFA")
 SITE_URL = os.getenv("SITE_URL", API_BASE_URL)
+SCOPES_LIST = os.getenv("SCOPES_LIST")
+REGION = os.getenv("AWS_DEFAULT_REGION")
+TOKEN_URL = os.getenv("TOKEN_URL", f"{AUTH_PATH}/oauth2/token")
+AUTH_URL = os.getenv("AUTH_URL", f"{AUTH_PATH}/login")
+JWKS_URL = os.getenv("JWKS_URL")
+AUDIENCE = os.getenv("AUDIENCE")
 USER_ROLES_CLAIM = os.getenv("USER_ROLES_CLAIM", "cognito:groups")
+REDIRECT_URL = f"{SITE_URL}/login"
 
 try:
     if (not USER_POOL_ID or USER_POOL_ID == "") and SECRET_ID:
@@ -45,9 +52,20 @@ try:
 except Exception:
     pass
 
+if not SCOPES_LIST:
+    SCOPES_LIST = "openid"
+elif "openid" not in SCOPES_LIST:
+    SCOPES_LIST += " openid"
+if not JWKS_URL:
+    JWKS_URL = os.getenv("JWKS_URL",
+                         f"https://cognito-idp.{REGION}.amazonaws.com/{USER_POOL_ID}/" ".well-known/jwks.json")
+
+AUTH_URL_WITH_PARAMS = f"{AUTH_URL}?response_type=code&client_id={CLIENT_ID}" \
+                       f"&scope={SCOPES_LIST}" \
+                       f"&redirect_uri={REDIRECT_URL} "
+
+
 # Helpers
-
-
 def running_local():
     return not os.getenv("AWS_LAMBDA_FUNCTION_NAME")
 
@@ -56,10 +74,8 @@ def disable_auth():
     return os.getenv("ENABLE_AUTH") == "false"
 
 
-def jwt_decode(token, user_pool_id):
-    region = user_pool_id.split("_")[0]
-    jwks_url = "https://cognito-idp.{}.amazonaws.com/{}/" ".well-known/jwks.json".format(region, user_pool_id)
-    return jwt.decode(token, requests.get(jwks_url).json())
+def jwt_decode(token, audience=None, access_token=None):
+    return jwt.decode(token, requests.get(JWKS_URL).json(), audience=audience, access_token=access_token)
 
 
 def setup_api_credentials(role_arn, credential_external_id=None):
@@ -120,9 +136,7 @@ def sigv4_request(method, host, path, params={}, headers={}, body=None):
 
 
 def auth_redirect():
-    redirect_uri = f"{SITE_URL}/login"
-    auth_redirect_path = f"{AUTH_PATH}/login?response_type=code&client_id={CLIENT_ID}&redirect_uri={redirect_uri}"
-    return redirect(auth_redirect_path, code=302)
+    return redirect(AUTH_URL_WITH_PARAMS, code=302)
 
 
 def authenticate(group):
@@ -133,7 +147,7 @@ def authenticate(group):
     if not access_token:
         return auth_redirect()
     try:
-        decoded = jwt_decode(access_token, USER_POOL_ID)
+        decoded = jwt_decode(access_token)
     except jwt.ExpiredSignatureError:
         return auth_redirect()
     except jose.exceptions.JWSSignatureError:
@@ -488,7 +502,8 @@ def get_aws_config():
 
     fsx_volumes = []
     try:
-        fsx_volumes = list(filter(lambda vol: (vol["Lifecycle"] == "CREATED" or vol["Lifecycle"] == "AVAILABLE"), fsx.describe_volumes()["Volumes"]))
+        fsx_volumes = list(filter(lambda vol: (vol["Lifecycle"] == "CREATED" or vol["Lifecycle"] == "AVAILABLE"),
+                                  fsx.describe_volumes()["Volumes"]))
     except:
         pass
 
@@ -525,7 +540,8 @@ def get_instance_types():
         ec2 = boto3.client("ec2")
     filters = [
         {"Name": "current-generation", "Values": ["true"]},
-        {"Name": "instance-type", "Values": ["c5*", "c6*", "g4*", "g5*", "hpc*", "p3*", "p4*", "t2*", "t3*", "m6*", "r*"]},
+        {"Name": "instance-type",
+         "Values": ["c5*", "c6*", "g4*", "g5*", "hpc*", "p3*", "p4*", "t2*", "t3*", "m6*", "r*"]},
     ]
     instance_paginator = ec2.get_paginator("describe_instance_types")
     instances_paginator = instance_paginator.paginate(Filters=filters)
@@ -542,9 +558,7 @@ def get_instance_types():
 
 
 def _get_user_roles(decoded):
-    print(os.environ.get("USER_ROLES_CLAIM"))
     return decoded[USER_ROLES_CLAIM] if USER_ROLES_CLAIM in decoded else ["user"]
-
 
 
 def get_identity():
@@ -552,19 +566,16 @@ def get_identity():
         return {"user_roles": ["user", "admin"], "username": "username", "attributes": {"email": "user@domain.com"}}
 
     access_token = request.cookies.get("accessToken")
+    id_token = request.cookies.get("idToken")
     if not access_token:
         return {"message": "No access token."}, 401
     try:
-        decoded = jwt_decode(access_token, USER_POOL_ID)
+        decoded = jwt_decode(access_token)
         decoded["user_roles"] = _get_user_roles(decoded)
         decoded.pop(USER_ROLES_CLAIM)
 
-        username = decoded.get("username")
-        if username:
-            cognito = boto3.client("cognito-idp")
-            filter_ = f'username = "{username}"'
-            user = cognito.list_users(UserPoolId=USER_POOL_ID, Filter=filter_)["Users"][0]
-            decoded["attributes"] = {ua["Name"]: ua["Value"] for ua in user["Attributes"]}
+        decoded_id = jwt_decode(id_token, audience=AUDIENCE, access_token=access_token)
+        decoded["attributes"] = {key: value for key, value in decoded_id.items()}
     except jwt.ExpiredSignatureError:
         return {"message": "Signature expired."}, 401
 
@@ -641,37 +652,41 @@ def set_user_role():
 
 
 def login():
-    redirect_uri = f"{SITE_URL}/login"
-    auth_redirect_path = f"{AUTH_PATH}/login?response_type=code&client_id={CLIENT_ID}&redirect_uri={redirect_uri}"
     code = request.args.get("code")
     if not code:
-        return redirect(auth_redirect_path, code=302)
+        return redirect(AUTH_URL_WITH_PARAMS, code=302)
 
     # Convert the authorization code into a jwt
     auth = requests.auth.HTTPBasicAuth(CLIENT_ID, CLIENT_SECRET)
     grant_type = "authorization_code"
 
-    url = f"{AUTH_PATH}/oauth2/token"
+    url = TOKEN_URL
     code_resp = requests.post(
         url,
-        data={"grant_type": grant_type, "code": code, "client_id": CLIENT_ID, "redirect_uri": redirect_uri},
+        data={"grant_type": grant_type, "code": code, "client_id": CLIENT_ID, "redirect_uri": REDIRECT_URL},
         auth=auth,
         headers={"Content-Type": "application/x-www-form-urlencoded"},
     )
 
     access_token = code_resp.json().get("access_token")
+    id_token = code_resp.json().get("id_token")
+    refresh_token = code_resp.json().get("refresh_token")
     if not access_token:
-        return redirect(auth_redirect_path, code=302)
+        return redirect(AUTH_URL_WITH_PARAMS, code=302)
 
     # give the jwt to the client for future requests
     resp = redirect("/index.html", code=302)
-    resp.set_cookie("accessToken", access_token)
+    resp.set_cookie("accessToken", access_token, httponly=True, secure=True, samesite="Lax")
+    resp.set_cookie("idToken", id_token, httponly=True, secure=True, samesite="Lax")
+    resp.set_cookie("refreshToken", refresh_token, httponly=True, secure=True, samesite="Lax")
     return resp
 
 
 def logout():
     resp = redirect("/login", code=302)
     resp.set_cookie("accessToken", "", expires=0)
+    resp.set_cookie("idToken", "", expires=0)
+    resp.set_cookie("refreshToken", "", expires=0)
     return resp
 
 
