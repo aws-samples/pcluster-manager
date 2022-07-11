@@ -11,7 +11,6 @@ def test_user_roles():
     _test_decoded_without_user_roles_claim(decoded={})
 
 
-
 def _test_decoded_with_user_roles_claim(decoded, user_roles):
     assert _get_user_roles(decoded) == user_roles
 
