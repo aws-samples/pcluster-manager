@@ -12,7 +12,6 @@ on:
 jobs:
   frontend-tests:
     runs-on: ubuntu-20.04
-    if: github.event.pull_request.state != "closed" || github.event.pull_request.merged == "true"
 
     steps:
       - name: Checkout repo
@@ -35,7 +34,6 @@ jobs:
 
   backend-tests:
     runs-on: ubuntu-20.04
-    if: github.event.pull_request.state != "closed" || github.event.pull_request.merged == "true"
 
     steps:
       - name: Checkout repo
