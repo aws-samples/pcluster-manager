@@ -2,10 +2,8 @@
 name: Pull Request
 
 on:
+  #By default, a workflow only runs when a pull_request event's activity type is opened, synchronize, or reopened.
   pull_request:
-    types:
-      - opened
-      - reopened
   push:
     branches:
       - main
