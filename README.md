@@ -120,6 +120,7 @@ Then navigate to [http://localhost:3000](http://localhost:3000)
 
 Launch tests of the API backend by running:
 
+
 ```bash
 pytest
 ```
