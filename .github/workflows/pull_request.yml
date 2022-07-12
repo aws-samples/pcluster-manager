@@ -43,7 +43,11 @@ jobs:
           python-version: '3.8'
           cache: 'pip'
 
-      - run: pip --version
+      - run: |
+          pip --version
+          pip3 --version
+          which pip
+          which pip3
 
       - name: Install python dependencies
         run: pip3 install -r requirements.txt
