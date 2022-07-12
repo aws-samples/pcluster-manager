@@ -32,7 +32,7 @@
   "scripts": {
     "start": "next start",
     "build": "next build",
-    "test": "jest test",
+    "test": "jest",
     "lint": "next lint",
     "dev": "next dev",
     "export": "next build && next export -o build"
