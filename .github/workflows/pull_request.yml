@@ -3,13 +3,16 @@
 name: Pull Request
 
 on:
-  push:
-    branches:
-      - 'wip/mrbarco-gh-actions-test'
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - closed
 
 jobs:
   frontend-tests:
     runs-on: ubuntu-20.04
+    if: github.event.pull_request.state != "closed" || github.event.pull_request.merged == "true"
 
     steps:
       - name: Checkout repo
@@ -32,6 +35,7 @@ jobs:
 
   backend-tests:
     runs-on: ubuntu-20.04
+    if: github.event.pull_request.state != "closed" || github.event.pull_request.merged == "true"
 
     steps:
       - name: Checkout repo
@@ -44,7 +48,7 @@ jobs:
           cache: 'pip'
 
       - name: Install python dependencies
-        run: pip3 install -r requirements.txt
+        run: if [ -f requirements.txt ]; then pip3 install -r requirements.txt ; fi
 
       - name: Run backend tests
         run: pytest
