@@ -18,6 +18,7 @@ import { useState } from '../store'
 
 import Layout from "../old-pages/Layout"
 import Clusters from "../old-pages/Clusters/Clusters"
+import JobsDefinitions from "../old-pages/JobsDefinitions/JobsDefinitions"
 import Configure from "../old-pages/Configure/Configure"
 import CustomImages from "../old-pages/CustomImages/CustomImages"
 import OfficialImages from "../old-pages/OfficialImages/OfficialImages"
@@ -54,6 +55,7 @@ export default function App() {
                 <Route path=":tab" element={<div></div>}/>
               </Route>
             </Route>
+            <Route path="jobs-definitions" element={<JobsDefinitions />} />
             <Route path="configure" element={<Configure />} />
             <Route path="custom-images" element={<CustomImages />} />
             <Route path="official-images" element={<OfficialImages />} />

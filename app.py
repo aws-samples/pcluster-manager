@@ -182,14 +182,14 @@ def run():
         return logout()
 
     @app.route(
-        '/<regex("(home|clusters|users|configure|custom-images|official-images).*"):base>', defaults={"base": ""}
+        '/<regex("(home|clusters|users|configure|custom-images|official-images|jobs-definitions).*"):base>', defaults={"base": ""}
     )
     @authenticated()
     def catch_all(base):
         return send_from_directory(app.static_folder, "index.html")
 
     @app.route(
-        '/<regex("(home|clusters|users|configure|custom-images|official-images).*"):base>/<path:u_path>',
+        '/<regex("(home|clusters|users|configure|custom-images|official-images|jobs-definitions).*"):base>/<path:u_path>',
         defaults={"base": "", "u_path": ""},
     )
     @authenticated()
