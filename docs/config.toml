@@ -1,4 +1,4 @@
-baseURL = "http://aws-samples.github.io/pcluster-manager/"
+baseURL = "https://pcluster.cloud"
 languageCode = 'en-us'
 title = 'Pcluster Manager Docs'
 theme = "hugo-theme-learn"
