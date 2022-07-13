@@ -15,6 +15,7 @@
     "@mui/lab": "^5.0.0-alpha.49",
     "@mui/material": "^5.0.2",
     "@reduxjs/toolkit": "^1.6.1",
+    "@rjsf/core": "^4.2.0",
     "axios": "^0.21.4",
     "i18next": "^21.8.13",
     "js-yaml": "^4.1.0",

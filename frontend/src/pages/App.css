@@ -254,3 +254,7 @@ div.custom-image-details table {
   cursor: not-allowed;
   color: #aaa;
 }
+
+.polaris-form fieldset {
+  border: none;
+}

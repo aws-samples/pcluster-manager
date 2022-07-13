@@ -22,6 +22,8 @@ import ImageIcon from '@mui/icons-material/Image';
 import LayersIcon from '@mui/icons-material/Layers';
 import HomeIcon from '@mui/icons-material/Home';
 import GroupIcon from '@mui/icons-material/Group';
+import SettingsInputIcon from '@mui/icons-material/SettingsInputComponent';
+
 import { useTranslation } from 'react-i18next';
 
 export function SideBarIcons(props: any) {
@@ -42,6 +44,11 @@ export function SideBarIcons(props: any) {
         {isUser() &&
         <Link to='/clusters' className={section === "clusters" ? "selected" : ""} key="Clusters">
           <GridOnIcon />
+        </Link>
+        }
+        {isUser() &&
+        <Link to='/jobs-definitions' className={section === "jobs-definitions" ? "selected" : ""} key="Jobs Definitios">
+          <SettingsInputIcon />
         </Link>
         }
         {isUser() &&
@@ -87,6 +94,11 @@ export default function SideBar(props: any) {
       <Link to='/clusters' className={section === "clusters" ? "selected" : ""} key="Clusters">
         <GridOnIcon />Clusters
       </Link>
+      }
+      {isUser() &&
+        <Link to='/jobs-definitions' className={section === "jobs-definitions" ? "selected" : ""} key="Jobs Definitios">
+          <SettingsInputIcon />Jobs Definitions
+        </Link>
       }
       {isUser() &&
         <Link to='/custom-images' className={section === "custom-images" ? "selected" : ""} key="Custom Images">
