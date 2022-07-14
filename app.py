@@ -19,9 +19,11 @@ from werkzeug.routing import BaseConverter
 import api.utils as utils
 from api.PclusterApiHandler import (
     PclusterApiHandler,
+    activate_tags,
     authenticate,
     authenticated,
     cancel_job,
+    check_tags,
     create_user,
     delete_user,
     ec2_action,
@@ -32,6 +34,7 @@ from api.PclusterApiHandler import (
     get_identity,
     get_version,
     get_instance_types,
+    graph_data,
     list_users,
     login,
     logout,
@@ -143,15 +146,20 @@ def run():
     def set_user_role_():
         return set_user_role()
     
-    @app.route("/manager/check_tag_status", methods=["GET"])
+    @app.route("/manager/check_tag_status")
     @authenticated()
-    def check_tags():
+    def check_tags_():
         return check_tags()
 
     @app.route("/manager/activate_tags")
     @authenticated()
-    def activate_tags():
+    def activate_tags_():
         return activate_tags()
+    
+    @app.route("/manager/graph_data")
+    @authenticated()
+    def graph_data_():
+        return graph_data()
 
     @app.route("/manager/queue_status")
     @authenticated()

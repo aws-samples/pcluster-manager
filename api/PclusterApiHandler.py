@@ -22,6 +22,7 @@ import yaml
 from flask import abort, redirect, request
 from flask_restful import Resource, reqparse
 from jose import jwt
+from pprint import pprint
 
 USER_POOL_ID = os.getenv("USER_POOL_ID")
 AUTH_PATH = os.getenv("AUTH_PATH")
@@ -41,14 +42,10 @@ JWKS_URL = os.getenv("JWKS_URL")
 AUDIENCE = os.getenv("AUDIENCE")
 USER_ROLES_CLAIM = os.getenv("USER_ROLES_CLAIM", "cognito:groups")
 REDIRECT_URL = f"{SITE_URL}/login"
-PCluster_tags = ['parallelcluster:attributes', 
+PCLUSTER_COST_TAGS = ['parallelcluster:attributes', 
         'parallelcluster:cluster-name', 'parallelcluster:compute-resource-name', 'parallelcluster:filesystem', 
         'parallelcluster:networking', 'parallelcluster:node-type', 'parallelcluster:queue-name', 
         'parallelcluster:resource', 'parallelcluster:version']
-cost_explorer = boto3.client('ce',)
-
-
-
 
 
 try:
@@ -707,22 +704,47 @@ def _get_params(_request):
 # Check if parallelcluster tags are active
 def check_tags():
     try:
-        inactive_tags = cost_explorer.list_cost_allocation_tags(Status='Inactive',TagKeys=PCluster_tags)
-        if len(inactive_tags['CostAllocationtTags']) > 0:
-            return True
-        else:
-            return False
+        cost_explorer = boto3.client('ce')
+        inactive_tags = cost_explorer.list_cost_allocation_tags(Status='Inactive',TagKeys=PCLUSTER_COST_TAGS)
+        return {"TagStatus": not (len(inactive_tags['CostAllocationTags']) > 0)}
     except Exception as e:
+        print("Error %s" % str(e))
         return {"message": str(e)}, 500
 
 # Activate parallelcluster tags in cost explorer
 def activate_tags():
     try:
-        for tag in PCluster_tags:
-            updated_tags = cost_explorer.CostAllocationTagStatus.append({'Tagkey': tag, 'Value': 'Active'})
+        cost_explorer = boto3.client('ce')
+        new_list = [{'TagKey': tag, 'Status': 'Active'} for tag in PCLUSTER_COST_TAGS]
+        updated_tags = cost_explorer.update_cost_allocation_tags_status(CostAllocationTagsStatus=new_list)
+        return updated_tags
     except Exception as e:
         return {"message": str(e)}, 500
-    
+
+# Retrieve usage data from Cost Explorer API
+def graph_data():
+    try:
+        cost_explorer = boto3.client('ce')
+        data = cost_explorer.get_cost_and_usage(
+            TimePeriod={
+                'Start': '2022-07-06',
+                'End': '2022-07-12'
+            },
+            Granularity='DAILY',
+            GroupBy=[
+                {
+                    'Type': 'DIMENSION',
+                    'Key': 'INSTANCE_TYPE',
+                },
+            ],
+             Metrics=[
+                 'NetUnblendedCost',
+            ],
+        )
+        # pprint(data)
+        return data
+    except Exception as e:
+        return {"message": str(e)}, 500
 
 class PclusterApiHandler(Resource):
     method_decorators = [authenticated("user", redirect=False)]
