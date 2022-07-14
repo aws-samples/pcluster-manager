@@ -135,7 +135,7 @@ function clearEmptyNest(path: any, depth: any){
 }
 
 // @ts-expect-error TS(7023) FIXME: 'getState' implicitly has return type 'any' becaus... Remove this comment to see the full error message
-function getState(state: any, path?:string) {
+function getState(state: any, path?:string[]) {
   // Don't pass the state in if running outside of a component and we can pull
   // directly from the store
   if(path === undefined)

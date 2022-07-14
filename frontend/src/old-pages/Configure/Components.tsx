@@ -49,9 +49,7 @@ const knownExtensions = [{name: 'Cloud9', path: 'cloud9.sh', description: 'Cloud
 ]
 
 // Selectors
-// @ts-expect-error TS(2345) FIXME: Argument of type 'string[]' is not assignable to p... Remove this comment to see the full error message
 const selectVpc = (state: any) => getState(state, ['app', 'wizard', 'vpc']);
-// @ts-expect-error TS(2345) FIXME: Argument of type 'string[]' is not assignable to p... Remove this comment to see the full error message
 const selectAwsSubnets = (state: any) => getState(state, ['aws', 'subnets']);
 
 function LabeledIcon({

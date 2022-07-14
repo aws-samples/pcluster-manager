@@ -35,11 +35,8 @@ import { LabeledIcon, CustomAMISettings } from './Components'
 // Constants
 const errorsPath = ['app', 'wizard', 'errors', 'cluster'];
 
-// @ts-expect-error TS(2345) FIXME: Argument of type 'string[]' is not assignable to p... Remove this comment to see the full error message
 const selectQueues = (state: any) => getState(state, ['app', 'wizard', 'config', 'Scheduling', 'SlurmQueues']);
-// @ts-expect-error TS(2345) FIXME: Argument of type 'string[]' is not assignable to p... Remove this comment to see the full error message
 const selectVpc = (state: any) => getState(state, ['app', 'wizard', 'vpc']);
-// @ts-expect-error TS(2345) FIXME: Argument of type 'string[]' is not assignable to p... Remove this comment to see the full error message
 const selectAwsSubnets = (state: any) => getState(state, ['aws', 'subnets']);
 
 function clusterValidate() {

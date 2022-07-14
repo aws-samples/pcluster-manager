@@ -33,9 +33,9 @@ const reducer = (state = defaultState, action: any) => {
     ...state,
     notifications: state.notifications.map(notification => ((action.dismissAll || (notification as any).key === action.key)
         ? // @ts-expect-error TS(2698) FIXME: Spread types may only be created from object types... Remove this comment to see the full error message
-                            { ...notification, dismissed: true }
+                                              { ...notification, dismissed: true }
         : // @ts-expect-error TS(2698) FIXME: Spread types may only be created from object types... Remove this comment to see the full error message
-                            { ...notification })),
+                                              { ...notification })),
 };
 
         case REMOVE_SNACKBAR:
