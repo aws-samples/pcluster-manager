@@ -45,7 +45,8 @@ const knownExtensions = [{name: 'Cloud9', path: 'cloud9.sh', description: 'Cloud
   {name: 'Slurm Accounting', path: 'slurm-accounting.sh', description: 'Slurm Accounting', args: [{name: 'Secret ARN'}, {name: 'RDS Endpoint'}, {name: 'RDS Port', default: '3306'}]},
   {name: 'Spack', path: "spack.sh", description: 'Install Spack package manager.', args:[{name: 'Spack Root'}]},
   {name: 'Memory', path: "mem.sh", description: 'Setup Memory Resource in Slurm.', args:[]},
-  {name: 'Cost Tags', path: "cost-tags.sh", description: 'Set cost tags on compute instances.', args:[]}
+  {name: 'Cost Tags', path: "cost-tags.sh", description: 'Set cost tags on compute instances.', args:[]},
+  {name: 'All or Nothing Scaling', path: "all-or-nothing.sh", description: 'Sets up all-or-nothing scaling behaviour.', args:[]}
 ]
 
 // Selectors
