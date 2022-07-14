@@ -14,12 +14,12 @@ import { setState, getState, clearState } from '../../store'
 import { LoadAwsConfig } from '../../model'
 import { getIn, setIn } from '../../util'
 
-function loadTemplateLazy(config, callback)
+function loadTemplateLazy(config: any, callback: any)
 {
   const loadingPath = ['app', 'wizard', 'source', 'loading'];
   const subnets = getState(['aws', 'subnets']) || [];
   const keypairs = getState(['aws', 'keypairs']) || [];
-  const keypairNames = new Set(keypairs.map((kp) => kp.KeyName));
+  const keypairNames = new Set(keypairs.map((kp: any) => kp.KeyName));
   const keypairPath = ['HeadNode', 'Ssh', 'KeyName'];
   if(getIn(config, ['Image', 'CustomAmi']))
     setState(['app', 'wizard', 'customAMI', 'enabled'], true)
@@ -33,7 +33,7 @@ function loadTemplateLazy(config, callback)
   if(!getIn(config, ['HeadNode', 'InstanceType']))
     config = setIn(config, ['HeadNode', 'InstanceType'], 't2.micro');
 
-  const subnetIndex = subnets.reduce((acc, subnet) => {acc[subnet.SubnetId] = subnet.VpcId; return acc}, {});
+  const subnetIndex = subnets.reduce((acc: any, subnet: any) => {acc[subnet.SubnetId] = subnet.VpcId; return acc}, {});
 
   if(getIn(config, ['HeadNode', 'Networking', 'SubnetId']))
   {
@@ -93,7 +93,7 @@ function loadTemplateLazy(config, callback)
   callback && callback();
 }
 
-export default function loadTemplate(config, callback) {
+export default function loadTemplate(config: any, callback: any) {
   const loadingPath = ['app', 'wizard', 'source', 'loading'];
   let defaultRegion = getState(['aws', 'region']) || "";
   const region = getState(['app', 'selectedRegion']) || defaultRegion;
@@ -103,6 +103,7 @@ export default function loadTemplate(config, callback) {
   if(!getIn(config, ['Region']) || region === getIn(config, ['Region']))
   {
     config['Region'] = region;
+    // @ts-expect-error TS(2554) FIXME: Expected 2 arguments, but got 1.
     loadTemplateLazy(config);
   }
   else

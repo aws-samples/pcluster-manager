@@ -25,7 +25,9 @@ import HelpTooltip from '../components/HelpTooltip'
 import { Link } from "@awsui/components-react";
 import { useState } from '../store'
 
-function ClusterFailedHelp({clusterName}) {
+function ClusterFailedHelp({
+  clusterName
+}: any) {
   let navigate = useNavigate();
 
   const clusterPath = ['clusters', 'index', clusterName];
@@ -43,11 +45,14 @@ function ClusterFailedHelp({clusterName}) {
   </HelpTooltip>
 }
 
-export default function Status({status, cluster}) {
+export default function Status({
+  status,
+  cluster
+}: any) {
   const failedStatuses = new Set(['CREATE_FAILED', 'DELETE_FAILED', 'UPDATE_FAILED']);
   const theme = useTheme();
 
-  const aligned = (icon, text, color) => <div style={{
+  const aligned = (icon: any, text: any, color: any) => <div style={{
     color: color || 'black',
     display: 'flex',
     alignItems: 'center',
@@ -69,5 +74,6 @@ export default function Status({status, cluster}) {
       "UPDATE_IN_PROGRESS": aligned(<CircularProgress color='info' size={15} />, status, theme.palette.info.main),
       "UNKNOWN": aligned(<CircularProgress size={15} color='info' />, status, theme.palette.info.main),
       "UPDATE_COMPLETE": aligned(<CheckCircleOutlineIcon />, status, theme.palette.success.main),};
+  // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   return status in statusMap ? statusMap[status] : <span>{status ? status.replaceAll("_", " ") : "<unknown>"}</span>;
 }

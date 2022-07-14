@@ -13,23 +13,29 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useSnackbar } from 'notistack';
 import { removeSnackbar } from './snackbar_actions';
 
-let displayed = [];
+let displayed: any = [];
 
 const useNotifier = () => {
     const dispatch = useDispatch();
-    const notifications = useSelector(store => store.notifications.notifications || []);
+    const notifications = useSelector(store => (store as any).notifications.notifications || []);
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
-    const storeDisplayed = (id) => {
+    const storeDisplayed = (id: any) => {
         displayed = [...displayed, id];
     };
 
-    const removeDisplayed = (id) => {
+    const removeDisplayed = (id: any) => {
+        // @ts-expect-error TS(7006) FIXME: Parameter 'key' implicitly has an 'any' type.
         displayed = [...displayed.filter(key => id !== key)];
     };
 
     React.useEffect(() => {
-        notifications.forEach(({ key, message, options = {}, dismissed = false }) => {
+        notifications.forEach(({
+            key,
+            message,
+            options = {},
+            dismissed = false
+        }: any) => {
             if (dismissed) {
                 // dismiss snackbar using notistack
                 closeSnackbar(key);

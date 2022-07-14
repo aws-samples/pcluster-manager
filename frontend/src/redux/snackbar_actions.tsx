@@ -12,7 +12,7 @@ export const ENQUEUE_SNACKBAR = 'ENQUEUE_SNACKBAR';
 export const CLOSE_SNACKBAR = 'CLOSE_SNACKBAR';
 export const REMOVE_SNACKBAR = 'REMOVE_SNACKBAR';
 
-export const enqueueSnackbar = (notification) => {
+export const enqueueSnackbar = (notification: any) => {
     const key = notification.options && notification.options.key;
 
     return {
@@ -24,13 +24,16 @@ export const enqueueSnackbar = (notification) => {
     };
 };
 
-export const closeSnackbar = key => ({
+export const closeSnackbar = (key: any) => ({
     type: CLOSE_SNACKBAR,
-    dismissAll: !key, // dismiss all if no key has been defined
-    key,
+
+    // dismiss all if no key has been defined
+    dismissAll: !key,
+
+    key
 });
 
-export const removeSnackbar = key => ({
+export const removeSnackbar = (key: any) => ({
     type: REMOVE_SNACKBAR,
-    key,
+    key
 });

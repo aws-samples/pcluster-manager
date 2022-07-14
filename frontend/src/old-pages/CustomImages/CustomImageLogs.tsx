@@ -19,10 +19,10 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import Loading from '../../components/Loading'
 
-function LogEvents(props) {
+function LogEvents(props: any) {
   return (
     <div style={{borderTop: "1px solid #AAA", fontSize: "10pt" }}>
-      {props.events.events.map((event, i) => <div key={event.timestamp + i.toString()}>{event.timestamp + i.toString()} - {event.message}</div>)}
+      {props.events.events.map((event: any, i: any) => <div key={event.timestamp + i.toString()}>{event.timestamp + i.toString()} - {event.message}</div>)}
     </div>
   );
 }
@@ -37,7 +37,7 @@ export default function CustomImageLogs() {
   const selectedLogStreamName = useState(['app', 'customImages', 'selectedLogStreamName']);
   const logEvents = useState(['customImages', 'index', selected, 'logstreams', 'logEventIndex', selectedLogStreamName]);
 
-  const select = (logStreamName) => {
+  const select = (logStreamName: any) => {
     const selected = getState(['app', 'customImages', 'selected']);
     setState(['app', 'customImages', 'selectedLogStreamName'], logStreamName);
     GetCustomImageLogEvents(selected, logStreamName);
@@ -55,26 +55,29 @@ export default function CustomImageLogs() {
     ListCustomImageLogStreams(selected);
   }, []);
 
-  return <div>
-    { streams ?
-      <div style={{display: 'flex'}}>
-        <div style={{textAlign: 'left', flexDirection: 'column', flex: split, width: 0,
-          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: '10px'}}>
-          {streams.logStreams.map((s, i) => <div onClick={() => {
-            select(s.logStreamName)}} style={{cursor: 'pointer'
-          }} key={s.logStreamName} title={s.logStreamId}>{s.logStreamName}</div>)}
-        </div>
-        <div style={{ flex: 100 - split, paddingLeft: "10px", borderLeft: "1px solid #AAA"}}>
-          <div style={{ marginBottom: '20px', whiteSpace: "nowrap" }}>
-            {isSelected ?
-            <ChevronRightIcon style={{cursor: 'pointer'}} onClick={() => {unselect();}}/>
-            :  <ChevronLeftIcon style={{cursor: 'pointer'}} onClick={() => {select();}}/>}
-            {selectedLogStreamName && <div style={{display: 'inline-block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{selectedLogStreamName}</div>}
+  return (
+    <div>
+      { streams ?
+        <div style={{display: 'flex'}}>
+          <div style={{textAlign: 'left', flexDirection: 'column', flex: split, width: 0,
+            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: '10px'}}>
+            {streams.logStreams.map((s: any, i: any) => <div onClick={() => {
+              select(s.logStreamName)}} style={{cursor: 'pointer'
+            }} key={s.logStreamName} title={s.logStreamId}>{s.logStreamName}</div>)}
           </div>
-          {isSelected && (logEvents ? <LogEvents events={logEvents} /> : <Loading />) }
+          <div style={{ flex: 100 - split, paddingLeft: "10px", borderLeft: "1px solid #AAA"}}>
+            <div style={{ marginBottom: '20px', whiteSpace: "nowrap" }}>
+              {isSelected ?
+              <ChevronRightIcon style={{cursor: 'pointer'}} onClick={() => {unselect();}}/>
+              // @ts-expect-error TS(2554) FIXME: Expected 1 arguments, but got 0.
+              :  <ChevronLeftIcon style={{cursor: 'pointer'}} onClick={() => {select();}}/>}
+              {selectedLogStreamName && <div style={{display: 'inline-block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{selectedLogStreamName}</div>}
+            </div>
+            {isSelected && (logEvents ? <LogEvents events={logEvents} /> : <Loading />) }
+          </div>
         </div>
-      </div>
-      : <Loading />
-    }
-  </div>;
+        : <Loading />
+      }
+    </div>
+  );
 }

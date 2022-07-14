@@ -43,7 +43,10 @@ import EmptyState from '../../components/EmptyState';
 import Loading from '../../components/Loading'
 
 // Key:Value pair (label / children)
-const ValueWithLabel = ({ label, children }) => (
+const ValueWithLabel = ({
+  label,
+  children
+}: any) => (
   <div>
     <Box margin={{ bottom: 'xxxs' }} color="text-label">
       {label}
@@ -52,7 +55,7 @@ const ValueWithLabel = ({ label, children }) => (
   </div>
 );
 
-function refreshQueues(callback) {
+function refreshQueues(callback: any) {
   const clusterName = getState(['app', 'clusters', 'selected']);
   const region = getState(['aws', 'region']);
   if(clusterName){
@@ -64,9 +67,9 @@ function refreshQueues(callback) {
   }
 }
 
-function Status(props) {
+function Status(props: any) {
   const theme = useTheme();
-  const aligned = (icon, text, color) => <div style={{
+  const aligned = (icon: any, text: any, color: any) => <div style={{
     color: color || 'black',
     display: 'flex',
     alignItems: 'center',
@@ -78,14 +81,19 @@ function Status(props) {
   const statusMap = {"CANCELLED": aligned(<CancelIcon />, props.status, theme.palette.error.main),
     "CONFIGURING": aligned(<CircularProgress size={15} color='info' />, props.status, theme.palette.info.main),
     "RUNNING": aligned(<CheckCircleOutlineIcon />, props.status, theme.palette.success.main),};
+  // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   return props.status in statusMap ? statusMap[props.status] : <span>{props.status}</span>;
 }
 
-function JobActions({job, disabled, cancelCallback}) {
+function JobActions({
+  job,
+  disabled,
+  cancelCallback
+}: any) {
   let pendingPath = ['app', 'clusters', 'queue', 'action', job.job_id, 'pending'];
   const pending = useState(pendingPath);
 
-  const cancelJob = (jobId, cancelCallback) => {
+  const cancelJob = (jobId: any, cancelCallback: any) => {
     const clusterName = getState(['app', 'clusters', 'selected']);
     const clusterPath = ['clusters', 'index', clusterName];
     const cluster = getState(clusterPath);
@@ -106,7 +114,10 @@ function JobActions({job, disabled, cancelCallback}) {
   )
 }
 
-function FileLink({path, isFile}) {
+function FileLink({
+  path,
+  isFile
+}: any) {
   const clusterName = useState(['app', 'clusters', 'selected']);
   const clusterPath = ['clusters', 'index', clusterName];
   const defaultRegion = useState(['aws', 'region']);
@@ -118,7 +129,9 @@ function FileLink({path, isFile}) {
   return <a href={`${consoleDomain(region)}/systems-manager/managed-instances/${headNode.instanceId}/file-system?region=${region}&osplatform=Linux#%7B%22path%22%3A%22${linkPath}%22%7D`} rel="noreferrer" target="_blank">{path}</a>
 }
 
-function JobProperties({job}) {
+function JobProperties({
+  job
+}: any) {
   return <Container>
       <ColumnLayout columns={3} variant="text-grid">
         <SpaceBetween direction="vertical" size="l">
@@ -180,6 +193,7 @@ function JobModal() {
         <Box float="right">
           <SpaceBetween direction="horizontal" size="xs">
             {job && <JobActions job={{job_id: job.JobId, job_state: job.JobState}} disabled={fleetStatus !== "RUNNING"} cancelCallback={close}/>}
+            {/* @ts-expect-error TS(2322) FIXME: Type '{ children: string; onClick: () => void; aut... Remove this comment to see the full error message */}
             <Button onClick={close} autoFocus>Close</Button>
           </SpaceBetween>
         </Box>
@@ -200,7 +214,7 @@ export default function ClusterScheduling() {
   const defaultRegion = useState(['aws', 'region']);
   const region = useState(['app', 'selectedRegion']) || defaultRegion;
 
-  function isSsmPolicy(p) {
+  function isSsmPolicy(p: any) {
     return p.hasOwnProperty('Policy') && p.Policy === ssmPolicy(region);
   }
 
@@ -209,18 +223,20 @@ export default function ClusterScheduling() {
 
   React.useEffect(() => {
     const tick = () => {
+      // @ts-expect-error TS(2554) FIXME: Expected 1 arguments, but got 0.
       clusterMinor > 0 && ssmEnabled && refreshQueues();
     }
+    // @ts-expect-error TS(2554) FIXME: Expected 1 arguments, but got 0.
     clusterMinor > 0 && ssmEnabled && refreshQueues();
     const timerId = setInterval(tick, 10000);
     return () => { clearInterval(timerId); }
   }, [])
 
-  const selectJobCallback = (jobInfo) => {
+  const selectJobCallback = (jobInfo: any) => {
     setState(['app', 'clusters', 'jobInfo', 'data'], jobInfo);
   }
 
-  const selectJob = (jobId) => {
+  const selectJob = (jobId: any) => {
     const clusterName = getState(['app', 'clusters', 'selected']);
     if(clusterName){
       const clusterPath = ['clusters', 'index', clusterName];
@@ -229,6 +245,7 @@ export default function ClusterScheduling() {
       const headNode = getState([...clusterPath, 'headNode']);
       clearState(['app', 'clusters', 'jobInfo', 'data']);
       headNode && setState(['app', 'clusters', 'jobInfo', 'dialog'], true);
+      // @ts-expect-error TS(2554) FIXME: Expected 6 arguments, but got 5.
       headNode && JobInfo(clusterName, headNode.instanceId, user, jobId, selectJobCallback);
     }
   }
@@ -258,70 +275,55 @@ export default function ClusterScheduling() {
   );
 
 
-  return <SpaceBetween direction="vertical" size="s" >
+  return <SpaceBetween direction="vertical" size="s">
     <JobModal />
-    <JobSubmitDialog submitCallback={refreshQueues} />
+    <JobSubmitDialog submitCallback={refreshQueues}/>
     {ssmEnabled && <Button variant="primary" disabled={fleetStatus !== "RUNNING"} onClick={() => setState(['app', 'clusters', 'jobSubmit', 'dialog'], true)}>Submit Job</Button>}
     {clusterMinor > 0 && ssmEnabled &&
-    (jobs ? <Table
-      {...collectionProps}
-      trackBy="job_id"
-      columnDefinitions={[
-        {
-          id: "id",
-          header: "ID",
-          cell: item => <Link onFollow={() => selectJob(item.job_id)}>{item.job_id}</Link>,
-          sortingField: "job_id"
-        },
-        {
-          id: "name",
-          header: "name",
-          cell: item => item.name,
-          sortingField: "name"
-        },
-        {
-          id: "partition",
-          header: "partition",
-          cell: item => item.partition,
-          sortingField: "partition"
-        },
-        {
-          id: "nodes",
-          header: "nodes",
-          cell: item => item.nodes,
-          sortingField: "nodes"
-        },
-        {
-          id: "state",
-          header: "state",
-          cell: item => <Status status={item.job_state} />,
-          sortingField: "job_state"
-        },
-        {
-          id: "time",
-          header: "time",
-          cell: item => item.time,
-          sortingField: "time"
-        },
-        {
-          id: "actions",
-          header: "Actions",
-          cell: item => <JobActions disabled={fleetStatus !== "RUNNING"} job={item} />,
-        },
-      ]}
-      items={items}
-      loadingText="Loading jobs..."
-      pagination={<Pagination {...paginationProps} />}
-      filter={
-        <TextFilter
-          {...filterProps}
-          countText={`Results: ${filteredItemsCount}`}
-          filteringAriaLabel="Filter jobs"
-        />
-      }
-    /> : <div style={{textAlign: "center", paddingTop: "40px"}}><Loading /></div>)
-    }
+        (jobs ? <Table {...collectionProps} trackBy="job_id" columnDefinitions={[
+                {
+                    id: "id",
+                    header: "ID",
+                    cell: item => <Link onFollow={() => selectJob((item as any).job_id)}>{(item as any).job_id}</Link>,
+                    sortingField: "job_id"
+                },
+                {
+                    id: "name",
+                    header: "name",
+                    cell: item => (item as any).name,
+                    sortingField: "name"
+                },
+                {
+                    id: "partition",
+                    header: "partition",
+                    cell: item => (item as any).partition,
+                    sortingField: "partition"
+                },
+                {
+                    id: "nodes",
+                    header: "nodes",
+                    cell: item => (item as any).nodes,
+                    sortingField: "nodes"
+                },
+                {
+                    id: "state",
+                    header: "state",
+                    cell: item => <Status status={(item as any).job_state}/>,
+                    sortingField: "job_state"
+                },
+                {
+                    id: "time",
+                    header: "time",
+                    cell: item => (item as any).time,
+                    sortingField: "time"
+                },
+                {
+                    id: "actions",
+                    header: "Actions",
+                    cell: item => <JobActions disabled={fleetStatus !== "RUNNING"} job={item}/>,
+                },
+            ]} items={items} loadingText="Loading jobs..." pagination={<Pagination {...paginationProps}/>} filter={<TextFilter {...filterProps} countText={`Results: ${filteredItemsCount}`} filteringAriaLabel="Filter jobs"/>}/> : <div style={{ textAlign: "center", paddingTop: "40px" }}><Loading /></div>)}
     {clusterMinor === 0 && <div>Scheduling is only available in clusters with version 3.1.x and greater.</div>}
     {!ssmEnabled && <div>You must enable SSM to monitor jobs.</div>}
-  </SpaceBetween>
+  </SpaceBetween>;
 }

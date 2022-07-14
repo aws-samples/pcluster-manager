@@ -25,7 +25,7 @@ import {
 import Loading from '../../components/Loading'
 import ConfigView from '../../components/ConfigView'
 
-function downloadBlob(blob, filename) {
+function downloadBlob(blob: any, filename: any) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -67,7 +67,8 @@ export default function ConfigDialog() {
               iconName="download"
               disabled={cluster && cluster.clusterStatus === 'CREATE_FAILED'}
               onClick={() => {
-                GetConfiguration(clusterName, (configuration) => {
+                // @ts-expect-error TS(2345) FIXME: Argument of type '(configuration: any) => void' is... Remove this comment to see the full error message
+                GetConfiguration(clusterName, (configuration: any) => {
                   const blob = new Blob([configuration], {type: 'text/yaml'});
                   downloadBlob(blob, 'config.yaml')});
               }}

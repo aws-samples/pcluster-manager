@@ -39,9 +39,9 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import EmptyState from '../../components/EmptyState';
 import DateView from '../../components/DateView'
 
-function Status(props) {
+function Status(props: any) {
   const theme = useTheme();
-  const aligned = (icon, text, color) => <div style={{
+  const aligned = (icon: any, text: any, color: any) => <div style={{
     color: color || 'black',
     display: 'flex',
     alignItems: 'center',
@@ -52,10 +52,14 @@ function Status(props) {
   </div>
   const statusMap = {"stopped": aligned(<CancelIcon />, props.status, theme.palette.error.main),
     "running": aligned(<CheckCircleOutlineIcon />, props.status, theme.palette.success.main),};
+  // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   return props.status in statusMap ? statusMap[props.status] : <span>{props.status}</span>;
 }
 
-function InstanceActions({fleetStatus, instance}) {
+function InstanceActions({
+  fleetStatus,
+  instance
+}: any) {
 
   const pending = useState(['app', 'clusters', 'action', 'pending']);
   const clusterName = useState(['app', 'clusters', 'selected']);
@@ -67,12 +71,12 @@ function InstanceActions({fleetStatus, instance}) {
     clusterName && GetClusterInstances(clusterName, () => clearState(['app', 'clusters', 'action', 'pending']));
   }
 
-  const stopInstance = (instance) => {
+  const stopInstance = (instance: any) => {
     setState(['app', 'clusters', 'action', 'pending'], true);
     Ec2Action([instance.instanceId], "stop_instances", refresh);
   }
 
-  const startInstance = (instance) => {
+  const startInstance = (instance: any) => {
     setState(['app', 'clusters', 'action', 'pending'], true);
     Ec2Action([instance.instanceId], "start_instances", refresh);
   }
@@ -107,9 +111,11 @@ export default function ClusterInstances() {
   React.useEffect(() => {
     const tick = () => {
       const clusterName = getState(['app', 'clusters', 'selected']);
+      // @ts-expect-error TS(2554) FIXME: Expected 2 arguments, but got 1.
       clusterName && GetClusterInstances(clusterName);
     }
     const clusterName = getState(['app', 'clusters', 'selected']);
+    // @ts-expect-error TS(2554) FIXME: Expected 2 arguments, but got 1.
     clusterName && GetClusterInstances(clusterName);
     const timerId = setInterval(tick, 10000);
     return () => { clearInterval(timerId); }
@@ -140,78 +146,55 @@ export default function ClusterInstances() {
     }
   );
 
-  return <Table
-      {...collectionProps}
-      header={<Header
-        variant="h3"
-        description=""
-        counter={ instances && `(${instances.length})` }>
+  return <Table {...collectionProps} header={<Header variant="h3" description="" counter={instances && `(${instances.length})`}>
         Instances
-      </Header>}
-      trackBy="instanceId"
-      columnDefinitions={[
+      </Header>} trackBy="instanceId" columnDefinitions={[
         {
-          id: "id",
-          header: "Id",
-          cell: item => <Link
-              external
-              externalIconAriaLabel="Opens in a new tab"
-              href={`${consoleDomain(region)}/ec2/v2/home?region=${region}#InstanceDetails:instanceId=${item.instanceId}`}
-            >{item.instanceId}</Link>,
-          sortingField: "instanceId"
+            id: "id",
+            header: "Id",
+            cell: item => <Link external externalIconAriaLabel="Opens in a new tab" href={`${consoleDomain(region)}/ec2/v2/home?region=${region}#InstanceDetails:instanceId=${(item as any).instanceId}`}>{(item as any).instanceId}</Link>,
+            sortingField: "instanceId"
         },
         {
-          id: "instance-type",
-          header: "instance",
-          cell: item => item.instanceType,
-          sortingField: "instanceType"
+            id: "instance-type",
+            header: "instance",
+            cell: item => (item as any).instanceType,
+            sortingField: "instanceType"
         },
         {
-          id: "launch-time",
-          header: "Launch",
-          cell: item => <DateView date={item.launchTime} />,
-          sortingField: "launchTime"
+            id: "launch-time",
+            header: "Launch",
+            cell: item => <DateView date={(item as any).launchTime}/>,
+            sortingField: "launchTime"
         },
         {
-          id: "node-type",
-          header: "Type",
-          cell: item => item.nodeType,
-          sortingField: "nodeType"
+            id: "node-type",
+            header: "Type",
+            cell: item => (item as any).nodeType,
+            sortingField: "nodeType"
         },
         {
-          id: "private-ip",
-          header: "Private IP",
-          cell: item => item.privateIpAddress,
-          sortingField: "privateIpAddress"
+            id: "private-ip",
+            header: "Private IP",
+            cell: item => (item as any).privateIpAddress,
+            sortingField: "privateIpAddress"
         },
         {
-          id: "public-ip",
-          header: "Public IP",
-          cell: item => item.publicIpAddress,
-          sortingField: "publicIpAddress"
+            id: "public-ip",
+            header: "Public IP",
+            cell: item => (item as any).publicIpAddress,
+            sortingField: "publicIpAddress"
         },
         {
-          id: "state",
-          header: "State",
-          cell: item => <Status status={item.state} cluster={item} />,
-          sortingField: "state"
+            id: "state",
+            header: "State",
+            cell: item => <Status status={(item as any).state} cluster={item}/>,
+            sortingField: "state"
         },
         {
-          id: "actions",
-          header: "Actions",
-          cell: item => <InstanceActions fleetStatus={fleetStatus} instance={item} />,
+            id: "actions",
+            header: "Actions",
+            cell: item => <InstanceActions fleetStatus={fleetStatus} instance={item}/>,
         },
-      ]}
-      loading={instances === null}
-      items={items}
-      loadingText="Loading instances..."
-      pagination={<Pagination {...paginationProps} />}
-      filter={
-        <TextFilter
-          {...filterProps}
-          countText={`Results: ${filteredItemsCount}`}
-          filteringAriaLabel="Filter instances"
-        />
-      }
-    />
+    ]} loading={instances === null} items={items} loadingText="Loading instances..." pagination={<Pagination {...paginationProps}/>} filter={<TextFilter {...filterProps} countText={`Results: ${filteredItemsCount}`} filteringAriaLabel="Filter instances"/>}/>;
 }

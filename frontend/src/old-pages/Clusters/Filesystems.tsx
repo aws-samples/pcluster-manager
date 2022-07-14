@@ -26,7 +26,9 @@ import {
 // Components
 import EmptyState from '../../components/EmptyState';
 
-function StorageId({storage}){
+function StorageId({
+  storage
+}: any){
   const settingsKey = `${storage.StorageType}Settings`;
   const canMountFileSystem = ['Efs', 'FsxLustre'].includes(storage.StorageType);
   const idKey = canMountFileSystem ? 'FileSystemId' : 'VolumeId';
@@ -89,48 +91,34 @@ export default function Filesystems() {
 
   return <>
     {storage &&
-    <div>
-    <Table
-      {...collectionProps}
-      trackBy="clusterName"
-      columnDefinitions={[
-        {
-          id: "mount",
-          header: "Mount Point",
-          cell: item => <Link external href={`${consoleDomain(region)}/systems-manager/managed-instances/${headNode.instanceId}/file-system?region=${region}&osplatform=Linux#%7B%22path%22%3A%22${item.MountDir}%22%7D`} rel="noreferrer" target="_blank">{item.MountDir}</Link>,
-          sortingField: "MountDir"
-        },
-        {
-          id: "name",
-          header: "Name",
-          cell: item => item.Name,
-          sortingField: "Name"
-        },
-        {
-          id: "type",
-          header: "Type",
-          cell: item => item.StorageType,
-          sortingField: "StorageType"
-        },
-        {
-          id: "id",
-          header: "id",
-          cell: item => <StorageId storage={item} />,
-        },
-      ]}
-      items={items}
-      loadingText="Loading Filesystems..."
-      pagination={<Pagination {...paginationProps} />}
-      filter={
-        <TextFilter
-          {...filterProps}
-          countText={`Results: ${filteredItemsCount}`}
-          filteringAriaLabel="Filter filesystems"
-        />
-      }
-    />
-    </div>
-    }
+        <div>
+    <Table {...collectionProps} trackBy="clusterName" columnDefinitions={[
+                {
+                    id: "mount",
+                    header: "Mount Point",
+                    cell: item => <Link external href={`${consoleDomain(region)}/systems-manager/managed-instances/${headNode.instanceId}/file-system?region=${region}&osplatform=Linux#%7B%22path%22%3A%22${(item as any).MountDir}%22%7D`} rel="noreferrer" target="_blank">{(item as any).MountDir}</Link>,
+                    sortingField: "MountDir"
+                },
+                {
+                    id: "name",
+                    header: "Name",
+                    cell: item => (item as any).Name,
+                    sortingField: "Name"
+                },
+                {
+                    id: "type",
+                    header: "Type",
+                    cell: item => (item as any).StorageType,
+                    sortingField: "StorageType"
+                },
+                {
+                    id: "id",
+                    header: "id",
+                    // @ts-expect-error TS(2786) FIXME: 'StorageId' cannot be used as a JSX component.
+                    cell: item => <StorageId storage={item}/>,
+                },
+            ]} items={items} loadingText="Loading Filesystems..." pagination={<Pagination {...paginationProps}/>} filter={<TextFilter {...filterProps} countText={`Results: ${filteredItemsCount}`} filteringAriaLabel="Filter filesystems"/>}/>
+    </div>}
     {!storage && <div>No Filesystems Found.</div>}
-  </>
+  </>;
 }

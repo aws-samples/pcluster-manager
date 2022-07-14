@@ -24,7 +24,7 @@ import TreeItem from '@mui/lab/TreeItem';
 import DateView from '../../components/DateView'
 import Loading from '../../components/Loading'
 
-function EventDetails(props) {
+function EventDetails(props: any) {
   return (
     <div style={{marginLeft: "20px"}}>
       <div>Status {props.event.resourceStatus} (<DateView date={props.event.timestamp} />)</div>
@@ -42,15 +42,17 @@ export default function CustomImageStackEvents() {
     GetCustomImageStackEvents(selected);
   }, []);
 
-  return <div>{ events ?
-    <TreeView
-      aria-label="stack events list"
-      defaultCollapseIcon={<ExpandMoreIcon />}
-      defaultExpandIcon={<ChevronRightIcon />}
-      sx={{ textAlign: 'left'}}>
-      {events.map((event, i) => <TreeItem nodeId={event.eventId} label={event.eventId} key={event.eventId}>
-        <TreeItem nodeId={event.eventId + 'details'}/><EventDetails event={event} /></TreeItem>)}
-    </TreeView>
-    : <Loading />}
-  </div>
+  return (
+    <div>{ events ?
+      <TreeView
+        aria-label="stack events list"
+        defaultCollapseIcon={<ExpandMoreIcon />}
+        defaultExpandIcon={<ChevronRightIcon />}
+        sx={{ textAlign: 'left'}}>
+        {events.map((event: any, i: any) => <TreeItem nodeId={event.eventId} label={event.eventId} key={event.eventId}>
+          <TreeItem nodeId={event.eventId + 'details'}/><EventDetails event={event} /></TreeItem>)}
+      </TreeView>
+      : <Loading />}
+    </div>
+  );
 }

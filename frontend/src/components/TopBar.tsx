@@ -18,7 +18,7 @@ import { LoadInitialState} from '../model'
 import { SideBarIcons } from './SideBar';
 import TopNavigation from "@awsui/components-react/top-navigation";
 
-function regions(selected) {
+function regions(selected: any) {
   let supportedRegions = [
     [
       ["US East (N. Virginia)", "us-east-1"],
@@ -88,7 +88,7 @@ function regions(selected) {
   })
 }
 
-export default function Topbar(props) {
+export default function Topbar(props: any) {
   let username = useState(['identity', 'attributes', 'email']);
 
   const defaultRegion = useState(['aws', 'region']) || "DEFAULT";
@@ -98,7 +98,7 @@ export default function Topbar(props) {
     window.location.href = 'logout';
   };
 
-  const selectRegion = (region) => {
+  const selectRegion = (region: any) => {
     let newRegion = region.detail.id;
     setState(['app', 'selectedRegion'], newRegion);
     LoadInitialState();
@@ -115,6 +115,7 @@ export default function Topbar(props) {
         id="top-bar"
         className="top-bar"
         expandToViewport
+        // @ts-expect-error TS(2741) FIXME: Property 'href' is missing in type '{ title: strin... Remove this comment to see the full error message
         identity={{
           title: "AWS ParallelCluster Manager",
           logo: {src: "/img/pcluster.svg", alt: "AWS ParallelCluster Manager Logo"}}}
@@ -138,6 +139,7 @@ export default function Topbar(props) {
             items: regions(region)
           }]
         ]}
+        // @ts-expect-error TS(2741) FIXME: Property 'overflowMenuTitleText' is missing in typ... Remove this comment to see the full error message
         i18nStrings={{
           searchIconAriaLabel: "Search",
           searchDismissIconAriaLabel: "Close search",

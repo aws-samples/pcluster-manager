@@ -41,10 +41,10 @@ function updateClusterList() {
   const selectedClusterName = getState(['app', 'clusters', 'selected']);
   const oldStatus = getState(['app', 'clusters', 'selectedStatus']);
 
-  ListClusters((clusterList) => {
+  ListClusters((clusterList: any) => {
     if(selectedClusterName)
     {
-      const selectedCluster = findFirst(clusterList, c => c.clusterName === selectedClusterName);
+      const selectedCluster = findFirst(clusterList, (c: any) => c.clusterName === selectedClusterName);
       if(selectedCluster)
       {
         if(oldStatus !== selectedCluster.clusterStatus)
@@ -52,6 +52,7 @@ function updateClusterList() {
 
         if((oldStatus === 'CREATE_IN_PROGRESS' && selectedCluster.clusterStatus === 'CREATE_COMPLETE') ||
           (oldStatus === 'UPDATE_IN_PROGRESS' && selectedCluster.clusterStatus === 'UPDATE_COMPLETE'))
+          // @ts-expect-error TS(2554) FIXME: Expected 2 arguments, but got 1.
           selectCluster(selectedClusterName);
       }
     }
@@ -104,55 +105,41 @@ function ClusterList() {
     }
   );
 
-  return (
-    <Table
-      {...collectionProps}
-      header={
-        <Header
-          variant="h2"
-          description=""
-          counter={ clusters && `(${clusters.length})` }
-          actions={
-            <SpaceBetween direction="horizontal" size="xs">
+  return (<Table {...collectionProps} header={<Header variant="h2" description="" counter={clusters && `(${clusters.length})`} actions={<SpaceBetween direction="horizontal" size="xs">
               {clusters && <Button onClick={configure} variant="primary" iconName={"add-plus"} disabled={!isAdmin()}>Create Cluster</Button>}
             </SpaceBetween>}>
           Clusters
-        </Header>
-      }
-      trackBy="clusterName"
-      columnDefinitions={[
+        </Header>} trackBy="clusterName" columnDefinitions={[
         {
-          id: "name",
-          header: "Name",
-          cell: item => item.clusterName,
-          sortingField: "clusterName"
+            id: "name",
+            header: "Name",
+            cell: item => (item as any).clusterName,
+            sortingField: "clusterName"
         },
         {
-          id: "status",
-          header: "Status",
-          cell: item => <Status status={item.clusterStatus} cluster={item} /> || "-",
-          sortingField: "clusterStatus"
+            id: "status",
+            header: "Status",
+            cell: item => <Status status={(item as any).clusterStatus} cluster={item}/> || "-",
+            sortingField: "clusterStatus"
         },
         {
-          id: "version",
-          header: "Version",
-          cell: item => item.version || "-"
+            id: "version",
+            header: "Version",
+            cell: item => (item as any).version || "-"
         }
-      ]}
-      loading={clusters === null}
-      items={items}
-      selectionType="single"
-      loadingText="Loading clusters..."
-      pagination={<Pagination {...paginationProps} />}
-      filter={
-        <TextFilter
-          {...filterProps}
-          countText={`Results: ${filteredItemsCount}`}
-          filteringAriaLabel="Filter cluster"
-        />
-      }
-      selectedItems={(items || []).filter((c) => c.clusterName === selectedClusterName)}
-      onSelectionChange={({detail}) => {navigate(`/clusters/${detail.selectedItems[0].clusterName}`)}}
+    
+    ]} 
+    loading={clusters === null}
+    items={items}
+    selectionType="single"
+    loadingText="Loading clusters..."
+    pagination={<Pagination {...paginationProps}/>}
+    filter={<TextFilter {...filterProps}
+    countText={`Results: ${filteredItemsCount}`}
+    filteringAriaLabel="Filter cluster"/>}
+    selectedItems={(items || []).filter((c) => (c as any).clusterName === selectedClusterName)}
+    // @ts-expect-error TS(2571) FIXME: Object is of type 'unknown'.
+    onSelectionChange={({ detail }) => { navigate(`/clusters/${detail.selectedItems[0].clusterName}`); }}
     />
   )
 }
@@ -169,6 +156,7 @@ export default function Clusters () {
   }
 
   React.useEffect(() => {
+    // @ts-expect-error TS(2554) FIXME: Expected 1 arguments, but got 0.
     ListClusters();
   }, [])
 
@@ -197,9 +185,11 @@ export default function Clusters () {
             openButtonAriaLabel: "Open panel",
             resizeHandleAriaLabel: "Resize split panel"
           }}
+          // @ts-expect-error TS(2322) FIXME: Type 'Element' is not assignable to type 'string'.
           header={
             <Header
               variant="h2"
+              // @ts-expect-error TS(2322) FIXME: Type '{ className: string; }' is not assignable to... Remove this comment to see the full error message
               actions={cluster && <Actions className="spacer" />}>
               {clusterName ? `Cluster: ${clusterName}` : "No cluster selected" }
             </Header>

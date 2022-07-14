@@ -40,15 +40,16 @@ import {
 const imageBuildPath = ['app', 'customImages', 'imageBuild'];
 
 // selectors
-const selectCustomImagesList = state => state.customImages.list;
+const selectCustomImagesList = (state: any) => state.customImages.list;
 
-function CustomImagesList(props) {
+function CustomImagesList(props: any) {
   const images = useSelector(selectCustomImagesList) || [];
   const open = useState([...imageBuildPath, 'dialog']);
 
   const[ selected, setSelected ] = React.useState([]);
 
-  let select = (image) => {
+  let select = (image: any) => {
+    // @ts-expect-error TS(2322) FIXME: Type 'any' is not assignable to type 'never'.
     setSelected([image]);
     DescribeCustomImage(image.imageId);
     console.log("selecting: ", image.imageId);
@@ -86,57 +87,36 @@ function CustomImagesList(props) {
     }
   );
 
-  return (
-    <Table
-      {...collectionProps}
-      resizableColumns
-      trackBy="imageId"
-      columnDefinitions={[
+  return (<Table {...collectionProps} resizableColumns trackBy="imageId" columnDefinitions={[
         {
-          id: "name",
-          header: "Name",
-          cell: item => item.imageId,
-          sortingField: "imageId"
+            id: "name",
+            header: "Name",
+            cell: item => (item as any).imageId,
+            sortingField: "imageId"
         },
         {
-          id: "ami-id",
-          header: "AMI ID",
-          cell: item => item.ec2AmiInfo ? item.ec2AmiInfo.amiId : "",
+            id: "ami-id",
+            header: "AMI ID",
+            cell: item => (item as any).ec2AmiInfo ? (item as any).ec2AmiInfo.amiId : "",
         },
         {
-          id: "status",
-          header: "Status",
-          cell: item => item.imageBuildStatus || "-",
-          sortingField: "imageBuildStatus"
+            id: "status",
+            header: "Status",
+            cell: item => (item as any).imageBuildStatus || "-",
+            sortingField: "imageBuildStatus"
         },
         {
-          id: "region",
-          header: "Region",
-          cell: item => item.region || "-",
-          sortingField: "region"
+            id: "region",
+            header: "Region",
+            cell: item => (item as any).region || "-",
+            sortingField: "region"
         },
         {
-          id: "version",
-          header: "Version",
-          cell: item => item.version || "-",
+            id: "version",
+            header: "Version",
+            cell: item => (item as any).version || "-",
         }
-      ]}
-      loading={images === null}
-      items={items}
-      selectionType="single"
-      loadingText="Loading Images..."
-      pagination={<Pagination {...paginationProps} />}
-      filter={
-        <TextFilter
-          {...filterProps}
-          countText={`Results: ${filteredItemsCount}`}
-          filteringAriaLabel="Filter image"
-        />
-      }
-      selectedItems={selected}
-      onSelectionChange={(e) => {select(e.detail.selectedItems[0])}}
-    />
-  );
+    ]} loading={images === null} items={items} selectionType="single" loadingText="Loading Images..." pagination={<Pagination {...paginationProps}/>} filter={<TextFilter {...filterProps} countText={`Results: ${filteredItemsCount}`} filteringAriaLabel="Filter image"/>} selectedItems={selected} onSelectionChange={(e) => { select(e.detail.selectedItems[0]); }}/>);
 }
 
 
@@ -152,8 +132,10 @@ function StatusSelect() {
       selectedOption={status}
       onChange={({ detail }) => {
         console.log(detail.selectedOption);
+        // @ts-expect-error TS(2345) FIXME: Argument of type 'OptionDefinition' is not assigna... Remove this comment to see the full error message
         setStatus(detail.selectedOption);
         setState(['app', 'customImages', 'selectedImageStatus'], detail.selectedOption.value);
+        // @ts-expect-error TS(2554) FIXME: Expected 3 arguments, but got 1.
         ListCustomImages(detail.selectedOption.value);
       }}
       options={[
@@ -182,11 +164,13 @@ export default function CustomImages() {
   const refreshImages = () => {
     clearState(['customImages', 'list'])
     clearState(['app', 'customImages', 'selected'])
+    // @ts-expect-error TS(2554) FIXME: Expected 3 arguments, but got 1.
     ListCustomImages(imageStatus || "AVAILABLE");
   }
 
   React.useEffect(() => {
     const imageStatus = getState(['app', 'customImages', 'selectedImageStatus']);
+    // @ts-expect-error TS(2554) FIXME: Expected 3 arguments, but got 1.
     ListCustomImages(imageStatus || "AVAILABLE");
   }, [])
 
@@ -216,6 +200,7 @@ export default function CustomImages() {
             openButtonAriaLabel: "Open panel",
             resizeHandleAriaLabel: "Resize split panel"
           }}
+          // @ts-expect-error TS(2322) FIXME: Type 'Element' is not assignable to type 'string'.
           header={
             <Header
               variant="h2">

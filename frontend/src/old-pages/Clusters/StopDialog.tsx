@@ -21,7 +21,9 @@ import {
 import { UpdateComputeFleet } from '../../model'
 import { setState, useState } from '../../store'
 
-function StopDialog({clusterName}) {
+function StopDialog({
+  clusterName
+}: any) {
   const open = useState(['app', 'clusters', 'clusterStop', 'dialog']);
 
   const cancel = () => {
@@ -43,6 +45,7 @@ function StopDialog({clusterName}) {
         <Box float="right">
           <SpaceBetween direction="horizontal" size="xs">
             <Button onClick={cancel}>Cancel</Button>
+            {/* @ts-expect-error TS(2322) FIXME: Type '{ children: string; onClick: () => void; aut... Remove this comment to see the full error message */}
             <Button onClick={stopCluster} autoFocus>Stop!</Button>
           </SpaceBetween>
         </Box>

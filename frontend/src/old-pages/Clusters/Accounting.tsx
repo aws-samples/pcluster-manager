@@ -49,7 +49,10 @@ import {
 } from "@awsui/components-react";
 
 // Key:Value pair (label / children)
-const ValueWithLabel = ({ label, children }) => (
+const ValueWithLabel = ({
+  label,
+  children
+}: any) => (
   <div>
     <Box margin={{ bottom: 'xxxs' }} color="text-label">
       {label}
@@ -58,7 +61,7 @@ const ValueWithLabel = ({ label, children }) => (
   </div>
 );
 
-function refreshAccounting(args, callback, list) {
+function refreshAccounting(args: any, callback: any, list: any) {
   const startTime = getState(['app', 'clusters', 'accounting', 'startTime']);
   const endTime = getState(['app', 'clusters', 'accounting', 'endTime']);
   const queue = getState(['app', 'clusters', 'accounting', 'queue']);
@@ -95,14 +98,14 @@ function refreshAccounting(args, callback, list) {
     clearState(['clusters', 'index', clusterName, 'accounting', 'jobs'])
 
   setState(['app', 'clusters', 'accounting', 'pending'], true);
-  const defaultCallback = (data) => {
+  const defaultCallback = (data: any) => {
     if(list)
       setState(['clusters', 'index', clusterName, 'accounting'], data);
     else
       callback && callback(data);
     clearState(['app', 'clusters', 'accounting', 'pending']);
   }
-  const failCallback = (data) => {
+  const failCallback = (data: any) => {
     console.log("fail: ", data);
     clearState(['app', 'clusters', 'accounting', 'pending']);
   }
@@ -115,9 +118,9 @@ function refreshAccounting(args, callback, list) {
   }
 }
 
-function Status(props) {
+function Status(props: any) {
   const theme = useTheme();
-  const aligned = (icon, text, color) => <div style={{
+  const aligned = (icon: any, text: any, color: any) => <div style={{
     color: color || 'black',
     display: 'flex',
     alignItems: 'center',
@@ -132,6 +135,7 @@ function Status(props) {
       "COMPLETED": aligned(<CheckCircleOutlineIcon />, props.status, theme.palette.success.main),
       "SUCCESS": aligned(<CheckCircleOutlineIcon />, props.status, theme.palette.success.main),
     "RUNNING": aligned(<CheckCircleOutlineIcon />, props.status, theme.palette.success.main),};
+  // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   return props.status in statusMap ? statusMap[props.status] : <span>{props.status}</span>;
 }
 
@@ -142,16 +146,17 @@ function JobStateSelect() {
   const jobStatePath = ['app', 'clusters', 'accounting', 'jobState'];
   const jobState = useState(jobStatePath);
 
-  let itemToOption = (item) => {
+  let itemToOption = (item: any) => {
     if(!item)
       return;
     return {label: <div style={{minWidth: "200px"}}>{item}</div>,
       value: item}
   }
 
-  return (<>
+  return <>
     <Select
-      selectedOption={itemToOption(findFirst(jobStates, x => {return x === jobState}) || ["[ANY]"])}
+      // @ts-expect-error TS(2322) FIXME: Type '{ label: Element; value: any; } | undefined'... Remove this comment to see the full error message
+      selectedOption={itemToOption(findFirst(jobStates, (x: any) => {return x === jobState}) || ["[ANY]"])}
       onChange={({detail}) => {
         if(detail.selectedOption.value === "[ANY]")
           clearState(jobStatePath)
@@ -159,9 +164,10 @@ function JobStateSelect() {
           setState(jobStatePath, detail.selectedOption.value);
         refreshAccounting({}, null, true);
       }}
+      // @ts-expect-error TS(2322) FIXME: Type '({ label: Element; value: any; } | undefined... Remove this comment to see the full error message
       options={['[ANY]', ...jobStates].map(itemToOption)}
       selectedAriaLabel="Selected"/>
-  </>);
+  </>;
 }
 
 function QueueSelect() {
@@ -172,9 +178,9 @@ function QueueSelect() {
   const queuePath = ['app', 'clusters', 'accounting', 'queue'];
   const queue = useState(queuePath)
 
-  let queuesOptions = [["[ANY]", "[ANY]"], ...queues.map((q) => [q.Name, q.Name])]
+  let queuesOptions = [["[ANY]", "[ANY]"], ...queues.map((q: any) => [q.Name, q.Name])]
 
-  let itemToOption = (item) => {
+  let itemToOption = (item: any) => {
     if(!item)
       return;
     const [value, title] = item;
@@ -182,9 +188,10 @@ function QueueSelect() {
       value: value}
   }
 
-  return (<>
+  return <>
     <Select
-      selectedOption={itemToOption(findFirst(queuesOptions, x => {return x[0] === queue}) || ["[ANY]", "[ANY]"])}
+      // @ts-expect-error TS(2322) FIXME: Type '{ label: Element; value: any; } | undefined'... Remove this comment to see the full error message
+      selectedOption={itemToOption(findFirst(queuesOptions, (x: any) => {return x[0] === queue}) || ["[ANY]", "[ANY]"])}
       onChange={({detail}) => {
         if(detail.selectedOption.value === "[ANY]")
           clearState(queuePath)
@@ -192,26 +199,37 @@ function QueueSelect() {
           setState(queuePath, detail.selectedOption.value);
         refreshAccounting({}, null, true);
       }}
+      // @ts-expect-error TS(2322) FIXME: Type '({ label: Element; value: any; } | undefined... Remove this comment to see the full error message
       options={queuesOptions.map(itemToOption)}
       selectedAriaLabel="Selected"/>
-  </>);
+  </>;
 }
 
-function JobStep({step}) {
+function JobStep({
+  step
+}: any) {
   const reqs = getIn(step, ['tres', 'requested', 'max']) || []
-  return <span style={{paddingLeft: "10px"}}>
-    {reqs.filter((req) => req.type !== 'energy').map((req) => <span style={{paddingRight: "10px"}}>{req.type}: {req.count} </span> )}
-  </span>
+  return (
+    <span style={{paddingLeft: "10px"}}>
+      {reqs.filter((req: any) => req.type !== 'energy').map((req: any) => <span style={{paddingRight: "10px"}}>{req.type}: {req.count} </span> )}
+    </span>
+  );
 }
 
-function JobSteps({job}) {
+function JobSteps({
+  job
+}: any) {
   const steps = job.steps || [];
-  return <div>
-    {steps.map((step, i) => <div style={{paddingLeft: "10px"}}>{i}: <JobStep step={step} /></div>) }
-  </div>
+  return (
+    <div>
+      {steps.map((step: any, i: any) => <div style={{paddingLeft: "10px"}}>{i}: <JobStep step={step} /></div>) }
+    </div>
+  );
 }
 
-function CostEstimate({job}) {
+function CostEstimate({
+  job
+}: any) {
   return <>
     <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
       <span>$ {(getIn(job, ['price_estimate']) * getIn(job, ['allocation_nodes']) * (getIn(job, ['time', 'elapsed']) / 3600.0)).toFixed(5)}</span>
@@ -222,7 +240,9 @@ function CostEstimate({job}) {
   </>
 }
 
-function JobProperties({job}) {
+function JobProperties({
+  job
+}: any) {
   console.log(job);
   return <Container>
     <SpaceBetween direction="vertical" size="l">
@@ -272,6 +292,7 @@ function JobModal() {
       footer={
         <Box float="right">
           <SpaceBetween direction="horizontal" size="xs">
+            {/* @ts-expect-error TS(2322) FIXME: Type '{ children: string; onClick: () => void; aut... Remove this comment to see the full error message */}
             <Button onClick={close} autoFocus>Close</Button>
           </SpaceBetween>
         </Box>
@@ -300,7 +321,7 @@ export default function ClusterAccounting() {
     refreshAccounting({}, null, true);
   }, [])
 
-  const setDateRange = (val) => {
+  const setDateRange = (val: any) => {
     if(!val)
     {
       clearState(['app', 'clusters', 'accounting', 'startTime']);
@@ -354,11 +375,11 @@ export default function ClusterAccounting() {
     }
   );
 
-  const selectJob = (job_id) => {
+  const selectJob = (job_id: any) => {
     setState(['clusters', 'index', clusterName, 'accounting', 'dialog'], true);
     clearState(['clusters', 'index', clusterName, 'accounting', 'selectedJob']);
     clearState(['clusters', 'index', clusterName, 'accounting', 'job', job_id]);
-    refreshAccounting({jobs: job_id}, (ret) => {
+    refreshAccounting({jobs: job_id}, (ret: any) => {
       setState(['clusters', 'index', clusterName, 'accounting', 'selectedJob'], job_id);
       setState(['clusters', 'index', clusterName, 'accounting', 'job', job_id], ret.jobs[0]);
     }, false)
@@ -369,73 +390,62 @@ export default function ClusterAccounting() {
   return <>
     <JobModal />
     <SpaceBetween direction="vertical" size="s">
-      <Container
-        header={<Header variant="h2"
-          actions={<Button loading={pending} onClick={() => refreshAccounting({}, null, true)}>Refresh</Button>}>Filters</Header>}>
+      <Container header={<Header variant="h2" actions={<Button loading={pending} onClick={() => refreshAccounting({}, null, true)}>Refresh</Button>}>Filters</Header>}>
       <SpaceBetween direction="horizontal" size="s">
         <FormField label="Time range filter">
           <div onKeyPress={e => e.key === 'Enter' && refreshAccounting({}, null, true)}>
-            <DateRangePicker
-              onChange={({ detail }) => {setDateRange(detail.value); setDateValue(detail.value);}}
-              value={dateValue}
-              relativeOptions={[
-                {
-                  key: "previous-5-minutes",
-                    amount: 5,
-                    unit: "minute",
-                    type: "relative"
-                },
-                {
-                  key: "previous-30-minutes",
-                  amount: 30,
-                  unit: "minute",
-                  type: "relative"
-                },
-                {
-                  key: "previous-1-hour",
-                  amount: 1,
-                  unit: "hour",
-                  type: "relative"
-                },
-                {
-                  key: "previous-6-hours",
-                  amount: 6,
-                  unit: "hour",
-                  type: "relative"
-                }
-              ]}
-              i18nStrings={{
-                todayAriaLabel: "Today",
-                nextMonthAriaLabel: "Next month",
-                previousMonthAriaLabel: "Previous month",
-                customRelativeRangeDurationLabel: "Duration",
-                customRelativeRangeDurationPlaceholder:
-                "Enter duration",
-                customRelativeRangeOptionLabel: "Custom range",
-                customRelativeRangeOptionDescription:
-                "Set a custom range in the past",
-                customRelativeRangeUnitLabel: "Unit of time",
-                formatRelativeRange: e => {
-                  const t =
-                    1 === e.amount ? e.unit : `${e.unit}s`;
-                  return `Last ${e.amount} ${t}`;
-                },
-                formatUnit: (e, t) => (1 === t ? e : `${e}s`),
-                dateTimeConstraintText:
-                "Range must be between 6 - 30 days. Use 24 hour format.",
-                relativeModeTitle: "Relative range",
-                absoluteModeTitle: "Absolute range",
-                relativeRangeSelectionHeading: "Choose a range",
-                startDateLabel: "Start date",
-                endDateLabel: "End date",
-                startTimeLabel: "Start time",
-                endTimeLabel: "End time",
-                clearButtonLabel: "Clear",
-                cancelButtonLabel: "Cancel",
-                applyButtonLabel: "Apply"
-              }}
-              placeholder="Filter by a date and time range"
-            />
+            {/* @ts-expect-error TS(2345) FIXME: Argument of type 'Value | null' is not assignable ... Remove this comment to see the full error message */}
+            <DateRangePicker onChange={({ detail }) => { setDateRange(detail.value); setDateValue(detail.value); }} value={dateValue} relativeOptions={[
+        {
+            key: "previous-5-minutes",
+            amount: 5,
+            unit: "minute",
+            type: "relative"
+        },
+        {
+            key: "previous-30-minutes",
+            amount: 30,
+            unit: "minute",
+            type: "relative"
+        },
+        {
+            key: "previous-1-hour",
+            amount: 1,
+            unit: "hour",
+            type: "relative"
+        },
+        {
+            key: "previous-6-hours",
+            amount: 6,
+            unit: "hour",
+            type: "relative"
+        }
+    ]} i18nStrings={{
+        todayAriaLabel: "Today",
+        nextMonthAriaLabel: "Next month",
+        previousMonthAriaLabel: "Previous month",
+        customRelativeRangeDurationLabel: "Duration",
+        customRelativeRangeDurationPlaceholder: "Enter duration",
+        customRelativeRangeOptionLabel: "Custom range",
+        customRelativeRangeOptionDescription: "Set a custom range in the past",
+        customRelativeRangeUnitLabel: "Unit of time",
+        formatRelativeRange: e => {
+            const t = 1 === e.amount ? e.unit : `${e.unit}s`;
+            return `Last ${e.amount} ${t}`;
+        },
+        formatUnit: (e, t) => (1 === t ? e : `${e}s`),
+        dateTimeConstraintText: "Range must be between 6 - 30 days. Use 24 hour format.",
+        relativeModeTitle: "Relative range",
+        absoluteModeTitle: "Absolute range",
+        relativeRangeSelectionHeading: "Choose a range",
+        startDateLabel: "Start date",
+        endDateLabel: "End date",
+        startTimeLabel: "Start time",
+        endTimeLabel: "End time",
+        clearButtonLabel: "Clear",
+        cancelButtonLabel: "Cancel",
+        applyButtonLabel: "Apply"
+    }} placeholder="Filter by a date and time range"/>
           </div>
         </FormField>
         <FormField label="Queue">
@@ -446,81 +456,57 @@ export default function ClusterAccounting() {
         </FormField>
         <FormField label="User">
           <div onKeyPress={e => e.key === 'Enter' && refreshAccounting({}, null, true)}>
-          <Input
-            value={user}
-            placeholder="ec2-user"
-            onChange={(({detail}) => {setState(['app', 'clusters', 'accounting', 'user'], detail.value)})} />
+          <Input value={user} placeholder="ec2-user" onChange={(({ detail }) => { setState(['app', 'clusters', 'accounting', 'user'], detail.value); })}/>
           </div>
         </FormField>
         <FormField label="Nodes">
           <div onKeyPress={e => e.key === 'Enter' && refreshAccounting({}, null, true)}>
-          <Input
-            value={nodes}
-            placeholder="queue0-c5n-large-1"
-            onChange={(({detail}) => {setState(['app', 'clusters', 'accounting', 'nodes'], detail.value)})} />
+          <Input value={nodes} placeholder="queue0-c5n-large-1" onChange={(({ detail }) => { setState(['app', 'clusters', 'accounting', 'nodes'], detail.value); })}/>
           </div>
         </FormField>
         <FormField label="Job Name">
           <div onKeyPress={e => e.key === 'Enter' && refreshAccounting({}, null, true)}>
-          <Input
-            value={jobName}
-            placeholder="job0"
-            onChange={(({detail}) => {setState(['app', 'clusters', 'accounting', 'jobName'], detail.value)})} />
+          <Input value={jobName} placeholder="job0" onChange={(({ detail }) => { setState(['app', 'clusters', 'accounting', 'jobName'], detail.value); })}/>
           </div>
         </FormField>
       </SpaceBetween>
       </Container>
 
-      {jobs ? <SpaceBetween direction="vertical" size="s" >
-        <Table
-          {...collectionProps}
-          trackBy={i => `${i.job_id}-${i.name}`}
-          columnDefinitions={[
+      {jobs ? <SpaceBetween direction="vertical" size="s">
+        <Table {...collectionProps} trackBy={i => `${(i as any).job_id}-${(i as any).name}`} columnDefinitions={[
             {
-              id: "id",
+                id: "id",
                 header: "ID",
-                cell: item => <Link onFollow={() => selectJob(item.job_id)}>{item.job_id}</Link>,
+                cell: item => <Link onFollow={() => selectJob((item as any).job_id)}>{(item as any).job_id}</Link>,
                 sortingField: "job_id"
             },
             {
-              id: "name",
-              header: "name",
-              cell: item => item.name,
-              sortingField: "name"
+                id: "name",
+                header: "name",
+                cell: item => (item as any).name,
+                sortingField: "name"
             },
             {
-              id: "queue",
-              header: "queue",
-              cell: item => item.partition,
-              sortingField: "partition"
+                id: "queue",
+                header: "queue",
+                cell: item => (item as any).partition,
+                sortingField: "partition"
             },
             {
-              id: "user",
-              header: "user",
-              cell: item => item.user,
-              sortingField: "user"
+                id: "user",
+                header: "user",
+                cell: item => (item as any).user,
+                sortingField: "user"
             },
             {
-              id: "state",
-              header: "state",
-              cell: item => <Status status={getIn(item, ['state','current'])} />,
-              sortingField: "job_state"
+                id: "state",
+                header: "state",
+                cell: item => <Status status={getIn(item, ['state', 'current'])}/>,
+                sortingField: "job_state"
             }
-          ]}
-          items={items}
-          loadingText="Loading jobs..."
-          pagination={<Pagination {...paginationProps} />}
-          filter={
-            <TextFilter
-              {...filterProps}
-              countText={`Results: ${filteredItemsCount}`}
-              filteringAriaLabel="Filter jobs"
-            />
-          }
-        />
+        ]} items={items} loadingText="Loading jobs..." pagination={<Pagination {...paginationProps}/>} filter={<TextFilter {...filterProps} countText={`Results: ${filteredItemsCount}`} filteringAriaLabel="Filter jobs"/>}/>
       </SpaceBetween>
-      : <div style={{textAlign: "center", paddingTop: "40px"}}><Loading /></div>
-      }
+        : <div style={{ textAlign: "center", paddingTop: "40px" }}><Loading /></div>}
     </SpaceBetween>
   </>;
 }

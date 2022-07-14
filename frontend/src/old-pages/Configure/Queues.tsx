@@ -40,15 +40,17 @@ const queuesErrorsPath = ['app', 'wizard', 'errors', 'queues'];
 const defaultInstanceType = 'c5n.large'
 
 // Helper Functions
+// @ts-expect-error TS(7031) FIXME: Binding element 'value' implicitly has an 'any' ty... Remove this comment to see the full error message
 function itemToIconOption([value, label, icon]){
   return {value: value, label: label, ...(icon ? {iconUrl: icon} : {})}
 }
 
+// @ts-expect-error TS(7031) FIXME: Binding element 'value' implicitly has an 'any' ty... Remove this comment to see the full error message
 function itemToDisplayIconOption([value, label, icon]){
   return {value: value, label: (icon ? <LabeledIcon label={label} icon={icon} /> : label)}
 }
 
-function queueValidate(queueIndex) {
+function queueValidate(queueIndex: any) {
   let valid = true;
   const queueSubnet = getState([...queuesPath, queueIndex, 'Networking', 'SubnetIds', 0]);
   const computeResources = getState([...queuesPath, queueIndex, 'ComputeResources'])
@@ -140,13 +142,18 @@ function queuesValidate() {
   for(let i = 0; i < queues.length; i++)
   {
     let queueValid = queueValidate(i);
+    // @ts-expect-error TS(2447) FIXME: The '&=' operator is not allowed for boolean types... Remove this comment to see the full error message
     valid &= queueValid;
   }
 
   return valid;
 }
 
-function ComputeResource({index, queueIndex, computeResource}) {
+function ComputeResource({
+  index,
+  queueIndex,
+  computeResource
+}: any) {
   const parentPath = [...queuesPath, queueIndex];
   const queue = useState(parentPath);
   const computeResources = useState([...parentPath, 'ComputeResources']);
@@ -183,7 +190,7 @@ function ComputeResource({index, queueIndex, computeResource}) {
     setState([...parentPath, 'ComputeResources'], [...computeResources.slice(0, index), ...computeResources.slice(index + 1)]);
   }
 
-  const setMinCount = (staticCount) => {
+  const setMinCount = (staticCount: any) => {
     const dynamicCount = maxCount - minCount;
     if(staticCount > 0)
       setState([...path, 'MinCount'], (!isNaN(staticCount) ? staticCount : 0));
@@ -192,19 +199,19 @@ function ComputeResource({index, queueIndex, computeResource}) {
     setState([...path, 'MaxCount'], (!isNaN(staticCount) ? staticCount : 0) + (!isNaN(dynamicCount) ? dynamicCount : 0));
   }
 
-  const setMaxCount = (dynamicCount) => {
+  const setMaxCount = (dynamicCount: any) => {
     const staticCount = minCount;
     setState([...path, 'MaxCount'], (!isNaN(staticCount) ? staticCount : 0) + (!isNaN(dynamicCount) ? dynamicCount : 0));
   }
 
-  const setDisableHT = (disable) => {
+  const setDisableHT = (disable: any) => {
     if(disable)
       setState(disableHTPath, disable);
     else
       clearState(disableHTPath);
   }
 
-  const setEnableEFA = (enable) => {
+  const setEnableEFA = (enable: any) => {
     if(enable) {
       setState(enableEFAPath, enable);
       setState(enablePlacementGroupPath, enable);
@@ -214,14 +221,14 @@ function ComputeResource({index, queueIndex, computeResource}) {
     }
   }
 
-  const setEnableGPUDirect = (enable) => {
+  const setEnableGPUDirect = (enable: any) => {
     if(enable)
       setState(enableGPUDirectPath, enable);
     else
       clearState(enableGPUDirectPath);
   }
 
-  const setInstanceType = (instanceType) => {
+  const setInstanceType = (instanceType: any) => {
     // setting the instance type on the queue happens in the component
     // this updates the name which is derived from the instance type
     setState([...path, 'Name'], `${queue.Name}-${instanceType.replace(".", "")}`);
@@ -252,6 +259,7 @@ function ComputeResource({index, queueIndex, computeResource}) {
             </FormField>
             <FormField label="Dynamic Nodes">
               <Input
+                // @ts-expect-error TS(2322) FIXME: Type 'number' is not assignable to type 'string'.
                 value={Math.max((computeResource.MaxCount || 0) - (computeResource.MinCount || 0), 0)}
                 type="number"
                 onChange={({detail}) => setMaxCount(parseInt(detail.value))} />
@@ -262,6 +270,7 @@ function ComputeResource({index, queueIndex, computeResource}) {
           </FormField>
         </ColumnLayout>
         <div style={{display: "flex", flexDirection: "row", gap: "20px"}}>
+          {/* @ts-expect-error TS(2345) FIXME: Argument of type 'any' is not assignable to parame... Remove this comment to see the full error message */}
           <Toggle disabled={tInstances.has(instanceType) || gravitonInstances.has(instanceType)} checked={disableHT} onChange={(event) => {setDisableHT(!disableHT)}}>Disable Hyperthreading</Toggle>
           <Toggle disabled={!efaInstances.has(instanceType)} checked={enableEFA} onChange={(event) => {setEnableEFA(!enableEFA)}}>Enable EFA</Toggle>
           <div style={{display: "flex", flexDirection: "row", alignItems: "center"}}>
@@ -276,15 +285,20 @@ function ComputeResource({index, queueIndex, computeResource}) {
   )
 }
 
-function ComputeResources({queue, index}) {
+function ComputeResources({
+  queue,
+  index
+}: any) {
   return (
     <Container>
-      {queue.ComputeResources.map((computeResource, i) => <ComputeResource queue={queue} computeResource={computeResource} index={i} queueIndex={index} key={i}  />)}
+      {queue.ComputeResources.map((computeResource: any, i: any) => <ComputeResource queue={queue} computeResource={computeResource} index={i} queueIndex={index} key={i}  />)}
     </Container>
   );
 }
 
-function Queue({index}) {
+function Queue({
+  index
+}: any) {
   const queues = useState(queuesPath);
   const [ editingName, setEditingName ] = React.useState(false);
   const queue = useState([...queuesPath, index]);
@@ -317,11 +331,11 @@ function Queue({index}) {
       }]});
   }
 
-  const setEnablePG = (enable) => {
+  const setEnablePG = (enable: any) => {
     setState(enablePlacementGroupPath, enable);
   }
 
-  const renameQueue = (newName) => {
+  const renameQueue = (newName: any) => {
     const computeResources = getState([...queuesPath, index, 'ComputeResources']);
     for(let i = 0; i < computeResources.length; i++)
     {
@@ -336,11 +350,13 @@ function Queue({index}) {
     <div className="queue">
       <div className="queue-properties">
         <Box margin={{bottom: "xs"}} >
+          {/* @ts-expect-error TS(2322) FIXME: Type '"h4"' is not assignable to type 'Variant | u... Remove this comment to see the full error message */}
           <Header variant="h4"
             actions={<SpaceBetween direction="horizontal" size="xs">
               <Button disabled={queue.ComputeResources.length >= 3} onClick={addComputeResource}>Add Resource</Button>
               {index > 0 && <Button onClick={remove}>Remove Queue</Button>}
             </SpaceBetween>}>
+            {/* @ts-expect-error TS(2322) FIXME: Type '{ children: Element; direction: "horizontal"... Remove this comment to see the full error message */}
             <SpaceBetween direction="horizontal" size="xs" style={{alignItems: "center"}}>
               { editingName ?
                 <Input
@@ -354,12 +370,13 @@ function Queue({index}) {
         </Box>
         <ColumnLayout columns={2}>
           <FormField label="Subnet ID" errorText={subnetError}>
-            <SubnetSelect value={subnetValue} onChange={(subnetId) => {setState(subnetPath, [subnetId]); queueValidate(index)}}/>
+            <SubnetSelect value={subnetValue} onChange={(subnetId: any) => {setState(subnetPath, [subnetId]); queueValidate(index)}}/>
           </FormField>
           <FormField label="Purchase Type">
             <Select
-              selectedOption={itemToDisplayIconOption(findFirst(capacityTypes, x => x[0] === capacityType))}
+              selectedOption={itemToDisplayIconOption(findFirst(capacityTypes, (x: any) => x[0] === capacityType))}
               onChange={({detail}) => {setState(capacityTypePath, detail.selectedOption.value)}}
+              // @ts-expect-error TS(2345) FIXME: Argument of type '([value, label, icon]: [any, any... Remove this comment to see the full error message
               options={capacityTypes.map(itemToIconOption)} />
           </FormField>
           <Toggle checked={enablePlacementGroup} onChange={(event) => {setEnablePG(!enablePlacementGroup)}}>Enable Placement Group</Toggle>
@@ -385,13 +402,13 @@ function Queue({index}) {
   );
 }
 
-function QueuesView(props) {
+function QueuesView(props: any) {
   const queues = useState(queuesPath) || [];
   return (
     <SpaceBetween direction="vertical" size="l">
-      {queues.map((queue, i) => <Queue queue={queue} index={i} key={i} />)}
+      {queues.map((queue: any, i: any) => <Queue queue={queue} index={i} key={i} />)}
     </SpaceBetween>
-  )
+  );
 }
 
 function Queues() {

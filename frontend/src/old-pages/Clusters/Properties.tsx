@@ -34,7 +34,10 @@ import Status from '../../components/Status'
 import HelpTooltip from '../../components/HelpTooltip'
 
 // Key:Value pair (label / children)
-const ValueWithLabel = ({ label, children }) => (
+const ValueWithLabel = ({
+  label,
+  children
+}: any) => (
   <div>
     <Box margin={{ bottom: 'xxxs' }} color="text-label">
       {label}
@@ -52,7 +55,7 @@ export default function ClusterProperties () {
   const defaultRegion = useState(['aws', 'region']);
   const region = useState(['app', 'selectedRegion']) || defaultRegion;
 
-  function isSsmPolicy(p) {
+  function isSsmPolicy(p: any) {
     return p.hasOwnProperty('Policy') && p.Policy === ssmPolicy(region);
   }
   const iamPolicies = useState([...clusterPath, 'config', 'HeadNode', 'Iam', 'AdditionalIamPolicies']);
@@ -61,6 +64,7 @@ export default function ClusterProperties () {
   React.useEffect(() => {
     const tick = () => {
       const clusterName = getState(['app', "clusters", "selected"]);
+      // @ts-expect-error TS(2554) FIXME: Expected 2 arguments, but got 1.
       clusterName && DescribeCluster(clusterName);
     }
     const timerId = setInterval(tick, 5000);

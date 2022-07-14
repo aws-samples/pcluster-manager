@@ -38,7 +38,7 @@ function multiUserValidate() {
   let valid = true
   let dsPath = ['app', 'wizard', 'config', 'DirectoryService'];
 
-  const checkRequired = (key) => {
+  const checkRequired = (key: any) => {
     const value = getState([...dsPath, key]);
     if(!value || value === '')
     {
@@ -58,7 +58,13 @@ function multiUserValidate() {
   return valid;
 }
 
-function HelpTextInput({name, configKey, description, help, placeholder})
+function HelpTextInput({
+  name,
+  configKey,
+  description,
+  help,
+  placeholder
+}: any)
 {
   //let editing = useState(['app', 'wizard', 'editing']);
   let dsPath = ['app', 'wizard', 'config', 'DirectoryService'];
@@ -81,7 +87,14 @@ function HelpTextInput({name, configKey, description, help, placeholder})
   </FormField>
 }
 
-function HelpToggle({name, configKey, description, help, placeholder, defaultValue})
+function HelpToggle({
+  name,
+  configKey,
+  description,
+  help,
+  placeholder,
+  defaultValue
+}: any)
 {
   //let editing = useState(['app', 'wizard', 'editing']);
   let dsPath = ['app', 'wizard', 'config', 'DirectoryService'];
@@ -121,7 +134,7 @@ function AdditionalSssdOptions() {
     }
   }
 
-  const removeConfig = (key) => {
+  const removeConfig = (key: any) => {
     let config = {...additionalSssdConfigs};
     delete config[key];
     if(Object.keys(config).length === 0)

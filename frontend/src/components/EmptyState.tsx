@@ -12,7 +12,11 @@
 // UI Elements
 import { Box } from "@awsui/components-react";
 
-export default function EmptyState({ title, subtitle, action }) {
+export default function EmptyState({
+  title,
+  subtitle,
+  action
+}: any) {
   return (
     <Box textAlign="center" color="inherit">
       <Box variant="strong" textAlign="center" color="inherit">

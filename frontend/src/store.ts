@@ -15,18 +15,18 @@ import { getIn, swapIn } from './util'
 import { USER_ROLES_CLAIM } from './auth/constants'
 
 // These are identity reducers that allow the names to be at the top level for combining
-function clusters(state = {}, action){ return state }
-function customImages(state = {}, action){ return state }
-function officialImages(state = {}, action){ return state }
-function users(state = {}, action){ return state }
-function wizard(state = {}, action){ return state }
-function app(state = {}, action){ return state }
-function aws(state = {}, action){ return state }
-function identity(state = {}, action){ return state }
+function clusters(state = {}, action: any){ return state }
+function customImages(state = {}, action: any){ return state }
+function officialImages(state = {}, action: any){ return state }
+function users(state = {}, action: any){ return state }
+function wizard(state = {}, action: any){ return state }
+function app(state = {}, action: any){ return state }
+function aws(state = {}, action: any){ return state }
+function identity(state = {}, action: any){ return state }
 
 const appReducer = combineReducers({ clusters, customImages, notifications, officialImages, wizard, app, users, identity, aws });
 
-function recurseAction(state, action) {
+function recurseAction(state: any, action: any) {
   const {path} = action.payload
   const subState = state && path[0] in state ? state[path[0]] : {};
   const nested = rootReducer(subState, {type: action.type, payload: {...action.payload, path: path.slice(1)}})
@@ -34,7 +34,8 @@ function recurseAction(state, action) {
   return ret
 }
 
-function clone(thing, opts) {
+// @ts-expect-error TS(7023) FIXME: 'clone' implicitly has return type 'any' because i... Remove this comment to see the full error message
+function clone(thing: any, opts: any) {
     var newObject = {};
     if (thing instanceof Array) {
         return thing.map(function (i) { return clone(i, opts); });
@@ -45,6 +46,7 @@ function clone(thing, opts) {
     } else if (thing instanceof RegExp) {
         return new RegExp(thing);
     } else if (thing instanceof Object) {
+        // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
         Object.keys(thing).forEach(function (key) { newObject[key] = clone(thing[key], opts); });
         return newObject;
     } else if ([ undefined, null ].indexOf(thing) > -1) {
@@ -57,7 +59,7 @@ function clone(thing, opts) {
     }
 }
 
-function rootReducer(state, action) {
+function rootReducer(state: any, action: any) {
   switch(action.type) {
     case 'state/clearAll':
       // Keep the selected region, everything else will be retrieved again
@@ -93,6 +95,7 @@ function rootReducer(state, action) {
       if(path.length > 1)
         return recurseAction(state, action);
 
+      // @ts-expect-error TS(2554) FIXME: Expected 2 arguments, but got 1.
       const existing = path[0] in state ? clone(state[path[0]]) : null;
       return swapIn(state, path[0], update(existing));
     }
@@ -103,15 +106,15 @@ function rootReducer(state, action) {
 
 const store = createStore(rootReducer);
 
-function setState(path, value) {
+function setState(path: any, value: any) {
   store.dispatch({type: 'state/store', payload: {path: path, value: value}});
 }
 
-function updateState(path, update) {
+function updateState(path: any, update: any) {
   store.dispatch({type: 'state/update', payload: {path: path, update: update}});
 }
 
-function clearState(path) {
+function clearState(path: any) {
   store.dispatch({type: 'state/clear', payload: {path: path}});
 }
 
@@ -119,7 +122,7 @@ function clearAllState() {
   store.dispatch({type: 'state/clearAll', payload: null})
 }
 
-function clearEmptyNest(path, depth){
+function clearEmptyNest(path: any, depth: any){
   if(depth === 0)
     return;
 
@@ -131,7 +134,8 @@ function clearEmptyNest(path, depth){
   }
 }
 
-function getState(state, path) {
+// @ts-expect-error TS(7023) FIXME: 'getState' implicitly has return type 'any' becaus... Remove this comment to see the full error message
+function getState(state: any, path?:string) {
   // Don't pass the state in if running outside of a component and we can pull
   // directly from the store
   if(path === undefined)
@@ -139,7 +143,7 @@ function getState(state, path) {
   return getIn(state, path);
 }
 
-function useState(path) {
+function useState(path: any) {
   return useSelector((s) => getState(s, path))
 }
 
@@ -158,12 +162,12 @@ function isGuest() {
   return identity && (!isAdmin() && !isUser());
 }
 
-function ssmPolicy(region) {
+function ssmPolicy(region: any) {
   const partition = (region && region.startsWith('us-gov')) ? 'aws-us-gov' : 'aws';
   return `arn:${partition}:iam::aws:policy/AmazonSSMManagedInstanceCore`;
 }
 
-function consoleDomain(region) {
+function consoleDomain(region: any) {
   return (region && region.startsWith('us-gov')) ? 'https://console.amazonaws-us-gov.com' : `https://${region}.console.aws.amazon.com`
 }
 

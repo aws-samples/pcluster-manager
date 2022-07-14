@@ -35,7 +35,10 @@ import Loading from '../../components/Loading'
 import EmptyState from '../../components/EmptyState';
 
 
-function EventStatus({logicalId, status}) {
+function EventStatus({
+  logicalId,
+  status
+}: any) {
   const statusIndicatorMap = {'DELETE_FAILED': 'error',
     'UPDATE_FAILED': 'error',
     'ROLLBACK_FAILED': 'error',
@@ -56,8 +59,8 @@ function EventStatus({logicalId, status}) {
 
   const events = useState(['clusters', 'index', clusterName, 'stackevents', 'events']);
 
-  let getHeadNode = (events) => {
-    let event = findFirst(events, e => e.logicalResourceId === 'HeadNode');
+  let getHeadNode = (events: any) => {
+    let event = findFirst(events, (e: any) => e.logicalResourceId === 'HeadNode');
     if(event)
       return {instanceId: event.physicalResourceId};
   }
@@ -67,7 +70,9 @@ function EventStatus({logicalId, status}) {
     headNode = getHeadNode(events);
   }
 
+  // @ts-expect-error TS(2820) FIXME: Type '"horizotnal"' is not assignable to type 'Dir... Remove this comment to see the full error message
   return <SpaceBetween direction='horizotnal' size='s'>
+    {/* @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message */}
     <StatusIndicator type={status in statusIndicatorMap ? statusIndicatorMap[status] : 'info'}>{status}</StatusIndicator>
     {headNode && logicalId.startsWith('HeadNodeWaitCondition') && status === 'CREATE_FAILED' && <div>
       &nbsp; Logs: <Link to={`/clusters/${clusterName}/logs?instance=${headNode.instanceId}&filename=cfn-init&filter=ERROR`}>cfn-init</Link>
@@ -96,15 +101,18 @@ export default function ClusterStackEvents() {
     const cluster = getState(clusterPath);
     const headNode = getState([...clusterPath, 'headNode']);
     GetClusterStackEvents(clusterName);
+    // @ts-expect-error TS(2554) FIXME: Expected 2 arguments, but got 1.
     DescribeCluster(clusterName);
 
     let timerId = (setInterval(() => {
       if(cluster.clusterStatus !== 'CREATE_IN_PROGRESS')
       {
         clearInterval(timerId);
+        // @ts-expect-error TS(2322) FIXME: Type 'null' is not assignable to type 'Timer'.
         timerId = null;
       } else {
         if(!headNode)
+          // @ts-expect-error TS(2554) FIXME: Expected 2 arguments, but got 1.
           DescribeCluster(clusterName);
         GetClusterStackEvents(clusterName);
       }
@@ -148,91 +156,59 @@ export default function ClusterStackEvents() {
   }, [searchParams]);
 
   return events ?
-      <Table
-        {...collectionProps}
-        header={<Header
-          variant='h2'
-          counter={ filteredItemsCount && `(${filteredItemsCount})` }
-          actions={<SpaceBetween direction='horizontal' size='s'>
-            <Button onClick={refreshStackEvents} iconName="refresh" />
+    // @ts-expect-error TS(2322) FIXME: Type 'string | 0 | undefined' is not assignable to... Remove this comment to see the full error message
+    <Table {...collectionProps} header={<Header variant='h2' counter={filteredItemsCount && `(${filteredItemsCount})`} actions={<SpaceBetween direction='horizontal' size='s'>
+            <Button onClick={refreshStackEvents} iconName="refresh"/>
             <Button iconName='external' href={cfnHref}>View in CloudFormation</Button>
           </SpaceBetween>}>
-          Events</Header>}
-        resizableColumns
-        wrapLines
-        visibleColumns={columns}
-        variant='container'
-        columnDefinitions={[
-          {
-            id: 'timestamp',
-              header: 'Timestamp',
-              cell: item => <DateView date={item.timestamp} />,
-              sortingField: 'timestamp'
-          },
-          {
-            id: 'logicalId',
-            header: 'Logical ID',
-            cell: item => item.logicalResourceId,
-          },
-          {
-            id: 'status',
-            header: 'Status',
-            cell: item => <EventStatus logicalId={item.logicalResourceId} status={item.resourceStatus} />,
-          },
-          {
-            id: 'statusReason',
-            header: 'Status reason',
-            cell: item => item.resourceStatusReason,
-          },
-        ]}
-        loading={events === null}
-        items={items}
-        loadingText="Loading Logs..."
-        pagination={<Pagination {...paginationProps} />}
-        filter={
-          <TextFilter
-            {...filterProps}
-            filteringText={searchParams.get('filter') || ''}
-            onChange={(e) => {searchParams.set('filter', e.detail.filteringText); setSearchParams(searchParams); filterProps.onChange(e);}}
-            countText={`Results: ${filteredItemsCount}`}
-            filteringAriaLabel="Filter logs"
-          />
-        }
-        preferences={
-          <CollectionPreferences
-            onConfirm={({detail}) => {
-              setState(['app', 'clusters', 'stackevents', 'columns'], detail.visibleContent);
-              setState(['app', 'clusters', 'stackevents', 'pageSize'], detail.pageSize);
-            }}
-            title="Preferences"
-            confirmLabel="Confirm"
-            cancelLabel="Cancel"
-            preferences={{
-              pageSize: pageSize,
-              visibleContent: columns}}
-            pageSizePreference={{
-              title: "Select page size",
-              options: [
-                { value: 100, label: "100 Logs" },
-                { value: 250, label: "250 Logs" },
-                { value: 500, label: "500 Logs" }
-              ]
-            }}
-            visibleContentPreference={{
-              title: "Select visible content",
-              options: [
-                {
-                  label: "Log columns",
-                  options: [
-                    { id: "timestamp", label: "Timestamp",},
-                    { id: "logicalId", label: "Logical ID"},
-                    { id: "status", label: "Status"},
-                    { id: "statusReason", label: "Status reason"},
-                  ]
-                }
-              ]
-            }}
-          />}
-      />
-    : <Loading />
+          Events</Header>} resizableColumns wrapLines visibleColumns={columns} variant='container' columnDefinitions={[
+            {
+                id: 'timestamp',
+                header: 'Timestamp',
+                cell: item => <DateView date={(item as any).timestamp}/>,
+                sortingField: 'timestamp'
+            },
+            {
+                id: 'logicalId',
+                header: 'Logical ID',
+                cell: item => (item as any).logicalResourceId,
+            },
+            {
+                id: 'status',
+                header: 'Status',
+                cell: item => <EventStatus logicalId={(item as any).logicalResourceId} status={(item as any).resourceStatus}/>,
+            },
+            {
+                id: 'statusReason',
+                header: 'Status reason',
+                cell: item => (item as any).resourceStatusReason,
+            },
+        ]} loading={events === null} items={items} loadingText="Loading Logs..." pagination={<Pagination {...paginationProps}/>} filter={<TextFilter {...filterProps} filteringText={searchParams.get('filter') || ''} onChange={(e) => { searchParams.set('filter', e.detail.filteringText); setSearchParams(searchParams); filterProps.onChange(e); }} countText={`Results: ${filteredItemsCount}`} filteringAriaLabel="Filter logs"/>} preferences={<CollectionPreferences onConfirm={({ detail }) => {
+                setState(['app', 'clusters', 'stackevents', 'columns'], detail.visibleContent);
+                setState(['app', 'clusters', 'stackevents', 'pageSize'], detail.pageSize);
+            }} title="Preferences" confirmLabel="Confirm" cancelLabel="Cancel" preferences={{
+                pageSize: pageSize,
+                visibleContent: columns
+            }} pageSizePreference={{
+                title: "Select page size",
+                options: [
+                    { value: 100, label: "100 Logs" },
+                    { value: 250, label: "250 Logs" },
+                    { value: 500, label: "500 Logs" }
+                ]
+            }} visibleContentPreference={{
+                title: "Select visible content",
+                options: [
+                    {
+                        label: "Log columns",
+                        options: [
+                            { id: "timestamp", label: "Timestamp", },
+                            { id: "logicalId", label: "Logical ID" },
+                            { id: "status", label: "Status" },
+                            { id: "statusReason", label: "Status reason" },
+                        ]
+                    }
+                ]
+            }}/>}/>
+    : <Loading />;
 }

@@ -82,83 +82,57 @@ function LogEvents() {
     filterProps.onChange({detail: {filteringText: searchParams.get("filter") || ""}})
   }, [searchParams]);
 
-  return <div><div style={{marginBottom: '10px', display: 'flex', direction: 'row', gap: '16px', alignItems: 'center'}}><div>{selectedLogStreamName}</div><Button loading={pending} onClick={refresh} iconName='refresh' /></div>
-    <div style={{borderTop: '1px solid #AAA', fontSize: '10pt', overflow: 'auto', whiteSpace: 'nowrap'}}>
-      <Table
-        {...collectionProps}
-        resizableColumns
-        wrapLines
-        visibleColumns={columns}
-        variant='container'
-        columnDefinitions={[
-          {
+  // @ts-expect-error TS(2322) FIXME: Type '"row"' is not assignable to type 'Direction ... Remove this comment to see the full error message
+  return <div><div style={{ marginBottom: '10px', display: 'flex', direction: 'row', gap: '16px', alignItems: 'center' }}><div>{selectedLogStreamName}</div><Button loading={pending} onClick={refresh} iconName='refresh'/></div>
+    <div style={{ borderTop: '1px solid #AAA', fontSize: '10pt', overflow: 'auto', whiteSpace: 'nowrap' }}>
+      <Table {...collectionProps} resizableColumns wrapLines visibleColumns={columns} variant='container' columnDefinitions={[
+        {
             id: 'timestamp',
-              header: 'timestamp',
-              cell: item => item.timestamp,
-              sortingField: 'timestamp'
-          },
-          {
+            header: 'timestamp',
+            cell: item => (item as any).timestamp,
+            sortingField: 'timestamp'
+        },
+        {
             id: 'message',
             header: 'message',
-            cell: item => <pre style={{margin: 0}}>{item.message}</pre>,
-          },
-        ]}
-        loading={events === null}
-        items={items}
-        loadingText="Loading Logs..."
-        pagination={<Pagination {...paginationProps} />}
-        filter={
-          <TextFilter
-            {...filterProps}
-            filteringText={searchParams.get('filter') || ''}
-            onChange={(e) => {searchParams.set('filter', e.detail.filteringText); setSearchParams(searchParams); filterProps.onChange(e);}}
-            countText={`Results: ${filteredItemsCount}`}
-            filteringAriaLabel="Filter logs"
-          />
-        }
-        preferences={
-          <CollectionPreferences
-            onConfirm={({detail}) => {
-              setState(['app', 'clusters', 'logs', 'columns'], detail.visibleContent);
-              setState(['app', 'clusters', 'logs', 'pageSize'], detail.pageSize);
-            }}
-            title="Preferences"
-            confirmLabel="Confirm"
-            cancelLabel="Cancel"
-            preferences={{
-              pageSize: pageSize,
-              visibleContent: columns}}
-            pageSizePreference={{
-              title: "Select page size",
-              options: [
+            cell: item => <pre style={{ margin: 0 }}>{(item as any).message}</pre>,
+        },
+    ]} loading={events === null} items={items} loadingText="Loading Logs..." pagination={<Pagination {...paginationProps}/>} filter={<TextFilter {...filterProps} filteringText={searchParams.get('filter') || ''} onChange={(e) => { searchParams.set('filter', e.detail.filteringText); setSearchParams(searchParams); filterProps.onChange(e); }} countText={`Results: ${filteredItemsCount}`} filteringAriaLabel="Filter logs"/>} preferences={<CollectionPreferences onConfirm={({ detail }) => {
+            setState(['app', 'clusters', 'logs', 'columns'], detail.visibleContent);
+            setState(['app', 'clusters', 'logs', 'pageSize'], detail.pageSize);
+        }} title="Preferences" confirmLabel="Confirm" cancelLabel="Cancel" preferences={{
+            pageSize: pageSize,
+            visibleContent: columns
+        }} pageSizePreference={{
+            title: "Select page size",
+            options: [
                 { value: 100, label: "100 Logs" },
                 { value: 250, label: "250 Logs" },
                 { value: 500, label: "500 Logs" }
-              ]
-            }}
-            visibleContentPreference={{
-              title: "Select visible content",
-              options: [
+            ]
+        }} visibleContentPreference={{
+            title: "Select visible content",
+            options: [
                 {
-                  label: "Log columns",
-                  options: [
-                    {
-                      id: "timestamp",
-                      label: "Timestamp",
-                    },
-                    { id: "message", label: "Message", editable: false
-                    }
-                  ]
+                    label: "Log columns",
+                    options: [
+                        {
+                            id: "timestamp",
+                            label: "Timestamp",
+                        },
+                        { id: "message", label: "Message", editable: false
+                        }
+                    ]
                 }
-              ]
-            }}
-          />}
-      />
+            ]
+        }}/>}/>
     </div>
-  </div>
+  </div>;
 }
 
-function StreamList({instanceId}) {
+function StreamList({
+  instanceId
+}: any) {
   const logStreams = useState(['app', 'clusters', 'logs', 'index', instanceId, 'streams']) || [];
   const ip = useState(['app', 'clusters', 'logs', 'index', instanceId, 'ip']);
   const fnames = Object.keys(logStreams).sort()
@@ -171,6 +145,7 @@ function StreamList({instanceId}) {
       const selected = getState(['app', 'clusters', 'selected']);
       const logStreamName = `${ip}.${instanceId}.${searchParams.get('filename')}`;
       setState(['app', 'clusters', 'selectedLogStreamName'], logStreamName);
+      // @ts-expect-error TS(2554) FIXME: Expected 4 arguments, but got 2.
       GetClusterLogEvents(selected, logStreamName);
     }
   }, [searchParams, instanceId]);

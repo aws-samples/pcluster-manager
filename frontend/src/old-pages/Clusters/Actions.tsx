@@ -11,6 +11,7 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom"
 
+// @ts-expect-error TS(7016) FIXME: Could not find a declaration file for module 'js-y... Remove this comment to see the full error message
 import jsyaml from 'js-yaml';
 
 import { setState, useState, isAdmin, ssmPolicy, consoleDomain } from '../../store'
@@ -46,7 +47,7 @@ export default function Actions () {
   const clusterStatus = useState([...clusterPath, 'clusterStatus']);
   const dcvEnabled = useState([...clusterPath, 'config', 'HeadNode', 'Dcv', 'Enabled']);
 
-  function isSsmPolicy(p) {
+  function isSsmPolicy(p: any) {
     return p.hasOwnProperty('Policy') && p.Policy === ssmPolicy(region);
   }
   const iamPolicies = useState([...clusterPath, 'config', 'HeadNode', 'Iam', 'AdditionalIamPolicies']);
@@ -63,29 +64,32 @@ export default function Actions () {
 
     navigate('/configure');
 
-    GetConfiguration(clusterName, (configuration) => {
+    // @ts-expect-error TS(2345) FIXME: Argument of type '(configuration: any) => void' is... Remove this comment to see the full error message
+    GetConfiguration(clusterName, (configuration: any) => {
+      // @ts-expect-error TS(2554) FIXME: Expected 2 arguments, but got 1.
       loadTemplate(jsyaml.load(configuration));
     });
   }
 
   const deleteCluster = () => {
     console.log(`Deleting: ${clusterName}`);
-    DeleteCluster(clusterName, (resp) => {DescribeCluster(clusterName); ListClusters()});
+    // @ts-expect-error TS(2345) FIXME: Argument of type '(resp: any) => void' is not assi... Remove this comment to see the full error message
+    DeleteCluster(clusterName, (resp: any) => {DescribeCluster(clusterName); ListClusters()});
     hideDialog('deleteCluster');
   }
 
-  const shellCluster = (instanceId) => {
+  const shellCluster = (instanceId: any) => {
     window.open(`${consoleDomain(region)}/systems-manager/session-manager/${instanceId}?region=${region}`);
   }
 
-  const ssmFilesystem = (instanceId) => {
+  const ssmFilesystem = (instanceId: any) => {
     let user = clusterDefaultUser(cluster);
     const path = encodeURIComponent(`/home/${user}/`)
     window.open(`${consoleDomain(region)}/systems-manager/managed-instances/${instanceId}/file-system?region=${region}&osplatform=Linux#%7B%22path%22%3A%22${path}%22%7D`);
   }
 
-  const dcvConnect = (instance) => {
-    let callback = (dcvInfo) => {
+  const dcvConnect = (instance: any) => {
+    let callback = (dcvInfo: any) => {
       window.open(`https://${instance.publicIpAddress}:${dcvInfo.port}?authToken=${dcvInfo.session_token}#${dcvInfo.session_id}`);
     }
     let user = clusterDefaultUser(cluster);
@@ -105,6 +109,7 @@ export default function Actions () {
           <CancelIcon /> Stop
         </div>
       </Button>}
+      {/* @ts-expect-error TS(2322) FIXME: Type '{ children: Element; className: string; disa... Remove this comment to see the full error message */}
       <Button className="action" disabled={clusterStatus === 'DELETE_IN_PROGRESS' || !isAdmin()} color="default" onClick={() => {showDialog('deleteCluster')}}>
         <div className="container">
           <DeleteIcon /> Delete

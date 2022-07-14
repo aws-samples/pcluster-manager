@@ -36,7 +36,7 @@ import {
 import HelpTooltip from '../../components/HelpTooltip'
 
 // Helper Functions
-function strToOption(str){
+function strToOption(str: any){
   return {value: str, label: str}
 }
 
@@ -49,10 +49,15 @@ const knownExtensions = [{name: 'Cloud9', path: 'cloud9.sh', description: 'Cloud
 ]
 
 // Selectors
-const selectVpc = state => getState(state, ['app', 'wizard', 'vpc']);
-const selectAwsSubnets = state => getState(state, ['aws', 'subnets']);
+// @ts-expect-error TS(2345) FIXME: Argument of type 'string[]' is not assignable to p... Remove this comment to see the full error message
+const selectVpc = (state: any) => getState(state, ['app', 'wizard', 'vpc']);
+// @ts-expect-error TS(2345) FIXME: Argument of type 'string[]' is not assignable to p... Remove this comment to see the full error message
+const selectAwsSubnets = (state: any) => getState(state, ['aws', 'subnets']);
 
-function LabeledIcon({label, icon}) {
+function LabeledIcon({
+  label,
+  icon
+}: any) {
   return (
     <div style={{display: "flex", flexDirection: "row", alignItems: "center"}}>
       <img style={{width: "30px", height: "30px"}} src={icon} alt={label}/><div style={{marginLeft: "20px", minWidth: "150px"}}>{label}</div>
@@ -60,24 +65,28 @@ function LabeledIcon({label, icon}) {
   );
 }
 
-function SubnetSelect({value, onChange, disabled}) {
+function SubnetSelect({
+  value,
+  onChange,
+  disabled
+}: any) {
   const subnets = useSelector(selectAwsSubnets);
   const vpc = useSelector(selectVpc);
-  var filteredSubnets = subnets && subnets.filter((s) => { return (vpc ?  s.VpcId === vpc : true)})
+  var filteredSubnets = subnets && subnets.filter((s: any) => { return (vpc ?  s.VpcId === vpc : true)})
   if(!subnets) {return <div>No Subnets Found.</div>}
 
-  const SubnetName = (subnet) => {
+  const SubnetName = (subnet: any) => {
     if(!subnet)
       return null;
     var tags = subnet.Tags;
     if(!tags) {
       return null;
     }
-    tags = subnet.Tags.filter((t) => {return t.Key === "Name"})
+    tags = subnet.Tags.filter((t: any) => {return t.Key === "Name"})
     return (tags.length > 0) ? tags[0].Value : null
   }
 
-  const itemToOption = item => {
+  const itemToOption = (item: any) => {
     return {value: item.SubnetId, label: item.SubnetId,
     description: item.AvailabilityZone + ` - ${item.AvailabilityZoneId}` + (SubnetName(item) ? ` (${SubnetName(item)})` : "")
   }}
@@ -85,7 +94,7 @@ function SubnetSelect({value, onChange, disabled}) {
   return (
     <Select
       disabled={disabled}
-      selectedOption={findFirst(filteredSubnets, x => {return x.SubnetId === value}) ? itemToOption(findFirst(filteredSubnets, x => {return x.SubnetId === value})) : {label: "Please Select A Subnet"}}
+      selectedOption={findFirst(filteredSubnets, (x: any) => {return x.SubnetId === value}) ? itemToOption(findFirst(filteredSubnets, (x: any) => {return x.SubnetId === value})) : {label: "Please Select A Subnet"}}
       onChange={({detail}) => {onChange && onChange(detail.selectedOption.value)}}
       selectedAriaLabel="Selected"
       options={filteredSubnets.map(itemToOption)}
@@ -93,7 +102,12 @@ function SubnetSelect({value, onChange, disabled}) {
   );
 }
 
-function InstanceSelect({path, selectId, callback, disabled}) {
+function InstanceSelect({
+  path,
+  selectId,
+  callback,
+  disabled
+}: any) {
   const value = useState(path) || "";
 
   const instanceTypes = useState(['aws', 'instanceTypes']) || [];
@@ -127,6 +141,7 @@ function InstanceSelect({path, selectId, callback, disabled}) {
     }
 
     if(!(group in groups))
+      // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       groups[group] = []
 
     let desc = `${instance.VCpuInfo.DefaultVCpus} vcpus, ${instance.MemoryInfo.SizeInMiB / 1024}GB memory`
@@ -134,11 +149,13 @@ function InstanceSelect({path, selectId, callback, disabled}) {
     if(Object.keys(instance.GpuInfo).length > 0)
       desc = `${instance.GpuInfo.Count} x ${instance.GpuInfo.Name}, ${desc}`
 
+    // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     groups[group].push([instance.InstanceType, desc, img])
   }
 
   groupNames = groupNames.filter(name => name in groups);
 
+  // @ts-expect-error TS(7031) FIXME: Binding element 'value' implicitly has an 'any' ty... Remove this comment to see the full error message
   const instanceToOption = ([value, label, icon]) => {
     return {label: value,
       iconUrl: icon,
@@ -156,6 +173,7 @@ function InstanceSelect({path, selectId, callback, disabled}) {
           callback && callback(detail.value);
         }
       }}
+      // @ts-expect-error TS(2322) FIXME: Type '(newValue: string) => void' is not assignabl... Remove this comment to see the full error message
       enteredTextLabel={(newValue) => {
         if(newValue !== value)
         {
@@ -169,11 +187,17 @@ function InstanceSelect({path, selectId, callback, disabled}) {
       options={groupNames.map((groupName) => {
         return {
           label: groupName,
+          // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
           options: groups[groupName].map(instanceToOption)}})}/>
   )
 }
 
-function CustomAMISettings({basePath, appPath, errorsPath, validate}) {
+function CustomAMISettings({
+  basePath,
+  appPath,
+  errorsPath,
+  validate
+}: any) {
   const editing = useState(['app', 'wizard', 'editing']);
   const customImages = useState(['app', 'wizard', 'customImages']) || [];
   const officialImages = useState(['app', 'wizard', 'officialImages']) || [];
@@ -204,7 +228,7 @@ function CustomAMISettings({basePath, appPath, errorsPath, validate}) {
       })
     }
 
-  const toggleCustomAmi = (event) => {
+  const toggleCustomAmi = (event: any) => {
     const value = !customAmiEnabled;
     setState([...appPath, 'customAMI', 'enabled'], value);
     if(!value)
@@ -227,6 +251,7 @@ function CustomAMISettings({basePath, appPath, errorsPath, validate}) {
           <Autosuggest
             onChange={({ detail }) => {if(detail.value !== customAmi){setState(customAmiPath, detail.value);}}}
             value={customAmi || ""}
+            // @ts-expect-error TS(2322) FIXME: Type '(value: string) => void' is not assignable t... Remove this comment to see the full error message
             enteredTextLabel={value => {if(value !== customAmi){setState(customAmiPath, value);}}}
             ariaLabel="Custom AMI Selector"
             placeholder="AMI ID"
@@ -239,7 +264,12 @@ function CustomAMISettings({basePath, appPath, errorsPath, validate}) {
   )
 }
 
-function ArgEditor({path, i, multi, scriptIndex}) {
+function ArgEditor({
+  path,
+  i,
+  multi,
+  scriptIndex
+}: any) {
   const args = useState(path);
   const arg = useState([...path, i]);
   const remove = () => {
@@ -261,7 +291,7 @@ function ArgEditor({path, i, multi, scriptIndex}) {
     if(multiScriptPath.startsWith(baseScriptPath))
     {
       let multiScriptShortPath = multiScriptPath.slice(baseScriptPath.length);
-      let knownExtension = findFirst(knownExtensions, (e) => e.path === multiScriptShortPath);
+      let knownExtension = findFirst(knownExtensions, (e: any) => e.path === multiScriptShortPath);
       if(knownExtension && i - scriptIndex <= knownExtension.args.length)
       {
         argName = knownExtension.args[i - scriptIndex - 1].name;
@@ -276,13 +306,17 @@ function ArgEditor({path, i, multi, scriptIndex}) {
   return <SpaceBetween direction="horizontal" size="s">
     <div style={{marginLeft: "25px", width: "120px"}}>{argName}: </div>
     <div style={{width: "440px"}}>
+      {/* @ts-expect-error TS(2322) FIXME: Type '{ value: any; onChange: ({ detail }: NonCanc... Remove this comment to see the full error message */}
       <Input value={multi? arg.slice(1) : arg} onChange={({detail}) => {setState([...path, i], multi? '-' + detail.value : detail.value)}} InputStyle={{width: "200px"}}/>
     </div>
     <Button onClick={remove}>Remove</Button>
   </SpaceBetween>;
 }
 
-function MultiRunnerScriptEditor({path, i}) {
+function MultiRunnerScriptEditor({
+  path,
+  i
+}: any) {
   const basePath = path.slice(0, -1);
   const script = useState([...basePath, 'Script']) || '';
   const baseScriptPath = script.slice(0, script.lastIndexOf('/') + 1);
@@ -309,7 +343,7 @@ function MultiRunnerScriptEditor({path, i}) {
     setState([...path], [...args.slice(0, insertPoint), '-', ...args.slice(insertPoint)]);
   }
 
-  const setKnownScript = (scriptPath) => {
+  const setKnownScript = (scriptPath: any) => {
     let end = 0;
     for(end = i + 1; end < args.length; end++)
     {
@@ -318,19 +352,19 @@ function MultiRunnerScriptEditor({path, i}) {
         break;
     }
 
-    let knownExtension = findFirst(knownExtensions, e => e.path === scriptPath);
-    let scriptArgs = knownExtension ? knownExtension.args.map(a => `-${a.default || ''}`) : []
+    let knownExtension = findFirst(knownExtensions, (e: any) => e.path === scriptPath);
+    let scriptArgs = knownExtension ? knownExtension.args.map((a: any) => `-${a.default || ''}`) : []
 
     let currentArgs = getState(path);
     setState(path, [...currentArgs.slice(0, i), baseScriptPath + scriptPath, ...scriptArgs, ...currentArgs.slice(end)]);
 
   }
 
-  const scriptToName = (script) => {
+  const scriptToName = (script: any) => {
     if(script.startsWith(baseScriptPath) && knownScripts.includes(script.slice(baseScriptPath.length)))
     {
       const path = script.slice(baseScriptPath.length);
-      const extension = findFirst(knownExtensions, (e) => e.path === path)
+      const extension = findFirst(knownExtensions, (e: any) => e.path === path)
       return extension.name;
     } else {
       return script;
@@ -350,6 +384,7 @@ function MultiRunnerScriptEditor({path, i}) {
             setState([...path, i], detail.value);
         }
       }}
+      // @ts-expect-error TS(2322) FIXME: Type '(newValue: string) => void' is not assignabl... Remove this comment to see the full error message
       enteredTextLabel={(newValue) => {
         if(newValue !== arg)
           setState([...path, i], newValue);
@@ -358,33 +393,44 @@ function MultiRunnerScriptEditor({path, i}) {
       placeholder="http://path/to/script"
       empty="No matches found"
       options={knownExtensions.map((({name, path, description}) => {return {label: name, value: path, description: description}}))}/>
+    {/* @ts-expect-error TS(2322) FIXME: Type '{ children: Element; style: { whiteSpace: st... Remove this comment to see the full error message */}
     <Button style={{whiteSpace: "nowrap"}} onClick={remove}><span style={{whiteSpace: "nowrap", marginRight: "40px"}}>Remove</span></Button>
+    {/* @ts-expect-error TS(2322) FIXME: Type '{ children: Element; style: { whiteSpace: st... Remove this comment to see the full error message */}
     <Button style={{whiteSpace: "nowrap"}} onClick={addArg}><span style={{whiteSpace: "nowrap", marginRight: "40px"}}>Add Arg</span></Button>
   </div>
 }
 
-function MultiRunnerEditor({path}) {
+function MultiRunnerEditor({
+  path
+}: any) {
   const data = useState(path) || [];
   const addScript = () => {
     setState(path, [...data, '']);
   }
   let scriptIndex = -1;
-  return <SpaceBetween direction="vertical" size="xs">
-    <Button onClick={addScript}>Add Script</Button>
-    {data.map((a, i) => a.length > 0 && a[0] === '-' ? <ArgEditor key={`osa${i}`} arg={a} i={i} path={path} multi={true} scriptIndex={scriptIndex}/> : (() => {scriptIndex = i; return <MultiRunnerScriptEditor key={`msa${i}`} path={path} i={i} />})())}
-  </SpaceBetween>
+  return (
+    <SpaceBetween direction="vertical" size="xs">
+      <Button onClick={addScript}>Add Script</Button>
+      {data.map((a: any, i: any) => a.length > 0 && a[0] === '-' ? <ArgEditor key={`osa${i}`} arg={a} i={i} path={path} multi={true} scriptIndex={scriptIndex}/> : (() => {scriptIndex = i; return <MultiRunnerScriptEditor key={`msa${i}`} path={path} i={i} />})())}
+    </SpaceBetween>
+  );
 }
 
-function ActionEditor({label, actionKey, errorPath, path}) {
+function ActionEditor({
+  label,
+  actionKey,
+  errorPath,
+  path
+}: any) {
   const script = useState([...path, 'Script']) || '';
   const args = useState([...path, 'Args']) || [];
   const baseScriptPath = script.slice(0, script.lastIndexOf('/') + 1);
 
-  const addArg = (path) => {
-    updateState(path, (old) => [...(old || []), '']);
+  const addArg = (path: any) => {
+    updateState(path, (old: any) => [...(old || []), '']);
   }
 
-  const editScript = (path, val) => {
+  const editScript = (path: any, val: any) => {
     if(val !== '')
       setState(path, val);
     else
@@ -422,15 +468,18 @@ function ActionEditor({label, actionKey, errorPath, path}) {
             </div>
           </div>
           <SpaceBetween direction="vertical" size="xxs">
-            {args.map((a, i) => <ArgEditor key={`osa${i}`}arg={a} i={i} path={[...path, 'Args']} />)}
+            {args.map((a: any, i: any) => <ArgEditor key={`osa${i}`}arg={a} i={i} path={[...path, 'Args']} />)}
           </SpaceBetween>
         </SpaceBetween>
         }
       </FormField>
-  </>
+  </>;
 }
 
-function ActionsEditor({basePath, errorsPath}) {
+function ActionsEditor({
+  basePath,
+  errorsPath
+}: any) {
   const actionsPath = [...basePath, 'CustomActions'];
   const onStartPath = [...actionsPath, 'OnNodeStart'];
   const onConfiguredPath = [...actionsPath, 'OnNodeConfigured'];
@@ -446,38 +495,45 @@ function ActionsEditor({basePath, errorsPath}) {
   </>
 }
 
-function SecurityGroups({basePath}) {
+function SecurityGroups({
+  basePath
+}: any) {
   const sgPath = [...basePath, 'Networking', 'AdditionalSecurityGroups'];
   const selectedSgs = useState(sgPath) || [];
   const sgSelected = useState(['app', 'wizard', 'sg-selected']);
 
   const sgs = useState(['aws', 'security_groups']) || [];
-  const sgMap = sgs.reduce((acc, s) => {acc[s.GroupId] = s.GroupName; return acc}, {})
+  const sgMap = sgs.reduce((acc: any, s: any) => {acc[s.GroupId] = s.GroupName; return acc}, {})
 
-  const itemToOption = item => {return {value: item.GroupId, label: item.GroupId, description: item.GroupName}}
-  const removeSg = (i) => {
+  const itemToOption = (item: any) => {return {value: item.GroupId, label: item.GroupId, description: item.GroupName}}
+  const removeSg = (i: any) => {
     setState(sgPath, [...selectedSgs.slice(0, i), ...selectedSgs.slice(i + 1)]);
     if(getState(sgPath).length === 0)
       clearState(sgPath);
   }
-  return <SpaceBetween direction="vertical" size="xs">
-    <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap:"16px"}}>
-      <Select
-        selectedOption={(sgSelected && findFirst(sgs, x => x.GroupId === sgSelected.value)) ? itemToOption(findFirst(sgs, x => x.GroupId === sgSelected.value)) : {label: "Please Select A Security Group"}}
-        onChange={({detail}) => {setState(['app', 'wizard', 'sg-selected'], detail.selectedOption)}}
-        triggerVariant={'option'}
-        options={sgs.map(itemToOption)}
+  return (
+    <SpaceBetween direction="vertical" size="xs">
+      <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap:"16px"}}>
+        <Select
+          selectedOption={(sgSelected && findFirst(sgs, (x: any) => x.GroupId === sgSelected.value)) ? itemToOption(findFirst(sgs, (x: any) => x.GroupId === sgSelected.value)) : {label: "Please Select A Security Group"}}
+          onChange={({detail}) => {setState(['app', 'wizard', 'sg-selected'], detail.selectedOption)}}
+          triggerVariant={'option'}
+          options={sgs.map(itemToOption)}
+        />
+        <Button disabled={!sgSelected} onClick={() => setState(sgPath, [...selectedSgs, sgSelected.value])}>Add</Button>
+      </div>
+      <TokenGroup
+        onDismiss={({ detail: { itemIndex } }) => {removeSg(itemIndex)}}
+        items={selectedSgs.map((s: any) => {return {label: s, dismissLabel: `Remove ${s}`, description: sgMap[s]}})}
       />
-      <Button disabled={!sgSelected} onClick={() => setState(sgPath, [...selectedSgs, sgSelected.value])}>Add</Button>
-    </div>
-    <TokenGroup
-      onDismiss={({ detail: { itemIndex } }) => {removeSg(itemIndex)}}
-      items={selectedSgs.map((s) => {return {label: s, dismissLabel: `Remove ${s}`, description: sgMap[s]}})}
-    />
-  </SpaceBetween>
+    </SpaceBetween>
+  );
 }
 
-function RootVolume({basePath, errorsPath}) {
+function RootVolume({
+  basePath,
+  errorsPath
+}: any) {
   const rootVolumeSizePath = [...basePath, 'LocalStorage', 'RootVolume', 'Size'];
   const rootVolumeSize = useState(rootVolumeSizePath);
 
@@ -492,7 +548,7 @@ function RootVolume({basePath, errorsPath}) {
   const rootVolumeErrors = useState([...errorsPath, 'rootVolume']);
   const editing = useState(['app', 'wizard', 'editing']);
 
-  const setRootVolume = (size) => {
+  const setRootVolume = (size: any) => {
     if(size === '')
       clearState(rootVolumeSizePath);
     else
@@ -534,6 +590,7 @@ function RootVolume({basePath, errorsPath}) {
       <Select
         disabled={editing}
         placeholder={`Default (${defaultRootVolumeType})`}
+        // @ts-expect-error TS(2322) FIXME: Type '{ disabled: any; placeholder: string; select... Remove this comment to see the full error message
         selectedOption={rootVolumeType && strToOption(rootVolumeType)} label="Volume Type" onChange={({detail}) => {setState(rootVolumeTypePath, detail.selectedOption.value)}}
         options={volumeTypes.map(strToOption)}
       />
@@ -541,40 +598,44 @@ function RootVolume({basePath, errorsPath}) {
   </>
 }
 
-function IamPoliciesEditor({basePath}) {
+function IamPoliciesEditor({
+  basePath
+}: any) {
   const policiesPath = [...basePath, 'Iam', 'AdditionalIamPolicies']
   const policies = useState(policiesPath) || [];
   const policyPath = ['app', 'wizard', 'headNode', 'iamPolicy'];
   const policy = useState(policyPath) || '';
 
   const addPolicy = () => {
-    updateState(policiesPath, (existing) => [...(existing || []), {Policy: policy}])
+    updateState(policiesPath, (existing: any) => [...(existing || []), {Policy: policy}])
     setState(policyPath, "");
   }
 
-  const removePolicy = (index) => {
+  const removePolicy = (index: any) => {
     setState(policiesPath, [...policies.slice(0, index), ...policies.slice(index + 1)]);
     if(policies.length === 0)
       clearState(policiesPath)
   }
 
-  return <SpaceBetween direction="vertical" size="s">
-    <FormField errorText={findFirst(policies, x => x.Policy === policy) ? "Policy already added." : ""}>
-      <SpaceBetween direction="horizontal" size="s">
-        <div style={{width: "400px"}}>
-          <Input
-            placeholder="arn:aws:iam::aws:policy/SecretsManager:ReadWrite"
-            value={policy}
-            onChange={({detail}) => setState(policyPath, detail.value)} />
-        </div>
-        <Button onClick={addPolicy} disabled={policy.length === 0 || findFirst(policies, x => x.Policy === policy)}>Add</Button>
-      </SpaceBetween>
-    </FormField>
-    {policies.map((p, i) => p.Policy !== ssmPolicy && <SpaceBetween key={p.Policy} direction="horizontal" size="s">
-      <div style={{width: "400px"}}>{p.Policy}</div>
-      <Button onClick={() => removePolicy(i)}>Remove</Button>
-    </SpaceBetween>)}
-  </SpaceBetween>
+  return (
+    <SpaceBetween direction="vertical" size="s">
+      <FormField errorText={findFirst(policies, (x: any) => x.Policy === policy) ? "Policy already added." : ""}>
+        <SpaceBetween direction="horizontal" size="s">
+          <div style={{width: "400px"}}>
+            <Input
+              placeholder="arn:aws:iam::aws:policy/SecretsManager:ReadWrite"
+              value={policy}
+              onChange={({detail}) => setState(policyPath, detail.value)} />
+          </div>
+          <Button onClick={addPolicy} disabled={policy.length === 0 || findFirst(policies, (x: any) => x.Policy === policy)}>Add</Button>
+        </SpaceBetween>
+      </FormField>
+      {policies.map((p: any, i: any) => p.Policy !== ssmPolicy && <SpaceBetween key={p.Policy} direction="horizontal" size="s">
+        <div style={{width: "400px"}}>{p.Policy}</div>
+        <Button onClick={() => removePolicy(i)}>Remove</Button>
+      </SpaceBetween>)}
+    </SpaceBetween>
+  );
 }
 
 export { SubnetSelect, SecurityGroups, InstanceSelect, LabeledIcon, ActionsEditor, CustomAMISettings, RootVolume, IamPoliciesEditor }

@@ -38,7 +38,10 @@ import CustomImageStackEvents from './CustomImageStackEvents';
 const customImagesPath = ['app', 'customImages'];
 
 // Key:Value pair (label / children)
-const ValueWithLabel = ({ label, children }) => (
+const ValueWithLabel = ({
+  label,
+  children
+}: any) => (
   <div>
     <Box margin={{ bottom: 'xxxs' }} color="text-label">
       {label}
@@ -51,7 +54,8 @@ function CustomImageConfiguration() {
   const configuration = useState([...customImagesPath, 'config']);
   React.useEffect(() => {
     const imageId = getState([...customImagesPath, 'selected']);
-    GetCustomImageConfiguration(imageId, (configuration) => {setState([...customImagesPath, 'config'], configuration)});
+    // @ts-expect-error TS(2345) FIXME: Argument of type '(configuration: any) => void' is... Remove this comment to see the full error message
+    GetCustomImageConfiguration(imageId, (configuration: any) => {setState([...customImagesPath, 'config'], configuration)});
   }, [])
 
   return configuration ?
@@ -137,7 +141,7 @@ export default function CustomImageDetails() {
           <table>
             <thead><tr><th>Key</th><th>Value</th></tr></thead>
             <tbody>
-              {image.ec2AmiInfo && image.ec2AmiInfo.tags.map((tag, i) => <tr key={i.toString() + tag.key}><td>{tag.key}</td><td>{tag.value}</td></tr>)}
+              {image.ec2AmiInfo && image.ec2AmiInfo.tags.map((tag: any, i: any) => <tr key={i.toString() + tag.key}><td>{tag.key}</td><td>{tag.value}</td></tr>)}
             </tbody>
           </table>
           : <Loading />
@@ -145,11 +149,13 @@ export default function CustomImageDetails() {
       {
         label: "Configuration",
         id: "configuration",
+        // @ts-expect-error TS(2322) FIXME: Type '{ imageId: any; }' is not assignable to type... Remove this comment to see the full error message
         content: <CustomImageConfiguration imageId={selected} />
       },
       ...(image && (image.imageBuildStatus !== 'BUILD_COMPLETE') ? [{
         label: "Stack Events",
         id: "stack-events",
+        // @ts-expect-error TS(2322) FIXME: Type '{ imageId: any; }' is not assignable to type... Remove this comment to see the full error message
         content: <CustomImageStackEvents imageId={selected} />
       }] : []),
       // {

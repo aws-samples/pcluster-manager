@@ -41,15 +41,17 @@ const storagePath = ['app', 'wizard', 'config', 'SharedStorage'];
 const errorsPath = ['app', 'wizard', 'errors', 'sharedStorage'];
 
 // Helper Functions
+// @ts-expect-error TS(7031) FIXME: Binding element 'value' implicitly has an 'any' ty... Remove this comment to see the full error message
 function itemToIconOption([value, label, icon]){
   return {value: value, label: label, ...(icon ? {iconUrl: icon} : {})}
 }
 
+// @ts-expect-error TS(7031) FIXME: Binding element 'value' implicitly has an 'any' ty... Remove this comment to see the full error message
 function itemToDisplayIconOption([value, label, icon]){
   return {value: value, label: (icon ? <LabeledIcon label={label} icon={icon} /> : label)}
 }
 
-function strToOption(str){
+function strToOption(str: any){
   return {value: str, label: str}
 }
 
@@ -82,7 +84,9 @@ function storageValidate() {
   return valid;
 }
 
-function FsxLustreSettings({index}) {
+function FsxLustreSettings({
+  index
+}: any) {
   const versionMinor = useState(['app', 'version', 'minor']);
   const storageAppPath = ['app', 'wizard', 'storage', index];
   const useExisting = useState([...storageAppPath, 'useExisting']) || false;
@@ -125,14 +129,14 @@ function FsxLustreSettings({index}) {
       setState(compressionPath, 'LZ4');
   }
 
-  const setImportPath = (path) => {
+  const setImportPath = (path: any) => {
     if(path !== '')
       setState(importPathPath, path);
     else
       clearState(importPathPath);
   }
 
-  const setExportPath = (path) => {
+  const setExportPath = (path: any) => {
     if(path !== '')
       setState(exportPathPath, path);
     else
@@ -150,7 +154,7 @@ function FsxLustreSettings({index}) {
           getAriaValueText={(v) => {return `${v} GB`}}
           valueLabelDisplay="auto"
           value={storageCapacity}
-          onChange={((e) => {setState(storageCapacityPath, e.target.value)})}
+          onChange={((e) => {setState(storageCapacityPath, (e.target as any).value);})}
           step={1200}
           min={1200}
           max={100800}
@@ -161,6 +165,7 @@ function FsxLustreSettings({index}) {
           FSx Lustre Type:
           <Select
             disabled={editing}
+            // @ts-expect-error TS(2322) FIXME: Type '{ disabled: any; selectedOption: { value: an... Remove this comment to see the full error message
             selectedOption={strToOption(lustreType || 'PERSISTENT_1')} label="FSx Lustre Type" onChange={({detail}) => {
               setState(lustreTypePath, detail.selectedOption.value);
               if(detail.selectedOption.value === 'PERSISTENT_1') {
@@ -230,7 +235,9 @@ function FsxLustreSettings({index}) {
   )
 }
 
-function EfsSettings({index}) {
+function EfsSettings({
+  index
+}: any) {
   const efsPath = [...storagePath, index, 'EfsSettings'];
   const encryptedPath = [...efsPath, 'Encrypted'];
   const kmsPath = [...efsPath, 'KmsKeyId'];
@@ -316,6 +323,7 @@ function EfsSettings({index}) {
             <div style={{display: "flex", flexShrink: 1}}>
               <Input
                 type="number"
+                // @ts-expect-error TS(2322) FIXME: Type 'number' is not assignable to type 'string'.
                 value={Math.max(Math.min(provisionedThroughput, 1024), 1)} onChange={(({detail}) => {setState(provisionedThroughputPath, Math.max(Math.min(detail.value, 1024), 1))})} />
             </div>
           </div>
@@ -326,7 +334,9 @@ function EfsSettings({index}) {
   )
 }
 
-function EbsSettings({index}) {
+function EbsSettings({
+  index
+}: any) {
   const ebsPath = [...storagePath, index, 'EbsSettings'];
   const volumeTypePath = [...ebsPath, 'VolumeType'];
   const volumeTypes = ['gp3', 'gp2', 'io1', 'io2', 'sc1', 'stl', 'standard']
@@ -379,6 +389,7 @@ function EbsSettings({index}) {
           <Select
             disabled={editing}
             placeholder={`Default (${defaultVolumeType})`}
+            // @ts-expect-error TS(2322) FIXME: Type '{ disabled: any; placeholder: string; select... Remove this comment to see the full error message
             selectedOption={volumeType && strToOption(volumeType)} label="Volume Type" onChange={({detail}) => {setState(volumeTypePath, detail.selectedOption.value)}}
             options={volumeTypes.map(strToOption)}
           />
@@ -392,6 +403,7 @@ function EbsSettings({index}) {
               <Input
                 disabled={editing}
                 style={{marginTop: 10}}
+                // @ts-expect-error TS(2322) FIXME: Type '"decimal"' is not assignable to type 'Type |... Remove this comment to see the full error message
                 type="decimal"
                 value={volumeSize}
                 onChange={({detail}) => {setState(volumeSizePath, detail.value); validated && storageValidate()}} />
@@ -428,6 +440,7 @@ function EbsSettings({index}) {
           { snapshotId !== null &&
           <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
             :
+            {/* @ts-expect-error TS(2322) FIXME: Type '{ style: { marginBottom: number; }; value: a... Remove this comment to see the full error message */}
             <Input style={{ marginBottom: 10}} value={snapshotId} onChange={(({detail}) => {setState(snapshotIdPath, detail.value)})} />
           </div>
           }
@@ -443,6 +456,7 @@ function EbsSettings({index}) {
         <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
           Deletion Policy:
           <Select
+            // @ts-expect-error TS(2322) FIXME: Type '{ selectedOption: { value: any; label: any; ... Remove this comment to see the full error message
             selectedOption={strToOption(deletionPolicy || "Delete")} label="Deletion Policy" onChange={({detail}) => {setState(deletionPolicyPath, detail.selectedOption.value)}}
             options={deletionPolicies.map(strToOption)}
           />
@@ -483,14 +497,18 @@ const STORAGE_TYPE_PROPS = {
   },
 }
 
-function StorageInstance({index}) {
+function StorageInstance({
+  index
+}: any) {
   const path = [...storagePath, index]
   const storageAppPath = ['app', 'wizard', 'storage', index];
   const storageType = useState([...path, 'StorageType']) || "none";
   const storageName = useState([...path, 'Name']) || "";
   const mountPoint = useState([...path, 'MountDir']);
+  // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   const useExisting = useState([...storageAppPath, 'useExisting']) || !STORAGE_TYPE_PROPS[storageType].canCreate;
   const settingsPath = [...path, `${storageType}Settings`]
+  // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   const existingPath = STORAGE_TYPE_PROPS[storageType].mountFilesystem ? [...settingsPath, 'FileSystemId'] : [...settingsPath, 'VolumeId'];
   const existingId = useState(existingPath) || "";
   const storages = useState(storagePath);
@@ -500,7 +518,7 @@ function StorageInstance({index}) {
   const efsFilesystems = useState(['aws', 'efs_filesystems']) || [];
   const editing = useState(['app', 'wizard', 'editing']);
 
-  const removeStorage = (type) => {
+  const removeStorage = (type: any) => {
     if(index === 0 && storages.length === 1)
       clearState(storagePath);
     else
@@ -523,7 +541,7 @@ function StorageInstance({index}) {
     setState([...storageAppPath, 'useExisting'], value);
   }
 
-  const idToOption = (id) => {
+  const idToOption = (id: any) => {
     return {label: id, value: id}
   }
 
@@ -550,6 +568,7 @@ function StorageInstance({index}) {
             </HelpTooltip>
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
+            {/* @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message */}
             {STORAGE_TYPE_PROPS[storageType].canCreate ? <div style={{marginTop: "10px", display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
               <Toggle disabled={editing} checked={useExisting} onChange={toggleUseExisting}>Use Existing Filesystem</Toggle>
               <HelpTooltip>
@@ -560,6 +579,7 @@ function StorageInstance({index}) {
               </HelpTooltip>
             </div> : null} 
             { useExisting &&
+                // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
                 {
                   "Ebs":
                     <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px", marginTop: "10px"}}>
@@ -572,40 +592,54 @@ function StorageInstance({index}) {
                   "FsxLustre": <FormField label="FSx Lustre Filesystem">
                     <Select
                       placeholder="Please Select"
+                      // @ts-expect-error TS(2322) FIXME: Type '{ placeholder: string; selectedOption: any; ... Remove this comment to see the full error message
                       selectedOption={existingId && idToOption(existingId)} label="FSx Filesystem" onChange={({detail}) => {setState(existingPath, detail.selectedOption.value)}}
-                      options={fsxFilesystems.lustre.map((fs) => ({value: fs.id, label: fs.displayName}))}
+                      options={fsxFilesystems.lustre.map((fs: any) => ({
+                        value: fs.id,
+                        label: fs.displayName
+                      }))}
                     />
                   </FormField>,
                   "FsxOpenZfs": <FormField label="Existing FSx OpenZFS volume">
                     <Select
                       placeholder="Please Select"
+                      // @ts-expect-error TS(2322) FIXME: Type '{ placeholder: string; selectedOption: any; ... Remove this comment to see the full error message
                       selectedOption={existingId && idToOption(existingId)} label="FSx OpenZFS volume" onChange={({detail}) => {setState(existingPath, detail.selectedOption.value)}}
-                      options={fsxVolumes.zfs.map((vol) => ({value: vol.id, label: vol.displayName}))}
+                      options={fsxVolumes.zfs.map((vol: any) => ({
+                        value: vol.id,
+                        label: vol.displayName
+                      }))}
                     />
                   </FormField>,
                   "FsxOntap": <FormField label="Existing FSx NetApp ONTAP volume">
                     <Select
                       placeholder="Please Select"
+                      // @ts-expect-error TS(2322) FIXME: Type '{ placeholder: string; selectedOption: any; ... Remove this comment to see the full error message
                       selectedOption={existingId && idToOption(existingId)} label="FSx ONTAP volume" onChange={({detail}) => {setState(existingPath, detail.selectedOption.value)}}
-                      options={fsxVolumes.ontap.map((vol) => ({value: vol.id, label: vol.displayName}))}
+                      options={fsxVolumes.ontap.map((vol: any) => ({
+                        value: vol.id,
+                        label: vol.displayName
+                      }))}
                     />
                   </FormField>,
                   "Efs": <FormField label="EFS Filesystem">
                     <Select
+                      // @ts-expect-error TS(2322) FIXME: Type '{ selectedOption: { label: any; value: any; ... Remove this comment to see the full error message
                       selectedOption={idToOption(existingId || "")} label="EFS Filesystem" onChange={({detail}) => {setState(existingPath, detail.selectedOption.value)}}
-                      options={efsFilesystems.map((x, i) => {return {value: x.FileSystemId, label: (x.FileSystemId + (x.Name ? ` (${x.Name})` : ""))}})}
+                      options={efsFilesystems.map((x: any, i: any) => {return {value: x.FileSystemId, label: (x.FileSystemId + (x.Name ? ` (${x.Name})` : ""))}})}
                     />
                   </FormField>}[storageType]
             }
           </div>
         </ColumnLayout>
+        {/* @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message */}
         { ! useExisting && {"FsxLustre": <FsxLustreSettings index={index}/>,
           "Efs": <EfsSettings index={index}/>,
           "Ebs": <EbsSettings index={index}/>}[storageType]
         }
       </div>
     </Container>
-  )
+  );
 }
 
 function Storage() {
@@ -633,15 +667,17 @@ function Storage() {
 
   const defaultCounts = {"FsxLustre": 0, "Efs": 0, "Ebs": 0}
 
-  const storageReducer = (eax, item) => {
+  const storageReducer = (eax: any, item: any) => {
     let ret = {...eax}
     ret[item.StorageType] += 1
     return ret;
   }
   const storageCounts = storages ? storages.reduce(storageReducer, defaultCounts) : defaultCounts;
 
+  // @ts-expect-error TS(2769) FIXME: No overload matches this call.
   const storageTypes = storageTypesSource.reduce((newStorages, storageType) => {
     const st = storageType[0];
+    // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     return storageCounts[st] >= storageMaxes[st] ? newStorages : [...newStorages, storageType];
   }, [])
 
@@ -654,32 +690,35 @@ function Storage() {
     clearState(['app', 'wizard', 'storage', 'type']);
   }
 
-  const setStorageType = (newStorageType) => {
+  const setStorageType = (newStorageType: any) => {
     setState(['app', 'wizard', 'storage', 'type'], newStorageType);
   }
 
-  return <Container header={<Header variant="h2">Storage Properties</Header>}>
-    <div style={{display: "flex", flexDirection: "column", gap: "20px"}}>
-      {storages ? storages.map((_, i) => <StorageInstance key={i} index={i} />)
-      : <div>No shared storage options selected.</div>}
+  return (
+    <Container header={<Header variant="h2">Storage Properties</Header>}>
+      <div style={{display: "flex", flexDirection: "column", gap: "20px"}}>
+        {storages ? storages.map((_: any, i: any) => <StorageInstance key={i} index={i} />)
+        : <div>No shared storage options selected.</div>}
 
-      {!editing && storageTypes.length > 0 &&
-        <div style={{display: "flex", flexDirection: "row", justifyContent: "flex-end"}}>
-          <div style={{display: "flex", flexDirection: "row", gap: "16px", alignItems: "center", marginTop: "10px"}}>
-            Storage Type:
-            <Select
-              disabled={editing}
-              placeholder="Please Select a Filesystem Type"
-              selectedOption={storageType && itemToDisplayIconOption(findFirst(storageTypes, s => {return s[0] === storageType}))}
-              onChange={({detail}) => {setStorageType(detail.selectedOption.value)}}
-              options={storageTypes.map(itemToIconOption)}
-            />
-            <Button onClick={addStorage} disabled={!storageType || (storages && storages.length >= 5)} iconName={"add-plus"}>Add Storage</Button>
+        {!editing && storageTypes.length > 0 &&
+          <div style={{display: "flex", flexDirection: "row", justifyContent: "flex-end"}}>
+            <div style={{display: "flex", flexDirection: "row", gap: "16px", alignItems: "center", marginTop: "10px"}}>
+              Storage Type:
+              <Select
+                disabled={editing}
+                placeholder="Please Select a Filesystem Type"
+                selectedOption={storageType && itemToDisplayIconOption(findFirst(storageTypes, (s: any) => {return s[0] === storageType}))}
+                onChange={({detail}) => {setStorageType(detail.selectedOption.value)}}
+                // @ts-expect-error TS(2345) FIXME: Argument of type '([value, label, icon]: [any, any... Remove this comment to see the full error message
+                options={storageTypes.map(itemToIconOption)}
+              />
+              <Button onClick={addStorage} disabled={!storageType || (storages && storages.length >= 5)} iconName={"add-plus"}>Add Storage</Button>
+            </div>
           </div>
-        </div>
-      }
-    </div>
-  </Container>
+        }
+      </div>
+    </Container>
+  );
 }
 
 export { Storage, storageValidate }

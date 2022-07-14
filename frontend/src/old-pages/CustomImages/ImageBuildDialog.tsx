@@ -52,15 +52,17 @@ function buildImageValidate(suppressUpload = false) {
   return valid;
 }
 
-const FileUploadButton = props => {
+const FileUploadButton = (props: any) => {
   const hiddenFileInput = React.useRef(null);
-  const handleClick = event => {
+  const handleClick = (event: any) => {
+    // @ts-expect-error TS(2531) FIXME: Object is possibly 'null'.
     hiddenFileInput.current.click();
   };
-  const handleChange = event => {
+  const handleChange = (event: any) => {
     var file = event.target.files[0]
     var reader = new FileReader();
     reader.onload = function(e) {
+      // @ts-expect-error TS(2531) FIXME: Object is possibly 'null'.
       props.handleData(e.target.result)
     }
     reader.readAsText(file);
@@ -80,7 +82,7 @@ const FileUploadButton = props => {
   );
 }
 
-export default function ImageBuildDialog(props) {
+export default function ImageBuildDialog(props: any) {
   const open = useState([...imageBuildPath, 'dialog']);
   const imageConfig = useState([...imageBuildPath, 'config']) || "";
   const errors = useState([...imageBuildPath, 'errors']);
@@ -97,14 +99,15 @@ export default function ImageBuildDialog(props) {
   };
 
   const handleBuild = () => {
-    var errHandler = (err) => {setState([...imageBuildPath, 'errors'], err); setState([...imageBuildPath, 'pending'], false);}
-    var successHandler = (resp) => {setState([...imageBuildPath, 'pending'], false); handleClose();}
+    var errHandler = (err: any) => {setState([...imageBuildPath, 'errors'], err); setState([...imageBuildPath, 'pending'], false);}
+    var successHandler = (resp: any) => {setState([...imageBuildPath, 'pending'], false); handleClose();}
     clearState([...imageBuildPath, 'errors']);
     setState([...imageBuildPath, 'pending'], true)
+    // @ts-expect-error TS(2774) FIXME: This condition will always return true since this ... Remove this comment to see the full error message
     buildImageValidate && BuildImage(imageId, imageConfig, successHandler, errHandler);
   }
 
-  const setImageId = (newImageId) => {
+  const setImageId = (newImageId: any) => {
     if(newImageId !== imageId)
     {
       setState([...imageBuildPath, 'imageId'], newImageId);
@@ -118,7 +121,7 @@ export default function ImageBuildDialog(props) {
     if (open) {
       const { current: descriptionElement } = descriptionElementRef;
       if (descriptionElement !== null) {
-        descriptionElement.focus();
+        (descriptionElement as any).focus();
       }
     }
   }, [open]);
@@ -142,7 +145,7 @@ export default function ImageBuildDialog(props) {
       <SpaceBetween direction="vertical" size="xs">
         <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
           <FileUploadButton
-            className="upload" handleData={data => {setState([...imageBuildPath, 'config'], data)}}
+            className="upload" handleData={(data: any) => {setState([...imageBuildPath, 'config'], data)}}
           />
           <div>Image Id:</div>
           <FormField errorText={imageIdError}>
@@ -151,7 +154,9 @@ export default function ImageBuildDialog(props) {
         </div>
         {<ConfigView
           config={imageConfig}
-          onChange={({ detail }) => {setState([...imageBuildPath, 'config'], detail.value)}}/>}
+          onChange={({
+            detail
+          }: any) => {setState([...imageBuildPath, 'config'], detail.value)}}/>}
         {errors && <ValidationErrors errors={errors} /> }
         {pending && <div><Spinner size="normal" /> Image Build request pending...</div>}
       </SpaceBetween>

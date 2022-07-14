@@ -13,10 +13,12 @@ import {
 } from "@awsui/components-react";
 
 // UI Elements
-export default function InputErrors({errors}) {
+export default function InputErrors({
+  errors
+}: any) {
   return errors && <div className="input-errors" style={{color: "red"}}>
     <SpaceBetween direction="vertical" size="xs">
-      {errors.map((error, i) => <div className="error" key={i}>* {error}</div>)}
+      {errors.map((error: any, i: any) => <div className="error" key={i}>* {error}</div>)}
     </SpaceBetween>
-  </div>
+  </div>;
 }

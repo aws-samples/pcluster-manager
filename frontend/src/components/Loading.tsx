@@ -10,7 +10,7 @@
 // limitations under the License.
 import Spinner from "@awsui/components-react/spinner";
 
-export default function Loading(props) {
+export default function Loading(props: any) {
   return (<div style={{
     color: props.color || '#444',
     display: 'flex',

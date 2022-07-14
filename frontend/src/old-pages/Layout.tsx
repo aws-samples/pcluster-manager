@@ -27,6 +27,7 @@ export default function Layout() {
     <AppLayout
       className="app-layout"
       headerSelector="#top-bar"
+      // @ts-expect-error TS(2322) FIXME: Type 'string' is not assignable to type 'number'.
       navigationWidth="220px"
       toolsHide
       splitHide

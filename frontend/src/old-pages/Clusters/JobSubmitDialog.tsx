@@ -31,7 +31,7 @@ import {
 
 const submitPath = ['app', 'clusters', 'jobSubmit'];
 
-function itemToOption(item) {
+function itemToOption(item: any) {
   if(!item)
     return;
   const [value, title] = item;
@@ -47,26 +47,27 @@ function QueueSelect() {
   const jobPath = [...submitPath, 'job'];
   let partition = useState([...jobPath, 'partition']);
 
-  let queuesOptions = [["[ANY]", "[ANY]"], ...queues.map((q) => [q.Name, q.Name])]
+  let queuesOptions = [["[ANY]", "[ANY]"], ...queues.map((q: any) => [q.Name, q.Name])]
 
-  return (
-    <>
-      <Header variant="h4"
-        description="Queue where the job will run.">Queue</Header>
-      <Select
-        selectedOption={itemToOption(findFirst(queuesOptions, x => {return x[0] === partition}) || ["[ANY]", "[ANY]"])}
-        onChange={({detail}) => {
-          if(detail.selectedOption.value === "[ANY]")
-          {
-            clearState([...jobPath, 'partition'])
-          } else {
-            setState([...jobPath, 'partition'], detail.selectedOption.value);
-          }
-        }}
-        options={queuesOptions.map(itemToOption)}
-        selectedAriaLabel="Selected"/>
-    </>
-  );
+  return <>
+    {/* @ts-expect-error TS(2322) FIXME: Type '"h4"' is not assignable to type 'Variant | u... Remove this comment to see the full error message */}
+    <Header variant="h4"
+      description="Queue where the job will run.">Queue</Header>
+    <Select
+      // @ts-expect-error TS(2322) FIXME: Type '{ label: Element; value: any; } | undefined'... Remove this comment to see the full error message
+      selectedOption={itemToOption(findFirst(queuesOptions, (x: any) => {return x[0] === partition}) || ["[ANY]", "[ANY]"])}
+      onChange={({detail}) => {
+        if(detail.selectedOption.value === "[ANY]")
+        {
+          clearState([...jobPath, 'partition'])
+        } else {
+          setState([...jobPath, 'partition'], detail.selectedOption.value);
+        }
+      }}
+      // @ts-expect-error TS(2322) FIXME: Type '({ label: Element; value: any; } | undefined... Remove this comment to see the full error message
+      options={queuesOptions.map(itemToOption)}
+      selectedAriaLabel="Selected"/>
+  </>;
 }
 
 function JobCostEstimate() {
@@ -91,13 +92,13 @@ function JobCostEstimate() {
     const clusterName = getState(['app', 'clusters', 'selected']);
     const queueName = getState([...jobPath, 'partition']);
     setState(costEstimatePendingPath, true);
-    const callback = (data) => {
+    const callback = (data: any) => {
       clearState(errorsPath);
       clearState(costEstimatePendingPath);
       setState(priceEstimatePath, data.estimate);
       setState(costEstimatePath, data.estimate * jobRuntime * nodes)
     }
-    const failure = (data) => {
+    const failure = (data: any) => {
       clearState(costEstimatePendingPath);
       setState(errorsPath, data.message);
     }
@@ -143,7 +144,9 @@ function JobCostEstimate() {
   </>
 }
 
-export default function JobSubmitDialog({submitCallback}) {
+export default function JobSubmitDialog({
+  submitCallback
+}: any) {
   const open = useState([...submitPath, 'dialog']);
   const error = useState([...submitPath, 'error']);
   const jobPath = [...submitPath, 'job'];
@@ -168,7 +171,7 @@ export default function JobSubmitDialog({submitCallback}) {
       setState([...submitPath, 'pending'], false);
       submitCallback && submitCallback();
     }
-    const failure_callback = (message) => {
+    const failure_callback = (message: any) => {
       setState([...submitPath, 'error'], message)
       setState([...submitPath, 'pending'], false);
     }
@@ -180,7 +183,7 @@ export default function JobSubmitDialog({submitCallback}) {
     setState([...submitPath, 'dialog'], false)
   };
 
-  const enableWrap = (enable) => {
+  const enableWrap = (enable: any) => {
     setState([...jobPath, 'wrap'], enable);
   }
 
@@ -194,6 +197,7 @@ export default function JobSubmitDialog({submitCallback}) {
         <Box float="right">
           <SpaceBetween direction="horizontal" size="xs">
             <Button onClick={cancel}>Cancel</Button>
+            {/* @ts-expect-error TS(2322) FIXME: Type '{ children: string; loading: any; onClick: (... Remove this comment to see the full error message */}
             <Button loading={submitting} onClick={submitJob} autoFocus>Submit</Button>
           </SpaceBetween>
         </Box>
@@ -281,7 +285,7 @@ export default function JobSubmitDialog({submitCallback}) {
         <JobCostEstimate />
       </ExpandableSection>
       </SpaceBetween>
-      <div style={{color: 'red', marginTop: "20px"}}>{(error || "").split('\n').map((line, i) => <div key={i}>{line}</div>)}</div>
+      <div style={{color: 'red', marginTop: "20px"}}>{(error || "").split('\n').map((line: any, i: any) => <div key={i}>{line}</div>)}</div>
     </Modal>
   );
 }

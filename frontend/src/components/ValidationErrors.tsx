@@ -20,9 +20,10 @@ import ListItemText from '@mui/material/ListItemText';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 
-export default function ValidationErrors(props) {
+export default function ValidationErrors(props: any) {
   const theme = useTheme();
-  const colorMap = (level) => {
+  const colorMap = (level: any) => {
+    // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     return {
       "ERROR": theme.palette.error.main,
       "WARNING": theme.palette.warning.main,
@@ -30,7 +31,7 @@ export default function ValidationErrors(props) {
     }[level] || "blue";
   };
 
-  const colored = (text, success) => <div style={{
+  const colored = (text: any, success: any) => <div style={{
     color: success ? theme.palette.success.main : theme.palette.error.main,
     display: 'flex',
     alignItems: 'center',
@@ -43,23 +44,25 @@ export default function ValidationErrors(props) {
   var success = props.errors.message && props.errors.message.includes("succeeded");
   var configErrors = props.errors.configurationValidationErrors || props.errors.validationMessages;
   var updateErrors = props.errors.updateValidationErrors;
-  return <div>
-    {colored(props.errors.message, success)}
-    {configErrors &&
-      <div className="validation-errors">
-        Validation {props.errors.configurationValidationErrors ? "Errors" : "Warnings"}:
-        <List>
-          {configErrors.map((error, i) => <ListItem disablePadding key={i}><ListItemText primaryTypographyProps={{ style: {color: colorMap(error.level)} }} primary={`${error.type}: ${error.message}`} /></ListItem>)}
-        </List>
-      </div>
-    }
-    {updateErrors &&
-      <div className="validation-errors">
-        Update Errors:
-        <List>
-          {updateErrors.map((error, i) => <ListItem disablePadding key={i}><ListItemText primaryTypographyProps={{ style: {color: colorMap("ERROR")} }} primary={`${error.message}`} /></ListItem>)}
-        </List>
-      </div>
-    }
-  </div>
+  return (
+    <div>
+      {colored(props.errors.message, success)}
+      {configErrors &&
+        <div className="validation-errors">
+          Validation {props.errors.configurationValidationErrors ? "Errors" : "Warnings"}:
+          <List>
+            {configErrors.map((error: any, i: any) => <ListItem disablePadding key={i}><ListItemText primaryTypographyProps={{ style: {color: colorMap(error.level)} }} primary={`${error.type}: ${error.message}`} /></ListItem>)}
+          </List>
+        </div>
+      }
+      {updateErrors &&
+        <div className="validation-errors">
+          Update Errors:
+          <List>
+            {updateErrors.map((error: any, i: any) => <ListItem disablePadding key={i}><ListItemText primaryTypographyProps={{ style: {color: colorMap("ERROR")} }} primary={`${error.message}`} /></ListItem>)}
+          </List>
+        </div>
+      }
+    </div>
+  );
 }

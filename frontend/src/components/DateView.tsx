@@ -10,7 +10,7 @@
 // limitations under the License.
 import React from 'react';
 
-export default function DateView(props) {
+export default function DateView(props: any) {
   var d = new Date();
   d.setTime(Date.parse(props.date));
   return <span>{d.toLocaleString()}</span>

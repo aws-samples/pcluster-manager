@@ -42,17 +42,17 @@ import { DeleteDialog,
 const errorsPath = ['app', 'wizard', 'errors', 'user'];
 
 // selectors
-const selectUserIndex = state => state.users.index
+const selectUserIndex = (state: any) => state.users.index
 
-function userToRole(user) {
-  let user_groups = new Set(user.Groups.map(group => group.GroupName));
+function userToRole(user: any) {
+  let user_groups = new Set(user.Groups.map((group: any) => group.GroupName));
   for(const group of ["admin", "user"])
     if(user_groups.has(group))
       return group
   return "guest";
 }
 
-function RoleSelector(props) {
+function RoleSelector(props: any) {
   const current_group = userToRole(props.user);
   const [pending, setPending] = React.useState(false);
 
@@ -63,24 +63,27 @@ function RoleSelector(props) {
         expandToViewport
         placeholder="Role"
         selectedOption={{label: current_group.charAt(0,).toUpperCase() + current_group.slice(1,),value: current_group}}
-        onChange={({ detail }) => {setPending(true);SetUserRole(props.user,detail.selectedOption.value,(user,) => {setPending(false,)},);}}
+        onChange={({ detail }) => {setPending(true);SetUserRole(props.user,detail.selectedOption.value,(user: any) => {setPending(false,)},);}}
         options={[
           { label: "Guest", value: "guest" },
           { label: "User", value: "user" },
           { label: "Admin", value: "admin" },
         ]}
         selectedAriaLabel="Selected"/>
-      }</div>)
+      }</div>
+  );
 }
 
-function UserActions({user}) {
+function UserActions({
+  user
+}: any) {
   let email = useState(['identity', 'attributes', 'email']);
   return <SpaceBetween direction="horizontal" size="s">
     <Button disabled={email === user.Attributes.email} className="action" onClick={() => {setState(['app','user','delete'], user); showDialog('deleteUser')}}>Delete</Button>
   </SpaceBetween>
 }
 
-function UserList(props) {
+function UserList(props: any) {
   const user_index = useSelector(selectUserIndex) || {};
   const usernames = Object.keys(user_index).sort();
   const users = usernames.map((username) => user_index[username]);
@@ -114,7 +117,7 @@ function UserList(props) {
 
   const deleteUser = () => {
     console.log(user);
-    DeleteUser(user, (returned_user) => {clearState(['users', 'index', returned_user.Username])});
+    DeleteUser(user, (returned_user: any) => {clearState(['users', 'index', returned_user.Username])});
     hideDialog('deleteUser');
   }
 
@@ -227,6 +230,7 @@ export default function Users() {
             {enableMfa && <Input inputMode='tel' onChange={({ detail }) => setState(userphonePath, detail.value)} value={userphone} placeholder='+11234567890'></Input>}
             <div onKeyPress={e => e.key === 'Enter' && createUser()}>
               <FormField errorText={error}>
+                {/* @ts-expect-error TS(2322) FIXME: Type '{ onChange: ({ detail }: NonCancelableCustom... Remove this comment to see the full error message */}
                 <Input onChange={({ detail }) => setState(usernamePath, detail.value)} value={username} placeholder='email@domain.com' onSubmit={createUser}></Input>
               </FormField>
             </div>

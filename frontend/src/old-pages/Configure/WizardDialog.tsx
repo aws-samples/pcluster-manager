@@ -11,6 +11,7 @@
 // limitations under the License.
 import * as React from 'react';
 
+// @ts-expect-error TS(7016) FIXME: Could not find a declaration file for module 'js-y... Remove this comment to see the full error message
 import jsyaml from 'js-yaml';
 
 // UI Elements
@@ -42,7 +43,7 @@ import { LoadAwsConfig } from '../../model'
 // Icons
 import CancelIcon from '@mui/icons-material/Cancel';
 
-export default function WizardDialog(props) {
+export default function WizardDialog(props: any) {
   const open = useState(['app', 'wizard', 'dialog']);
   const loadingPath = ['app', 'wizard', 'source', 'loading'];
   const loading = useState(loadingPath);
@@ -59,7 +60,7 @@ export default function WizardDialog(props) {
 
   const pages = ['source', 'cluster', 'headNode', 'storage', 'queues', 'create'];
 
-  const handleClose = (clear) => {
+  const handleClose = (clear: any) => {
     if(clear)
     {
       clearState(['app', 'wizard', 'config']);
@@ -90,11 +91,13 @@ export default function WizardDialog(props) {
     let currentPage = getState(['app', 'wizard', 'page']);
 
     // Run the validators corresponding to the page we are on
+    // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     if(validators[currentPage] && !validators[currentPage]())
       return;
 
     if(currentPage === "create")
     {
+      // @ts-expect-error TS(2554) FIXME: Expected 2 arguments, but got 1.
       wizardHandleCreate(() => handleClose(true));
       return;
     }
@@ -159,6 +162,7 @@ export default function WizardDialog(props) {
   }
 
   const handleDryRun = () => {
+    // @ts-expect-error TS(2554) FIXME: Expected 1 arguments, but got 0.
     wizardHandleDryRun();
   }
 
@@ -174,13 +178,13 @@ export default function WizardDialog(props) {
     if (open) {
       const { current: descriptionElement } = descriptionElementRef;
       if (descriptionElement !== null) {
-        descriptionElement.focus();
+        (descriptionElement as any).focus();
       }
     }
   }, [open]);
 
   React.useEffect(() => {
-    const close = (e) => {
+    const close = (e: any) => {
       if(e.key === 'Escape') {
         handleClose(true)
       }
@@ -203,6 +207,7 @@ export default function WizardDialog(props) {
                 {fleetStatus !== "RUNNING" ? <span>Stop Compute Fleet</span>
                 : <div className="container"><CancelIcon /> Stop Compute Fleet</div>}
               </Button>}
+              {/* @ts-expect-error TS(2322) FIXME: Type '{ children: string; onClick: () => void; aut... Remove this comment to see the full error message */}
               <Button onClick={() => handleClose(true)} autoFocus>Cancel</Button>
               <Button disabled={page === pages[0]} onClick={handlePrev}>Back</Button>
               {page === "create" && <Button onClick={handleDryRun}>Dry Run</Button>}
@@ -223,6 +228,7 @@ export default function WizardDialog(props) {
         }>
 
         <Box className="wizard-container">
+          {/* @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message */}
           {{"source": <Source />,
             "cluster": aws ? <Cluster /> : <Loading />,
             "headNode": aws ? <HeadNode /> : <Loading />,

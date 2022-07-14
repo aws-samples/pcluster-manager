@@ -11,6 +11,7 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom"
 
+// @ts-expect-error TS(7016) FIXME: Could not find a declaration file for module 'js-y... Remove this comment to see the full error message
 import jsyaml from 'js-yaml';
 
 import { clearState, getState, setState, useState, updateState } from '../../store'
@@ -41,7 +42,7 @@ import Loading from '../../components/Loading'
 // Icons
 import CancelIcon from '@mui/icons-material/Cancel';
 
-function wizardShow(navigate) {
+function wizardShow(navigate: any) {
   const editing = getState(['app', 'wizard', 'editing']);
   const page = getState(['app', 'wizard', 'page']);
   if(editing) {
@@ -57,7 +58,7 @@ function wizardShow(navigate) {
   navigate('/configure');
 }
 
-function setPage(page) {
+function setPage(page: any) {
   const config = getState(['app', 'wizard', 'config']);
   if(page === "create")
   {
@@ -88,6 +89,7 @@ function SideNav() {
   return <div className="config-side-navigation">
     <SideNavigation
       activeHref={page}
+      // @ts-expect-error TS(2741) FIXME: Property 'href' is missing in type '{ text: string... Remove this comment to see the full error message
       header={{ text: "Section" }}
       onFollow={event => {
         if (!event.detail.external) {
@@ -95,6 +97,7 @@ function SideNav() {
           setPage(event.detail.href);
         }
       }}
+      // @ts-expect-error TS(2322) FIXME: Type '({ type: string; text: string; href: string;... Remove this comment to see the full error message
       items={items}/>
   </div>
 }
@@ -117,7 +120,7 @@ function Configure() {
 
   const pages = ['source', 'cluster', 'headNode', 'storage', 'queues', 'create'];
 
-  const handleClose = (clear) => {
+  const handleClose = (clear: any) => {
     if(clear)
     {
       clearState(['app', 'wizard', 'config']);
@@ -148,11 +151,12 @@ function Configure() {
     let currentPage = getState(['app', 'wizard', 'page']) || 'source';
 
     // Run the validators corresponding to the page we are on
+    // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     if(validators[currentPage] && !validators[currentPage]())
       return;
 
     // Add the current page to the validated set
-    updateState(['app', 'wizard', 'validated'], (existing) => (existing || new Set()).add(currentPage))
+    updateState(['app', 'wizard', 'validated'], (existing: any) => (existing || new Set()).add(currentPage))
 
     if(currentPage === "create")
     {
@@ -216,6 +220,7 @@ function Configure() {
   }
 
   const handleDryRun = () => {
+    // @ts-expect-error TS(2554) FIXME: Expected 1 arguments, but got 0.
     wizardHandleDryRun();
   }
 
@@ -231,13 +236,13 @@ function Configure() {
     if (open) {
       const { current: descriptionElement } = descriptionElementRef;
       if (descriptionElement !== null) {
-        descriptionElement.focus();
+        (descriptionElement as any).focus();
       }
     }
   }, [open]);
 
   React.useEffect(() => {
-    const close = (e) => {
+    const close = (e: any) => {
       if(e.key === 'Escape') {
         handleClose(true)
       }
@@ -249,6 +254,7 @@ function Configure() {
   return <div style={{minWidth: '1200px'}}>
     <StopDialog clusterName={clusterName} />
     <SpaceBetween direction="vertical" size="l">
+      {/* @ts-expect-error TS(2741) FIXME: Property 'href' is missing in type '{ text: string... Remove this comment to see the full error message */}
       <BreadcrumbGroup items={[{text: "Clusters", href: "#clusters"}, {text: (editing ? "Update" : "Create") }]}
         onClick={() => handleClose(true)}
       />
@@ -257,6 +263,7 @@ function Configure() {
         <div style={{minWidth: '800px', maxWidth: '1000px'}}>
           <SpaceBetween direction="vertical" size='s'>
             <Box className="wizard-container">
+              {/* @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message */}
               {{"source": <Source />,
                 "cluster": aws ? <Cluster /> : <Loading />,
                 "headNode": aws ? <HeadNode /> : <Loading />,
@@ -277,6 +284,7 @@ function Configure() {
                   {fleetStatus !== "RUNNING" ? <span>Stop Compute Fleet</span>
                   : <div className="container"><CancelIcon /> Stop Compute Fleet</div>}
                 </Button>}
+                {/* @ts-expect-error TS(2322) FIXME: Type '{ children: string; onClick: () => void; aut... Remove this comment to see the full error message */}
                 <Button onClick={() => handleClose(true)} autoFocus>Cancel</Button>
                 <Button disabled={page === pages[0]} onClick={handlePrev}>Back</Button>
                 {page === "create" && <Button onClick={handleDryRun}>Dry Run</Button>}

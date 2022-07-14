@@ -20,15 +20,20 @@ import {
 
 import { setState, useState } from '../store'
 
-export function showDialog(id) {
+export function showDialog(id: any) {
   setState(['app', 'confirmDelete', id], true);
 }
 
-export function hideDialog(id) {
+export function hideDialog(id: any) {
   setState(['app', 'confirmDelete', id], false);
 }
 
-export function DeleteDialog({children, deleteCallback, header, id}) {
+export function DeleteDialog({
+  children,
+  deleteCallback,
+  header,
+  id
+}: any) {
   const open = useState(['app', 'confirmDelete', id]);
 
   const cancel = () => {
@@ -45,6 +50,7 @@ export function DeleteDialog({children, deleteCallback, header, id}) {
         <Box float="right">
           <SpaceBetween direction="horizontal" size="xs">
             <Button onClick={cancel}>Cancel</Button>
+            {/* @ts-expect-error TS(2322) FIXME: Type '{ children: string; onClick: any; autoFocus:... Remove this comment to see the full error message */}
             <Button onClick={deleteCallback} autoFocus>Delete!</Button>
           </SpaceBetween>
         </Box>

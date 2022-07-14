@@ -16,7 +16,11 @@ import {
   CodeEditor
 } from "@awsui/components-react";
 
-export default function ConfigView({config, pending, onChange}){
+export default function ConfigView({
+  config,
+  pending,
+  onChange
+}: any){
   const [preferences, setPreferences] = React.useState({'theme': 'textmate'});
   return <CodeEditor
     ace={window.ace}
@@ -24,6 +28,7 @@ export default function ConfigView({config, pending, onChange}){
     value={config || ''}
     onChange={(e) => {}}
     onDelayedChange={onChange}
+    // @ts-expect-error TS(2322) FIXME: Type '{ theme: string; }' is not assignable to typ... Remove this comment to see the full error message
     preferences={preferences}
     onPreferencesChange={e => setPreferences(e.detail)}
     onValidate={e => {}}

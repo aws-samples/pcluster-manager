@@ -16,6 +16,7 @@ import { loadTemplate } from './util'
 import { findFirst } from '../../util'
 import { GetConfiguration } from '../../model'
 
+// @ts-expect-error TS(7016) FIXME: Could not find a declaration file for module 'js-y... Remove this comment to see the full error message
 import jsyaml from 'js-yaml';
 
 // UI Elements
@@ -38,10 +39,11 @@ import Loading from '../../components/Loading'
 const sourcePath = ['app', 'wizard', 'source'];
 const sourceErrorsPath = ['app', 'wizard', 'errors', 'source'];
 
-function copyFrom(sourceClusterName)
+function copyFrom(sourceClusterName: any)
 {
   const loadingPath = ['app', 'wizard', 'source', 'loading'];
-  GetConfiguration(sourceClusterName, (configuration) => {
+  // @ts-expect-error TS(2345) FIXME: Argument of type '(configuration: any) => void' is... Remove this comment to see the full error message
+  GetConfiguration(sourceClusterName, (configuration: any) => {
     loadTemplate(jsyaml.load(configuration), () => setState(loadingPath, false));
   });
 }
@@ -49,7 +51,7 @@ function copyFrom(sourceClusterName)
 function sourceValidate(suppressUpload = false) {
   let clusterName = getState(['app', 'wizard', 'clusterName']);
   const clusters = getState(['clusters', 'list']) ||  [];
-  let clusterNames = new Set(clusters.map((c) => c.clusterName))
+  let clusterNames = new Set(clusters.map((c: any) => c.clusterName))
   let sourceClusterName = getState(['app', 'wizard', 'source', 'selectedCluster']);
   let upload = getState([...sourcePath, 'upload']);
   let source = getState([...sourcePath, 'type']);
@@ -87,6 +89,7 @@ function sourceValidate(suppressUpload = false) {
     return false;
   }
 
+  // @ts-expect-error TS(2447) FIXME: The '&' operator is not allowed for boolean types.... Remove this comment to see the full error message
   if(valid && (source === 'cluster') & !suppressUpload)
   {
     setState(loadingPath, true);
@@ -105,22 +108,24 @@ function ClusterSelect() {
   let source = useState([...sourcePath, 'type']);
   let validated = useState([...sourceErrorsPath, 'validated']);
 
-  const itemToOption = (item) => {
+  const itemToOption = (item: any) => {
     if(item)
       return {label: item.clusterName, value: item.clusterName}
     else
       return {label: "Please select a cluster."}
   }
 
-  return <FormField errorText={errors}>
-    <Select
-    disabled = {source !== 'cluster'}
-    selectedOption={itemToOption(findFirst(clusters, x => {return x.clusterName === selected}))}
-    onChange={({detail}) => {setState(selectedPath, detail.selectedOption.value); validated && sourceValidate(true);}}
-    selectedAriaLabel="Selected"
-    options={clusters.map(itemToOption)}
-  />
-  </FormField>
+  return (
+    <FormField errorText={errors}>
+      <Select
+      disabled = {source !== 'cluster'}
+      selectedOption={itemToOption(findFirst(clusters, (x: any) => {return x.clusterName === selected}))}
+      onChange={({detail}) => {setState(selectedPath, detail.selectedOption.value); validated && sourceValidate(true);}}
+      selectedAriaLabel="Selected"
+      options={clusters.map(itemToOption)}
+    />
+    </FormField>
+  );
 }
 
 function Source() {
@@ -136,7 +141,7 @@ function Source() {
       setState([...sourcePath, 'type'], 'wizard');
   }, [])
 
-  const handleUpload = (data) => {
+  const handleUpload = (data: any) => {
     if(source === 'upload') {
       setState(['app', 'wizard', 'page'], 'create');
       setState(['app', 'wizard', 'clusterConfigYaml'], data);
@@ -144,6 +149,7 @@ function Source() {
 
     } else if(source === 'template')
     {
+      // @ts-expect-error TS(2554) FIXME: Expected 2 arguments, but got 1.
       loadTemplate(jsyaml.load(data))
     }
   }

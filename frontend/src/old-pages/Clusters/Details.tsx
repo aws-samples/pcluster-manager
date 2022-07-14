@@ -36,7 +36,7 @@ export default function ClusterTabs() {
   const selectedClusterName = useState(['app', 'clusters', 'selected']);
 
   let allScripts = [];
-  const scriptName = (script) => {
+  const scriptName = (script: any) => {
     let suffix = script.slice(script.lastIndexOf('/') + 1);
     return suffix.slice(0, suffix.lastIndexOf('.'));
   }

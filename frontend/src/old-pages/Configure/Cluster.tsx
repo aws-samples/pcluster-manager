@@ -35,9 +35,12 @@ import { LabeledIcon, CustomAMISettings } from './Components'
 // Constants
 const errorsPath = ['app', 'wizard', 'errors', 'cluster'];
 
-const selectQueues = state => getState(state, ['app', 'wizard', 'config', 'Scheduling', 'SlurmQueues']);
-const selectVpc = state => getState(state, ['app', 'wizard', 'vpc']);
-const selectAwsSubnets = state => getState(state, ['aws', 'subnets']);
+// @ts-expect-error TS(2345) FIXME: Argument of type 'string[]' is not assignable to p... Remove this comment to see the full error message
+const selectQueues = (state: any) => getState(state, ['app', 'wizard', 'config', 'Scheduling', 'SlurmQueues']);
+// @ts-expect-error TS(2345) FIXME: Argument of type 'string[]' is not assignable to p... Remove this comment to see the full error message
+const selectVpc = (state: any) => getState(state, ['app', 'wizard', 'vpc']);
+// @ts-expect-error TS(2345) FIXME: Argument of type 'string[]' is not assignable to p... Remove this comment to see the full error message
+const selectAwsSubnets = (state: any) => getState(state, ['aws', 'subnets']);
 
 function clusterValidate() {
   const vpc = getState(['app', 'wizard', 'vpc']);
@@ -67,7 +70,7 @@ function clusterValidate() {
   return valid;
 }
 
-function itemToOption(item) {
+function itemToOption(item: any) {
   if(!item)
     return;
   const [value, title, icon] = item;
@@ -80,13 +83,16 @@ function RegionSelect() {
   const queues = useSelector(selectQueues);
   const editing = useState(['app', 'wizard', 'editing']);
 
-  const handleChange = ({ detail }) => {
+  const handleChange = ({
+    detail
+  }: any) => {
     const chosenRegion = detail.selectedOption.value === "Default" ? null : detail.selectedOption.value;
+    // @ts-expect-error TS(2554) FIXME: Expected 2 arguments, but got 1.
     LoadAwsConfig(chosenRegion);
     setState(['app', 'wizard', 'vpc'], null)
     setState(['app', 'wizard', 'headNode', 'subnet'], null)
     if(queues)
-      queues.forEach((queue, i) => {
+      queues.forEach((queue: any, i: any) => {
         clearState(['app', 'wizard', 'queues', i, "subnet"]);
       })
     setState(['app', 'wizard', 'config', 'Region'], chosenRegion);
@@ -119,20 +125,21 @@ function RegionSelect() {
     ["us-west-2", "us-west-2", "flags/us.svg"],
   ];
 
-  return (
-    <>
-      <Header variant="h4" description="Region where the cluster will be created."
-        actions={
-          <Select
-            disabled={editing}
-            selectedOption={itemToOption(findFirst(supportedRegions, x => {return x[0] === region}))}
-            onChange={handleChange}
-            options={supportedRegions.map(itemToOption)}
-            selectedAriaLabel="Selected"/>
-        }
-      >Region</Header>
-    </>
-  );
+  return <>
+    {/* @ts-expect-error TS(2322) FIXME: Type '"h4"' is not assignable to type 'Variant | u... Remove this comment to see the full error message */}
+    <Header variant="h4" description="Region where the cluster will be created."
+      actions={
+        <Select
+          disabled={editing}
+          // @ts-expect-error TS(2322) FIXME: Type '{ label: Element; value: any; } | undefined'... Remove this comment to see the full error message
+          selectedOption={itemToOption(findFirst(supportedRegions, (x: any) => {return x[0] === region}))}
+          onChange={handleChange}
+          // @ts-expect-error TS(2322) FIXME: Type '({ label: Element; value: any; } | undefined... Remove this comment to see the full error message
+          options={supportedRegions.map(itemToOption)}
+          selectedAriaLabel="Selected"/>
+      }
+    >Region</Header>
+  </>;
 }
 
 function SchedulerSelect() {
@@ -140,22 +147,23 @@ function SchedulerSelect() {
   const scheduler = useState(['app', 'wizard', 'scheduler']) || "slurm";
   const editing = useState(['app', 'wizard', 'editing']);
 
-  return (
-    <>
-      <Header variant="h4"
-        description="Scheduler that will be used to manage applications."
-        actions={
-          <Select
-            disabled={editing}
-            selectedOption={itemToOption(findFirst(schedulers, x => {return x[0] === scheduler}))}
-            onChange={({detail}) => {setState(['app', 'wizard', 'scheduler'], detail.selectedOption.value)}}
-            options={schedulers.map(itemToOption)}
-            selectedAriaLabel="Selected"
-          />
-        }
-      >Scheduler</Header>
-    </>
-  );
+  return <>
+    {/* @ts-expect-error TS(2322) FIXME: Type '"h4"' is not assignable to type 'Variant | u... Remove this comment to see the full error message */}
+    <Header variant="h4"
+      description="Scheduler that will be used to manage applications."
+      actions={
+        <Select
+          disabled={editing}
+          // @ts-expect-error TS(2322) FIXME: Type '{ label: Element; value: any; } | undefined'... Remove this comment to see the full error message
+          selectedOption={itemToOption(findFirst(schedulers, (x: any) => {return x[0] === scheduler}))}
+          onChange={({detail}) => {setState(['app', 'wizard', 'scheduler'], detail.selectedOption.value)}}
+          // @ts-expect-error TS(2322) FIXME: Type '({ label: Element; value: any; } | undefined... Remove this comment to see the full error message
+          options={schedulers.map(itemToOption)}
+          selectedAriaLabel="Selected"
+        />
+      }
+    >Scheduler</Header>
+  </>;
 }
 
 function OsSelect() {
@@ -168,21 +176,22 @@ function OsSelect() {
   const osPath = ['app', 'wizard', 'config', 'Image', 'Os'];
   const os = useState(osPath) || "alinux2";
   const editing = useState(['app', 'wizard', 'editing']);
-  return (
-    <>
-      <Header variant="h4" description="OS installed on the cluster nodes."
-        actions={
-          <Select
-            disabled={editing}
-            selectedOption={itemToOption(findFirst(oses, x => {return x[0] === os}))}
-            onChange={({detail}) => setState(osPath, detail.selectedOption.value)}
-            options={oses.map(itemToOption)}
-            selectedAriaLabel="Selected"
-          />
-        }
-      >Operating System</Header>
-    </>
-  );
+  return <>
+    {/* @ts-expect-error TS(2322) FIXME: Type '"h4"' is not assignable to type 'Variant | u... Remove this comment to see the full error message */}
+    <Header variant="h4" description="OS installed on the cluster nodes."
+      actions={
+        <Select
+          disabled={editing}
+          // @ts-expect-error TS(2322) FIXME: Type '{ label: Element; value: any; } | undefined'... Remove this comment to see the full error message
+          selectedOption={itemToOption(findFirst(oses, (x: any) => {return x[0] === os}))}
+          onChange={({detail}) => setState(osPath, detail.selectedOption.value)}
+          // @ts-expect-error TS(2322) FIXME: Type '({ label: Element; value: any; } | undefined... Remove this comment to see the full error message
+          options={oses.map(itemToOption)}
+          selectedAriaLabel="Selected"
+        />
+      }
+    >Operating System</Header>
+  </>;
 }
 
 
@@ -194,38 +203,38 @@ function VpcSelect() {
   const queues = useSelector(selectQueues);
   const editing = useState(['app', 'wizard', 'editing']);
 
-  const VpcName = (vpc) => {
+  const VpcName = (vpc: any) => {
     if(!vpc)
       return null;
     var tags = vpc.Tags;
     if(!tags) {
       return null;
     }
-    tags = vpc.Tags.filter((t) => {return t.Key === "Name"})
+    tags = vpc.Tags.filter((t: any) => {return t.Key === "Name"})
     return (tags.length > 0) ? tags[0].Value : null
   }
 
-  const vpcToDisplayOption = vpc => {return  vpc ?
+  const vpcToDisplayOption = (vpc: any) => {return  vpc ?
       {label: <div style={{minWidth: "200px"}}>{VpcName(vpc) ? VpcName(vpc) : vpc.VpcId}</div>, value: vpc.VpcId}
       : {label: <div style={{minWidth: "200px"}}>Select a VPC</div>, value: null}}
 
-  const vpcToOption = vpc => {return vpc ?
+  const vpcToOption = (vpc: any) => {return vpc ?
       {label: <div style={{minWidth: "200px"}}>{vpc.VpcId} {VpcName(vpc) && `(${VpcName(vpc)})`}</div>, value: vpc.VpcId} 
       : {label: <div style={{minWidth: "200px"}}>Select a VPC</div>, value: null}}
 
-  const setVpc = (vpcId) => {
+  const setVpc = (vpcId: any) => {
     setState(['app', 'wizard', 'vpc'], vpcId);
     setState([...errorsPath, 'vpc'], null);
     const headNodeSubnetPath = ['app', 'wizard', 'config', 'HeadNode', 'Networking', 'SubnetId'];
 
-    const filteredSubnets = subnets && subnets.filter((s) => {return s.VpcId === vpcId})
+    const filteredSubnets = subnets && subnets.filter((s: any) => {return s.VpcId === vpcId})
     if(filteredSubnets.length > 0) {
       const subnetSet = new Set(filteredSubnets);
       var subnet = filteredSubnets[0];
       if(!subnetSet.has(getState(headNodeSubnetPath)))
         setState(headNodeSubnetPath, subnet.SubnetId);
       if(queues)
-        queues.forEach((queue, i) => {
+        queues.forEach((queue: any, i: any) => {
           const queueSubnetPath = ['app', 'wizard', 'config', 'Scheduling', 'SlurmQueues', i, "Networking", "SubnetIds"];
           if(!subnetSet.has(getState(queueSubnetPath)))
             setState(queueSubnetPath, [subnet.SubnetId]);
@@ -233,20 +242,24 @@ function VpcSelect() {
     }
   }
 
-  return <Header variant="h4" description="VPC where the cluster instances will reside."
-      actions={
-        <FormField errorText={error}>
-        <Select
-          disabled={editing}
-          selectedOption={vpcToDisplayOption(findFirst(vpcs, x => {return x.VpcId === vpc}))}
-          onChange={({detail}) => {setVpc(detail.selectedOption.value)}}
-          options={vpcs.map(vpcToOption)}
-          selectedAriaLabel="Selected"
-        />
-        </FormField>
-      }>
-      VPC
-    </Header>
+  return (
+    // @ts-expect-error TS(2322) FIXME: Type '"h4"' is not assignable to type 'Variant | u... Remove this comment to see the full error message
+    <Header variant="h4" description="VPC where the cluster instances will reside."
+        actions={
+          <FormField errorText={error}>
+          <Select
+            disabled={editing}
+            // @ts-expect-error TS(2322) FIXME: Type '{ label: JSX.Element; value: any; }' is not ... Remove this comment to see the full error message
+            selectedOption={vpcToDisplayOption(findFirst(vpcs, (x: any) => {return x.VpcId === vpc}))}
+            onChange={({detail}) => {setVpc(detail.selectedOption.value)}}
+            options={vpcs.map(vpcToOption)}
+            selectedAriaLabel="Selected"
+          />
+          </FormField>
+        }>
+        VPC
+      </Header>
+  );
 }
 
 function Cluster() {
@@ -288,7 +301,7 @@ function Cluster() {
     if(awsConfig && awsConfig.keypairs && awsConfig.keypairs.length > 0)
     {
       const keypairs = getState(['aws', 'keypairs']) || [];
-      const keypairNames = new Set(keypairs.map((kp) => kp.KeyName));
+      const keypairNames = new Set(keypairs.map((kp: any) => kp.KeyName));
       const headNodeKPPath = [...configPath, 'HeadNode', 'Ssh', 'KeyName'];
       if(keypairs.length > 0 && !keypairNames.has(getState(headNodeKPPath)))
       {
@@ -304,6 +317,7 @@ function Cluster() {
       <VpcSelect />
       {versionMinor && versionMinor >= 1 &&
       <FormField>
+        {/* @ts-expect-error TS(2322) FIXME: Type '"h4"' is not assignable to type 'Variant | u... Remove this comment to see the full error message */}
         <Header variant="h4" description="Enable Multi-User cluster through Active Directory integration.">Multi User</Header>
         <Toggle disabled={editing} checked={multiUserEnabled} onChange={() => setState(['app', 'wizard', 'multiUser'], !multiUserEnabled)}>Multi User Cluster</Toggle>
       </FormField>

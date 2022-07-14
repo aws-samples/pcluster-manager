@@ -14,7 +14,7 @@ const defaultState = {
     notifications: [],
 };
 
-const reducer = (state = defaultState, action) => {
+const reducer = (state = defaultState, action: any) => {
     switch (action.type) {
         case ENQUEUE_SNACKBAR:
             return {
@@ -30,21 +30,19 @@ const reducer = (state = defaultState, action) => {
 
         case CLOSE_SNACKBAR:
             return {
-                ...state,
-                notifications: state.notifications.map(notification => (
-                    (action.dismissAll || notification.key === action.key)
-                        ? { ...notification, dismissed: true }
-                        : { ...notification }
-                )),
-            };
+    ...state,
+    notifications: state.notifications.map(notification => ((action.dismissAll || (notification as any).key === action.key)
+        ? // @ts-expect-error TS(2698) FIXME: Spread types may only be created from object types... Remove this comment to see the full error message
+                            { ...notification, dismissed: true }
+        : // @ts-expect-error TS(2698) FIXME: Spread types may only be created from object types... Remove this comment to see the full error message
+                            { ...notification })),
+};
 
         case REMOVE_SNACKBAR:
             return {
-                ...state,
-                notifications: state.notifications.filter(
-                    notification => notification.key !== action.key,
-                ),
-            };
+    ...state,
+    notifications: state.notifications.filter(notification => (notification as any).key !== action.key),
+};
 
         default:
             return state;

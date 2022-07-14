@@ -15,7 +15,9 @@ import HelpIcon from '@mui/icons-material/Help';
 // UI Elements
 import { Popover } from "@awsui/components-react";
 
-export default function HelpTooltip({ children }) {
+export default function HelpTooltip({
+  children
+}: any) {
   return <span style={{ paddingLeft: "8px", display: "inline-block" }}>
     <Popover dismissButton={false}
       position="right"

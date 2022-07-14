@@ -24,7 +24,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import GroupIcon from '@mui/icons-material/Group';
 import { useTranslation } from 'react-i18next';
 
-export function SideBarIcons(props) {
+export function SideBarIcons(props: any) {
   const drawerOpen = useState(['app', 'sidebar', 'drawerOpen']);
   
   const location = useLocation();
@@ -62,7 +62,7 @@ export function SideBarIcons(props) {
   )
 }
 
-export default function SideBar(props) {
+export default function SideBar(props: any) {
   const drawerOpen = useState(['app', 'sidebar', 'drawerOpen']);
   const { t } = useTranslation();
   useNotifier();
