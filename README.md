@@ -116,6 +116,10 @@ npm run dev
 
 Then navigate to [http://localhost:3000](http://localhost:3000)
 
+## Typescript
+The project has been converted to Typescript using [ts-migrate](https://github.com/airbnb/ts-migrate/tree/master/packages/ts-migrate)(an in depth explanation can be found [here](https://medium.com/airbnb-engineering/ts-migrate-a-tool-for-migrating-to-typescript-at-scale-cd23bfeb5cc)).
+The tool automatically adds comments similar to `// @ts-expect-error` when typing errors cannot be fixed automatically: if you fix a type error either by adding a missing third party declaration or tweaking the signature of a function, you can adjust automatically the codebase and remove `//@ts-ignore` comments using `npm run ts-reignore`.
+
 ## Testing
 
 Launch tests of the API backend by running:

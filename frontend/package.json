@@ -35,7 +35,8 @@
     "test": "jest",
     "lint": "next lint",
     "dev": "next dev",
-    "export": "next build && next export -o build"
+    "export": "next build && next export -o build",
+    "ts-reignore": "ts-migrate reignore . --sources='src/**/*'"
   },
   "browserslist": {
     "production": [
@@ -60,6 +61,7 @@
     "jest-environment-jsdom": "^28.1.2",
     "jest-mock-extended": "^2.0.6",
     "lodash": "^4.17.21",
+    "ts-migrate": "^0.1.30",
     "typescript": "^4.7.4"
   }
 }
