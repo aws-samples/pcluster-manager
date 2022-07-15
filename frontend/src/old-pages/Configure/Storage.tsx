@@ -476,24 +476,29 @@ function EbsSettings({
  */
 const STORAGE_TYPE_PROPS = {
   "FsxLustre": {
-    canCreate: true,
     mountFilesystem: true,
+    maxToCreate: 1,
+    maxExistingToAttach: 20
   },
   "FsxOntap": {
-    canCreate: false,
     mountFilesystem: false,
+    maxToCreate: 0,
+    maxExistingToAttach: 20
   },
   "FsxOpenZfs": {
-    canCreate: false,
     mountFilesystem: false,
+    maxToCreate: 0,
+    maxExistingToAttach: 20
   },
   "Efs": {
-    canCreate: true,
     mountFilesystem: true,
+    maxToCreate: 1,
+    maxExistingToAttach: 20
   },
   "Ebs": {
-    canCreate: true,
     mountFilesystem: false,
+    maxToCreate: 5,
+    maxExistingToAttach: 5
   },
 }
 
@@ -506,18 +511,23 @@ function StorageInstance({
   const storageName = useState([...path, 'Name']) || "";
   const mountPoint = useState([...path, 'MountDir']);
   // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
-  const useExisting = useState([...storageAppPath, 'useExisting']) || !STORAGE_TYPE_PROPS[storageType].canCreate;
+  const useExisting = useState([...storageAppPath, 'useExisting']) || !STORAGE_TYPE_PROPS[storageType].maxToCreate > 0;
   const settingsPath = [...path, `${storageType}Settings`]
   // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   const existingPath = STORAGE_TYPE_PROPS[storageType].mountFilesystem ? [...settingsPath, 'FileSystemId'] : [...settingsPath, 'VolumeId'];
   const existingId = useState(existingPath) || "";
   const storages = useState(storagePath);
+  const uiStorageSettings = useState(['app', 'wizard', 'storage']);
+
 
   const fsxFilesystems = useState(['aws', 'fsxFilesystems']);
   const fsxVolumes = useState(['aws', 'fsxVolumes']);
   const efsFilesystems = useState(['aws', 'efs_filesystems']) || [];
   const editing = useState(['app', 'wizard', 'editing']);
 
+  const canToggle = (useExisting && canCreateStorage(storageType, storages, uiStorageSettings)) ||
+                    (!useExisting && canAttachExistingStorage(storageType, storages, uiStorageSettings));
+  
   const removeStorage = (type: any) => {
     if(index === 0 && storages.length === 1)
       clearState(storagePath);
@@ -569,8 +579,8 @@ function StorageInstance({
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
             {/* @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message */}
-            {STORAGE_TYPE_PROPS[storageType].canCreate ? <div style={{marginTop: "10px", display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
-              <Toggle disabled={editing} checked={useExisting} onChange={toggleUseExisting}>Use Existing Filesystem</Toggle>
+            {STORAGE_TYPE_PROPS[storageType].maxToCreate > 0 ? <div style={{marginTop: "10px", display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+              <Toggle disabled={!canToggle} checked={useExisting} onChange={toggleUseExisting}>Use Existing Filesystem</Toggle>
               <HelpTooltip>
                 Specify an existing fileystem and mount it to all instances in the cluster.
                 See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-FileSystemId'>FSx Filesystem ID</a>
@@ -645,11 +655,12 @@ function StorageInstance({
 function Storage() {
   const storages = useState(storagePath);
   const editing = useState(['app', 'wizard', 'editing']);
+  const uiStorageSettings = useState(['app', 'wizard', 'storage']);
   const storageType = useState(['app', 'wizard', 'storage', 'type']);
   const versionMinor = useState(['app', 'version', 'minor']);
 
-  const storageMaxes = {"FsxLustre": 1, "FsxOntap": 1, "FsxOpenZfs": 1, "Efs": 1, "Ebs": 5}
-
+  const storageMaxes = {"FsxLustre": 21, "FsxOntap": 20, "FsxOpenZfs": 20, "Efs": 21, "Ebs": 5}
+  
   /*
     Activate ONTAP/OpenZFS only from ParallelCluster 3.2.0
    */
@@ -683,6 +694,10 @@ function Storage() {
 
   const addStorage = () => {
     const newIndex = storages ? storages.length : 0;
+
+    const useExistingPath = ['app', 'wizard', 'storage', newIndex, 'useExisting'];
+    setState(useExistingPath, !canCreateStorage(storageType, storages, uiStorageSettings));
+    
     if(!storages)
       setState(storagePath, [{Name: `${storageType}${newIndex}`, StorageType: storageType, MountDir: '/shared'}]);
     else
@@ -712,7 +727,7 @@ function Storage() {
                 // @ts-expect-error TS(2345) FIXME: Argument of type '([value, label, icon]: [any, any... Remove this comment to see the full error message
                 options={storageTypes.map(itemToIconOption)}
               />
-              <Button onClick={addStorage} disabled={!storageType || (storages && storages.length >= 5)} iconName={"add-plus"}>Add Storage</Button>
+              <Button onClick={addStorage} disabled={!storageType} iconName={"add-plus"}>Add Storage</Button>
             </div>
           </div>
         }
@@ -721,4 +736,42 @@ function Storage() {
   );
 }
 
-export { Storage, storageValidate }
+function canCreateStorage(storageType, storages, uiStorageSettings) {
+  if (!storageType) {
+    return false;
+  }
+
+  if (!storages || !uiStorageSettings) {
+    return true;
+  }
+
+  const maxToCreate = STORAGE_TYPE_PROPS[storageType].maxToCreate;
+  const alreadyCreated = Object.keys(uiStorageSettings)
+        .filter(key => key !== 'type')
+        .filter(index => storages[index].StorageType === storageType)
+        .filter(index => !uiStorageSettings[index].useExisting)
+        .length
+
+  return alreadyCreated < maxToCreate;
+}
+
+function canAttachExistingStorage(storageType, storages, uiStorageSettings) {
+  if (!storageType) {
+    return false;
+  }
+
+  if (!storages || !uiStorageSettings) {
+    return true;
+  }
+
+  const maxExistingToAttach = STORAGE_TYPE_PROPS[storageType].maxExistingToAttach;
+  const existingAlreadyAttached = Object.keys(uiStorageSettings)
+        .filter(key => key !== 'type')
+        .filter(index => storages[index].StorageType === storageType)
+        .filter(index => uiStorageSettings[index].useExisting)
+        .length
+
+  return existingAlreadyAttached < maxExistingToAttach;
+}
+
+export { Storage, storageValidate, canCreateStorage, canAttachExistingStorage }
