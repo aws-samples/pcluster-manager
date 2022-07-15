@@ -18,6 +18,7 @@ const PolarisCheckBoxWidget = (props) => {
   const [checked, setChecked] = useState(props.value);
   return (
     <Toggle
+      style={{margin: 2}}
       checked={checked}
       onChange={({ detail }) =>
         props.onChange(setChecked(detail.checked))
