@@ -9,18 +9,18 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import React from 'react';
-
 import { setState } from '../../store'
 import { withTheme } from "@rjsf/core";
-import { polarisTheme } from './theme';
-
-
-// UI Elements
+import AddFieldModal from './AddFieldModal'
+import { polarisTheme } from './polarisTheme';
 import {
-  AppLayout,
+AppLayout,
   Container,
   Header,
+  SpaceBetween,
+  Button
 } from "@awsui/components-react";
+
 
 const schema = {
   type: "object",
@@ -51,9 +51,15 @@ const formData = {
   student: false
 };
 
+
 const PolarisForm = withTheme(polarisTheme);
 
 export default function JobsDefinitions() {
+  const [showAddFieldModal, setShowAddFieldModal] = React.useState(false);
+  const onDiscardAddFieldModal = () => setShowAddFieldModal(false);
+  const onShowAddFieldModal = () => setShowAddFieldModal(true);
+  const onConfirmAddFieldModal = () => setShowAddFieldModal(true);
+
 
   return <AppLayout
       className="inner-app-layout"
@@ -70,8 +76,18 @@ export default function JobsDefinitions() {
                 Jobs Definitions
               </Header>
             }>
-            <PolarisForm schema={schema} uiSchema={uiSchema} formData={formData} className="polaris-form"/>
+            <PolarisForm schema={schema} uiSchema={uiSchema} formData={formData} className="polaris-form">
+              <SpaceBetween direction="horizontal" size="m">
+                <Button type="submit" variant="primary">Submit</Button>
+                <Button onClick={onShowAddFieldModal}>Add</Button>
+              </SpaceBetween>
+            </PolarisForm>
           </Container>
+          <AddFieldModal
+            visible={showAddFieldModal}
+            onDiscard={onDiscardAddFieldModal}
+            onConfirm={onConfirmAddFieldModal}
+          />
         </>
       }
     />

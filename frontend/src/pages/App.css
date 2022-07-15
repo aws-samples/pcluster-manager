@@ -258,3 +258,7 @@ div.custom-image-details table {
 .polaris-form fieldset {
   border: none;
 }
+
+.polaris-form .form-group {
+  padding: 5px;
+}
