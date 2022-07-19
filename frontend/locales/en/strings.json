@@ -3,5 +3,13 @@
     "menu": {
       "home": "Home"
     }
+  },
+  "wizard": {
+     "headNode": {
+       "memoryBasedSchedulingEnabled": {
+         "label": "Slurm Memory Based Scheduling Enabled",
+         "help": "If enabled, users may use <i>--mem</i> to specify the amount of memory per node required by a job. For more information, see the <0>Slurm documentation for ConstrainRAMSpace</0>"
+       }
+    }
   }
 }

@@ -9,8 +9,9 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Fameworks
+// Frameworks
 import * as React from 'react';
+import { Trans } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { findFirst, getIn } from '../../util'
 
@@ -37,7 +38,6 @@ import HelpTooltip from '../../components/HelpTooltip'
 // Constants
 const headNodePath = ['app', 'wizard', 'config', 'HeadNode'];
 const errorsPath = ['app', 'wizard', 'errors', 'headNode'];
-
 
 function headNodeValidate() {
   const subnetPath = [...headNodePath, 'Networking', 'SubnetId'];
@@ -267,6 +267,21 @@ function HeadNode() {
     }
   }
 
+  const slurmSettingsPath = ['app', 'wizard', 'config', 'Scheduling', 'SlurmSettings'];
+  const memoryBasedSchedulingEnabledPath = [...slurmSettingsPath, 'EnableMemoryBasedScheduling'];
+  const memoryBasedSchedulingEnabled = useState(memoryBasedSchedulingEnabledPath);
+  const toggleMemoryBasedSchedulingEnabled = () => {
+    const setMemoryBasedSchedulingEnabled = !memoryBasedSchedulingEnabled;
+    if(setMemoryBasedSchedulingEnabled)
+      setState(memoryBasedSchedulingEnabledPath, setMemoryBasedSchedulingEnabled);
+    else
+    {
+      clearState(memoryBasedSchedulingEnabledPath);
+      if(Object.keys(getState([...slurmSettingsPath])).length === 0)
+        clearState([...slurmSettingsPath]);
+    }
+  }
+
   return (
     <Container header={<Header variant="h2">Head Node Properties</Header>}>
       <SpaceBetween direction="vertical" size="s">
@@ -292,6 +307,15 @@ function HeadNode() {
             checked={imdsSecured || false} onChange={toggleImdsSecured}>IMDS Secured</Toggle>
           <HelpTooltip>
             If enabled, restrict access to IMDS (and thus instance credentials) to users with superuser permissions. For more information, see <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html#instance-metadata-v2-how-it-works'>How instance metadata service version 2 works</a> in the <i>Amazon EC2 User Guide for Linux Instances</i>.
+          </HelpTooltip>
+        </div>
+        <div key="memory-based-scheduling-enabled" style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+          <Toggle
+            checked={memoryBasedSchedulingEnabled || false} onChange={toggleMemoryBasedSchedulingEnabled}><Trans i18nKey="wizard.headNode.memoryBasedSchedulingEnabled.label" /></Toggle>
+          <HelpTooltip>
+            <Trans i18nKey="wizard.headNode.memoryBasedSchedulingEnabled.help" >
+               <a rel="noreferrer" target="_blank" href='https://slurm.schedmd.com/cgroup.conf.html#OPT_ConstrainRAMSpace'></a>
+            </Trans>
           </HelpTooltip>
         </div>
         <div key="sgs" style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
