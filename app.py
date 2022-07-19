@@ -62,7 +62,7 @@ class PClusterJSONEncoder(JSONEncoder):
 
 
 def run():
-    app = Flask(__name__, static_url_path="", static_folder="frontend/public")
+    app = utils.build_flask_app(__name__)
     app.json_encoder = PClusterJSONEncoder
     app.url_map.converters["regex"] = RegexConverter
     CORS(app)  # comment this on deployment
@@ -80,9 +80,10 @@ def run():
         )
 
     @app.route("/", defaults={"path": ""})
+    @app.route('/<path:path>')
     @authenticated()
     def serve(path):
-        return send_from_directory(app.static_folder, "index.html")
+        return utils.serve_frontend(app, path)
 
     @app.route("/manager/ec2_action", methods=["POST"])
     @authenticated()
@@ -180,21 +181,6 @@ def run():
     @app.route("/logout")
     def logout_():
         return logout()
-
-    @app.route(
-        '/<regex("(home|clusters|users|configure|custom-images|official-images).*"):base>', defaults={"base": ""}
-    )
-    @authenticated()
-    def catch_all(base):
-        return send_from_directory(app.static_folder, "index.html")
-
-    @app.route(
-        '/<regex("(home|clusters|users|configure|custom-images|official-images).*"):base>/<path:u_path>',
-        defaults={"base": "", "u_path": ""},
-    )
-    @authenticated()
-    def catch_all2(base, u_path):
-        return send_from_directory(app.static_folder, "index.html")
 
     api.add_resource(PclusterApiHandler, "/api")
     return app
