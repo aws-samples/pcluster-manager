@@ -31,11 +31,18 @@ import CssBaseline from '@mui/material/CssBaseline';
 // Components
 import Loading from '../components/Loading'
 
-import { isGuest } from '../store';
+import { isGuest, setState } from '../store';
+import Job from '../old-pages/JobsDefinitions/Job';
+import JobDefinitionEditor from '../old-pages/JobsDefinitions/JobDefinitionEditor';
 
+// TODO this part will be removed
+import { jobsDefinitionsMock } from '../old-pages/JobsDefinitions/jobDefinition';
 
 export default function App() {
   const identity = useState(['identity']);
+
+  // TODO this part will be removed
+  setState(['jobs-definitions', 'list'], jobsDefinitionsMock)
 
   React.useEffect(() => {
     LoadInitialState();
@@ -55,7 +62,11 @@ export default function App() {
                 <Route path=":tab" element={<div></div>}/>
               </Route>
             </Route>
-            <Route path="jobs-definitions" element={<JobsDefinitions />} />
+            <Route path="jobs-definitions" element={<JobsDefinitions />}>
+              
+            </Route>
+            <Route path="jobs-definitions/:jobDefinitionId" element={<JobDefinitionEditor />} />
+            <Route path="jobs/:jobId" element={<Job />} />
             <Route path="configure" element={<Configure />} />
             <Route path="custom-images" element={<CustomImages />} />
             <Route path="official-images" element={<OfficialImages />} />
