@@ -2,26 +2,25 @@ import { Input, Toggle } from "@awsui/components-react";
 import { useState } from "react";
 
 
-const PolarisTextWidget = (props) => {
-  const [value, setValue] = useState(props.value);
+const PolarisTextWidget = (props: any) => {
   return (
     <>
-      <Input value={value}
-        required={props.required}
-        onChange={(event) => props.onChange(setValue(event.detail.value))}
+      <Input {...props}
+        onChange={(event) => 
+          props.onChange(event.detail.value)
+        }
       />
     </>
   );
 };
 
-const PolarisCheckBoxWidget = (props) => {
-  const [checked, setChecked] = useState(props.value);
+const PolarisCheckBoxWidget = (props: any) => {
   return (
     <Toggle
-      style={{margin: 2}}
-      checked={checked}
+      {...props}
+      checked={props.value}
       onChange={({ detail }) =>
-        props.onChange(setChecked(detail.checked))
+        props.onChange(detail.checked)
       }
     >
       {props.schema.title}
