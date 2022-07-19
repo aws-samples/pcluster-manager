@@ -145,7 +145,7 @@ def authenticate(group):
         return auth_redirect()
     except jose.exceptions.JWSSignatureError:
         return logout()
-    if not disable_auth() and (group != "guest") and (group not in set(decoded.get(USER_ROLES_CLAIM, []))):
+    if (group != "guest") and (group not in set(decoded.get(USER_ROLES_CLAIM, []))):
         return auth_redirect()
 
 
@@ -571,9 +571,6 @@ def get_identity():
         decoded["attributes"] = {key: value for key, value in decoded_id.items()}
     except jwt.ExpiredSignatureError:
         return {"message": "Signature expired."}, 401
-
-    if disable_auth():
-        decoded["user_roles"] = ["user", "admin"]
 
     return decoded
 
