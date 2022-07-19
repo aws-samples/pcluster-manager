@@ -51,3 +51,9 @@ def to_iso_timestr(time_in: datetime.datetime) -> str:
     else:
         time_ = time_in.astimezone(datetime.timezone.utc)
     return to_utc_datetime(time_).isoformat(timespec="milliseconds")[:-6] + "Z"
+
+def running_local():
+    return os.getenv("ENV") == "dev"
+
+def disable_auth():
+    return os.getenv("ENABLE_AUTH") == "false"

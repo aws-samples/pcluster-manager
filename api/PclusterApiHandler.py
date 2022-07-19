@@ -23,6 +23,8 @@ from flask import abort, redirect, request
 from flask_restful import Resource, reqparse
 from jose import jwt
 
+from api.utils import disable_auth
+
 USER_POOL_ID = os.getenv("USER_POOL_ID")
 AUTH_PATH = os.getenv("AUTH_PATH")
 API_BASE_URL = os.getenv("API_BASE_URL")
@@ -63,15 +65,6 @@ if not JWKS_URL:
 AUTH_URL_WITH_PARAMS = f"{AUTH_URL}?response_type=code&client_id={CLIENT_ID}" \
                        f"&scope={SCOPES_LIST}" \
                        f"&redirect_uri={REDIRECT_URL} "
-
-
-# Helpers
-def running_local():
-    return not os.getenv("AWS_LAMBDA_FUNCTION_NAME")
-
-
-def disable_auth():
-    return os.getenv("ENABLE_AUTH") == "false"
 
 
 def jwt_decode(token, audience=None, access_token=None):
@@ -140,7 +133,7 @@ def auth_redirect():
 
 
 def authenticate(group):
-    if running_local():
+    if disable_auth():
         return
 
     access_token = request.cookies.get("accessToken")
@@ -562,7 +555,7 @@ def _get_user_roles(decoded):
 
 
 def get_identity():
-    if running_local():
+    if disable_auth():
         return {"user_roles": ["user", "admin"], "username": "username", "attributes": {"email": "user@domain.com"}}
 
     access_token = request.cookies.get("accessToken")
