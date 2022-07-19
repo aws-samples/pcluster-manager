@@ -31,7 +31,17 @@ import {
 import { setState, getState, useState, clearState } from '../../store'
 
 // Components
-import { ActionsEditor, CustomAMISettings, InstanceSelect, LabeledIcon, RootVolume, SubnetSelect, SecurityGroups, IamPoliciesEditor } from './Components'
+import {
+  ActionsEditor,
+  CustomAMISettings,
+  InstanceSelect,
+  LabeledIcon,
+  RootVolume,
+  SubnetSelect,
+  SecurityGroups,
+  IamPoliciesEditor,
+  HelpTextInput
+} from './Components'
 import HelpTooltip from '../../components/HelpTooltip'
 
 // Constants
@@ -166,6 +176,8 @@ function ComputeResource({
 
   const instanceTypePath = [...path, "InstanceType"]
   const instanceType = useState(instanceTypePath);
+  const memoryBasedSchedulingEnabledPath = ['app', 'wizard', 'config', 'Scheduling', 'SlurmSettings', 'EnableMemoryBasedScheduling']
+  const enableMemoryBasedScheduling = useState(memoryBasedSchedulingEnabledPath)
 
   const disableHTPath = [...path, "DisableSimultaneousMultithreading"]
   const disableHT = useState(disableHTPath);
@@ -202,6 +214,14 @@ function ComputeResource({
   const setMaxCount = (dynamicCount: any) => {
     const staticCount = minCount;
     setState([...path, 'MaxCount'], (!isNaN(staticCount) ? staticCount : 0) + (!isNaN(dynamicCount) ? dynamicCount : 0));
+  }
+
+  const setSchedulableMemory = (schedulableMemoryPath: string[], schedulableMemory: string) => {
+    let schedulableMemoryNumber = parseInt(schedulableMemory)
+    if (enableMemoryBasedScheduling && !isNaN(schedulableMemoryNumber))
+      setState(schedulableMemoryPath, schedulableMemoryNumber);
+    else
+      clearState(schedulableMemoryPath)
   }
 
   const setDisableHT = (disable: any) => {
@@ -268,6 +288,17 @@ function ComputeResource({
           <FormField label="Instance Type" errorText={typeError}>
             <InstanceSelect path={instanceTypePath} callback={setInstanceType}/>
           </FormField>
+          {enableMemoryBasedScheduling &&
+              <HelpTextInput name={"Schedulable Memory (MiB)"}
+                             path={path}
+                             errorsPath={errorsPath}
+                             configKey={'SchedulableMemory'}
+                             setterFunction={setSchedulableMemory}
+                             description={"Amount of memory in MiB to be made available to jobs on the compute nodes of the compute resource"}
+                             placeholder={"Leave empty for default"}
+                             help={"The default value is 95 % of the memory advertised by EC2."}
+                             type="number"/>
+          }
         </ColumnLayout>
         <div style={{display: "flex", flexDirection: "row", gap: "20px"}}>
           {/* @ts-expect-error TS(2345) FIXME: Argument of type 'any' is not assignable to parame... Remove this comment to see the full error message */}
