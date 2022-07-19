@@ -30,6 +30,7 @@ import {
   Toggle,
   TokenGroup,
   Select,
+  InputProps,
 } from "@awsui/components-react";
 
 // Components
@@ -636,4 +637,50 @@ function IamPoliciesEditor({
   );
 }
 
-export { SubnetSelect, SecurityGroups, InstanceSelect, LabeledIcon, ActionsEditor, CustomAMISettings, RootVolume, IamPoliciesEditor }
+type HelpTextInputProps = {
+  name: string,
+  path: string[],
+  errorsPath: string[],
+  configKey: string,
+  description: string,
+  help: string,
+  placeholder: string,
+  type?: InputProps.Type,
+  setterFunction?: (path: string[], value: string) => void
+  validationFunction?: () => boolean,
+};
+
+function HelpTextInput({
+  name,
+  path,
+  errorsPath,
+  configKey,
+  description,
+  help,
+  placeholder,
+  type = "text",
+  setterFunction = setState,
+  validationFunction = () => true,
+}: HelpTextInputProps)
+{
+  let value = useState([...path, configKey]);
+  let error = useState([...errorsPath, configKey]);
+
+  return <FormField
+      label={name}
+      errorText={error}
+      description={description}>
+    <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+      <div style={{flexGrow: 1}}>
+        <Input
+            placeholder={placeholder}
+            value={value}
+            type={type}
+            onChange={({detail}) => {setterFunction([...path, configKey], detail.value); validationFunction();}} />
+      </div>
+      <HelpTooltip>{help}</HelpTooltip>
+    </div>
+  </FormField>
+}
+
+export { SubnetSelect, SecurityGroups, InstanceSelect, LabeledIcon, ActionsEditor, CustomAMISettings, RootVolume, IamPoliciesEditor, HelpTextInput }

@@ -30,13 +30,14 @@ import { setState, useState, getState, clearState } from '../../store'
 
 // Components
 import HelpTooltip from '../../components/HelpTooltip'
+import {HelpTextInput} from './Components'
 
 // Constants
 const errorsPath = ['app', 'wizard', 'errors', 'multiUser'];
+const dsPath = ['app', 'wizard', 'config', 'DirectoryService'];
 
 function multiUserValidate() {
   let valid = true
-  let dsPath = ['app', 'wizard', 'config', 'DirectoryService'];
 
   const checkRequired = (key: any) => {
     const value = getState([...dsPath, key]);
@@ -58,34 +59,6 @@ function multiUserValidate() {
   return valid;
 }
 
-function HelpTextInput({
-  name,
-  configKey,
-  description,
-  help,
-  placeholder
-}: any)
-{
-  //let editing = useState(['app', 'wizard', 'editing']);
-  let dsPath = ['app', 'wizard', 'config', 'DirectoryService'];
-  let value = useState([...dsPath, configKey]);
-  let error = useState([...errorsPath, configKey]);
-
-  return <FormField
-    label={name}
-    errorText={error}
-    description={description}>
-    <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
-      <div style={{flexGrow: 1}}>
-        <Input
-          placeholder={placeholder}
-          value={value}
-          onChange={({detail}) => {setState([...dsPath, configKey], detail.value); multiUserValidate();}} />
-      </div>
-      <HelpTooltip>{help}</HelpTooltip>
-    </div>
-  </FormField>
-}
 
 function HelpToggle({
   name,
@@ -96,8 +69,6 @@ function HelpToggle({
   defaultValue
 }: any)
 {
-  //let editing = useState(['app', 'wizard', 'editing']);
-  let dsPath = ['app', 'wizard', 'config', 'DirectoryService'];
   let value = useState([...dsPath, configKey]);
   let error = useState([...errorsPath, configKey]);
 
@@ -117,7 +88,6 @@ function HelpToggle({
 }
 
 function AdditionalSssdOptions() {
-  let dsPath = ['app', 'wizard', 'config', 'DirectoryService'];
   let additionalSssdConfigsErrors = useState([...errorsPath, 'additionalSssdConfigs']);
   let additionalSssdConfigs = useState([...dsPath, 'AdditionalSssdConfigs']) || {};
 
@@ -176,25 +146,25 @@ function MultiUser() {
           externalIconAriaLabel="Opens in a new tab"
           href={"https://docs.aws.amazon.com/parallelcluster/latest/ug/tutorials_05_multi-user-ad.html"}>this tutorial</Link>.
       </span>
-        <HelpTextInput name={'Domain Name*'} configKey={'DomainName'} description={'The Active Directory (AD) domain that you use for identity information.'}
-          placeholder={'dc=corp,dc=pcluster,dc=com'} help={'This property corresponds to the sssd-ldap parameter that\'s called ldap_search_base.'} />
-        <HelpTextInput name={'Domain Address*'} configKey={'DomainAddr'} description={'The URI or URIs that point to the AD domain controller that\'s used as the LDAP server.'}
-          placeholder={'ldaps://corp.pcluster.com'} help={'The URI corresponds to the sssd-ldap parameter that\'s called ldap_uri. The value can be a comma separated string of URIs. To use LDAP, you must add ldap:// to the beginning of the each URI.'} />
-        <HelpTextInput name={'Password Secret ARN*'} configKey={'PasswordSecretArn'} description={'The URI or URIs that point to the AD domain controller that\'s used as the LDAP server.'}
-          placeholder={'arn:aws:secretsmanager:region:000000000000:secret:secret_name'} help={'The URI corresponds to the sssd-ldap parameter that\'s called ldap_uri. The value can be a comma separated string of URIs. To use LDAP, you must add ldap:// to the beginning of the each URI.'} />
-        <HelpTextInput name={'Domain Read Only User*'} configKey={'DomainReadOnlyUser'} description={'The identity that\'s used to query the AD domain for identity information when authenticating cluster user logins.'}
-          placeholder={'cn=ReadOnlyUser,ou=Users,ou=CORP,dc=corp,dc=pcluster,dc=com'} help={'It corresponds to sssd-ldap parameter that\'s called ldap_default_bind_dn. Use your AD identity information for this value.'} />
+        <HelpTextInput name={'Domain Name*'} path={dsPath} errorsPath={errorsPath} configKey={'DomainName'} description={'The Active Directory (AD) domain that you use for identity information.'}
+          placeholder={'dc=corp,dc=pcluster,dc=com'} help={'This property corresponds to the sssd-ldap parameter that\'s called ldap_search_base.'} validationFunction={multiUserValidate}/>
+        <HelpTextInput name={'Domain Address*'} path={dsPath} errorsPath={errorsPath} configKey={'DomainAddr'} description={'The URI or URIs that point to the AD domain controller that\'s used as the LDAP server.'}
+          placeholder={'ldaps://corp.pcluster.com'} help={'The URI corresponds to the sssd-ldap parameter that\'s called ldap_uri. The value can be a comma separated string of URIs. To use LDAP, you must add ldap:// to the beginning of the each URI.'} validationFunction={multiUserValidate}/>
+        <HelpTextInput name={'Password Secret ARN*'} path={dsPath} errorsPath={errorsPath} configKey={'PasswordSecretArn'} description={'The URI or URIs that point to the AD domain controller that\'s used as the LDAP server.'}
+          placeholder={'arn:aws:secretsmanager:region:000000000000:secret:secret_name'} help={'The URI corresponds to the sssd-ldap parameter that\'s called ldap_uri. The value can be a comma separated string of URIs. To use LDAP, you must add ldap:// to the beginning of the each URI.'} validationFunction={multiUserValidate} />
+        <HelpTextInput name={'Domain Read Only User*'} path={dsPath} errorsPath={errorsPath} configKey={'DomainReadOnlyUser'} description={'The identity that\'s used to query the AD domain for identity information when authenticating cluster user logins.'}
+          placeholder={'cn=ReadOnlyUser,ou=Users,ou=CORP,dc=corp,dc=pcluster,dc=com'} help={'It corresponds to sssd-ldap parameter that\'s called ldap_default_bind_dn. Use your AD identity information for this value.'} validationFunction={multiUserValidate} />
       <ExpandableSection header="Advanced options">
         <SpaceBetween direction="vertical" size="xs">
-            <HelpTextInput name={'CA Certificate'} configKey={'LdapTlsCaCert'} description={'The absolute path to a certificates bundle containing the certificates for every certification authority in the certification chain that issued a certificate for the domain controllers.'}
-              placeholder={'/path/to/certificate.pem'} help={'It corresponds to the sssd-ldap parameter that\'s called ldap_tls_cacert.'} />
-            <HelpTextInput name={'Require Certificate'} configKey={'LdapTlsReqCert'} description={'Specifies what checks to perform on server certificates in a TLS session.'}
+            <HelpTextInput name={'CA Certificate'} path={dsPath} errorsPath={errorsPath} configKey={'LdapTlsCaCert'} description={'The absolute path to a certificates bundle containing the certificates for every certification authority in the certification chain that issued a certificate for the domain controllers.'}
+              placeholder={'/path/to/certificate.pem'} help={'It corresponds to the sssd-ldap parameter that\'s called ldap_tls_cacert.'} validationFunction={multiUserValidate} />
+            <HelpTextInput name={'Require Certificate'} path={dsPath} errorsPath={errorsPath} configKey={'LdapTlsReqCert'} description={'Specifies what checks to perform on server certificates in a TLS session.'}
               placeholder={'hard'} help={'It corresponds to sssd-ldap parameter that\'s called ldap_tls_reqcert.'} />
-            <HelpTextInput name={'LDAP Access Filter'} configKey={'LdapAccessFilter'} description={'Specifies a filter to limit LDAP queries to a subset of the directory that\'s being queried.'}
-              placeholder={'memberOf=cn=TeamOne,ou=Users,ou=CORP,dc=corp,dc=pcluster,dc=com'} help={'This property corresponds to the sssd-ldap parameter that\'s called ldap_access_filter. You can use it to limit queries to an AD that supports a large number of users.'} />
-            <HelpToggle name={'Generate SSH Keys'} configKey={'GenerateSshKeysForUsers'} description={'Defines whether AWS ParallelCluster generates SSH key pairs for cluster users after they log in to the head node for the first time.'}
+            <HelpTextInput name={'LDAP Access Filter'} path={dsPath} errorsPath={errorsPath} configKey={'LdapAccessFilter'} description={'Specifies a filter to limit LDAP queries to a subset of the directory that\'s being queried.'}
+              placeholder={'memberOf=cn=TeamOne,ou=Users,ou=CORP,dc=corp,dc=pcluster,dc=com'} help={'This property corresponds to the sssd-ldap parameter that\'s called ldap_access_filter. You can use it to limit queries to an AD that supports a large number of users.'} validationFunction={multiUserValidate} />
+            <HelpToggle name={'Generate SSH Keys'} path={dsPath} errorsPath={errorsPath} configKey={'GenerateSshKeysForUsers'} description={'Defines whether AWS ParallelCluster generates SSH key pairs for cluster users after they log in to the head node for the first time.'}
               help={' The key pair is saved to the user home directory at /home/username/.ssh/. Users can use the SSH key pair for subsequent logins to the cluster head node and compute nodes. With AWS ParallelCluster, logins to cluster compute nodes are disabled by design. If a user hasn\'t logged into the head node, SSH keys aren\'t generated and the user won\'t be able to log in to compute nodes.'}
-              defaultValue={true}/>
+              defaultValue={true} validationFunction={multiUserValidate}/>
           <AdditionalSssdOptions />
         </SpaceBetween>
       </ExpandableSection>
