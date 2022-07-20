@@ -9,7 +9,7 @@ if [ ! -d ${SCRIPT_DIR}/cognitolambda/node_modules ]; then
 fi
 
 REGIONS=(us-gov-west-1)
-FILES=(SSMSessionProfile-cfn.yaml pcluster-manager-cognito.yaml pcluster-manager.yaml parallelcluster-api.yaml)
+FILES=(SSMSessionProfile-cfn.yaml pcluster-manager-cognito.yaml pcluster-manager.yaml)
 
 for REGION in "${REGIONS[@]}"
 do
