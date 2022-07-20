@@ -43,6 +43,8 @@ from api.PclusterApiHandler import (
     submit_job,
 )
 
+from api.features.flags import feature_flag
+
 
 class RegexConverter(BaseConverter):
     def __init__(self, url_map, *items):
@@ -181,6 +183,17 @@ def run():
     @app.route("/logout")
     def logout_():
         return logout()
+
+    @app.route("/ff/greeting")
+    @feature_flag("greet")
+    def changing_api():
+        to_greet = request.args.get('to_greet', "World")
+        return {"greeting": f"Hello {to_greet}!"}
+
+    @app.route("/ff/auto-destroy")
+    @feature_flag("auto-destroy")
+    def auto_detroy():
+        return "BOOM!"
 
     api.add_resource(PclusterApiHandler, "/api")
     return app
