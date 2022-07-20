@@ -11,5 +11,11 @@
          "help": "If enabled, users may use <i>--mem</i> to specify the amount of memory per node required by a job. For more information, see the <0>Slurm documentation for ConstrainRAMSpace</0>"
        }
     }
+  },
+  "JobSubmitDialog": {
+    "requiredMemory": {
+      "header": "Required memory",
+      "description": "Real memory required per node, in MB. A memory size specification of zero is treated as a special case and grants the job access to all of the memory on each node. [optional]"
+    }
   }
 }
