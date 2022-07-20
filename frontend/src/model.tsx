@@ -605,7 +605,56 @@ function GetVersion() {
   })
 }
 
-function Ec2Action(instanceIds: any, action: any, callback?: Callback) {
+function GetTagStatus(callback: any): void {
+  var url = `manager/check_tag_status`
+  request('get', url).then((response: any) => {
+    if(response.status === 200) {
+      console.log("Checking Tag Status...");
+      console.log(response.data)
+      callback && callback(response.data)
+    }
+  }).catch((error: any) => {
+    if(error.response)
+    {
+      console.log(error.response)
+    }
+    console.log(error)
+  })
+}
+
+function ActivateTags(callback: any): void {
+  var url = `manager/activate_tags`
+  request('get', url).then((response: any) => {
+    if(response.status === 200) {
+      console.log("Activating Tags....");
+      console.log(response.data)
+      callback && callback(response.data)
+    }
+  }).catch((error: any) => {
+    if(error.response) {
+      console.log(error.response)
+    }
+    console.log(error)
+  })
+}
+
+function GetGraphData(callback: any, cluster_name: string, Start: string, End: string): void {
+  var url = `manager/graph_data?cluster_name=${cluster_name}&Start=${Start}&End=${End}`
+  request('get', url).then((response: any) => {
+    if(response.status === 200) {
+      console.log("Getting Usage data from Cost Explorer API....");
+      console.log(response.data)
+      callback && callback(response.data)
+    }
+  }).catch((error: any) => {
+    if(error.response) {
+      console.log(error.response)
+    }
+    console.log(error)
+  })
+}
+
+function Ec2Action(instanceIds: any, action: any, callback: any) {
   let url = `manager/ec2_action?instance_ids=${instanceIds.join(',')}&action=${action}`
 
   request('post', url).then((response: any) => {
@@ -823,4 +872,4 @@ export {CreateCluster, UpdateCluster, ListClusters, DescribeCluster,
   GetCustomImageLogEvents, ListOfficialImages, LoadInitialState,
   Ec2Action,LoadAwsConfig, GetDcvSession, QueueStatus, CancelJob, SubmitJob,
   PriceEstimate, SlurmAccounting, JobInfo, ListUsers, SetUserRole, notify,
-  CreateUser, DeleteUser}
+  CreateUser, DeleteUser, GetTagStatus, ActivateTags, GetGraphData}

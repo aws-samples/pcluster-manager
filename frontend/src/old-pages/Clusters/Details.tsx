@@ -26,6 +26,7 @@ import Scheduling from './Scheduling'
 import Properties from './Properties'
 import Logs from './Logs'
 import Loading from '../../components/Loading'
+import Cost from './Cost'
 
 export default function ClusterTabs() {
 
@@ -61,6 +62,7 @@ export default function ClusterTabs() {
         {label: "Details", id: "details", content: <Properties />},
         {label: "Instances", id: "instances", content: <Instances />},
         {label: "Storage", id: "storage", content: <Filesystems />},
+        {label: "Cost", id: "cost", content: <Cost />},
         {label: "Job Scheduling", id: "scheduling", content: <Scheduling />},
         ...(accountingEnabled ? [{label: "Accounting", id: "accounting", content: <Accounting />}] : []),
         {label: "Stack Events", id: "stack-events", content: <StackEvents />},
