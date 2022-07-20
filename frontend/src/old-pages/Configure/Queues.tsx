@@ -43,6 +43,7 @@ import {
   HelpTextInput
 } from './Components'
 import HelpTooltip from '../../components/HelpTooltip'
+import { useTranslation } from 'react-i18next';
 
 // Constants
 const queuesPath = ['app', 'wizard', 'config', 'Scheduling', 'SlurmQueues'];
@@ -198,6 +199,8 @@ function ComputeResource({
   const minCount = useState([...path, 'MinCount']);
   const maxCount = useState([...path, 'MaxCount']);
 
+  const { t } = useTranslation()
+
   const remove = () => {
     setState([...parentPath, 'ComputeResources'], [...computeResources.slice(0, index), ...computeResources.slice(index + 1)]);
   }
@@ -289,14 +292,14 @@ function ComputeResource({
             <InstanceSelect path={instanceTypePath} callback={setInstanceType}/>
           </FormField>
           {enableMemoryBasedScheduling &&
-              <HelpTextInput name={"Schedulable Memory (MiB)"}
+              <HelpTextInput name={t("wizard.queues.schedulableMemory.name")}
                              path={path}
                              errorsPath={errorsPath}
                              configKey={'SchedulableMemory'}
                              setterFunction={setSchedulableMemory}
-                             description={"Amount of memory in MiB to be made available to jobs on the compute nodes of the compute resource"}
-                             placeholder={"Leave empty for default"}
-                             help={"The default value is 95 % of the memory advertised by EC2."}
+                             description={t("wizard.queues.schedulableMemory.description")}
+                             placeholder={t("wizard.queues.schedulableMemory.placeholder")}
+                             help={t("wizard.queues.schedulableMemory.help")}
                              type="number"/>
           }
         </ColumnLayout>

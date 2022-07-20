@@ -31,6 +31,7 @@ import { setState, useState, getState, clearState } from '../../store'
 // Components
 import HelpTooltip from '../../components/HelpTooltip'
 import {HelpTextInput} from './Components'
+import {useTranslation} from "react-i18next";
 
 // Constants
 const errorsPath = ['app', 'wizard', 'errors', 'multiUser'];
@@ -137,6 +138,7 @@ function AdditionalSssdOptions() {
 }
 
 function MultiUser() {
+  const { t } = useTranslation();
   return <Container header={<Header variant="h2">Multi User Properties</Header>}>
     <SpaceBetween direction="vertical" size="xs">
       <span>
@@ -146,25 +148,25 @@ function MultiUser() {
           externalIconAriaLabel="Opens in a new tab"
           href={"https://docs.aws.amazon.com/parallelcluster/latest/ug/tutorials_05_multi-user-ad.html"}>this tutorial</Link>.
       </span>
-        <HelpTextInput name={'Domain Name*'} path={dsPath} errorsPath={errorsPath} configKey={'DomainName'} description={'The Active Directory (AD) domain that you use for identity information.'}
-          placeholder={'dc=corp,dc=pcluster,dc=com'} help={'This property corresponds to the sssd-ldap parameter that\'s called ldap_search_base.'} validationFunction={multiUserValidate}/>
-        <HelpTextInput name={'Domain Address*'} path={dsPath} errorsPath={errorsPath} configKey={'DomainAddr'} description={'The URI or URIs that point to the AD domain controller that\'s used as the LDAP server.'}
-          placeholder={'ldaps://corp.pcluster.com'} help={'The URI corresponds to the sssd-ldap parameter that\'s called ldap_uri. The value can be a comma separated string of URIs. To use LDAP, you must add ldap:// to the beginning of the each URI.'} validationFunction={multiUserValidate}/>
-        <HelpTextInput name={'Password Secret ARN*'} path={dsPath} errorsPath={errorsPath} configKey={'PasswordSecretArn'} description={'The URI or URIs that point to the AD domain controller that\'s used as the LDAP server.'}
-          placeholder={'arn:aws:secretsmanager:region:000000000000:secret:secret_name'} help={'The URI corresponds to the sssd-ldap parameter that\'s called ldap_uri. The value can be a comma separated string of URIs. To use LDAP, you must add ldap:// to the beginning of the each URI.'} validationFunction={multiUserValidate} />
-        <HelpTextInput name={'Domain Read Only User*'} path={dsPath} errorsPath={errorsPath} configKey={'DomainReadOnlyUser'} description={'The identity that\'s used to query the AD domain for identity information when authenticating cluster user logins.'}
-          placeholder={'cn=ReadOnlyUser,ou=Users,ou=CORP,dc=corp,dc=pcluster,dc=com'} help={'It corresponds to sssd-ldap parameter that\'s called ldap_default_bind_dn. Use your AD identity information for this value.'} validationFunction={multiUserValidate} />
+      <HelpTextInput name={t("wizard.multiuser.domainName.name")} path={dsPath} errorsPath={errorsPath} configKey={'DomainName'} description={t("wizard.multiuser.domainName.description")}
+                     placeholder={'dc=corp,dc=pcluster,dc=com'} help={t("wizard.multiuser.domainName.help")} validationFunction={multiUserValidate}/>
+      <HelpTextInput name={t("wizard.multiuser.domainAddress.name")} path={dsPath} errorsPath={errorsPath} configKey={'DomainAddr'} description={t("wizard.multiuser.domainAddress.description")}
+                     placeholder={'ldaps://corp.pcluster.com'} help={t("wizard.multiuser.domainAddress.help")} validationFunction={multiUserValidate}/>
+      <HelpTextInput name={t("wizard.multiuser.passwordSecretArn.name")} path={dsPath} errorsPath={errorsPath} configKey={'PasswordSecretArn'} description={t("wizard.multiuser.passwordSecretArn.description")}
+                     placeholder={'arn:aws:secretsmanager:region:000000000000:secret:secret_name'} help={t("wizard.multiuser.passwordSecretArn.help")} validationFunction={multiUserValidate} />
+      <HelpTextInput name={t("wizard.multiuser.domainReadOnlyUser.name")} path={dsPath} errorsPath={errorsPath} configKey={'DomainReadOnlyUser'} description={t("wizard.multiuser.domainReadOnlyUser.description")}
+                     placeholder={'cn=ReadOnlyUser,ou=Users,ou=CORP,dc=corp,dc=pcluster,dc=com'} help={t("wizard.multiuser.domainReadOnlyUser.help")} validationFunction={multiUserValidate} />
       <ExpandableSection header="Advanced options">
         <SpaceBetween direction="vertical" size="xs">
-            <HelpTextInput name={'CA Certificate'} path={dsPath} errorsPath={errorsPath} configKey={'LdapTlsCaCert'} description={'The absolute path to a certificates bundle containing the certificates for every certification authority in the certification chain that issued a certificate for the domain controllers.'}
-              placeholder={'/path/to/certificate.pem'} help={'It corresponds to the sssd-ldap parameter that\'s called ldap_tls_cacert.'} validationFunction={multiUserValidate} />
-            <HelpTextInput name={'Require Certificate'} path={dsPath} errorsPath={errorsPath} configKey={'LdapTlsReqCert'} description={'Specifies what checks to perform on server certificates in a TLS session.'}
-              placeholder={'hard'} help={'It corresponds to sssd-ldap parameter that\'s called ldap_tls_reqcert.'} />
-            <HelpTextInput name={'LDAP Access Filter'} path={dsPath} errorsPath={errorsPath} configKey={'LdapAccessFilter'} description={'Specifies a filter to limit LDAP queries to a subset of the directory that\'s being queried.'}
-              placeholder={'memberOf=cn=TeamOne,ou=Users,ou=CORP,dc=corp,dc=pcluster,dc=com'} help={'This property corresponds to the sssd-ldap parameter that\'s called ldap_access_filter. You can use it to limit queries to an AD that supports a large number of users.'} validationFunction={multiUserValidate} />
-            <HelpToggle name={'Generate SSH Keys'} path={dsPath} errorsPath={errorsPath} configKey={'GenerateSshKeysForUsers'} description={'Defines whether AWS ParallelCluster generates SSH key pairs for cluster users after they log in to the head node for the first time.'}
-              help={' The key pair is saved to the user home directory at /home/username/.ssh/. Users can use the SSH key pair for subsequent logins to the cluster head node and compute nodes. With AWS ParallelCluster, logins to cluster compute nodes are disabled by design. If a user hasn\'t logged into the head node, SSH keys aren\'t generated and the user won\'t be able to log in to compute nodes.'}
-              defaultValue={true} validationFunction={multiUserValidate}/>
+          <HelpTextInput name={t("wizard.multiuser.caCertificate.name")} path={dsPath} errorsPath={errorsPath} configKey={'LdapTlsCaCert'} description={t("wizard.multiuser.caCertificate.description")}
+                         placeholder={'/path/to/certificate.pem'} help={t("wizard.multiuser.caCertificate.help")} validationFunction={multiUserValidate} />
+          <HelpTextInput name={t("wizard.multiuser.requireCertificate.name")} path={dsPath} errorsPath={errorsPath} configKey={'LdapTlsReqCert'} description={t("wizard.multiuser.requireCertificate.description")}
+                         placeholder={'hard'} help={t("wizard.multiuser.requireCertificate.help")} />
+          <HelpTextInput name={t("wizard.multiuser.LDAPAccessFilter.name")} path={dsPath} errorsPath={errorsPath} configKey={'LdapAccessFilter'} description={t("wizard.multiuser.LDAPAccessFilter.description")}
+                         placeholder={'memberOf=cn=TeamOne,ou=Users,ou=CORP,dc=corp,dc=pcluster,dc=com'} help={t("wizard.multiuser.LDAPAccessFilter.help")} validationFunction={multiUserValidate} />
+          <HelpToggle name={t("wizard.multiuser.generateSSHKeys.name")} path={dsPath} errorsPath={errorsPath} configKey={'GenerateSshKeysForUsers'} description={t("wizard.multiuser.generateSSHKeys.description")}
+                      help={t("wizard.multiuser.generateSSHKeys.help")}
+                      defaultValue={true} validationFunction={multiUserValidate}/>
           <AdditionalSssdOptions />
         </SpaceBetween>
       </ExpandableSection>
