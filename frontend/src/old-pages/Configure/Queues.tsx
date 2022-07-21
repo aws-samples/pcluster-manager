@@ -221,10 +221,11 @@ function ComputeResource({
 
   const setSchedulableMemory = (schedulableMemoryPath: string[], schedulableMemory: string) => {
     let schedulableMemoryNumber = parseInt(schedulableMemory)
-    if (enableMemoryBasedScheduling && !isNaN(schedulableMemoryNumber))
+    if (enableMemoryBasedScheduling && !isNaN(schedulableMemoryNumber)) {
       setState(schedulableMemoryPath, schedulableMemoryNumber);
-    else
+    } else {
       clearState(schedulableMemoryPath)
+    }
   }
 
   const setDisableHT = (disable: any) => {
