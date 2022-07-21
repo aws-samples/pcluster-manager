@@ -9,8 +9,11 @@
 # OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 # limitations under the License.
 import datetime
+import os
 
 import dateutil
+from flask import Flask, Response, request, send_from_directory
+import requests
 
 
 def to_utc_datetime(time_in, default_timezone=datetime.timezone.utc) -> datetime.datetime:
@@ -51,3 +54,38 @@ def to_iso_timestr(time_in: datetime.datetime) -> str:
     else:
         time_ = time_in.astimezone(datetime.timezone.utc)
     return to_utc_datetime(time_).isoformat(timespec="milliseconds")[:-6] + "Z"
+
+def running_local():
+    return os.getenv("ENV") == "dev"
+
+def disable_auth():
+    return os.getenv("ENABLE_AUTH") == "false"
+
+def proxy_to(to_url):
+  """
+  Proxies Flask requests to the provided to_url
+  """
+  resp = requests.request(
+        method=request.method,
+        url=to_url,
+        headers={key: value for (key, value) in request.headers if key != 'Host'},
+        data=request.get_data(),
+        cookies=request.cookies,
+        allow_redirects=False)
+  excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+  headers = [(name, value) for (name, value) in resp.raw.headers.items()
+              if name.lower() not in excluded_headers]
+  response = Response(resp.content, resp.status_code, headers)
+  return response
+
+def build_flask_app(name):
+  if running_local():
+    return Flask(name)
+
+  return Flask(name, static_url_path="", static_folder="frontend/public")
+
+def serve_frontend(app, path):
+  if running_local():
+    return proxy_to("http://localhost:3000/" + path)
+
+  return send_from_directory(app.static_folder, "index.html")

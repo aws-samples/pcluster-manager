@@ -9,6 +9,7 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useState, setState, getState, clearState } from '../../store'
 import { findFirst, clusterDefaultUser } from '../../util'
 import { SubmitJob, PriceEstimate } from '../../model'
@@ -147,9 +148,11 @@ function JobCostEstimate() {
 export default function JobSubmitDialog({
   submitCallback
 }: any) {
+  const { t } = useTranslation();
   const open = useState([...submitPath, 'dialog']);
   const error = useState([...submitPath, 'error']);
   const jobPath = [...submitPath, 'job'];
+  const clusterName = getState(['app', 'clusters', 'selected']);
 
   const job = useState(jobPath);
   const submitting = useState([...submitPath, 'pending']);
@@ -157,11 +160,15 @@ export default function JobSubmitDialog({
   let chdir = useState([...jobPath, 'chdir']);
   let nodes = useState([...jobPath, 'nodes']);
   let ntasks = useState([...jobPath, 'ntasks']);
+  let mem = useState([...jobPath, 'mem']);
   let command = useState([...jobPath, 'command']);
   let wrap = useState([...jobPath, 'wrap']) || false;
 
+  let isMemBasedSchedulingEnabled = useState(
+      ['clusters', 'index', clusterName, 'config', 'Scheduling', 'SlurmSettings', 'EnableMemoryBasedScheduling']
+  ) || false;
+
   const submitJob = () => {
-    const clusterName = getState(['app', 'clusters', 'selected']);
     const clusterPath = ['clusters', 'index', clusterName];
     const cluster = getState(clusterPath);
     let user = clusterDefaultUser(cluster);
@@ -262,6 +269,23 @@ export default function JobSubmitDialog({
             />
           </FormField>
         </SpaceBetween>
+
+        {
+          isMemBasedSchedulingEnabled && <SpaceBetween direction="vertical" size="xxs" key="mem">
+          <Header variant="h2"
+            description={t("JobSubmitDialog.requiredMemory.description")}>
+            {t("JobSubmitDialog.requiredMemory.header")}
+          </Header>
+          <FormField>
+            <Input
+              onChange={({ detail }) => {setState([...jobPath, 'mem'], detail.value);}}
+              value={mem}
+              inputMode='numeric'
+              placeholder="0"
+            />
+          </FormField>
+        </SpaceBetween>
+        }
 
         <QueueSelect />
 

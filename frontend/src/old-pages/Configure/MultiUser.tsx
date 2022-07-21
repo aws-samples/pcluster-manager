@@ -30,13 +30,15 @@ import { setState, useState, getState, clearState } from '../../store'
 
 // Components
 import HelpTooltip from '../../components/HelpTooltip'
+import {HelpTextInput} from './Components'
+import {useTranslation} from "react-i18next";
 
 // Constants
 const errorsPath = ['app', 'wizard', 'errors', 'multiUser'];
+const dsPath = ['app', 'wizard', 'config', 'DirectoryService'];
 
 function multiUserValidate() {
   let valid = true
-  let dsPath = ['app', 'wizard', 'config', 'DirectoryService'];
 
   const checkRequired = (key: any) => {
     const value = getState([...dsPath, key]);
@@ -58,34 +60,6 @@ function multiUserValidate() {
   return valid;
 }
 
-function HelpTextInput({
-  name,
-  configKey,
-  description,
-  help,
-  placeholder
-}: any)
-{
-  //let editing = useState(['app', 'wizard', 'editing']);
-  let dsPath = ['app', 'wizard', 'config', 'DirectoryService'];
-  let value = useState([...dsPath, configKey]);
-  let error = useState([...errorsPath, configKey]);
-
-  return <FormField
-    label={name}
-    errorText={error}
-    description={description}>
-    <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
-      <div style={{flexGrow: 1}}>
-        <Input
-          placeholder={placeholder}
-          value={value}
-          onChange={({detail}) => {setState([...dsPath, configKey], detail.value); multiUserValidate();}} />
-      </div>
-      <HelpTooltip>{help}</HelpTooltip>
-    </div>
-  </FormField>
-}
 
 function HelpToggle({
   name,
@@ -96,8 +70,6 @@ function HelpToggle({
   defaultValue
 }: any)
 {
-  //let editing = useState(['app', 'wizard', 'editing']);
-  let dsPath = ['app', 'wizard', 'config', 'DirectoryService'];
   let value = useState([...dsPath, configKey]);
   let error = useState([...errorsPath, configKey]);
 
@@ -117,7 +89,6 @@ function HelpToggle({
 }
 
 function AdditionalSssdOptions() {
-  let dsPath = ['app', 'wizard', 'config', 'DirectoryService'];
   let additionalSssdConfigsErrors = useState([...errorsPath, 'additionalSssdConfigs']);
   let additionalSssdConfigs = useState([...dsPath, 'AdditionalSssdConfigs']) || {};
 
@@ -167,6 +138,7 @@ function AdditionalSssdOptions() {
 }
 
 function MultiUser() {
+  const { t } = useTranslation();
   return <Container header={<Header variant="h2">Multi User Properties</Header>}>
     <SpaceBetween direction="vertical" size="xs">
       <span>
@@ -176,25 +148,25 @@ function MultiUser() {
           externalIconAriaLabel="Opens in a new tab"
           href={"https://docs.aws.amazon.com/parallelcluster/latest/ug/tutorials_05_multi-user-ad.html"}>this tutorial</Link>.
       </span>
-        <HelpTextInput name={'Domain Name*'} configKey={'DomainName'} description={'The Active Directory (AD) domain that you use for identity information.'}
-          placeholder={'dc=corp,dc=pcluster,dc=com'} help={'This property corresponds to the sssd-ldap parameter that\'s called ldap_search_base.'} />
-        <HelpTextInput name={'Domain Address*'} configKey={'DomainAddr'} description={'The URI or URIs that point to the AD domain controller that\'s used as the LDAP server.'}
-          placeholder={'ldaps://corp.pcluster.com'} help={'The URI corresponds to the sssd-ldap parameter that\'s called ldap_uri. The value can be a comma separated string of URIs. To use LDAP, you must add ldap:// to the beginning of the each URI.'} />
-        <HelpTextInput name={'Password Secret ARN*'} configKey={'PasswordSecretArn'} description={'The URI or URIs that point to the AD domain controller that\'s used as the LDAP server.'}
-          placeholder={'arn:aws:secretsmanager:region:000000000000:secret:secret_name'} help={'The URI corresponds to the sssd-ldap parameter that\'s called ldap_uri. The value can be a comma separated string of URIs. To use LDAP, you must add ldap:// to the beginning of the each URI.'} />
-        <HelpTextInput name={'Domain Read Only User*'} configKey={'DomainReadOnlyUser'} description={'The identity that\'s used to query the AD domain for identity information when authenticating cluster user logins.'}
-          placeholder={'cn=ReadOnlyUser,ou=Users,ou=CORP,dc=corp,dc=pcluster,dc=com'} help={'It corresponds to sssd-ldap parameter that\'s called ldap_default_bind_dn. Use your AD identity information for this value.'} />
+      <HelpTextInput name={t("wizard.multiuser.domainName.name")} path={dsPath} errorsPath={errorsPath} configKey={'DomainName'} description={t("wizard.multiuser.domainName.description")}
+                     placeholder={'dc=corp,dc=pcluster,dc=com'} help={t("wizard.multiuser.domainName.help")} onChange={({detail}) => { setState([...dsPath, 'DomainName'], detail.value); multiUserValidate(); }}/>
+      <HelpTextInput name={t("wizard.multiuser.domainAddress.name")} path={dsPath} errorsPath={errorsPath} configKey={'DomainAddr'} description={t("wizard.multiuser.domainAddress.description")}
+                     placeholder={'ldaps://corp.pcluster.com'} help={t("wizard.multiuser.domainAddress.help")} onChange={({detail}) => { setState([...dsPath, 'DomainAddr'], detail.value); multiUserValidate(); }}/>
+      <HelpTextInput name={t("wizard.multiuser.passwordSecretArn.name")} path={dsPath} errorsPath={errorsPath} configKey={'PasswordSecretArn'} description={t("wizard.multiuser.passwordSecretArn.description")}
+                     placeholder={'arn:aws:secretsmanager:region:000000000000:secret:secret_name'} help={t("wizard.multiuser.passwordSecretArn.help")} onChange={({detail}) => { setState([...dsPath, 'PasswordSecretArn'], detail.value); multiUserValidate(); }} />
+      <HelpTextInput name={t("wizard.multiuser.domainReadOnlyUser.name")} path={dsPath} errorsPath={errorsPath} configKey={'DomainReadOnlyUser'} description={t("wizard.multiuser.domainReadOnlyUser.description")}
+                     placeholder={'cn=ReadOnlyUser,ou=Users,ou=CORP,dc=corp,dc=pcluster,dc=com'} help={t("wizard.multiuser.domainReadOnlyUser.help")} onChange={({detail}) => { setState([...dsPath, 'DomainReadOnlyUser'], detail.value); multiUserValidate(); }} />
       <ExpandableSection header="Advanced options">
         <SpaceBetween direction="vertical" size="xs">
-            <HelpTextInput name={'CA Certificate'} configKey={'LdapTlsCaCert'} description={'The absolute path to a certificates bundle containing the certificates for every certification authority in the certification chain that issued a certificate for the domain controllers.'}
-              placeholder={'/path/to/certificate.pem'} help={'It corresponds to the sssd-ldap parameter that\'s called ldap_tls_cacert.'} />
-            <HelpTextInput name={'Require Certificate'} configKey={'LdapTlsReqCert'} description={'Specifies what checks to perform on server certificates in a TLS session.'}
-              placeholder={'hard'} help={'It corresponds to sssd-ldap parameter that\'s called ldap_tls_reqcert.'} />
-            <HelpTextInput name={'LDAP Access Filter'} configKey={'LdapAccessFilter'} description={'Specifies a filter to limit LDAP queries to a subset of the directory that\'s being queried.'}
-              placeholder={'memberOf=cn=TeamOne,ou=Users,ou=CORP,dc=corp,dc=pcluster,dc=com'} help={'This property corresponds to the sssd-ldap parameter that\'s called ldap_access_filter. You can use it to limit queries to an AD that supports a large number of users.'} />
-            <HelpToggle name={'Generate SSH Keys'} configKey={'GenerateSshKeysForUsers'} description={'Defines whether AWS ParallelCluster generates SSH key pairs for cluster users after they log in to the head node for the first time.'}
-              help={' The key pair is saved to the user home directory at /home/username/.ssh/. Users can use the SSH key pair for subsequent logins to the cluster head node and compute nodes. With AWS ParallelCluster, logins to cluster compute nodes are disabled by design. If a user hasn\'t logged into the head node, SSH keys aren\'t generated and the user won\'t be able to log in to compute nodes.'}
-              defaultValue={true}/>
+          <HelpTextInput name={t("wizard.multiuser.caCertificate.name")} path={dsPath} errorsPath={errorsPath} configKey={'LdapTlsCaCert'} description={t("wizard.multiuser.caCertificate.description")}
+                         placeholder={'/path/to/certificate.pem'} help={t("wizard.multiuser.caCertificate.help")} onChange={({detail}) => { setState([...dsPath, 'LdapTlsCaCert'], detail.value); multiUserValidate(); }} />
+          <HelpTextInput name={t("wizard.multiuser.requireCertificate.name")} path={dsPath} errorsPath={errorsPath} configKey={'LdapTlsReqCert'} description={t("wizard.multiuser.requireCertificate.description")}
+                         placeholder={'hard'} help={t("wizard.multiuser.requireCertificate.help")} onChange={({detail}) => { setState([...dsPath, 'LdapTlsReqCert'], detail.value); multiUserValidate(); }}/>
+          <HelpTextInput name={t("wizard.multiuser.LDAPAccessFilter.name")} path={dsPath} errorsPath={errorsPath} configKey={'LdapAccessFilter'} description={t("wizard.multiuser.LDAPAccessFilter.description")}
+                         placeholder={'memberOf=cn=TeamOne,ou=Users,ou=CORP,dc=corp,dc=pcluster,dc=com'} help={t("wizard.multiuser.LDAPAccessFilter.help")} onChange={({detail}) => { setState([...dsPath, 'LdapAccessFilter'], detail.value); multiUserValidate(); }} />
+          <HelpToggle name={t("wizard.multiuser.generateSSHKeys.name")} configKey={'GenerateSshKeysForUsers'} description={t("wizard.multiuser.generateSSHKeys.description")}
+                      help={t("wizard.multiuser.generateSSHKeys.help")}
+                      defaultValue={true}/>
           <AdditionalSssdOptions />
         </SpaceBetween>
       </ExpandableSection>

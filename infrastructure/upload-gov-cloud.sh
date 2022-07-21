@@ -9,15 +9,14 @@ if [ ! -d ${SCRIPT_DIR}/cognitolambda/node_modules ]; then
 fi
 
 REGIONS=(us-gov-west-1)
-FILES=(SSMSessionProfile-cfn.yaml pcluster-manager-cognito.yaml pcluster-manager.yaml parallelcluster-api.yaml)
+FILES=(SSMSessionProfile-cfn.yaml pcluster-manager-cognito.yaml pcluster-manager.yaml)
 
 for REGION in "${REGIONS[@]}"
 do
-    AWS_DEFAULT_REGION=${REGION}
     BUCKET=pcluster-manager-${REGION}
     echo Uploading to: ${BUCKET}
     for FILE in "${FILES[@]}"
     do
-      aws s3 cp --acl public-read ${SCRIPT_DIR}/${FILE} s3://${BUCKET}/${FILE}
+      aws --region ${REGION} s3 cp --acl public-read ${SCRIPT_DIR}/${FILE} s3://${BUCKET}/${FILE}
     done
 done
