@@ -56,12 +56,15 @@ class ExperimentalFeatureFlags(FeatureFlags):
 
     def update_config(self, force=False):
         if super().update_config(force):
-            self._topics = self.retriever.retrieve_topics()
+            self.update_topics()
+
+    def update_topics(self):
+        self._topics = self.retriever.retrieve_topics()
 
     def _is_topic_related(self, feature):
         _flag_topic = feature.get('topic')
         if _flag_topic is None:
-            return None
+            return False
 
         return any(_topic == _flag_topic for _topic in self._topics)
 
@@ -83,6 +86,8 @@ experimental_appconfig = AppConfigHelper(
 
 features_config = FeatureFlags(features_appconfig)
 experimental_config = ExperimentalFeatureFlags(experimental_appconfig, ParameterStoreTopicsRetriever())
+experimental_config.update_topics()
+
 
 def get_flags():
     features_config.update_config()
