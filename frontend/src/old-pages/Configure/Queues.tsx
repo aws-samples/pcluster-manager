@@ -31,8 +31,19 @@ import {
 import { setState, getState, useState, clearState } from '../../store'
 
 // Components
-import { ActionsEditor, CustomAMISettings, InstanceSelect, LabeledIcon, RootVolume, SubnetSelect, SecurityGroups, IamPoliciesEditor } from './Components'
+import {
+  ActionsEditor,
+  CustomAMISettings,
+  InstanceSelect,
+  LabeledIcon,
+  RootVolume,
+  SubnetSelect,
+  SecurityGroups,
+  IamPoliciesEditor,
+  HelpTextInput
+} from './Components'
 import HelpTooltip from '../../components/HelpTooltip'
+import { useTranslation } from 'react-i18next';
 
 // Constants
 const queuesPath = ['app', 'wizard', 'config', 'Scheduling', 'SlurmQueues'];
@@ -166,6 +177,8 @@ function ComputeResource({
 
   const instanceTypePath = [...path, "InstanceType"]
   const instanceType = useState(instanceTypePath);
+  const memoryBasedSchedulingEnabledPath = ['app', 'wizard', 'config', 'Scheduling', 'SlurmSettings', 'EnableMemoryBasedScheduling']
+  const enableMemoryBasedScheduling = useState(memoryBasedSchedulingEnabledPath)
 
   const disableHTPath = [...path, "DisableSimultaneousMultithreading"]
   const disableHT = useState(disableHTPath);
@@ -186,6 +199,8 @@ function ComputeResource({
   const minCount = useState([...path, 'MinCount']);
   const maxCount = useState([...path, 'MaxCount']);
 
+  const { t } = useTranslation()
+
   const remove = () => {
     setState([...parentPath, 'ComputeResources'], [...computeResources.slice(0, index), ...computeResources.slice(index + 1)]);
   }
@@ -202,6 +217,15 @@ function ComputeResource({
   const setMaxCount = (dynamicCount: any) => {
     const staticCount = minCount;
     setState([...path, 'MaxCount'], (!isNaN(staticCount) ? staticCount : 0) + (!isNaN(dynamicCount) ? dynamicCount : 0));
+  }
+
+  const setSchedulableMemory = (schedulableMemoryPath: string[], schedulableMemory: string) => {
+    let schedulableMemoryNumber = parseInt(schedulableMemory)
+    if (enableMemoryBasedScheduling && !isNaN(schedulableMemoryNumber)) {
+      setState(schedulableMemoryPath, schedulableMemoryNumber);
+    } else {
+      clearState(schedulableMemoryPath)
+    }
   }
 
   const setDisableHT = (disable: any) => {
@@ -268,6 +292,17 @@ function ComputeResource({
           <FormField label="Instance Type" errorText={typeError}>
             <InstanceSelect path={instanceTypePath} callback={setInstanceType}/>
           </FormField>
+          {enableMemoryBasedScheduling &&
+              <HelpTextInput name={t("wizard.queues.schedulableMemory.name")}
+                             path={path}
+                             errorsPath={errorsPath}
+                             configKey={'SchedulableMemory'}
+                             onChange={({detail}) => setSchedulableMemory([...path, 'SchedulableMemory'], detail.value)}
+                             description={t("wizard.queues.schedulableMemory.description")}
+                             placeholder={t("wizard.queues.schedulableMemory.placeholder")}
+                             help={t("wizard.queues.schedulableMemory.help")}
+                             type="number"/>
+          }
         </ColumnLayout>
         <div style={{display: "flex", flexDirection: "row", gap: "20px"}}>
           {/* @ts-expect-error TS(2345) FIXME: Argument of type 'any' is not assignable to parame... Remove this comment to see the full error message */}

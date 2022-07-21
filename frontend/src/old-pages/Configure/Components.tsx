@@ -30,10 +30,12 @@ import {
   Toggle,
   TokenGroup,
   Select,
+  InputProps,
 } from "@awsui/components-react";
 
 // Components
 import HelpTooltip from '../../components/HelpTooltip'
+import {NonCancelableEventHandler} from "@awsui/components-react/internal/events";
 
 // Helper Functions
 function strToOption(str: any){
@@ -637,4 +639,48 @@ function IamPoliciesEditor({
   );
 }
 
-export { SubnetSelect, SecurityGroups, InstanceSelect, LabeledIcon, ActionsEditor, CustomAMISettings, RootVolume, IamPoliciesEditor }
+type HelpTextInputProps = {
+  name: string,
+  path: string[],
+  errorsPath: string[],
+  configKey: string,
+  description: string,
+  help: string,
+  placeholder: string,
+  type?: InputProps.Type,
+  onChange: NonCancelableEventHandler<InputProps.ChangeDetail>
+};
+
+function HelpTextInput({
+  name,
+  path,
+  errorsPath,
+  configKey,
+  description,
+  help,
+  placeholder,
+  type = "text",
+  onChange
+}: HelpTextInputProps)
+{
+  let value = useState([...path, configKey]);
+  let error = useState([...errorsPath, configKey]);
+
+  return <FormField
+      label={name}
+      errorText={error}
+      description={description}>
+    <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+      <div style={{flexGrow: 1}}>
+        <Input
+            placeholder={placeholder}
+            value={value}
+            type={type}
+            onChange={onChange} />
+      </div>
+      <HelpTooltip>{help}</HelpTooltip>
+    </div>
+  </FormField>
+}
+
+export { SubnetSelect, SecurityGroups, InstanceSelect, LabeledIcon, ActionsEditor, CustomAMISettings, RootVolume, IamPoliciesEditor, HelpTextInput }
