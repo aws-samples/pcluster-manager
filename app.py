@@ -43,7 +43,8 @@ from api.PclusterApiHandler import (
     submit_job,
 )
 
-from api.features.flags import feature_flag
+from api.features.decorators import feature_flag, experimental_flag
+from api.features.flags import get_flags
 
 
 class RegexConverter(BaseConverter):
@@ -184,6 +185,7 @@ def run():
     def logout_():
         return logout()
 
+    # Begin Feature Flags POC
     @app.route("/ff/greeting")
     @feature_flag("greet")
     def changing_api():
@@ -194,6 +196,22 @@ def run():
     @feature_flag("auto-destroy")
     def auto_detroy():
         return "BOOM!"
+
+    @app.route("/ff/experimental/feature_one")
+    @experimental_flag("experimental-feature-one")
+    def feature_one_evergreen():
+        return "Hello from feature one! (topic: evergreen)", 200
+
+    @app.route("/ff/experimental/feature_two")
+    @experimental_flag("experimental-feature-two")
+    def feature_two_betatester():
+        return "Hello from feature two! (topic: betatester)", 200
+
+    @app.route("/ff/flags")
+    def get_flags_():
+        return get_flags()
+
+    # End Feature Flags POC
 
     api.add_resource(PclusterApiHandler, "/api")
     return app
