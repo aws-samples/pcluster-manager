@@ -314,7 +314,7 @@ function HeadNode() {
             checked={memoryBasedSchedulingEnabled || false} onChange={toggleMemoryBasedSchedulingEnabled}><Trans i18nKey="wizard.headNode.memoryBasedSchedulingEnabled.label" /></Toggle>
           <HelpTooltip>
             <Trans i18nKey="wizard.headNode.memoryBasedSchedulingEnabled.help" >
-               <a rel="noreferrer" target="_blank" href='https://slurm.schedmd.com/cgroup.conf.html#OPT_ConstrainRAMSpace'></a>
+               <a rel="noopener noreferrer" target="_blank" href='https://slurm.schedmd.com/cgroup.conf.html#OPT_ConstrainRAMSpace'></a>
             </Trans>
           </HelpTooltip>
         </div>
