@@ -13,6 +13,7 @@ import json
 import os
 import re
 import time
+from types import TracebackType
 
 import boto3
 import botocore
@@ -43,6 +44,10 @@ JWKS_URL = os.getenv("JWKS_URL")
 AUDIENCE = os.getenv("AUDIENCE")
 USER_ROLES_CLAIM = os.getenv("USER_ROLES_CLAIM", "cognito:groups")
 REDIRECT_URL = f"{SITE_URL}/login"
+PCLUSTER_COST_TAGS = ['parallelcluster:attributes', 
+        'parallelcluster:cluster-name', 'parallelcluster:compute-resource-name', 'parallelcluster:filesystem', 
+        'parallelcluster:networking', 'parallelcluster:node-type', 'parallelcluster:queue-name', 
+        'parallelcluster:resource', 'parallelcluster:version']
 
 try:
     if (not USER_POOL_ID or USER_POOL_ID == "") and SECRET_ID:
@@ -685,9 +690,59 @@ def _get_params(_request):
     params.pop("path")
     return params
 
+def check_tags():
+    try:
+        cost_explorer = boto3.client('ce',)
+        inactive_tags = cost_explorer.list_cost_allocation_tags(Status='Inactive',TagKeys=PCLUSTER_COST_TAGS)
+        return {'TagStatus': not (len(inactive_tags['CostAllocationTags']) > 0)}
+    except Exception as e:
+        return {"message": str(e)}, 500
 
-# Proxy
+def activate_tags():
+    try:
+        cost_explorer = boto3.client('ce')
+        newlist = [{'TagKey': tag, 'Status': 'Active'} for tag in PCLUSTER_COST_TAGS]
+        cost_explorer.update_cost_allocation_tags_status(CostAllocationTagsStatus=newlist)
+        return "Activated Tags"
+    except Exception as e:
+        return {"message": str(e)}, 500
 
+def get_graph_data():
+    try:
+        cluster_name = request.args.get("cluster_name")
+        Start = request.args.get("Start")
+        End = request.args.get("End")
+        cost_explorer = boto3.client('ce',)
+        data = cost_explorer.get_cost_and_usage(
+            TimePeriod={
+                'Start': Start,
+                'End': End
+            },
+            Filter={
+                'Tags': {
+                    'Key': 'parallelcluster:cluster-name',
+                    'Values': [
+                        cluster_name,
+                    ],
+                    'MatchOptions': [
+                        'EQUALS',
+                    ]
+                },
+            },
+            Granularity='DAILY',
+            Metrics=[
+                'NetUnblendedCost',
+            ],
+            GroupBy=[
+                {
+                    'Type': 'DIMENSION',
+                    'Key': 'INSTANCE_TYPE'
+                },
+            ],
+        )
+        return data
+    except Exception as e:
+        return {"message": str(e)}, 500
 
 class PclusterApiHandler(Resource):
     method_decorators = [authenticated("user", redirect=False)]
