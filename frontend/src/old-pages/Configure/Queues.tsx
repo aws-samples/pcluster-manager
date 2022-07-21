@@ -296,7 +296,7 @@ function ComputeResource({
                              path={path}
                              errorsPath={errorsPath}
                              configKey={'SchedulableMemory'}
-                             setterFunction={setSchedulableMemory}
+                             onChange={({detail}) => setSchedulableMemory([...path, 'SchedulableMemory'], detail.value)}
                              description={t("wizard.queues.schedulableMemory.description")}
                              placeholder={t("wizard.queues.schedulableMemory.placeholder")}
                              help={t("wizard.queues.schedulableMemory.help")}

@@ -35,6 +35,7 @@ import {
 
 // Components
 import HelpTooltip from '../../components/HelpTooltip'
+import {NonCancelableEventHandler} from "@awsui/components-react/internal/events";
 
 // Helper Functions
 function strToOption(str: any){
@@ -646,8 +647,7 @@ type HelpTextInputProps = {
   help: string,
   placeholder: string,
   type?: InputProps.Type,
-  setterFunction?: (path: string[], value: string) => void
-  validationFunction?: () => boolean,
+  onChange: NonCancelableEventHandler<InputProps.ChangeDetail>
 };
 
 function HelpTextInput({
@@ -659,8 +659,7 @@ function HelpTextInput({
   help,
   placeholder,
   type = "text",
-  setterFunction = setState,
-  validationFunction = () => true,
+  onChange
 }: HelpTextInputProps)
 {
   let value = useState([...path, configKey]);
@@ -676,7 +675,7 @@ function HelpTextInput({
             placeholder={placeholder}
             value={value}
             type={type}
-            onChange={({detail}) => {setterFunction([...path, configKey], detail.value); validationFunction();}} />
+            onChange={onChange} />
       </div>
       <HelpTooltip>{help}</HelpTooltip>
     </div>
