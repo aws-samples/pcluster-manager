@@ -254,6 +254,7 @@ function HeadNode() {
   const subnetErrors = useState([...errorsPath, 'subnet']);
   const subnetValue = useState(subnetPath) || "";
   const editing = useState(['app', 'wizard', 'editing']);
+  const versionMinor = useState(['app', 'version', 'minor']);
 
   const toggleImdsSecured = () => {
     const setImdsSecured = !imdsSecured;
@@ -309,15 +310,19 @@ function HeadNode() {
             If enabled, restrict access to IMDS (and thus instance credentials) to users with superuser permissions. For more information, see <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html#instance-metadata-v2-how-it-works'>How instance metadata service version 2 works</a> in the <i>Amazon EC2 User Guide for Linux Instances</i>.
           </HelpTooltip>
         </div>
-        <div key="memory-based-scheduling-enabled" style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
-          <Toggle
-            checked={memoryBasedSchedulingEnabled || false} onChange={toggleMemoryBasedSchedulingEnabled}><Trans i18nKey="wizard.headNode.memoryBasedSchedulingEnabled.label" /></Toggle>
-          <HelpTooltip>
-            <Trans i18nKey="wizard.headNode.memoryBasedSchedulingEnabled.help" >
-               <a rel="noopener noreferrer" target="_blank" href='https://slurm.schedmd.com/cgroup.conf.html#OPT_ConstrainRAMSpace'></a>
-            </Trans>
-          </HelpTooltip>
-        </div>
+        {
+          (versionMinor && versionMinor >= 2) &&
+          <div key="memory-based-scheduling-enabled" style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+            <Toggle
+                  checked={memoryBasedSchedulingEnabled || false} onChange={toggleMemoryBasedSchedulingEnabled}><Trans i18nKey="wizard.headNode.memoryBasedSchedulingEnabled.label" />
+            </Toggle>
+            <HelpTooltip>
+              <Trans i18nKey="wizard.headNode.memoryBasedSchedulingEnabled.help" >
+                 <a rel="noopener noreferrer" target="_blank" href='https://slurm.schedmd.com/cgroup.conf.html#OPT_ConstrainRAMSpace'></a>
+              </Trans>
+            </HelpTooltip>
+          </div>
+        }
         <div key="sgs" style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
           <FormField label="Additional Security Groups">
             <SecurityGroups basePath={headNodePath} />
