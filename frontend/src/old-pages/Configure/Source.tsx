@@ -68,6 +68,9 @@ function sourceValidate(suppressUpload = false) {
   } else if(clusterNames.has(clusterName)) {
     setState([...sourceErrorsPath, 'clusterName'], `Cluster with name ${clusterName} already exists. Please choose a unique name.`);
     valid = false;
+  } else if(!/^[a-zA-Z][a-zA-Z0-9-]+$/.test(clusterName)) {
+    setState([...sourceErrorsPath, 'clusterName'], `Cluster name ${clusterName} doesn't match the format /^[a-zA-Z][a-zA-Z0-9-]+$/. Please choose a name consisting of only upper and lower-case letters, numbers and dashes.`);
+    valid = false;
   } else {
     clearState([...sourceErrorsPath, 'clusterName']);
   }
