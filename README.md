@@ -113,12 +113,21 @@ Then export the following variables:
 export SECRET_ID=<the value of the UserPoolClientSecretName output from the PclusterManagerCognito stack>
 export SITE_URL=http://localhost:5001
 export AUDIENCE=<the value of the Client ID noted in the previous step>
+export AUTH_PATH=<the UserPoolAuthDomain output of the ParallelClusterCognito nested stack>
 ```
 
 Start the API backend by running:
 
 ```bash
 ./scripts/run_flask.sh
+```
+
+Start the React frontend by running:
+
+```bash
+cd frontend/
+npm install # if this is your first time starting the frontend
+npm run dev
 ```
 
 Lastly, navigate to [http://localhost:5001](http://localhost:5001)
