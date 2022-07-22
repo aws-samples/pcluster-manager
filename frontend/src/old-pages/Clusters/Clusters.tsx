@@ -8,16 +8,13 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import React from 'react';
-import { NavigateFunction, useNavigate, useParams } from "react-router-dom"
-
+import { useNavigate, useParams } from "react-router-dom"
 import { ListClusters } from '../../model'
-
-import { useState, clearState, getState, setState, isAdmin } from '../../store'
+import { useState, getState, clearState, setState, isAdmin } from '../../store'
 import { selectCluster } from './util'
 import { findFirst } from '../../util'
 import { useTranslation } from 'react-i18next';
-
-// UI Elements
+import { useQuery } from 'react-query';
 import {
   AppLayout,
   Button,
@@ -28,28 +25,36 @@ import {
   Table,
   TextFilter
 } from "@awsui/components-react";
-
 import { useCollection } from '@awsui/collection-hooks';
 
-// Components
 import EmptyState from '../../components/EmptyState';
 import Status from "../../components/Status";
 import Actions from './Actions';
 import Details from "./Details";
 import { wizardShow } from '../Configure/Configure';
 
-function updateClusterList(navigate: NavigateFunction) {
+
+interface Cluster {
+  cloudformationStackArn: string,
+  cloudformationStackStatus: string,
+  clusterName: string,
+  clusterStatus: string,
+  region: string,
+  version: string
+}
+
+async function updateClusterList(navigate) {
   const selectedClusterName = getState(['app', 'clusters', 'selected']);
   const oldStatus = getState(['app', 'clusters', 'selectedStatus']);
 
-  ListClusters((clusterList: any) => {
-    if(selectedClusterName)
-    {
-      const selectedCluster = findFirst(clusterList, (c: any) => c.clusterName === selectedClusterName);
-      if(selectedCluster)
-      {
-        if(oldStatus !== selectedCluster.clusterStatus)
+  try {
+    const clusterList = await ListClusters();
+    if(selectedClusterName) {
+      const selectedCluster = findFirst(clusterList, (c: Cluster) => c.clusterName === selectedClusterName);
+      if(selectedCluster) {
+        if(oldStatus !== selectedCluster.clusterStatus) {
           setState(['app', 'clusters', 'selectedStatus'], selectedCluster.clusterStatus);
+        }
 
         if((oldStatus === 'CREATE_IN_PROGRESS' && selectedCluster.clusterStatus === 'CREATE_COMPLETE') ||
           (oldStatus === 'UPDATE_IN_PROGRESS' && selectedCluster.clusterStatus === 'UPDATE_COMPLETE'))
@@ -60,16 +65,18 @@ function updateClusterList(navigate: NavigateFunction) {
           navigate('/clusters');
       }
     }
-  })
+  } catch (error) {}
 }
 
-function ClusterList() {
-  let clusters = useState(['clusters', 'list']);
+interface ClusterListProps {
+  clusters: Cluster[]
+}
+
+function ClusterList({ clusters }: ClusterListProps) {
   const selectedClusterName = useState(['app', 'clusters', 'selected']);
   let navigate = useNavigate();
   let params = useParams();
   const { t } = useTranslation();
-
 
   React.useEffect(() => {
     const timerId = (setInterval(() => updateClusterList(navigate), 5000));
@@ -143,8 +150,7 @@ function ClusterList() {
     countText={`${t("cluster.list.countText")} ${filteredItemsCount}`}
     filteringAriaLabel={t("cluster.list.filteringAriaLabel")}/>}
     selectedItems={(items || []).filter((c) => (c as any).clusterName === selectedClusterName)}
-    // @ts-expect-error TS(2571) FIXME: Object is of type 'unknown'.
-    onSelectionChange={({ detail }) => { navigate(`/clusters/${detail.selectedItems[0].clusterName}`); }}
+    onSelectionChange={({ detail }) => { navigate(`/clusters/${(detail.selectedItems[0] as Cluster).clusterName}`); }}
     />
   )
 }
@@ -152,19 +158,14 @@ function ClusterList() {
 export default function Clusters () {
   const clusterName = useState(['app', 'clusters', 'selected']);
   const cluster = useState(['clusters', 'index', clusterName]);
-  const clusters = useState(['clusters', 'list']);
   let navigate = useNavigate();
   const [ splitOpen, setSplitOpen ] = React.useState(true);
   const { t } = useTranslation();
+  const { data } = useQuery('LIST_CLUSTERS', () => ListClusters());
 
   const configure = () => {
     wizardShow(navigate);
   }
-
-  React.useEffect(() => {
-    // @ts-expect-error TS(2554) FIXME: Expected 1 arguments, but got 0.
-    ListClusters();
-  }, [])
 
   return (
     <AppLayout
@@ -190,19 +191,19 @@ export default function Clusters () {
             openButtonAriaLabel: t("cluster.list.splitPanel.openButtonAriaLabel"),
             resizeHandleAriaLabel: t("cluster.list.splitPanel.resizeHandleAriaLabel"),
           }}
+          // FIXME move Actions from SplitPanel to Table header
           // @ts-expect-error TS(2322) FIXME: Type 'Element' is not assignable to type 'string'.
           header={
             <Header
               variant="h2"
-              // @ts-expect-error TS(2322) FIXME: Type '{ className: string; }' is not assignable to... Remove this comment to see the full error message
-              actions={cluster && <Actions className="spacer" />}>
+              actions={cluster && <Actions/>}>
               {clusterName ? `Cluster: ${clusterName}` : t("cluster.list.splitPanel.noClusterSelectedText") }
             </Header>
           }>
           {clusterName ? <Details /> : <div>{t("cluster.list.splitPanel.selectClusterText")}</div>}
         </SplitPanel>
       }
-      content={<ClusterList />
+      content={<ClusterList clusters={data}/>
       }
     />
   );
