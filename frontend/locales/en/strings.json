@@ -4,6 +4,44 @@
       "home": "Home"
     }
   },
+  "cluster": {
+    "list": {
+      "filtering": {
+        "empty": {
+          "title": "No clusters",
+          "subtitle": "No clusters to display",
+          "action": "Create Cluster"
+        },
+        "noMatch": {
+          "title": "No matches",
+          "subtitle": "No clusters match the filters",
+          "action": "Create filter"
+        }
+      },
+      "cols": {
+        "name": "Name",
+        "status": "Status",
+        "version": "Version"
+      },
+      "loadingText": "Loading clusters...",
+      "countText": "Results:",
+      "filteringAriaLabel": "Filter cluster",
+      "splitPanel": {
+        "preferencesTitle": "Split panel preferences",
+        "preferencesPositionLabel": "Split panel position",
+        "preferencesPositionDescription": "Choose the default split panel position for the service.",
+        "preferencesPositionSide": "Side",
+        "preferencesPositionBottom": "Bottom",
+        "preferencesConfirm": "Confirm",
+        "preferencesCancel": "Cancel",
+        "closeButtonAriaLabel": "Close panel",
+        "openButtonAriaLabel": "Open panel",
+        "resizeHandleAriaLabel": "Resize split panel",
+        "noClusterSelectedText": "No cluster selected",
+        "selectClusterText": "Select a cluster to see its details"
+      }
+    }
+  },
   "wizard": {
     "source" : {
       "validation": {

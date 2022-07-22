@@ -15,6 +15,7 @@ import { ListClusters } from '../../model'
 import { useState, clearState, getState, setState, isAdmin } from '../../store'
 import { selectCluster } from './util'
 import { findFirst } from '../../util'
+import { useTranslation } from 'react-i18next';
 
 // UI Elements
 import {
@@ -52,7 +53,6 @@ function updateClusterList(navigate: NavigateFunction) {
 
         if((oldStatus === 'CREATE_IN_PROGRESS' && selectedCluster.clusterStatus === 'CREATE_COMPLETE') ||
           (oldStatus === 'UPDATE_IN_PROGRESS' && selectedCluster.clusterStatus === 'UPDATE_COMPLETE'))
-          // @ts-expect-error TS(2554) FIXME: Expected 2 arguments, but got 1.
           selectCluster(selectedClusterName);
       // If the selected cluster is not found, and was in DELETE_IN_PROGRESS status, deselect it
       } else if (oldStatus === 'DELETE_IN_PROGRESS') {
@@ -68,6 +68,8 @@ function ClusterList() {
   const selectedClusterName = useState(['app', 'clusters', 'selected']);
   let navigate = useNavigate();
   let params = useParams();
+  const { t } = useTranslation();
+
 
   React.useEffect(() => {
     const timerId = (setInterval(() => updateClusterList(navigate), 5000));
@@ -89,16 +91,16 @@ function ClusterList() {
       filtering: {
         empty: (
           <EmptyState
-            title="No clusters"
-            subtitle="No clusters to display."
-            action={<Button onClick={configure} disabled={!isAdmin()}>Create Cluster</Button>}
+            title={t("cluster.list.filtering.empty.title")}
+            subtitle={t("cluster.list.filtering.empty.subtitle")}
+            action={<Button onClick={configure} disabled={!isAdmin()}>{t("cluster.list.filtering.empty.action")}</Button>}
           />
         ),
         noMatch: (
           <EmptyState
-            title="No matches"
-            subtitle="No clusters match the filters."
-            action={<Button onClick={() => actions.setFiltering('')}>Clear filter</Button>}
+            title={t("cluster.list.filtering.noMatch.title")}
+            subtitle={t("cluster.list.filtering.noMatch.subtitle")}
+            action={<Button onClick={() => actions.setFiltering('')}>{t("cluster.list.filtering.noMatch.action")}</Button>}
           />
         ),
       },
@@ -115,19 +117,19 @@ function ClusterList() {
         </Header>} trackBy="clusterName" columnDefinitions={[
         {
             id: "name",
-            header: "Name",
+            header: t("cluster.list.cols.name"),
             cell: item => (item as any).clusterName,
             sortingField: "clusterName"
         },
         {
             id: "status",
-            header: "Status",
+            header: t("cluster.list.cols.status"),
             cell: item => <Status status={(item as any).clusterStatus} cluster={item}/> || "-",
             sortingField: "clusterStatus"
         },
         {
             id: "version",
-            header: "Version",
+            header: t("cluster.list.cols.version"),
             cell: item => (item as any).version || "-"
         }
     
@@ -135,11 +137,11 @@ function ClusterList() {
     loading={clusters === null}
     items={items}
     selectionType="single"
-    loadingText="Loading clusters..."
+    loadingText={t("cluster.list.loadingText")}
     pagination={<Pagination {...paginationProps}/>}
     filter={<TextFilter {...filterProps}
-    countText={`Results: ${filteredItemsCount}`}
-    filteringAriaLabel="Filter cluster"/>}
+    countText={`${t("cluster.list.countText")} ${filteredItemsCount}`}
+    filteringAriaLabel={t("cluster.list.filteringAriaLabel")}/>}
     selectedItems={(items || []).filter((c) => (c as any).clusterName === selectedClusterName)}
     // @ts-expect-error TS(2571) FIXME: Object is of type 'unknown'.
     onSelectionChange={({ detail }) => { navigate(`/clusters/${detail.selectedItems[0].clusterName}`); }}
@@ -153,6 +155,7 @@ export default function Clusters () {
   const clusters = useState(['clusters', 'list']);
   let navigate = useNavigate();
   const [ splitOpen, setSplitOpen ] = React.useState(true);
+  const { t } = useTranslation();
 
   const configure = () => {
     wizardShow(navigate);
@@ -176,17 +179,16 @@ export default function Clusters () {
         <SplitPanel
           className="bottom-panel"
           i18nStrings={{
-            preferencesTitle: "Split panel preferences",
-            preferencesPositionLabel: "Split panel position",
-            preferencesPositionDescription:
-            "Choose the default split panel position for the service.",
-            preferencesPositionSide: "Side",
-            preferencesPositionBottom: "Bottom",
-            preferencesConfirm: "Confirm",
-            preferencesCancel: "Cancel",
-            closeButtonAriaLabel: "Close panel",
-            openButtonAriaLabel: "Open panel",
-            resizeHandleAriaLabel: "Resize split panel"
+            preferencesTitle: t("cluster.list.splitPanel.preferencesTitle"),
+            preferencesPositionLabel: t("cluster.list.splitPanel.preferencesPositionLabel"),
+            preferencesPositionDescription: t("cluster.list.splitPanel.preferencesPositionDescription"),
+            preferencesPositionSide: t("cluster.list.splitPanel.preferencesPositionSide"),
+            preferencesPositionBottom: t("cluster.list.splitPanel.preferencesPositionBottom"),
+            preferencesConfirm: t("cluster.list.splitPanel.preferencesConfirm"),
+            preferencesCancel: t("cluster.list.splitPanel.preferencesCancel"),
+            closeButtonAriaLabel: t("cluster.list.splitPanel.closeButtonAriaLabel"),
+            openButtonAriaLabel: t("cluster.list.splitPanel.openButtonAriaLabel"),
+            resizeHandleAriaLabel: t("cluster.list.splitPanel.resizeHandleAriaLabel"),
           }}
           // @ts-expect-error TS(2322) FIXME: Type 'Element' is not assignable to type 'string'.
           header={
@@ -194,10 +196,10 @@ export default function Clusters () {
               variant="h2"
               // @ts-expect-error TS(2322) FIXME: Type '{ className: string; }' is not assignable to... Remove this comment to see the full error message
               actions={cluster && <Actions className="spacer" />}>
-              {clusterName ? `Cluster: ${clusterName}` : "No cluster selected" }
+              {clusterName ? `Cluster: ${clusterName}` : t("cluster.list.splitPanel.noClusterSelectedText") }
             </Header>
           }>
-          {clusterName ? <Details /> : <div>Select a cluster to see its details.</div>}
+          {clusterName ? <Details /> : <div>{t("cluster.list.splitPanel.selectClusterText")}</div>}
         </SplitPanel>
       }
       content={<ClusterList />
