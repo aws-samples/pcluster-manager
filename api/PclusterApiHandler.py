@@ -138,24 +138,24 @@ def authenticate(group):
 
     access_token = request.cookies.get("accessToken")
     if not access_token:
-        return auth_redirect()
+        return abort(401)
+
     try:
         decoded = jwt_decode(access_token)
     except jwt.ExpiredSignatureError:
-        return auth_redirect()
-    except jose.exceptions.JWSSignatureError:
-        return logout()
+        return abort(401)
+    except Exception as e:
+        return abort(401)
+
     if (group != "guest") and (group not in set(decoded.get(USER_ROLES_CLAIM, []))):
-        return auth_redirect()
+        return abort(403)
 
 
-def authenticated(group="user", redirect=True):
+def authenticated(group="user"):
     def _authenticated(func):
         @functools.wraps(func)
         def _wrapper_authenticated(*args, **kwargs):
-            auth_response = authenticate(group)
-            if auth_response:
-                return auth_response if redirect else abort(401)
+            authenticate(group)
             return func(*args, **kwargs)
 
         return _wrapper_authenticated
@@ -644,7 +644,7 @@ def set_user_role():
 def login():
     code = request.args.get("code")
     if not code:
-        return redirect(AUTH_URL_WITH_PARAMS, code=302)
+        return abort(400) # the endpoint shouldn't be called without the code (it's not strictly an authorization error)
 
     # Convert the authorization code into a jwt
     auth = requests.auth.HTTPBasicAuth(CLIENT_ID, CLIENT_SECRET)
@@ -659,10 +659,11 @@ def login():
     )
 
     access_token = code_resp.json().get("access_token")
+    if not access_token:
+        return abort(401)
+
     id_token = code_resp.json().get("id_token")
     refresh_token = code_resp.json().get("refresh_token")
-    if not access_token:
-        return redirect(AUTH_URL_WITH_PARAMS, code=302)
 
     # give the jwt to the client for future requests
     resp = redirect("/index.html", code=302)
@@ -690,7 +691,7 @@ def _get_params(_request):
 
 
 class PclusterApiHandler(Resource):
-    method_decorators = [authenticated("user", redirect=False)]
+    method_decorators = [authenticated("user")]
 
     def get(self):
         # if re.match(r".*images.*logstreams/+", args["path"]):
