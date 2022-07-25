@@ -68,20 +68,14 @@ def run():
     CORS(app)  # comment this on deployment
     api = Api(app)
 
-    @app.before_request
-    def authenticate_static():
-        # Ensure we redirect to login on loading of index.html
-        return authenticate("guest") if "index.html" in request.path else None
-
     @app.errorhandler(401)
     def custom_401(_error):
         return Response(
-            "You are not authorized to perform this action.", 401, {"WWW-Authenticate": 'Basic realm="Login Required"'}
+            "You are not authorized to perform this action.", 401
         )
 
     @app.route("/", defaults={"path": ""})
     @app.route('/<path:path>')
-    @authenticated()
     def serve(path):
         return utils.serve_frontend(app, path)
 
