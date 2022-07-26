@@ -13,3 +13,4 @@ pre: "<b>II ⁃ </b>"
 | 💾 [Memory Scheduling](02-tutorials/03-memory-scheduling.html)              | Schedule using the `--mem` slurm flag.                    |
 | 💰 [Cost Tags](02-tutorials/04-cost-tracking.html)                      | Track job costs in AWS Cost Explorer by user and project. |
 | ⇓ [Downloading](02-tutorials/06-downloading.html)                      | Download files at cluster start. |
+| 🌀 [Slurm API](02-tutorials/07-slurm-rest-api.html)                      | Enable advanced job submission. |
