@@ -34,7 +34,7 @@ import Details from "./Details";
 import { wizardShow } from '../Configure/Configure';
 
 
-interface Cluster {
+export interface Cluster {
   cloudformationStackArn: string,
   cloudformationStackStatus: string,
   clusterName: string,
@@ -86,7 +86,7 @@ function ClusterList({ clusters }: ClusterListProps) {
   React.useEffect(() => {
     if(params.clusterName && selectedClusterName !== params.clusterName)
       selectCluster(params.clusterName, navigate);
-  }, [selectedClusterName, params])
+  }, [selectedClusterName, params, navigate])
 
   const configure = () => {
     wizardShow(navigate);
@@ -158,14 +158,9 @@ function ClusterList({ clusters }: ClusterListProps) {
 export default function Clusters () {
   const clusterName = useState(['app', 'clusters', 'selected']);
   const cluster = useState(['clusters', 'index', clusterName]);
-  let navigate = useNavigate();
   const [ splitOpen, setSplitOpen ] = React.useState(true);
   const { t } = useTranslation();
   const { data } = useQuery('LIST_CLUSTERS', () => ListClusters());
-
-  const configure = () => {
-    wizardShow(navigate);
-  }
 
   return (
     <AppLayout
