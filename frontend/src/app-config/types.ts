@@ -9,8 +9,8 @@
 // limitations under the License.
 
 export interface AppConfig {
-  authPath: string;
+  authUrl: string;
   clientId: string;
   scopes: string;
-  redirectUrl: string;
+  redirectUri: string;
 }

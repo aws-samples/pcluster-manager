@@ -12,17 +12,17 @@ import { AxiosInstance } from "axios";
 import { AppConfig } from "./types";
 
 interface RawAppConfig {
-  auth_path: string;
+  auth_url: string;
   client_id: string;
   scopes: string;
-  redirect_url: string;
+  redirect_uri: string;
 }
 
 function mapAppConfig(data: RawAppConfig): AppConfig {
   return {
-    authPath: data.auth_path,
+    authUrl: data.auth_url,
     clientId: data.client_id,
-    redirectUrl: data.redirect_url,
+    redirectUri: data.redirect_uri,
     scopes: data.scopes,
   }
 }

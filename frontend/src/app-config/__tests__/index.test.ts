@@ -23,19 +23,19 @@ describe('given a function to fetch the application configuration', () => {
     describe('when the configuration is available', () => {
       beforeEach(() => {
         const mockAppConfig = {
-          auth_path: 'some-path',
+          auth_url: 'some-url',
           client_id: 'some-id',
           scopes: 'some-list',
-          redirect_url: 'some-url',
+          redirect_uri: 'some-uri',
         }
         mockAxiosInstance.get.mockResolvedValueOnce({data: mockAppConfig})
       })
       it('should map the received configuration to the known AppConfig', async () => {
         const config = await getAppConfig(mockAxiosInstance)
         expect(config).toEqual({
-          authPath: 'some-path',
+          authUrl: 'some-url',
           clientId: 'some-id',
-          redirectUrl: 'some-url',
+          redirectUri: 'some-uri',
           scopes: 'some-list'
         })
       })

@@ -154,7 +154,7 @@ def get_scopes_list():
     return SCOPES_LIST + " openid"
   return SCOPES_LIST
 
-def get_redirect_url():
+def get_redirect_uri():
   return f"{SITE_URL}/login"
   
 # Local Endpoints
@@ -165,10 +165,10 @@ def get_version():
 
 def get_app_config():
   return {
-    "auth_path": AUTH_PATH,
+    "auth_url": AUTH_URL,
     "client_id": CLIENT_ID,
     "scopes": get_scopes_list(),
-    "redirect_url": get_redirect_url()
+    "redirect_uri": get_redirect_uri()
   }
 
 def ec2_action():
@@ -654,7 +654,7 @@ def login():
     url = TOKEN_URL
     code_resp = requests.post(
         url,
-        data={"grant_type": grant_type, "code": code, "client_id": CLIENT_ID, "redirect_uri": get_redirect_url()},
+        data={"grant_type": grant_type, "code": code, "client_id": CLIENT_ID, "redirect_uri": get_redirect_uri()},
         auth=auth,
         headers={"Content-Type": "application/x-www-form-urlencoded"},
     )

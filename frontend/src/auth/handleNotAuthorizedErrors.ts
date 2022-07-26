@@ -11,13 +11,13 @@
 import { AxiosError } from 'axios';
 import { AppConfig } from '../app-config/types';
 
-export const handleNotAuthorizedErrors = ({authPath, clientId, scopes, redirectUrl}: AppConfig) => async (requestPromise: Promise<any>) => {
+export const handleNotAuthorizedErrors = ({authUrl, clientId, scopes, redirectUri}: AppConfig) => async (requestPromise: Promise<any>) => {
   return requestPromise.catch(
     error => {
       switch ((error as AxiosError).response?.status) {
         case 401:
         case 403:
-          redirectToAuthServer(authPath, clientId, scopes, redirectUrl)
+          redirectToAuthServer(authUrl, clientId, scopes, redirectUri)
           return Promise.reject(error)
       }
       return Promise.reject(error)
@@ -25,7 +25,7 @@ export const handleNotAuthorizedErrors = ({authPath, clientId, scopes, redirectU
   )
 }
 
-function redirectToAuthServer(authPath: string, clientId: string, scopes: string, redirectUrl: string) {
-  const url = `${authPath}?response_type=code&client_id=${clientId}&scope=${encodeURIComponent(scopes)}&redirect_uri=${redirectUrl}`
+function redirectToAuthServer(authUrl: string, clientId: string, scopes: string, redirectUri: string) {
+  const url = `${authUrl}?response_type=code&client_id=${clientId}&scope=${encodeURIComponent(scopes)}&redirect_uri=${redirectUri}`
   window.location.replace(url)
 }
