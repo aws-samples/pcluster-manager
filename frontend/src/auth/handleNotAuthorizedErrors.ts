@@ -26,6 +26,6 @@ export const handleNotAuthorizedErrors = ({authPath, clientId, scopes, redirectU
 }
 
 function redirectToAuthServer(authPath: string, clientId: string, scopes: string, redirectUrl: string) {
-  const url = `${authPath}/login?response_type=code&client_id=${clientId}&scope=${encodeURIComponent(scopes)}&redirect_uri=${redirectUrl}`
+  const url = `${authPath}?response_type=code&client_id=${clientId}&scope=${encodeURIComponent(scopes)}&redirect_uri=${redirectUrl}`
   window.location.replace(url)
 }
