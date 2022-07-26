@@ -12,6 +12,8 @@
 
 // Fameworks
 import * as React from 'react';
+import i18next from "i18next";
+import { Trans, useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux'
 import { findFirst, getIn } from '../../util'
 
@@ -50,7 +52,7 @@ function clusterValidate() {
 
   if(!editing && !vpc)
   {
-    setState([...errorsPath, 'vpc'], 'You must select a VPC.');
+    setState([...errorsPath, 'vpc'], i18next.t('wizard.cluster.validation.VpcSelect'));
     valid = false;
   } else {
     clearState([...errorsPath, 'vpc']);
@@ -58,7 +60,7 @@ function clusterValidate() {
 
   if(customAmiEnabled && !customAmi)
   {
-    setState([...errorsPath, 'customAmi'], 'You must select an AMI ID if you enable Custom AMI.');
+    setState([...errorsPath, 'customAmi'], i18next.t('wizard.cluster.validation.customAmiSelect'));
     valid = false;
   } else {
     clearState([...errorsPath, 'customAmi']);
@@ -76,6 +78,7 @@ function itemToOption(item: any) {
 }
 
 function RegionSelect() {
+  const { t } = useTranslation();
   const region = useState(['app', 'wizard', 'config', 'Region']) || "Please select a region.";
   const queues = useSelector(selectQueues);
   const editing = useState(['app', 'wizard', 'editing']);
@@ -124,7 +127,7 @@ function RegionSelect() {
 
   return <>
     {/* @ts-expect-error TS(2322) FIXME: Type '"h4"' is not assignable to type 'Variant | u... Remove this comment to see the full error message */}
-    <Header variant="h4" description="Region where the cluster will be created."
+    <Header variant="h4" description={t('wizard.cluster.region.description')}
       actions={
         <Select
           disabled={editing}
@@ -135,11 +138,14 @@ function RegionSelect() {
           options={supportedRegions.map(itemToOption)}
           selectedAriaLabel="Selected"/>
       }
-    >Region</Header>
+    >
+      <Trans i18nKey="wizard.cluster.region.label" />
+    </Header>
   </>;
 }
 
 function SchedulerSelect() {
+  const { t } = useTranslation();
   const schedulers = [["slurm", "Slurm"], ["batch", "AWS Batch"]];
   const scheduler = useState(['app', 'wizard', 'scheduler']) || "slurm";
   const editing = useState(['app', 'wizard', 'editing']);
@@ -147,7 +153,7 @@ function SchedulerSelect() {
   return <>
     {/* @ts-expect-error TS(2322) FIXME: Type '"h4"' is not assignable to type 'Variant | u... Remove this comment to see the full error message */}
     <Header variant="h4"
-      description="Scheduler that will be used to manage applications."
+      description={t('wizard.cluster.scheduler.description')}
       actions={
         <Select
           disabled={editing}
@@ -159,11 +165,14 @@ function SchedulerSelect() {
           selectedAriaLabel="Selected"
         />
       }
-    >Scheduler</Header>
+    >
+      <Trans i18nKey="wizard.cluster.scheduler.label" />
+    </Header>
   </>;
 }
 
 function OsSelect() {
+  const { t } = useTranslation();
   const oses = [
     ["alinux2", "Amazon Linux 2", "/img/aws.svg"],
     ["centos7", "CentOS 7", "/img/centos.svg"],
@@ -175,7 +184,7 @@ function OsSelect() {
   const editing = useState(['app', 'wizard', 'editing']);
   return <>
     {/* @ts-expect-error TS(2322) FIXME: Type '"h4"' is not assignable to type 'Variant | u... Remove this comment to see the full error message */}
-    <Header variant="h4" description="OS installed on the cluster nodes."
+    <Header variant="h4" description={t('wizard.cluster.os.description')}
       actions={
         <Select
           disabled={editing}
@@ -187,12 +196,15 @@ function OsSelect() {
           selectedAriaLabel="Selected"
         />
       }
-    >Operating System</Header>
+    >
+      <Trans i18nKey="wizard.cluster.os.label" />
+    </Header>
   </>;
 }
 
 
 function VpcSelect() {
+  const { t } = useTranslation();
   const vpcs = useState(['aws', 'vpcs']) || [];
   const vpc = useSelector(selectVpc) || "";
   const error = useState([...errorsPath, 'vpc']);
@@ -241,7 +253,7 @@ function VpcSelect() {
 
   return (
     // @ts-expect-error TS(2322) FIXME: Type '"h4"' is not assignable to type 'Variant | u... Remove this comment to see the full error message
-    <Header variant="h4" description="VPC where the cluster instances will reside."
+    <Header variant="h4" description={t('wizard.cluster.vpc.description')}
         actions={
           <FormField errorText={error}>
           <Select
@@ -254,12 +266,13 @@ function VpcSelect() {
           />
           </FormField>
         }>
-        VPC
+        <Trans i18nKey="wizard.cluster.vpc.label" />
       </Header>
   );
 }
 
 function Cluster() {
+  const { t } = useTranslation();
   const editing = useState(['app', 'wizard', 'editing']);
   const configPath = ['app', 'wizard', 'config'];
   let config = useState(configPath);
@@ -307,7 +320,7 @@ function Cluster() {
     }
   }, [region, config, awsConfig, clusterConfig, wizardLoaded]);
 
-  return <Container header={<Header variant="h2">Cluster Properties</Header>}>
+  return <Container header={<Header variant="h2"><Trans i18nKey="wizard.cluster.title" /></Header>}>
     <SpaceBetween direction="vertical" size="s">
       <RegionSelect />
       <OsSelect />
@@ -315,8 +328,8 @@ function Cluster() {
       {versionMinor && versionMinor >= 1 &&
       <FormField>
         {/* @ts-expect-error TS(2322) FIXME: Type '"h4"' is not assignable to type 'Variant | u... Remove this comment to see the full error message */}
-        <Header variant="h4" description="Enable Multi-User cluster through Active Directory integration.">Multi User</Header>
-        <Toggle disabled={editing} checked={multiUserEnabled} onChange={() => setState(['app', 'wizard', 'multiUser'], !multiUserEnabled)}>Multi User Cluster</Toggle>
+        <Header variant="h4" description={t('wizard.cluster.multiuser.description')}><Trans i18nKey="wizard.cluster.multiuser.title" /></Header>
+        <Toggle disabled={editing} checked={multiUserEnabled} onChange={() => setState(['app', 'wizard', 'multiUser'], !multiUserEnabled)}><Trans i18nKey="wizard.cluster.multiuser.label" /></Toggle>
       </FormField>
       }
       <CustomAMISettings basePath={configPath} appPath={['app', 'wizard']} errorsPath={errorsPath} validate={clusterValidate}/>

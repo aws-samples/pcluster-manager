@@ -12,7 +12,7 @@ import { useNavigate, useParams } from "react-router-dom"
 
 import { ListClusters } from '../../model'
 
-import { useState, getState, setState, isAdmin } from '../../store'
+import { useState, clearState, getState, setState, isAdmin } from '../../store'
 import { selectCluster } from './util'
 import { findFirst } from '../../util'
 
@@ -37,7 +37,7 @@ import Actions from './Actions';
 import Details from "./Details";
 import { wizardShow } from '../Configure/Configure';
 
-function updateClusterList() {
+function updateClusterList(navigate) {
   const selectedClusterName = getState(['app', 'clusters', 'selected']);
   const oldStatus = getState(['app', 'clusters', 'selectedStatus']);
 
@@ -54,9 +54,12 @@ function updateClusterList() {
           (oldStatus === 'UPDATE_IN_PROGRESS' && selectedCluster.clusterStatus === 'UPDATE_COMPLETE'))
           // @ts-expect-error TS(2554) FIXME: Expected 2 arguments, but got 1.
           selectCluster(selectedClusterName);
+      // If the selected cluster is not found, and was in DELETE_IN_PROGRESS status, deselect it
+      } else if (oldStatus === 'DELETE_IN_PROGRESS') {
+          clearState(['app', 'clusters', 'selected']);
+          navigate('/clusters');
       }
     }
-
   })
 }
 
@@ -67,7 +70,7 @@ function ClusterList() {
   let params = useParams();
 
   React.useEffect(() => {
-    const timerId = (setInterval(updateClusterList, 5000));
+    const timerId = (setInterval(() => updateClusterList(navigate), 5000));
     return () => { clearInterval(timerId); }
   }, [])
 

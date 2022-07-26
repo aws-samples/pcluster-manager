@@ -10,6 +10,7 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import * as React from 'react';
+import i18next from "i18next";
 import { findFirst } from '../../util'
 
 // UI Elements
@@ -43,7 +44,7 @@ import {
   HelpTextInput
 } from './Components'
 import HelpTooltip from '../../components/HelpTooltip'
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 
 // Constants
 const queuesPath = ['app', 'wizard', 'config', 'Scheduling', 'SlurmQueues'];
@@ -84,10 +85,10 @@ function queueValidate(queueIndex: any) {
 
   if(rootVolumeValue === '')
   {
-    setState([...errorsPath, 'rootVolume'], 'You must set a RootVolume size.');
+    setState([...errorsPath, 'rootVolume'], i18next.t('wizard.queues.validation.setRootVolumeSize'));
     valid = false;
   } else if(rootVolumeValue && (!Number.isInteger(rootVolumeValue) || rootVolumeValue < 35)) {
-    setState([...errorsPath, 'rootVolume'], 'You must use an integer >= 35GB for Root Volume Size.');
+    setState([...errorsPath, 'rootVolume'], i18next.t('wizard.queues.validation.rootVolumeMinimum'));
     valid = false;
   } else {
     clearState([...errorsPath, 'rootVolume']);
@@ -95,7 +96,7 @@ function queueValidate(queueIndex: any) {
 
   if(onStart && getState([...onStartPath, 'Args']) && !getState([...onStartPath, 'Script']))
   {
-    setState([...errorsPath, 'onStart'], 'You must specify a script path if you specify args.');
+    setState([...errorsPath, 'onStart'], i18next.t('wizard.queues.validation.rootVolumeMinimum'));
     valid = false;
   } else {
     clearState([...errorsPath, 'onStart']);
@@ -103,7 +104,7 @@ function queueValidate(queueIndex: any) {
 
   if(onConfigured && getState([...onConfiguredPath, 'Args']) && !getState([...onConfiguredPath, 'Script']))
   {
-    setState([...errorsPath, 'onConfigured'], 'You must specify a script path if you specify args.');
+    setState([...errorsPath, 'onConfigured'], i18next.t('wizard.queues.validation.scriptWithArgs'));
     valid = false;
   } else {
     clearState([...errorsPath, 'onConfigured']);
@@ -111,7 +112,7 @@ function queueValidate(queueIndex: any) {
 
   if(customAmiEnabled && !customAmi)
   {
-    setState([...errorsPath, 'customAmi'], 'You must select an AMI ID if you enable Custom AMI.');
+    setState([...errorsPath, 'customAmi'], i18next.t('wizard.queues.validation.customAmiSelect'));
     valid = false;
   } else {
     clearState([...errorsPath, 'customAmi']);
@@ -119,7 +120,7 @@ function queueValidate(queueIndex: any) {
 
   if(!queueSubnet)
   {
-    setState([...errorsPath, 'subnet'], "You must select a subnet.");
+    setState([...errorsPath, 'subnet'], i18next.t('wizard.queues.validation.selectSubnet'));
     valid = false;
   } else {
     setState([...errorsPath, 'subnet'], null);
@@ -131,7 +132,7 @@ function queueValidate(queueIndex: any) {
     let computeResource = computeResources[i];
     if(seenInstances.has(computeResource.InstanceType))
     {
-      setState([...errorsPath, 'computeResource', i, 'type'], "Instance types must be unique within a Queue.");
+      setState([...errorsPath, 'computeResource', i, 'type'], i18next.t('wizard.queues.validation.instanceTypeUnique'));
       valid = false;
     } else {
       seenInstances.add(computeResource.InstanceType);
@@ -275,13 +276,13 @@ function ComputeResource({
         <Box margin={{top: "xs"}} textAlign="right">{index > 0 && <Button onClick={remove}>Remove Resource</Button>}</Box>
         <ColumnLayout columns={2}>
           <div style={{display: "flex", flexDirection: "row", gap: "20px"}}>
-            <FormField label="Static Nodes">
+            <FormField label={t('wizard.queues.computeResource.staticNodes')}>
               <Input
                 value={computeResource.MinCount || 0}
                 type="number"
                 onChange={(({detail}) => setMinCount(parseInt(detail.value)))} />
             </FormField>
-            <FormField label="Dynamic Nodes">
+            <FormField label={t('wizard.queues.computeResource.dynamicNodes')}>
               <Input
                 // @ts-expect-error TS(2322) FIXME: Type 'number' is not assignable to type 'string'.
                 value={Math.max((computeResource.MaxCount || 0) - (computeResource.MinCount || 0), 0)}
@@ -289,7 +290,7 @@ function ComputeResource({
                 onChange={({detail}) => setMaxCount(parseInt(detail.value))} />
             </FormField>
           </div>
-          <FormField label="Instance Type" errorText={typeError}>
+          <FormField label={t('wizard.queues.computeResource.instanceType')} errorText={typeError}>
             <InstanceSelect path={instanceTypePath} callback={setInstanceType}/>
           </FormField>
           {enableMemoryBasedScheduling &&
@@ -306,12 +307,14 @@ function ComputeResource({
         </ColumnLayout>
         <div style={{display: "flex", flexDirection: "row", gap: "20px"}}>
           {/* @ts-expect-error TS(2345) FIXME: Argument of type 'any' is not assignable to parame... Remove this comment to see the full error message */}
-          <Toggle disabled={tInstances.has(instanceType) || gravitonInstances.has(instanceType)} checked={disableHT} onChange={(event) => {setDisableHT(!disableHT)}}>Disable Hyperthreading</Toggle>
-          <Toggle disabled={!efaInstances.has(instanceType)} checked={enableEFA} onChange={(event) => {setEnableEFA(!enableEFA)}}>Enable EFA</Toggle>
+          <Toggle disabled={tInstances.has(instanceType) || gravitonInstances.has(instanceType)} checked={disableHT} onChange={(event) => {setDisableHT(!disableHT)}}><Trans i18nKey="wizard.queues.computeResource.disableHT" /></Toggle>
+          <Toggle disabled={!efaInstances.has(instanceType)} checked={enableEFA} onChange={(event) => {setEnableEFA(!enableEFA)}}><Trans i18nKey="wizard.queues.computeResource.enableEfa" /></Toggle>
           <div style={{display: "flex", flexDirection: "row", alignItems: "center"}}>
-            <Toggle disabled={!instanceSupportsGdr } checked={enableGPUDirect} onChange={(event) => {setEnableGPUDirect(!enableGPUDirect)}}>Enable EFA GPUDirect RDMA</Toggle>
+            <Toggle disabled={!instanceSupportsGdr } checked={enableGPUDirect} onChange={(event) => {setEnableGPUDirect(!enableGPUDirect)}}><Trans i18nKey="wizard.queues.computeResource.enableGpuDirect" /></Toggle>
             <HelpTooltip>
-              Only for p4d.24xlarge, See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/Scheduling-v3.html#yaml-Scheduling-SlurmQueues-ComputeResources-Efa-GdrSupport'>GdrSupport</a>.
+              <Trans i18nKey="wizard.queues.Gdr.help" >
+                <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/Scheduling-v3.html#yaml-Scheduling-SlurmQueues-ComputeResources-Efa-GdrSupport'></a>
+              </Trans>
             </HelpTooltip>
           </div>
         </div>
@@ -334,6 +337,7 @@ function ComputeResources({
 function Queue({
   index
 }: any) {
+  const { t } = useTranslation();
   const queues = useState(queuesPath);
   const [ editingName, setEditingName ] = React.useState(false);
   const queue = useState([...queuesPath, index]);
@@ -404,30 +408,30 @@ function Queue({
           </Header>
         </Box>
         <ColumnLayout columns={2}>
-          <FormField label="Subnet ID" errorText={subnetError}>
+          <FormField label={t('wizard.queues.subnet.label')} errorText={subnetError}>
             <SubnetSelect value={subnetValue} onChange={(subnetId: any) => {setState(subnetPath, [subnetId]); queueValidate(index)}}/>
           </FormField>
-          <FormField label="Purchase Type">
+          <FormField label={t('wizard.queues.purchaseType.label')}>
             <Select
               selectedOption={itemToDisplayIconOption(findFirst(capacityTypes, (x: any) => x[0] === capacityType))}
               onChange={({detail}) => {setState(capacityTypePath, detail.selectedOption.value)}}
               // @ts-expect-error TS(2345) FIXME: Argument of type '([value, label, icon]: [any, any... Remove this comment to see the full error message
               options={capacityTypes.map(itemToIconOption)} />
           </FormField>
-          <Toggle checked={enablePlacementGroup} onChange={(event) => {setEnablePG(!enablePlacementGroup)}}>Enable Placement Group</Toggle>
+          <Toggle checked={enablePlacementGroup} onChange={(event) => {setEnablePG(!enablePlacementGroup)}}><Trans i18nKey="wizard.queues.placementGroup.label" /></Toggle>
           <div className="spacer">
           </div>
         </ColumnLayout>
         <ComputeResources queue={queue} index={index}/>
         <ExpandableSection header="Advanced options">
           <SpaceBetween direction="vertical" size="s">
-            <FormField label="Additional Security Groups">
+            <FormField label={t('wizard.queues.securityGroups.label')}>
               <SecurityGroups basePath={[...queuesPath, index]} />
             </FormField>
             <ActionsEditor basePath={[...queuesPath, index]} errorsPath={errorsPath}/>
             <CustomAMISettings basePath={[...queuesPath, index]} appPath={['app', 'wizard', 'queues', index]} errorsPath={errorsPath} validate={queuesValidate}/>
             <RootVolume basePath={[...queuesPath, index, 'ComputeSettings']} errorsPath={errorsPath} />
-            <ExpandableSection header="IAM Policies">
+            <ExpandableSection header={t('wizard.queues.IamPolicies.label')}>
               <IamPoliciesEditor basePath={[...queuesPath, index]} />
             </ExpandableSection>
           </SpaceBetween>
