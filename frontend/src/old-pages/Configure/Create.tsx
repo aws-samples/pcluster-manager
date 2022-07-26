@@ -57,7 +57,6 @@ function handleCreate(handleClose: any, navigate: any) {
     // @ts-expect-error TS(2554) FIXME: Expected 2 arguments, but got 1.
     DescribeCluster(clusterName)
     setState(['app', 'clusters', 'selected'], clusterName);
-    // @ts-expect-error TS(2554) FIXME: Expected 1 arguments, but got 0.
     ListClusters();
     handleClose();
     navigate(href);
