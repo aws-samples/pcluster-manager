@@ -12,6 +12,7 @@
 
 import React from 'react';
 import i18next from "i18next";
+import { Trans, useTranslation } from 'react-i18next';
 import { useState, setState, getState, clearState } from '../../store'
 import { loadTemplate } from './util'
 import { findFirst } from '../../util'
@@ -116,7 +117,7 @@ function ClusterSelect() {
     if(item)
       return {label: item.clusterName, value: item.clusterName}
     else
-      return {label: "Please select a cluster."}
+      return {label: i18next.t('wizard.source.clusterSelect.placeholder')}
   }
 
   return (
@@ -133,6 +134,7 @@ function ClusterSelect() {
 }
 
 function Source() {
+  const { t } = useTranslation();
   let clusterName = useState(['app', 'wizard', 'clusterName']) || "";
   let source = useState([...sourcePath, 'type']);
   let validated = useState([...sourceErrorsPath, 'validated']);
@@ -164,22 +166,21 @@ function Source() {
     <SpaceBetween direction="vertical" size="m">
       <SpaceBetween direction="vertical" size="xxs" key="cluster-name">
           <Header variant="h2"
-            description="Please choose an identifier for this cluster. It is suggested to be lower-case and without spaces (e.g. my-cluster)).">
-            Cluster Name
+            description={t('wizard.source.clusterName.description')}>
+            <Trans i18nKey="wizard.source.clusterName.label" />
           </Header>
         <FormField errorText={clusterNameError}>
           <Input
             onChange={({ detail }) => {setState(['app', 'wizard', 'clusterName'], detail.value); validated && sourceValidate(true)}}
             value={clusterName}
-            placeholder="Enter your cluster name"
+            placeholder={t('wizard.source.clusterName.placeholder')}
           />
         </FormField>
 
       </SpaceBetween>
       <Container header={
-        <Header variant="h2"
-          description="Please choose the source configuration for the cluster you want to create."
-        >Configuration Source
+        <Header variant="h2" description={t('wizard.source.configurationSource.description')}>
+          <Trans i18nKey="wizard.source.configurationSource.label" />
         </Header>
         }
       >
@@ -190,20 +191,20 @@ function Source() {
             items={[
               {
                 value: "wizard",
-                  label: "Wizard",
-                  description: "Choose this to start a new cluster configuration."
+                label: t('wizard.source.sourceOptions.wizard.label'),
+                description: t('wizard.source.sourceOptions.wizard.description')
               },
               {
                 value: "template",
-                label: "Template",
-                description: "Choose this to use the wizard starting from an existing configuration or template file. This will proceed through the wizard process to allow you to customize any options before creating the cluster."
+                label: t('wizard.source.sourceOptions.template.label'),
+                description: t('wizard.source.sourceOptions.template.description')
               },
               {
                 value: "cluster",
-                label: "From Cluster",
+                label: t('wizard.source.sourceOptions.cluster.label'),
                 description: <Box margin={{bottom: "xs"}} >
                   <SpaceBetween direction="vertical" size="xxs">
-                    <FormField description="Use an existing cluster as a starting point for the configuration of your new cluster.">
+                    <FormField description={t('wizard.source.sourceOptions.cluster.description')}>
                       <ClusterSelect />
                     </FormField>
                   </SpaceBetween>
@@ -211,8 +212,8 @@ function Source() {
               },
               {
                 value: "upload",
-                label: "Upload a file",
-                description: "Choose this if you already have a file you wish to upload. This will proceed directly to the creation step."
+                label: t('wizard.source.sourceOptions.file.label'),
+                description: t('wizard.source.sourceOptions.file.description')
               },
             ]}
           />
