@@ -20,6 +20,7 @@ export const handleNotAuthorizedErrors = ({authPath, clientId, scopes, redirectU
           redirectToAuthServer(authPath, clientId, scopes, redirectUrl)
           return Promise.reject(error)
       }
+      return Promise.reject(error)
     }
   )
 }
