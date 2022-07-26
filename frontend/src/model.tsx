@@ -802,7 +802,6 @@ async function LoadInitialState() {
     if(groups && (groups.includes("admin") || groups.includes("user")))
     {
       ListUsers();
-      // @ts-expect-error TS(2554) FIXME: Expected 1 arguments, but got 0.
       ListClusters();
       // @ts-expect-error TS(2554) FIXME: Expected 3 arguments, but got 0.
       ListCustomImages();
