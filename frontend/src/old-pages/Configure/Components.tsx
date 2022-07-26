@@ -450,8 +450,8 @@ function ActionEditor({
   const toggleUseMultiRunner = () => {
     if(useMultiRunner)
     {
-      editScript([...path, 'Script'], '');
       clearState([...path, 'Args']);
+      editScript([...path, 'Script'], '');
     } else {
       editScript([...path, 'Script'], multiRunner);
     }
