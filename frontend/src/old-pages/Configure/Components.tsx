@@ -12,6 +12,8 @@
 
 // Fameworks
 import * as React from 'react';
+import i18next from "i18next";
+import { Trans, useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux'
 import { findFirst } from '../../util'
 
@@ -244,12 +246,15 @@ function CustomAMISettings({
   return (
     <>
       <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
-        <Toggle disabled={editing} checked={customAmiEnabled} onChange={toggleCustomAmi}>Use Custom AMI?</Toggle>
-        <HelpTooltip>Custom AMI's provide a way to customize the cluster. See the <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/pcluster.build-image-v3.html'>Image section</a> of the documentation for more information.</HelpTooltip>
+        <Toggle disabled={editing} checked={customAmiEnabled} onChange={toggleCustomAmi}><Trans i18nKey="wizard.components.customAmi.label" /></Toggle>
+        <HelpTooltip>
+          <Trans i18nKey="wizard.components.customAmi.help">
+            <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/pcluster.build-image-v3.html'></a>
+          </Trans>
+        </HelpTooltip>
       </div>
       {customAmiEnabled &&
-        <FormField label="Custom AMI ID"
-          errorText={error}>
+        <FormField label={t('wizard.components.customAmi.AmiId')} errorText={error}>
           <Autosuggest
             onChange={({ detail }) => {if(detail.value !== customAmi){setState(customAmiPath, detail.value);}}}
             value={customAmi || ""}
@@ -445,8 +450,8 @@ function ActionEditor({
   const toggleUseMultiRunner = () => {
     if(useMultiRunner)
     {
-      editScript([...path, 'Script'], '');
       clearState([...path, 'Args']);
+      editScript([...path, 'Script'], '');
     } else {
       editScript([...path, 'Script'], multiRunner);
     }
@@ -536,6 +541,7 @@ function RootVolume({
   basePath,
   errorsPath
 }: any) {
+  const { t } = useTranslation();
   const rootVolumeSizePath = [...basePath, 'LocalStorage', 'RootVolume', 'Size'];
   const rootVolumeSize = useState(rootVolumeSizePath);
 
@@ -574,12 +580,12 @@ function RootVolume({
 
   return <>
     <FormField
-      label="Root Volume Size (GB)"
+      label={t('wizard.components.rootVolume.size.label')}
       errorText={rootVolumeErrors}
-      description="Typically users will use a shared storage option for application data so a smaller root volume size is suitable. Blank will use the default from the AMI.">
+      description={t('wizard.components.rootVolume.size.description')}>
       <Input
         disabled={editing}
-        placeholder="Enter root volume size."
+        placeholder={t('wizard.components.rootVolume.size.placeholder')}
         value={rootVolumeSize || ''}
         inputMode="decimal"
         onChange={({detail}) => setRootVolume(detail.value)} />
@@ -588,10 +594,10 @@ function RootVolume({
       disabled={editing}
       checked={rootVolumeEncrypted || false} onChange={toggleEncrypted}>Encrypted Root Volume</Toggle>
     <div key="volume-type" style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
-      Volume Type:
+      <Trans i18nKey="wizard.components.rootVolume.type.label" />:
       <Select
         disabled={editing}
-        placeholder={`Default (${defaultRootVolumeType})`}
+        placeholder={t('wizard.components.rootVolume.type.placeholder', {defaultRootVolumeType: defaultRootVolumeType})}
         // @ts-expect-error TS(2322) FIXME: Type '{ disabled: any; placeholder: string; select... Remove this comment to see the full error message
         selectedOption={rootVolumeType && strToOption(rootVolumeType)} label="Volume Type" onChange={({detail}) => {setState(rootVolumeTypePath, detail.selectedOption.value)}}
         options={volumeTypes.map(strToOption)}
