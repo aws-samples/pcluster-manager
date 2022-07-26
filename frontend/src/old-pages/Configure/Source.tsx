@@ -11,6 +11,7 @@
 // limitations under the License.
 
 import React from 'react';
+import i18next from "i18next";
 import { useState, setState, getState, clearState } from '../../store'
 import { loadTemplate } from './util'
 import { findFirst } from '../../util'
@@ -63,10 +64,13 @@ function sourceValidate(suppressUpload = false) {
 
   if(!clusterName || clusterName === "")
   {
-    setState([...sourceErrorsPath, 'clusterName'], 'Cluster name must not be blank.');
+    setState([...sourceErrorsPath, 'clusterName'], i18next.t('wizard.source.validation.cannotBeBlank'));
     valid = false;
   } else if(clusterNames.has(clusterName)) {
-    setState([...sourceErrorsPath, 'clusterName'], `Cluster with name ${clusterName} already exists. Please choose a unique name.`);
+    setState([...sourceErrorsPath, 'clusterName'], i18next.t('wizard.source.validation.alreadyExists', {clusterName: clusterName}));
+    valid = false;
+  } else if(!/^[a-zA-Z][a-zA-Z0-9-]+$/.test(clusterName)) {
+    setState([...sourceErrorsPath, 'clusterName'], i18next.t('wizard.source.validation.doesntMatchRegex', {clusterName: clusterName}));
     valid = false;
   } else {
     clearState([...sourceErrorsPath, 'clusterName']);
@@ -74,7 +78,7 @@ function sourceValidate(suppressUpload = false) {
 
   if(source === 'cluster' && (!sourceClusterName || sourceClusterName === ''))
   {
-    setState([...sourceErrorsPath, 'sourceClusterName'], 'You must select a cluster to copy from.');
+    setState([...sourceErrorsPath, 'sourceClusterName'], i18next.t('wizard.source.validation.specifySourceCopy'));
     valid = false;
   } else {
     clearState([...sourceErrorsPath, 'sourceClusterName']);
