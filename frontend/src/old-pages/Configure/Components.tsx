@@ -214,6 +214,8 @@ function CustomAMISettings({
   const osPath = ['app', 'wizard', 'config', 'Image', 'Os'];
   const os = useState(osPath) || "alinux2";
 
+  const { t } = useTranslation();
+
   var suggestions = [];
   for(let image of customImages)
   {
@@ -598,7 +600,7 @@ function RootVolume({
       <Select
         disabled={editing}
         placeholder={t('wizard.components.rootVolume.type.placeholder', {defaultRootVolumeType: defaultRootVolumeType})}
-        // @ts-expect-error TS(2322) FIXME: Type '{ disabled: any; placeholder: string; select... Remove this comment to see the full error message
+        // @ts-expect-error TS(2322) FIXME: Type '{ disabled: any; placeholder: string | undef... Remove this comment to see the full error message
         selectedOption={rootVolumeType && strToOption(rootVolumeType)} label="Volume Type" onChange={({detail}) => {setState(rootVolumeTypePath, detail.selectedOption.value)}}
         options={volumeTypes.map(strToOption)}
       />
