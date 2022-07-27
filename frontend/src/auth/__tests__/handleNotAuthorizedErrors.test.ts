@@ -40,10 +40,14 @@ describe('given the application config', () => {
         handleNotAuthorizedErrors(mockAppConfig)(mockRequestPromise).catch(() => {
             expect(global.window.location.replace).toHaveBeenCalledTimes(1)
             expect(global.window.location.replace).toHaveBeenCalledWith(
-                expect.stringMatching(/some-url\?response_type=code&client_id=some-id&scope=some-list&redirect_uri=some-uri&state=[a-zA-Z0-9]{1,32}/)
+                expect.stringContaining('some-url?response_type=code&client_id=some-id&scope=some-list&redirect_uri=some-uri')
             )
-          })
+            // 'as any' to avoid breaking npx tsc -p tsconfig.json
+            const urlString = `'${(global.window.location.replace as any).mock.calls[0][0]}`;
+            const queryParams = urlString.split('?')[1].split('&').map(keyvalue => keyvalue.split('='))
+            expect(queryParams.filter(([key, value]) => key === 'state').length).toBeGreaterThan(0)
 
+          })
         rejectPromise({ response: { status: 401 } })
       })
     })
