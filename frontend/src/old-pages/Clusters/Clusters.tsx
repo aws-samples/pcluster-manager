@@ -8,7 +8,7 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import React from 'react';
-import { useNavigate, useParams } from "react-router-dom"
+import { NavigateFunction, useNavigate, useParams } from "react-router-dom"
 
 import { ListClusters } from '../../model'
 
@@ -37,7 +37,7 @@ import Actions from './Actions';
 import Details from "./Details";
 import { wizardShow } from '../Configure/Configure';
 
-function updateClusterList(navigate) {
+function updateClusterList(navigate: NavigateFunction) {
   const selectedClusterName = getState(['app', 'clusters', 'selected']);
   const oldStatus = getState(['app', 'clusters', 'selectedStatus']);
 
