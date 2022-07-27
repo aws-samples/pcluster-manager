@@ -7,4 +7,4 @@ infrastructure/cognitolambda/node_modules
 .DS_Store
 .hugo_build.lock
 public/*
-.idea
+/frontend/tsconfig.tsbuildinfo
