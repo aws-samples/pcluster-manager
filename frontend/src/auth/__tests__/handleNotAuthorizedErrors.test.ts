@@ -39,7 +39,9 @@ describe('given the application config', () => {
       it('should redirect to the authorization server', () => {
         handleNotAuthorizedErrors(mockAppConfig)(mockRequestPromise).catch(() => {
             expect(global.window.location.replace).toHaveBeenCalledTimes(1)
-            expect(global.window.location.replace).toHaveBeenCalledWith('some-url?response_type=code&client_id=some-id&scope=some-list&redirect_uri=some-uri')
+            expect(global.window.location.replace).toHaveBeenCalledWith(
+                expect.stringMatching(/some-url\?response_type=code&client_id=some-id&scope=some-list&redirect_uri=some-uri&state=[a-zA-Z0-9]{1,32}/)
+            )
           })
 
         rejectPromise({ response: { status: 401 } })
