@@ -163,19 +163,18 @@ function DeleteCluster(clusterName: any, callback=null) {
   })
 }
 
-function ListClusters(callback: any) {
+async function ListClusters() {
   var url = 'api?path=/v3/clusters';
-  request('get', url).then((response: any) => {
-    //console.log("List Success", response)
-    if(response.status === 200) {
-      callback && callback(response.data.clusters);
-      setState(['clusters', 'list'], response.data.clusters);
+  try {
+    const { data } = await request('get', url);
+    setState(['clusters', 'list'], data?.clusters);
+    return data?.clusters || [];
+  } catch (error) {
+    if((error as any).response) {
+      notify(`Error: ${(error as any).response.data.message}`, 'error');
     }
-  }).catch((error: any) => {
-    if(error.response)
-      notify(`Error: ${error.response.data.message}`, 'error');
-    console.log(error)
-  });
+    throw error;
+  }
 }
 
 function GetConfiguration(clusterName: any, callback=null) {
@@ -803,7 +802,6 @@ async function LoadInitialState() {
     if(groups && (groups.includes("admin") || groups.includes("user")))
     {
       ListUsers();
-      // @ts-expect-error TS(2554) FIXME: Expected 1 arguments, but got 0.
       ListClusters();
       // @ts-expect-error TS(2554) FIXME: Expected 3 arguments, but got 0.
       ListCustomImages();
