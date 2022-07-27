@@ -37,7 +37,8 @@
     "lint": "next lint",
     "dev": "next dev",
     "export": "next build && next export -o build",
-    "ts-reignore": "ts-migrate reignore . --sources='src/**/*'"
+    "ts-reignore": "ts-migrate reignore . --sources='src/**/*'",
+    "ts-validate": "tsc -p tsconfig.json"
   },
   "browserslist": {
     "production": [
