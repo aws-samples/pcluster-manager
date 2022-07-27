@@ -8,7 +8,7 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import React from 'react';
-import { useNavigate, useParams } from "react-router-dom"
+import { NavigateFunction, useNavigate, useParams } from "react-router-dom"
 import { ListClusters } from '../../model'
 import { useState, getState, clearState, setState, isAdmin } from '../../store'
 import { selectCluster } from './util'
@@ -43,7 +43,7 @@ export interface Cluster {
   version: string
 }
 
-async function updateClusterList(navigate) {
+async function updateClusterList(navigate: NavigateFunction) {
   const selectedClusterName = getState(['app', 'clusters', 'selected']);
   const oldStatus = getState(['app', 'clusters', 'selectedStatus']);
 
@@ -55,20 +55,18 @@ async function updateClusterList(navigate) {
         if(oldStatus !== selectedCluster.clusterStatus) {
           setState(['app', 'clusters', 'selectedStatus'], selectedCluster.clusterStatus);
         }
-
-        if((oldStatus === 'CREATE_IN_PROGRESS' && selectedCluster.clusterStatus === 'CREATE_COMPLETE') ||
-          (oldStatus === 'UPDATE_IN_PROGRESS' && selectedCluster.clusterStatus === 'UPDATE_COMPLETE'))
-          selectCluster(selectedClusterName);
-      // If the selected cluster is not found, and was in DELETE_IN_PROGRESS status, deselect it
-      } else if (oldStatus === 'DELETE_IN_PROGRESS') {
+        if((oldStatus === 'CREATE_IN_PROGRESS' && selectedCluster.clusterStatus === 'CREATE_COMPLETE') || (oldStatus === 'UPDATE_IN_PROGRESS' && selectedCluster.clusterStatus === 'UPDATE_COMPLETE')) {
+            selectCluster(selectedClusterName, null);
+        } else if (oldStatus === 'DELETE_IN_PROGRESS') {
           clearState(['app', 'clusters', 'selected']);
           navigate('/clusters');
+        }
       }
     }
   } catch (error) {}
 }
 
-interface ClusterListProps {
+type ClusterListProps = {
   clusters: Cluster[]
 }
 
@@ -87,6 +85,11 @@ function ClusterList({ clusters }: ClusterListProps) {
     if(params.clusterName && selectedClusterName !== params.clusterName)
       selectCluster(params.clusterName, navigate);
   }, [selectedClusterName, params, navigate])
+
+  const onSelectionChangeCallback = React.useCallback(
+    ({ detail }) => {
+      navigate(`/clusters/${(detail.selectedItems[0] as Cluster).clusterName}`);
+  }, [navigate]);
 
   const configure = () => {
     wizardShow(navigate);
@@ -150,7 +153,7 @@ function ClusterList({ clusters }: ClusterListProps) {
     countText={`${t("cluster.list.countText")} ${filteredItemsCount}`}
     filteringAriaLabel={t("cluster.list.filteringAriaLabel")}/>}
     selectedItems={(items || []).filter((c) => (c as any).clusterName === selectedClusterName)}
-    onSelectionChange={({ detail }) => { navigate(`/clusters/${(detail.selectedItems[0] as Cluster).clusterName}`); }}
+    onSelectionChange={onSelectionChangeCallback}
     />
   )
 }
