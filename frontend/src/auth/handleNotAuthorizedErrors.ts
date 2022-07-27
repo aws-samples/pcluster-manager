@@ -26,6 +26,10 @@ export const handleNotAuthorizedErrors = ({authUrl, clientId, scopes, redirectUr
 }
 
 function redirectToAuthServer(authUrl: string, clientId: string, scopes: string, redirectUri: string) {
-  const url = `${authUrl}?response_type=code&client_id=${clientId}&scope=${encodeURIComponent(scopes)}&redirect_uri=${redirectUri}`
+  const url = `${authUrl}?response_type=code&client_id=${clientId}&scope=${encodeURIComponent(scopes)}&redirect_uri=${redirectUri}&state=${oauth2_state_parameter()}`
   window.location.replace(url)
+}
+
+function oauth2_state_parameter(length = 16): string {
+    return Math.random().toString(20).substring(2, length)
 }
