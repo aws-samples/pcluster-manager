@@ -799,9 +799,16 @@ async function LoadInitialState() {
   await GetAppConfig()
   GetIdentity((identity: any) => {
     let groups = identity[USER_ROLES_CLAIM];
-    if(groups && (groups.includes("admin") || groups.includes("user")))
-    {
+
+    if (!groups) {
+      return
+    }
+
+    if(groups.includes("admin")) {
       ListUsers();
+    }
+
+    if(groups.includes("admin") || groups.includes("user")) {
       ListClusters();
       // @ts-expect-error TS(2554) FIXME: Expected 3 arguments, but got 0.
       ListCustomImages();
