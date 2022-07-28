@@ -335,6 +335,14 @@
       }
     }
   },
+  "componets": {
+    "ValidationErrors": {
+      "update": "Update",
+      "validation": "Validation",
+      "errors": "Errors",
+      "warnings": "Warnings"
+    }
+  }
   "JobSubmitDialog": {
     "requiredMemory": {
       "header": "Required memory",
