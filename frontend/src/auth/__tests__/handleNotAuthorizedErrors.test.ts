@@ -19,7 +19,7 @@ describe('given the application config', () => {
 
   beforeEach(() => {
     mockAppConfig = {
-      authUrl: 'some-url',
+      authUrl: 'http://somepath.com',
       clientId: 'some-id',
       redirectUri: 'some-uri',
       scopes: 'some-list'
@@ -40,13 +40,12 @@ describe('given the application config', () => {
         handleNotAuthorizedErrors(mockAppConfig)(mockRequestPromise).catch(() => {
             expect(global.window.location.replace).toHaveBeenCalledTimes(1)
             expect(global.window.location.replace).toHaveBeenCalledWith(
-                expect.stringContaining('some-url?response_type=code&client_id=some-id&scope=some-list&redirect_uri=some-uri')
+                expect.stringContaining('http://somepath.com?response_type=code&client_id=some-id&scope=some-list&redirect_uri=some-uri')
             )
 
-            const urlString = `'${(global.window.location.replace as any).mock.calls[0][0]}`;
-            const queryParams = urlString.split('?')[1].split('&').map(keyvalue => keyvalue.split('='))
-            expect(queryParams.filter(([key, value]) => key === 'state').length).toBeGreaterThan(0)
-
+            const urlString = `${(global.window.location.replace as any).mock.calls[0][0]}`;
+            const searchParams = new URL(urlString).searchParams
+            expect(searchParams.get('state')).toBeTruthy()
           })
         rejectPromise({ response: { status: 401 } })
       })
