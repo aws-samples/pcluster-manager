@@ -25,6 +25,7 @@ from api.PclusterApiHandler import (
     create_user,
     delete_user,
     ec2_action,
+    get_app_config,
     get_aws_config,
     get_cluster_config,
     get_custom_image_config,
@@ -117,6 +118,10 @@ def run():
     @app.route("/manager/get_version")
     def get_version_():
         return get_version()
+
+    @app.route("/manager/get_app_config")
+    def get_app_config_():
+        return get_app_config()
 
     @app.route("/manager/list_users")
     @authenticated("admin")

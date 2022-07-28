@@ -10,6 +10,7 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import * as React from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 import { CreateCluster, UpdateCluster, ListClusters, DescribeCluster, notify } from '../../model'
 
 // UI Elements
@@ -56,7 +57,6 @@ function handleCreate(handleClose: any, navigate: any) {
     // @ts-expect-error TS(2554) FIXME: Expected 2 arguments, but got 1.
     DescribeCluster(clusterName)
     setState(['app', 'clusters', 'selected'], clusterName);
-    // @ts-expect-error TS(2554) FIXME: Expected 1 arguments, but got 0.
     ListClusters();
     handleClose();
     navigate(href);
@@ -105,6 +105,7 @@ function createValidate() {
 }
 
 function Create() {
+  const { t } = useTranslation();
   const clusterConfig = useState(configPath);
   const forceUpdate = useState(['app', 'wizard', 'forceUpdate']) || false;
   const disableRollback = useState(['app', 'wizard', 'disableRollback']) || false;
@@ -112,7 +113,7 @@ function Create() {
   const pending = useState(['app', 'wizard', 'pending']);
   const editing = getState(['app', 'wizard', 'editing']);
   return (
-    <Container header={<Header description={`This is the cluster configuration that will be used to ${editing ? 'update' : 'create'} your cluster.`}>Cluster Configuration</Header>}>
+    <Container header={<Header description={t('wizard.create.description', {action: editing ? 'update' : 'create'})}><Trans i18nKey="wizard.create.title" /></Header>}>
       <ConfigView config={clusterConfig} pending={!clusterConfig} onChange={({
         detail
       }: any) => {setState(configPath, detail.value)}} />

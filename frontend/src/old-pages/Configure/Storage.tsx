@@ -12,6 +12,8 @@
 
 // Fameworks
 import * as React from 'react';
+import i18next from "i18next";
+import { Trans, useTranslation } from 'react-i18next';
 import { findFirst } from '../../util'
 
 // UI Elements
@@ -35,6 +37,7 @@ import { getState, setState, useState, clearState } from '../../store'
 // Components
 import HelpTooltip from '../../components/HelpTooltip'
 import { LabeledIcon } from './Components'
+import { Storages, StorageType, STORAGE_TYPE_PROPS, UIStorageSettings } from './Storage.types';
 
 // Constants
 const storagePath = ['app', 'wizard', 'config', 'SharedStorage'];
@@ -69,7 +72,7 @@ function storageValidate() {
         const volumeSize = getState([...storagePath, i, 'EbsSettings', 'Size']);
         if(!volumeId && (volumeSize === null || volumeSize === '' || volumeSize < 35 || volumeSize > 2048))
         {
-          setState([...errorsPath, i, 'EbsSettings', 'Size'], 'You must specify a valid Volume Size.');
+          setState([...errorsPath, i, 'EbsSettings', 'Size'], i18next.t('wizard.storage.validation.volumeSize'));
           valid = false;
         } else {
           clearState([...errorsPath, i, 'EbsSettings', 'Size']);
@@ -87,6 +90,7 @@ function storageValidate() {
 function FsxLustreSettings({
   index
 }: any) {
+  const { t } = useTranslation();
   const versionMinor = useState(['app', 'version', 'minor']);
   const storageAppPath = ['app', 'wizard', 'storage', index];
   const useExisting = useState([...storageAppPath, 'useExisting']) || false;
@@ -146,7 +150,7 @@ function FsxLustreSettings({
   return (
     <ColumnLayout columns={2} borders="vertical">
       <div key="capacity" style={{display: "flex", flexDirection: "column"}}>
-        Storage Capacity: {storageCapacity} GB
+        <Trans i18nKey="wizard.storage.Fsx.capacity.label" values={{storageCapacity: storageCapacity}} />
         <Slider
           disabled={editing}
           aria-label="Storage Capacity"
@@ -162,7 +166,7 @@ function FsxLustreSettings({
       </div>
       <div key="lustre-type" style={{display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
         <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
-          FSx Lustre Type:
+          <Trans i18nKey="wizard.storage.Fsx.lustreType.label" values={{storageCapacity: storageCapacity}} />
           <Select
             disabled={editing}
             // @ts-expect-error TS(2322) FIXME: Type '{ disabled: any; selectedOption: { value: an... Remove this comment to see the full error message
@@ -178,33 +182,39 @@ function FsxLustreSettings({
           />
         </div>
         <HelpTooltip>
-          Choose SCRATCH_1 and SCRATCH_2 deployment types when you need temporary storage and shorter-term processing of data. The SCRATCH_2 deployment type provides in-transit encryption of data and higher burst throughput capacity than SCRATCH_1. Choose PERSISTENT_2 deployment type for longer-term storage and workloads and encryption of data in transit, choose PERSISTENT_1 only for backwards compatibility. See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-DeploymentType'>DeploymentType</a>.
+          <Trans i18nKey="wizard.storage.Fsx.lustreType.help">
+            <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-DeploymentType'></a>
+          </Trans>
         </HelpTooltip>
       </div>
 
       { lustreType === 'PERSISTENT_1' &&
       <>
         <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
-          <FormField label="Import Path">
+          <FormField label={t('wizard.storage.Fsx.import.label')}>
             <Input
               disabled={editing}
-              placeholder="s3://yourbucket"
+              placeholder={t('wizard.storage.Fsx.import.placeholder')}
               value={importPath} onChange={({detail}) => setImportPath(detail.value)} />
           </FormField>
           <HelpTooltip>
-            Set Import Path to read files into your filesystem from an S3 bucket. See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-ImportPath'>ImportPath</a>.
+            <Trans i18nKey="wizard.storage.Fsx.import.help">
+              <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-ImportPath'></a>
+            </Trans>
           </HelpTooltip>
         </div>
 
         <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
-          <FormField label="Export Path">
+          <FormField label={t('wizard.storage.Fsx.export.label')}>
             <Input
               disabled={editing}
-              placeholder="s3://yourbucket"
+              placeholder={t('wizard.storage.Fsx.export.placeholder')}
               value={exportPath} onChange={({detail}) => {setExportPath(detail.value)}} />
           </FormField>
           <HelpTooltip>
-            Set Export Path to write files from your filesystem into an S3 bucket. See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-ExportPath'>ExportPath</a>.
+            <Trans i18nKey="wizard.storage.Fsx.export.help">
+              <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-ExportPath'></a>
+            </Trans>
           </HelpTooltip>
         </div>
       </>
@@ -212,7 +222,7 @@ function FsxLustreSettings({
 
       { ['PERSISTENT_1', 'PERSISTENT_2'].includes(lustreType) &&
       <div style={{display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
-        <FormField label="Per Unit Storage Throughput">
+        <FormField label={t('wizard.storage.Fsx.throughput.label')}>
           <Select
             selectedOption={strToOption(storageThroughput || 125)} onChange={({detail}) => {
               setState(storageThroughputPath, detail.selectedOption.value);
@@ -221,14 +231,18 @@ function FsxLustreSettings({
           />
         </FormField>
         <HelpTooltip>
-          Describes the amount of read and write throughput for each 1 tebibyte of storage, in MB/s/TiB. See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-PerUnitStorageThroughput'>PerUnitStorageThroughput</a>.
+          <Trans i18nKey="wizard.storage.Fsx.throughput.help">
+            <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-PerUnitStorageThroughput'></a>
+          </Trans>
         </HelpTooltip>
       </div>
       }
       <div style={{display: "flex", flexDirection: "row", alignItems: "center", marginTop: "10px", justifyContent: "space-between"}}>
-        <Toggle checked={compression !== null} onChange={toggleCompression}>Compress Filesystem Data?</Toggle>
+        <Toggle checked={compression !== null} onChange={toggleCompression}><Trans i18nKey="wizard.storage.Fsx.compression.label" /></Toggle>
         <HelpTooltip>
-          When data compression is enabled, Amazon FSx for Lustre automatically compresses newly written files before they are written to disk and automatically uncompresses them when they are read. See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-DataCompressionType'>DataCompressionType</a>.
+          <Trans i18nKey="wizard.storage.Fsx.compression.help">
+            <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-DataCompressionType'></a>
+          </Trans>
         </HelpTooltip>
       </div>
     </ColumnLayout>
@@ -238,6 +252,7 @@ function FsxLustreSettings({
 function EfsSettings({
   index
 }: any) {
+  const { t } = useTranslation();
   const efsPath = [...storagePath, index, 'EfsSettings'];
   const encryptedPath = [...efsPath, 'Encrypted'];
   const kmsPath = [...efsPath, 'KmsKeyId'];
@@ -276,7 +291,7 @@ function EfsSettings({
         <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
           <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
             <div style={{display: "flex", flexGrow: 1, flexShrink: 0}}>
-              <Toggle checked={encrypted} onChange={toggleEncrypted}>Encrypted</Toggle>
+              <Toggle checked={encrypted} onChange={toggleEncrypted}><Trans i18nKey="wizard.storage.Efs.encrypted.label" /></Toggle>
             </div>
             { encrypted &&
             <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
@@ -290,12 +305,14 @@ function EfsSettings({
             }
           </div>
           <HelpTooltip>
-            Specifies a custom AWS KMS key to use for encryption. See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EfsSettings-Encrypted'>EFS Encryption.</a>
+            <Trans i18nKey="wizard.storage.Efs.encrypted.help">
+              <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EfsSettings-Encrypted'></a>
+            </Trans>
           </HelpTooltip>
         </div>
 
         <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
-          Performance Mode:
+          <Trans i18nKey="wizard.storage.Efs.performanceMode.label" />
           <Select
             selectedOption={strToOption(performanceMode)} onChange={({detail}) => {setState(performancePath, detail.selectedOption.value)}}
             options={performanceModes.map(strToOption)}
@@ -307,12 +324,11 @@ function EfsSettings({
               setState(throughputModePath, throughputMode === 'bursting' ? 'provisioned' : 'bursting' );
               if(throughputMode === 'provisioned')
                 setState(provisionedThroughputPath, 128)
-            }}>Provisioned Throughput</Toggle>
+            }}><Trans i18nKey="wizard.storage.Efs.provisioned.label" /></Toggle>
             <HelpTooltip>
-              Defines the provisioned throughput (from 1-1024 in MiB/s) of the
-              Amazon EFS file system. If not provided filesystem will be created in
-              'bursting' mode. See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EfsSettings-ThroughputMode'>ThroughputMode
-                section.</a>
+              <Trans i18nKey="wizard.storage.Efs.provisioned.help">
+                <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EfsSettings-ThroughputMode'></a>
+              </Trans>
             </HelpTooltip>
           </div>
           { throughputMode === 'provisioned' &&
@@ -337,6 +353,7 @@ function EfsSettings({
 function EbsSettings({
   index
 }: any) {
+  const { t } = useTranslation();
   const ebsPath = [...storagePath, index, 'EbsSettings'];
   const volumeTypePath = [...ebsPath, 'VolumeType'];
   const volumeTypes = ['gp3', 'gp2', 'io1', 'io2', 'sc1', 'stl', 'standard']
@@ -385,12 +402,11 @@ function EbsSettings({
     <SpaceBetween direction="vertical" size="m">
       <ColumnLayout columns={2} borders="vertical">
         <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
-          Volume Type:
+          <Trans i18nKey="wizard.storage.Ebs.volumeType.label" />:
           <Select
             disabled={editing}
-            placeholder={`Default (${defaultVolumeType})`}
-            // @ts-expect-error TS(2322) FIXME: Type '{ disabled: any; placeholder: string; select... Remove this comment to see the full error message
-            selectedOption={volumeType && strToOption(volumeType)} label="Volume Type" onChange={({detail}) => {setState(volumeTypePath, detail.selectedOption.value)}}
+            placeholder={t('wizard.queues.validation.scriptWithArgs', {defaultVlumeType: defaultVolumeType})}
+            selectedOption={volumeType && strToOption(volumeType)} onChange={({detail}) => {setState(volumeTypePath, detail.selectedOption.value)}}
             options={volumeTypes.map(strToOption)}
           />
         </div>
@@ -416,7 +432,7 @@ function EbsSettings({
           <div style={{display: "flex", flexGrow: 1, flexShrink: 0}}>
             <Toggle
               disabled={editing}
-              checked={encrypted} onChange={toggleEncrypted}>Encrypted</Toggle>
+              checked={encrypted} onChange={toggleEncrypted}><Trans i18nKey="wizard.storage.Ebs.encrypted.label" /></Toggle>
           </div>
           { encrypted &&
           <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
@@ -430,13 +446,15 @@ function EbsSettings({
           }
         </div>
         <HelpTooltip>
-          Specifies a custom AWS KMS key to use for encryption. See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EbsSettings-Encrypted'>EBS Encryption.</a>
+          <Trans i18nKey="wizard.storage.Ebs.encrypted.help">
+            <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EbsSettings-Encrypted'></a>
+          </Trans>
         </HelpTooltip>
       </div>
 
       <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
         <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
-          <Toggle checked={snapshotId !== null} onChange={(event) => {setState(snapshotIdPath, snapshotId === null ? '' : null )}}>Snapshot ID</Toggle>
+          <Toggle checked={snapshotId !== null} onChange={(event) => {setState(snapshotIdPath, snapshotId === null ? '' : null )}}><Trans i18nKey="wizard.storage.Ebs.snapshotId.label" /></Toggle>
           { snapshotId !== null &&
           <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
             :
@@ -446,7 +464,9 @@ function EbsSettings({
           }
         </div>
         <HelpTooltip>
-          Specifies the Amazon EBS snapshot ID if you're using a snapshot as the source for the volume. See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EbsSettings-SnapshotId'>SnapshotID</a>.
+          <Trans i18nKey="wizard.storage.Ebs.snapshotId.help">
+            <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EbsSettings-SnapshotId'></a>
+          </Trans>
         </HelpTooltip>
       </div>
 
@@ -454,52 +474,20 @@ function EbsSettings({
 
       <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
         <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
-          Deletion Policy:
+          <Trans i18nKey="wizard.storage.Ebs.deletionPolicy.label" />:
           <Select
-            // @ts-expect-error TS(2322) FIXME: Type '{ selectedOption: { value: any; label: any; ... Remove this comment to see the full error message
-            selectedOption={strToOption(deletionPolicy || "Delete")} label="Deletion Policy" onChange={({detail}) => {setState(deletionPolicyPath, detail.selectedOption.value)}}
+            selectedOption={strToOption(deletionPolicy || "Delete")} onChange={({detail}) => {setState(deletionPolicyPath, detail.selectedOption.value)}}
             options={deletionPolicies.map(strToOption)}
           />
         </div>
         <HelpTooltip>
-          Specifies whether the volume should be retained, deleted, or snapshotted when the cluster is deleted. See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EbsSettings-DeletionPolicy'>DeletionPolicy</a>.
+          <Trans i18nKey="wizard.storage.Ebs.deletionPolicy.help">
+            <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EbsSettings-DeletionPolicy'></a>
+          </Trans>
         </HelpTooltip>
       </div>
     </SpaceBetween>
   )
-}
-
-/*
- * Used to configure the Storage part of the Cluster wizard:
- *  - controls whether a storage type can be created or just linked
- *  - specify if a storage type can be mounted as a file system or just one of its volumes
- */
-const STORAGE_TYPE_PROPS = {
-  "FsxLustre": {
-    mountFilesystem: true,
-    maxToCreate: 1,
-    maxExistingToAttach: 20
-  },
-  "FsxOntap": {
-    mountFilesystem: false,
-    maxToCreate: 0,
-    maxExistingToAttach: 20
-  },
-  "FsxOpenZfs": {
-    mountFilesystem: false,
-    maxToCreate: 0,
-    maxExistingToAttach: 20
-  },
-  "Efs": {
-    mountFilesystem: true,
-    maxToCreate: 1,
-    maxExistingToAttach: 20
-  },
-  "Ebs": {
-    mountFilesystem: false,
-    maxToCreate: 5,
-    maxExistingToAttach: 5
-  },
 }
 
 function StorageInstance({
@@ -507,18 +495,16 @@ function StorageInstance({
 }: any) {
   const path = [...storagePath, index]
   const storageAppPath = ['app', 'wizard', 'storage', index];
-  const storageType = useState([...path, 'StorageType']) || "none";
+  const storageType: StorageType = useState([...path, 'StorageType']);
   const storageName = useState([...path, 'Name']) || "";
   const mountPoint = useState([...path, 'MountDir']);
-  // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
-  const useExisting = useState([...storageAppPath, 'useExisting']) || !STORAGE_TYPE_PROPS[storageType].maxToCreate > 0;
+  const useExisting = useState([...storageAppPath, 'useExisting']) || !(STORAGE_TYPE_PROPS[storageType].maxToCreate > 0);
   const settingsPath = [...path, `${storageType}Settings`]
-  // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   const existingPath = STORAGE_TYPE_PROPS[storageType].mountFilesystem ? [...settingsPath, 'FileSystemId'] : [...settingsPath, 'VolumeId'];
   const existingId = useState(existingPath) || "";
   const storages = useState(storagePath);
   const uiStorageSettings = useState(['app', 'wizard', 'storage']);
-
+  const { t } = useTranslation();
 
   const fsxFilesystems = useState(['aws', 'fsxFilesystems']);
   const fsxVolumes = useState(['aws', 'fsxVolumes']);
@@ -560,42 +546,41 @@ function StorageInstance({
       header={<Header
         variant="h3"
         actions={<Button disabled={editing} onClick={removeStorage}>Remove</Button>}>
-        Name: {storageName}
+        <Trans i18nKey="wizard.storage.instance.name.label" values={{storageName: storageName}}/>
       </Header>}
     >
       <div style={{display: "flex", flexDirection: "column", gap: "10px"}}>
         <ColumnLayout columns={2} borders="vertical">
           <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: "10px"}}>
             <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
-              Mount Point:
+              <Trans i18nKey="wizard.storage.instance.mountPoint.label" />:
               <Input
                 disabled={editing}
                 value={mountPoint}
                 onChange={(({detail}) => {setState([...storagePath, index, 'MountDir'], detail.value)})} />
             </div>
             <HelpTooltip>
-              Where to mount the shared storage on both the Head Node and Compute Fleet instances.
+              <Trans i18nKey="wizard.storage.instance.mountPoint.help" />
             </HelpTooltip>
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
-            {/* @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message */}
             {STORAGE_TYPE_PROPS[storageType].maxToCreate > 0 ? <div style={{marginTop: "10px", display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
-              <Toggle disabled={!canToggle} checked={useExisting} onChange={toggleUseExisting}>Use Existing Filesystem</Toggle>
+              <Toggle disabled={!canToggle} checked={useExisting} onChange={toggleUseExisting}><Trans i18nKey="wizard.storage.instance.useExisting.label" /></Toggle>
               <HelpTooltip>
-                Specify an existing fileystem and mount it to all instances in the cluster.
-                See <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-FileSystemId'>FSx Filesystem ID</a>
-                , <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EfsSettings-FileSystemId'>EFS Filesystem ID</a>
-                , <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EbsSettings-VolumeId'>EBS Volume ID</a>
+                <Trans i18nKey="wizard.storage.instance.useExisting.help">
+                  <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-FileSystemId'></a>
+                  <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EfsSettings-FileSystemId'></a>
+                  <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EbsSettings-VolumeId'></a>
+                </Trans>
               </HelpTooltip>
             </div> : null} 
             { useExisting &&
-                // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
                 {
                   "Ebs":
                     <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px", marginTop: "10px"}}>
                       Existing EBS ID:
                       <Input
-                        placeholder="i.e. fsx-1234 or efs-1234"
+                        placeholder={t('wizard.storage.instance.useExisting.placeholder')}
                         value={existingId}
                         onChange={(({detail}) => {setState(existingPath, detail.value)})} />
                     </div>,
@@ -642,10 +627,11 @@ function StorageInstance({
             }
           </div>
         </ColumnLayout>
-        {/* @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message */}
         { ! useExisting && {"FsxLustre": <FsxLustreSettings index={index}/>,
           "Efs": <EfsSettings index={index}/>,
-          "Ebs": <EbsSettings index={index}/>}[storageType]
+          "Ebs": <EbsSettings index={index}/>,
+          "FsxOntap": null,
+          "FsxOpenZfs": null}[storageType]
         }
       </div>
     </Container>
@@ -736,7 +722,7 @@ function Storage() {
   );
 }
 
-function canCreateStorage(storageType, storages, uiStorageSettings) {
+function canCreateStorage(storageType: StorageType, storages: Storages, uiStorageSettings: UIStorageSettings) {
   if (!storageType) {
     return false;
   }
@@ -755,7 +741,7 @@ function canCreateStorage(storageType, storages, uiStorageSettings) {
   return alreadyCreated < maxToCreate;
 }
 
-function canAttachExistingStorage(storageType, storages, uiStorageSettings) {
+function canAttachExistingStorage(storageType: StorageType, storages: Storages, uiStorageSettings: UIStorageSettings) {
   if (!storageType) {
     return false;
   }

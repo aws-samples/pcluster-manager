@@ -4,6 +4,44 @@
       "home": "Home"
     }
   },
+  "cluster": {
+    "list": {
+      "filtering": {
+        "empty": {
+          "title": "No clusters",
+          "subtitle": "No clusters to display",
+          "action": "Create Cluster"
+        },
+        "noMatch": {
+          "title": "No matches",
+          "subtitle": "No clusters match the filters",
+          "action": "Create filter"
+        }
+      },
+      "cols": {
+        "name": "Name",
+        "status": "Status",
+        "version": "Version"
+      },
+      "loadingText": "Loading clusters...",
+      "countText": "Results:",
+      "filteringAriaLabel": "Filter cluster",
+      "splitPanel": {
+        "preferencesTitle": "Split panel preferences",
+        "preferencesPositionLabel": "Split panel position",
+        "preferencesPositionDescription": "Choose the default split panel position for the service.",
+        "preferencesPositionSide": "Side",
+        "preferencesPositionBottom": "Bottom",
+        "preferencesConfirm": "Confirm",
+        "preferencesCancel": "Cancel",
+        "closeButtonAriaLabel": "Close panel",
+        "openButtonAriaLabel": "Open panel",
+        "resizeHandleAriaLabel": "Resize split panel",
+        "noClusterSelectedText": "No cluster selected",
+        "selectClusterText": "Select a cluster to see its details"
+      }
+    }
+  },
   "wizard": {
     "source" : {
       "validation": {
@@ -11,22 +49,228 @@
         "alreadyExists": "Cluster with name {{clusterName}} already exists. Please choose a unique name.",
         "doesntMatchRegex": "Cluster name '{{clusterName}}' doesn't match the format /^[a-zA-Z][a-zA-Z0-9-]+$/. Please choose a name consisting of only upper and lower-case letters, numbers and dashes.",
         "specifySourceCopy": "You must select a cluster to copy from."
+      },
+      "clusterSelect": {
+        "placeholder": "Please select a cluster."
+      },
+      "clusterName": {
+        "label": "Cluster Name",
+        "description": "Please choose an identifier for this cluster. It is suggested to be lower-case and without spaces (e.g. my-cluster)).",
+        "placeholder": "Enter your cluster name"
+      },
+      "configurationSource": {
+        "label": "Configuration Source",
+        "description": "Please choose the source configuration for the cluster you want to create."
+      },
+      "sourceOptions": {
+        "wizard": {
+          "label": "Wizard",
+          "description": "Choose this to start a new cluster configuration."
+        },
+        "template": {
+          "label": "Template",
+          "description": "Choose this to use the wizard starting from an existing configuration or template file. This will proceed through the wizard process to allow you to customize any options before creating the cluster."
+        },
+        "cluster": {
+          "label": "From Cluster",
+          "description": "Use an existing cluster as a starting point for the configuration of your new cluster."
+        },
+        "file": {
+          "label": "Upload a file",
+          "description": "Choose this if you already have a file you wish to upload. This will proceed directly to the creation step."
+        }
+      }
+    },
+    "cluster": {
+      "validation": {
+        "VpcSelect": "You must select a VPC.",
+        "customAmiSelect": "You must select an AMI ID if you enable Custom AMI."
+      },
+      "title": "Cluster Properties",
+      "region": {
+        "label": "Region",
+        "description": "Region where the cluster will be created."
+      },
+      "scheduler": {
+        "label": "Scheduler",
+        "description": "Scheduler that will be used to manage applications."
+      },
+      "os": {
+        "label": "Operating System",
+        "description": "OS installed on the cluster nodes."
+      },
+      "vpc": {
+        "label": "VPC",
+        "description": "VPC where the cluster instances will reside."
+      },
+      "multiuser": {
+        "title": "Multi User",
+        "label": "Multi User Cluster",
+        "description": "Enable Multi-User cluster through Active Directory integration."
       }
     },
     "headNode": {
+      "validation": {
+        "selectSubnet": "You must select a Subnet.",
+        "selectInstanceType": "You must select an instance type.",
+        "setRootVolumeSize": "You must set a RootVolume size.",
+        "rootVolumeMinimum": "You must use an integer >= 35GB for Root Volume Size.",
+        "scriptWithArgs": "You must specify a script path if you specify args."
+      },
+      "Dcv": {
+        "label": "Virtual Desktop",
+        "description": "Allow a virtual desktop session on the HeadNode via DCV. If you select this option, we suggest using a larger instance size.",
+        "help": "Remote-Desktop into the headnode to visualize results."
+      },
+      "Ssm": {
+        "title":"Virtual Console",
+        "label": "Remote Console Enabled",
+        "description": "Allow connecting to HeadNode via SSM.",
+        "help": "This setting will enable SSM which permits connecting to the head node via a virtual console."
+      },
+      "instanceType": {
+        "label": "Head Node Instance Type"
+      },
+      "keypair": {
+        "label": "Keypair",
+        "description": "Keypair used to connect to HeadNode via SSH. If you don't specify an SSH keypair you can still connect to the cluster using SSM, make sure to turn on 'Remote Console' in order to do so."
+      },
+      "imdsSecured": {
+        "label": "IMDS Secured",
+        "help": "If enabled, restrict access to IMDS (and thus instance credentials) to users with superuser permissions. For more information, see <0>How instance metadata service version 2 works</0> in the <i>Amazon EC2 User Guide for Linux Instances</i>."
+      },
+      "subnetId": {
+        "label": "Subnet ID",
+        "description": "Subnet ID for HeadNode."
+      },
       "memoryBasedSchedulingEnabled": {
         "label": "Slurm Memory Based Scheduling Enabled",
         "help": "If enabled, users may use <i>--mem</i> to specify the amount of memory per node required by a job. For more information, see the <0>Slurm documentation for ConstrainRAMSpace</0>"
+     },
+     "securityGroups": {
+       "label": "Additional Security Groups",
+       "help": "Provides additional security groups for the HeadNode."
      }
-   },
+    },
+    "storage": {
+      "validation": {
+        "volumeSize": "You must specify a valid Volume Size."
+      },
+      "Fsx": {
+        "capacity": {
+          "label": "Storage Capacity: {{storageCapacity}} GB"
+        },
+        "lustreType": {
+          "label": "FSx Lustre Type:",
+          "help": "Choose SCRATCH_1 and SCRATCH_2 deployment types when you need temporary storage and shorter-term processing of data. The SCRATCH_2 deployment type provides in-transit encryption of data and higher burst throughput capacity than SCRATCH_1. Choose PERSISTENT_2 deployment type for longer-term storage and workloads and encryption of data in transit, choose PERSISTENT_1 only for backwards compatibility. See <0>DeploymentType</0>."
+        },
+        "import": {
+          "label": "Import Path",
+          "placeholder": "s3://yourbucket",
+          "help": "Set Import Path to read files into your filesystem from an S3 bucket. See <0>ImportPath</0>."
+        },
+        "export": {
+          "label": "Export Path",
+          "placeholder": "s3://yourbucket",
+          "help": "Set Export Path to write files from your filesystem into an S3 bucket. See <0>ExportPath</0>."
+        },
+        "throughput": {
+          "label": "Per Unit Storage Throughput",
+          "help": "Describes the amount of read and write throughput for each 1 tebibyte of storage, in MB/s/TiB. See <0>PerUnitStorageThroughput</0>."
+        },
+        "compression": {
+          "label": "Compress Filesystem Data?",
+          "help": "When data compression is enabled, Amazon FSx for Lustre automatically compresses newly written files before they are written to disk and automatically uncompresses them when they are read. See <0>DataCompressionType</0>."
+        }
+      },
+      "Efs": {
+        "encrypted": {
+          "label": "Encrypted",
+          "help": "Specifies a custom AWS KMS key to use for encryption. See <0>EFS Encryption.</0>"
+        },
+        "performanceMode": {
+          "label": "Performance Mode:"
+        },
+        "provisioned": {
+          "label": "Provisioned Throughput",
+          "help": "Defines the provisioned throughput (from 1-1024 in MiB/s) of the Amazon EFS file system. If not provided filesystem will be created in 'bursting' mode. See <0>ThroughputMode section.</0>"
+        }
+      },
+      "Ebs": {
+        "volumeType": {
+          "label": "Volume Type",
+          "placeholder": "Default ({{defaultVolumeType}})"
+        },
+        "encrypted": {
+          "label": "Encrypted",
+          "help": "Specifies a custom AWS KMS key to use for encryption. See <0>EBS Encryption.</o>"
+        },
+        "snapshotId": {
+          "label": "Snapshot ID",
+          "help": "Specifies the Amazon EBS snapshot ID if you're using a snapshot as the source for the volume. See <0>SnapshotID</0>."
+        },
+        "deletionPolicy": {
+          "label": "Deletion Policy",
+          "help": "Specifies whether the volume should be retained, deleted, or snapshotted when the cluster is deleted. See <0>DeletionPolicy</0>."
+        }
+      },
+      "instance": {
+        "name": {
+          "label": "Name: {{storageName}}"
+        },
+        "mountPoint": {
+          "label": "Mount Point",
+          "help": "Where to mount the shared storage on both the Head Node and Compute Fleet instances."
+        },
+        "useExisting": {
+          "label": "Use Existing Filesystem",
+          "help": "Specify an existing fileystem and mount it to all instances in the cluster. See <0>FSx Filesystem ID</0>, <1>EFS Filesystem ID</1>, <2>EBS Volume ID</2>",
+          "placeholder": "i.e. fsx-1234 or efs-1234"
+        }
+      }
+    },
     "queues": {
+      "validation": {
+        "instanceTypeUnique": "Instance types must be unique within a Queue.",
+        "selectSubnet": "You must select a Subnet.",
+        "setRootVolumeSize": "You must set a RootVolume size.",
+        "rootVolumeMinimum": "You must use an integer >= 35GB for Root Volume Size.",
+        "scriptWithArgs": "You must specify a script path if you specify args.",
+        "customAmiSelect": "You must select an AMI ID if you enable Custom AMI."
+      },
       "schedulableMemory": {
         "name": "Schedulable Memory (MiB)",
         "description": "Amount of memory in MiB to be made available to jobs on the compute nodes of the compute resource",
         "placeholder": "Leave empty for default",
         "help": "The default value is 95 % of the memory advertised by EC2."
+      },
+      "computeResource": {
+        "staticNodes": "Static Nodes",
+        "dynamicNodes": "DynamicNodes",
+        "instanceType": "Instance Type",
+        "disableHT": "Disable Hyperthreading",
+        "enableEfa": "Enable EFA",
+        "enableGpuDirect": "Enable EFA GPUDirect RDMA"
+      },
+      "Gdr": {
+        "help": "Only for p4d.24xlarge, See <0>GdrSupport</0>."
+      },
+      "placementGroup": {
+        "label": "Enable Placement Group"
+      },
+      "subnet": {
+        "label": "Subnet ID"
+      },
+      "purchaseType": {
+        "label": "Purchase Type"
+      },
+      "securityGroups": {
+        "label": "Additional Security Groups"
+      },
+      "IamPolicies": {
+        "label": "IAM Policies"
       }
-   },
+    },
     "multiuser": {
       "domainName": {
         "name": "Domain Name*",
@@ -67,6 +311,27 @@
         "name": "Generate SSH Keys",
         "description": "Defines whether AWS ParallelCluster generates SSH key pairs for cluster users after they log in to the head node for the first time.",
         "help": "The key pair is saved to the user home directory at /home/username/.ssh/. Users can use the SSH key pair for subsequent logins to the cluster head node and compute nodes. With AWS ParallelCluster, logins to cluster compute nodes are disabled by design. If a user hasn't logged into the head node, SSH keys aren't generated and the user won't be able to log in to compute nodes."
+      }
+    },
+    "create": {
+      "title": "Cluster Configuration",
+      "description": "This is the cluster configuration that will be used to {{action}} your cluster."
+    },
+    "components": {
+      "customAmi": {
+        "label": "Use Custom AMI?",
+        "help": "Custom AMI's provide a way to customize the cluster. See the <0>Image section</0> of the documentation for more information."
+      },
+      "rootVolume": {
+        "size": {
+          "label": "Root Volume Size (GB)",
+          "description": "Typically users will use a shared storage option for application data so a smaller root volume size is suitable. Blank will use the default from the AMI.",
+          "placeholder": "Enter root volume size."
+        },
+        "type": {
+          "label": "Volume Type",
+          "placeholder": "Default ({{defaultRootVolumeType}})"
+        }
       }
     }
   },

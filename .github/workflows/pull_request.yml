@@ -27,6 +27,14 @@ jobs:
         run: npm ci # https://docs.npmjs.com/cli/v8/commands/npm-ci
         working-directory: ./frontend
 
+      - name: Run linter
+        run: npm run lint
+        working-directory: ./frontend
+
+      - name: Run type checks
+        run: npm run ts-validate
+        working-directory: ./frontend
+
       - name: Run frontend tests
         run: npm test
         working-directory: ./frontend

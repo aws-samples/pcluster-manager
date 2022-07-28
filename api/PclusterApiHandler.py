@@ -42,7 +42,6 @@ AUTH_URL = os.getenv("AUTH_URL", f"{AUTH_PATH}/login")
 JWKS_URL = os.getenv("JWKS_URL")
 AUDIENCE = os.getenv("AUDIENCE")
 USER_ROLES_CLAIM = os.getenv("USER_ROLES_CLAIM", "cognito:groups")
-REDIRECT_URL = f"{SITE_URL}/login"
 
 try:
     if (not USER_POOL_ID or USER_POOL_ID == "") and SECRET_ID:
@@ -54,18 +53,9 @@ try:
 except Exception:
     pass
 
-if not SCOPES_LIST:
-    SCOPES_LIST = "openid"
-elif "openid" not in SCOPES_LIST:
-    SCOPES_LIST += " openid"
 if not JWKS_URL:
     JWKS_URL = os.getenv("JWKS_URL",
                          f"https://cognito-idp.{REGION}.amazonaws.com/{USER_POOL_ID}/" ".well-known/jwks.json")
-
-AUTH_URL_WITH_PARAMS = f"{AUTH_URL}?response_type=code&client_id={CLIENT_ID}" \
-                       f"&scope={SCOPES_LIST}" \
-                       f"&redirect_uri={REDIRECT_URL} "
-
 
 def jwt_decode(token, audience=None, access_token=None):
     return jwt.decode(token, requests.get(JWKS_URL).json(), audience=audience, access_token=access_token)
@@ -127,11 +117,6 @@ def sigv4_request(method, host, path, params={}, headers={}, body=None):
 
 # Wrappers
 
-
-def auth_redirect():
-    return redirect(AUTH_URL_WITH_PARAMS, code=302)
-
-
 def authenticate(group):
     if disable_auth():
         return
@@ -162,13 +147,29 @@ def authenticated(group="user"):
 
     return _authenticated
 
+def get_scopes_list():
+  if not SCOPES_LIST:
+    return "openid"
+  elif "openid" not in SCOPES_LIST:
+    return SCOPES_LIST + " openid"
+  return SCOPES_LIST
 
+def get_redirect_uri():
+  return f"{SITE_URL}/login"
+  
 # Local Endpoints
 
 
 def get_version():
     return {"version": API_VERSION, "enable_mfa": ENABLE_MFA == "true"}
 
+def get_app_config():
+  return {
+    "auth_url": AUTH_URL,
+    "client_id": CLIENT_ID,
+    "scopes": get_scopes_list(),
+    "redirect_uri": get_redirect_uri()
+  }
 
 def ec2_action():
     if request.args.get("region"):
@@ -653,7 +654,7 @@ def login():
     url = TOKEN_URL
     code_resp = requests.post(
         url,
-        data={"grant_type": grant_type, "code": code, "client_id": CLIENT_ID, "redirect_uri": REDIRECT_URL},
+        data={"grant_type": grant_type, "code": code, "client_id": CLIENT_ID, "redirect_uri": get_redirect_uri()},
         auth=auth,
         headers={"Content-Type": "application/x-www-form-urlencoded"},
     )

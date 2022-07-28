@@ -11,7 +11,8 @@
 
 // Frameworks
 import * as React from 'react';
-import { Trans } from 'react-i18next';
+import i18next from "i18next";
+import { Trans, useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { findFirst, getIn } from '../../util'
 
@@ -61,7 +62,7 @@ function headNodeValidate() {
 
   if(!subnetValue)
   {
-    setState([...errorsPath, 'subnet'], 'You must select a Subnet.');
+    setState([...errorsPath, 'subnet'], i18next.t('wizard.headNode.validation.selectSubnet'));
     valid = false;
   } else {
     clearState([...errorsPath, 'subnet']);
@@ -69,7 +70,7 @@ function headNodeValidate() {
 
   if(!instanceTypeValue)
   {
-    setState([...errorsPath, 'instanceType'], 'You must select an instance type.');
+    setState([...errorsPath, 'instanceType'], i18next.t('wizard.headNode.validation.selectInstanceType'));
     valid = false;
   } else {
     clearState([...errorsPath, 'instanceType']);
@@ -77,10 +78,10 @@ function headNodeValidate() {
 
   if(rootVolumeValue === '')
   {
-    setState([...errorsPath, 'rootVolume'], 'You must set a RootVolume size.');
+    setState([...errorsPath, 'rootVolume'], i18next.t('wizard.headNode.validation.setRootVolumeSize'));
     valid = false;
   } else if(rootVolumeValue && (!Number.isInteger(rootVolumeValue) || rootVolumeValue < 35)) {
-    setState([...errorsPath, 'rootVolume'], 'You must use an integer >= 35GB for Root Volume Size.');
+    setState([...errorsPath, 'rootVolume'], i18next.t('wizard.headNode.validation.rootVolumeMinimum'));
     valid = false;
   } else {
     clearState([...errorsPath, 'rootVolume']);
@@ -88,7 +89,7 @@ function headNodeValidate() {
 
   if(onStart && getState([...onStartPath, 'Args']) && !getState([...onStartPath, 'Script']))
   {
-    setState([...errorsPath, 'onStart'], 'You must specify a script path if you specify args.');
+    setState([...errorsPath, 'onStart'], i18next.t('wizard.headNode.validation.scriptWithArgs'));
     valid = false;
   } else {
     clearState([...errorsPath, 'onStart']);
@@ -96,7 +97,7 @@ function headNodeValidate() {
 
   if(onConfigured && getState([...onConfiguredPath, 'Args']) && !getState([...onConfiguredPath, 'Script']))
   {
-    setState([...errorsPath, 'onConfigured'], 'You must specify a script path if you specify args.');
+    setState([...errorsPath, 'onConfigured'], i18next.t('wizard.headNode.validation.scriptWithArgs'));
     valid = false;
   } else {
     clearState([...errorsPath, 'onConfigured']);
@@ -134,6 +135,7 @@ function enableSsm(enable: any) {
 }
 
 function KeypairSelect() {
+  const { t } = useTranslation();
   const keypairs = useState(['aws', 'keypairs']) || [];
   const keypairPath = [...headNodePath, 'Ssh', 'KeyName']
   const keypair = useState(keypairPath) || "";
@@ -159,8 +161,8 @@ function KeypairSelect() {
 
   return (
     <FormField
-      label="Keypair"
-      description="Keypair used to connect to HeadNode via SSH. If you don't specify an SSH keypair you can still connect to the cluster using SSM, make sure to turn on 'Remote Console' in order to do so.">
+      label={t('wizard.headNode.keypair.label')}
+      description={t('wizard.headNode.keypair.description')}>
       <Select
         disabled={editing}
         selectedOption={keypairToOption(findFirst(keypairs, (x: any) => {return x.KeyName === keypair}))}
@@ -178,6 +180,7 @@ function isSsmPolicy(p: any) {
 }
 
 function SsmSettings() {
+  const { t } = useTranslation();
   const dcvEnabled = useState([...headNodePath, 'Dcv', 'Enabled']) || false;
 
   const ssmEnabled = useSelector((state) => {
@@ -185,16 +188,19 @@ function SsmSettings() {
     return findFirst(iamPolicies, isSsmPolicy) || false;
   })
   return <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
-    <FormField label="Virtual Console" description="Allow connecting to HeadNode via SSM.">
-      <Toggle checked={ssmEnabled} onChange={({detail}) => enableSsm(!ssmEnabled)} disabled={dcvEnabled}>Remote Console Enabled</Toggle>
+    <FormField label={t('wizard.headNode.Ssm.title')} description={t('wizard.headNode.Ssm.description')}>
+      <Toggle checked={ssmEnabled} onChange={({detail}) => enableSsm(!ssmEnabled)} disabled={dcvEnabled}>
+        <Trans i18nKey="wizard.headNode.Ssm.label" />
+      </Toggle>
     </FormField>
     <HelpTooltip>
-      This setting will enable SSM which permits connecting to the head node via a virtual console.
+      <Trans i18nKey="wizard.headNode.Ssm.help" />
     </HelpTooltip>
   </div>
 }
 
 function DcvSettings() {
+  const { t } = useTranslation();
   const dcvPath = [...headNodePath, 'Dcv', 'Enabled'];
 
   let dcvEnabled = useState(dcvPath) || false;
@@ -217,7 +223,7 @@ function DcvSettings() {
   }
 
   return <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
-    <FormField label="Virtual Desktop" description="Allow a virtual desktop session on the HeadNode via DCV. If you select this option, we suggest using a larger instance size.">
+    <FormField label={t('wizard.headNode.Dcv.label')} description={t('wizard.headNode.Dcv.description')}>
       <SpaceBetween direction="vertical" size="xxxs">
         <Toggle disabled={editing} checked={dcvEnabled} onChange={toggleDcv}>DCV Enabled</Toggle>
         <SpaceBetween direction="vertical" size="xs">
@@ -240,12 +246,13 @@ function DcvSettings() {
       </SpaceBetween>
     </FormField>
     <HelpTooltip>
-      Remote-Desktop into the headnode to visualize results.
+      <Trans i18nKey="wizard.headNode.Dcv.help" />
     </HelpTooltip>
   </div>
 }
 
 function HeadNode() {
+  const { t } = useTranslation();
   const imdsSecuredPath = [...headNodePath, 'Imds', 'Secured'];
   const imdsSecured = useState(imdsSecuredPath);
 
@@ -289,14 +296,14 @@ function HeadNode() {
         <Box>
           <FormField
             errorText={instanceTypeErrors}
-            label="Head Node Instance Type">
+            label={t('wizard.headNode.instanceType.label')}>
             <InstanceSelect disabled={editing} selectId="head-node" path={[...headNodePath, 'InstanceType']} />
           </FormField>
         </Box>
         <FormField
-          label="Subnet ID"
+          label={t('wizard.headNode.subnetId.label')}
           errorText={subnetErrors}
-          description="Subnet ID for HeadNode.">
+          description={t('wizard.headNode.subnetId.description')}>
           <SubnetSelect disabled={editing} value={subnetValue} onChange={(subnetId: any) => setState(subnetPath, subnetId)}/>
         </FormField>
         <KeypairSelect />
@@ -305,9 +312,11 @@ function HeadNode() {
         <DcvSettings />
         <div key="imds-secured" style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
           <Toggle
-            checked={imdsSecured || false} onChange={toggleImdsSecured}>IMDS Secured</Toggle>
+            checked={imdsSecured || false} onChange={toggleImdsSecured}><Trans i18nKey="wizard.headNode.imdsSecured.label" /></Toggle>
           <HelpTooltip>
-            If enabled, restrict access to IMDS (and thus instance credentials) to users with superuser permissions. For more information, see <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html#instance-metadata-v2-how-it-works'>How instance metadata service version 2 works</a> in the <i>Amazon EC2 User Guide for Linux Instances</i>.
+            <Trans i18nKey="wizard.headNode.imdsSecured.help" >
+              <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html#instance-metadata-v2-how-it-works'></a>
+            </Trans>
           </HelpTooltip>
         </div>
         {
@@ -324,11 +333,11 @@ function HeadNode() {
           </div>
         }
         <div key="sgs" style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
-          <FormField label="Additional Security Groups">
+          <FormField label={t('wizard.headNode.securityGroups.label')}>
             <SecurityGroups basePath={headNodePath} />
           </FormField>
           <HelpTooltip>
-            Provides additional security groups for the HeadNode.
+            <Trans i18nKey="wizard.headNode.securityGroups.help" />
           </HelpTooltip>
         </div>
         <ExpandableSection header="Advanced options">
