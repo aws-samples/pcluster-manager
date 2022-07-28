@@ -25,6 +25,7 @@ import GroupIcon from '@mui/icons-material/Group';
 import SettingsInputIcon from '@mui/icons-material/SettingsInputComponent';
 
 import { useTranslation } from 'react-i18next';
+import { isFeatureEnabled } from '../feature-flags';
 
 export function SideBarIcons(props: any) {
   const drawerOpen = useState(['app', 'sidebar', 'drawerOpen']);
@@ -46,7 +47,7 @@ export function SideBarIcons(props: any) {
           <GridOnIcon />
         </Link>
         }
-        {isUser() &&
+        {isUser() && isFeatureEnabled('jobDefinitions') &&
         <Link to='/jobs-definitions' className={section === "jobs-definitions" ? "selected" : ""} key="Jobs Definitios">
           <SettingsInputIcon />
         </Link>
