@@ -10,11 +10,11 @@
 // limitations under the License.
 
 // UI Elements
+import { Trans } from 'react-i18next';
 import { Icon } from "@awsui/components-react";
 
 export default function ValidationErrors({errors}: any) {
-  const colorMap = (level: any) => {
-    // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
+  const colorMap = (level: string) => {
     return {
       "ERROR": 'red',
       "WARNING": 'orange',
@@ -41,13 +41,18 @@ export default function ValidationErrors({errors}: any) {
       {colored(errors.message, success)}
       {configErrors &&
         <div className="validation-errors">
-          Validation {errors.configurationValidationErrors ? "Errors" : "Warnings"}:
+          <Trans i18nKey="components.ValidationErrors.validation" />
+          {errors.configurationValidationErrors ?
+            <Trans i18nKey="components.ValidationErrors.errors" /> :
+            <Trans i18nKey="components.ValidationErrors.warnings" />
+          }:
           {configErrors.map((error: any, i: any) => <div style={{color: colorMap(error.level)}} key={i}>{`${error.type}: ${error.message}`}</div>)}
         </div>
       }
       {updateErrors &&
         <div className="validation-errors">
-          Update Errors:
+          <Trans i18nKey="components.ValidationErrors.update" />
+          <Trans i18nKey="components.ValidationErrors.errors" />:
           {updateErrors.map((error: any, i: any) => <div style={{color: colorMap(error.level)}} key={i}>{`${error.message}`}</div>)}
         </div>
       }
