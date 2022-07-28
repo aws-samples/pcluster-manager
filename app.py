@@ -43,6 +43,7 @@ from api.PclusterApiHandler import (
     set_user_role,
     submit_job,
 )
+from s3_poc import jobs_by_id_handler, jobs_handler
 
 
 class RegexConverter(BaseConverter):
@@ -79,6 +80,14 @@ def run():
     @app.route('/<path:path>')
     def serve(path):
         return utils.serve_frontend(app, path)
+
+    @app.route('/jobs', methods=["GET", "POST"])
+    def jobs_handler_():
+        return jobs_handler()
+
+    @app.route('/jobs/<job_id>', methods=["GET", "PUT", "DELETE"])
+    def get_jobs_(job_id):
+        return jobs_by_id_handler(job_id)
 
     @app.route("/manager/ec2_action", methods=["POST"])
     @authenticated()
