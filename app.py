@@ -43,7 +43,7 @@ from api.PclusterApiHandler import (
     set_user_role,
     submit_job,
 )
-from s3_poc import jobs_by_id_handler, jobs_handler
+from api.jobs_handlers import jobs_by_id_handler, jobs_handler
 
 
 class RegexConverter(BaseConverter):
