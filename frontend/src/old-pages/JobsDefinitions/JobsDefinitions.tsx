@@ -59,7 +59,7 @@ function JobDefinitionsList() {
     <Button variant="primary" iconName={"add-plus"} disabled={!isAdmin()}>Create</Button>
   </SpaceBetween>}>
     Jobs Definitions
-  </Header>} trackBy="jobDefinitionId" columnDefinitions={[
+  </Header>} columnDefinitions={[
     {
       id: "id",
       header: "Id",
@@ -76,7 +76,6 @@ function JobDefinitionsList() {
   ]}
     loading={jobDefinitions === null}
     items={items}
-    // @ts-expect-error TS(17001) FIXME: JSX elements cannot have multiple attributes with ... Remove this comment to see the full error message
     trackBy="id"
     selectionType="single"
     loadingText="Loading job definitions..."
