@@ -9,7 +9,7 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import React from 'react';
-import { getState, isAdmin, setState } from '../../store'
+import { getState, setState } from '../../store'
 import { UiSchema, withTheme } from "@rjsf/core";
 import SubmitModal from './SubmitModal';
 import { polarisTheme } from './polarisTheme';
@@ -22,6 +22,7 @@ import {
     Button,
   } from "@awsui/components-react";
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 
 interface PolarisFormProps {
@@ -32,6 +33,7 @@ interface PolarisFormProps {
 const PolarisForm = withTheme<PolarisFormProps>(polarisTheme);
 
 export default function Job() {
+  const {t} = useTranslation()
   const [formData, setFormData] = React.useState({});
   const [showSubmitModal, setShowSubmitModal] = React.useState(false);
   const onDiscardSubmitModal = () => setShowSubmitModal(false);
@@ -57,12 +59,12 @@ export default function Job() {
           <Container
             header={
               <Header variant="h2" description="">
-                Job: {jobDefinition.id}
+                {t('jobDefinitions.job.header', {id: jobDefinition.id})}
               </Header>
             }>
             <PolarisForm onSubmit={onSubmit} schema={jobDefinition.schema} uiSchema={jobDefinition.uiSchema} className="polaris-form">
               <SpaceBetween direction="horizontal" size="m">
-                <Button formAction="submit" variant="primary">Submit</Button>
+                <Button formAction="submit" variant="primary">{t('jobDefinitions.job.submit')}</Button>
               </SpaceBetween>
             </PolarisForm>
           </Container>

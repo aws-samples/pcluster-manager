@@ -340,5 +340,11 @@
       "header": "Required memory",
       "description": "Real memory required per node, in MB. A memory size specification of zero is treated as a special case and grants the job access to all of the memory on each node. [optional]"
     }
+  },
+  "jobDefinitions": {
+    "job": {
+      "header":: "Job: {{id}}"
+      "submit": "Submit"
+    }
   }
 }
