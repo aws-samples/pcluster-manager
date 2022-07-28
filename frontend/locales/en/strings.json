@@ -343,8 +343,12 @@
   },
   "jobDefinitions": {
     "job": {
-      "header":: "Job: {{id}}"
+      "header": "Job: {{id}}",
       "submit": "Submit"
+    },
+    "submitModal": {
+      "closeAriaLabel": "Close modal",
+      "closeButton": "Close"
     }
   }
 }

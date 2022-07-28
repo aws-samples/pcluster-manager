@@ -9,6 +9,7 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import { Modal, Box, SpaceBetween, Button } from "@awsui/components-react";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   visible: boolean;
@@ -17,16 +18,18 @@ interface Props {
 }
 
 export default function SubmitModal({ visible, onDiscard, jobData }: Props) {
+  const {t} = useTranslation()
+  
   return (
     <Modal
       header="Job Result"
       onDismiss={onDiscard}
       visible={visible}
-      closeAriaLabel="Close modal"
+      closeAriaLabel={t('jobDefinitions.submitModal.closeAriaLabel')}
       footer={
         <Box float="right">
           <SpaceBetween direction="horizontal" size="xs">
-            <Button variant="primary" onClick={onDiscard}>Close</Button>
+            <Button variant="primary" onClick={onDiscard}>{t('jobDefinitions.submitModal.closeButton')}</Button>
           </SpaceBetween>
         </Box>
       }
