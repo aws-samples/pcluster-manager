@@ -16,6 +16,14 @@ import { USER_ROLES_CLAIM } from './auth/constants';
 
 // UI Elements
 import Button from '@mui/material/Button';
+import { handleNotAuthorizedErrors } from './auth/handleNotAuthorizedErrors';
+import { AppConfig } from './app-config/types';
+import identityFn from 'lodash/identity';
+import { getAppConfig } from './app-config';
+
+const axiosInstance = axios.create({
+  baseURL: getHost(),
+});
 
 function notify(text: any, type = 'info', duration = 5000, dismissButton = false) {
   // @ts-expect-error TS(2556) FIXME: A spread argument must either have a tuple type or... Remove this comment to see the full error message
@@ -36,21 +44,23 @@ function getHost() {
   return '/';
 }
 
-function request(method: any, url: any, body = null) {
-  let host = getHost();
+type HTTPMethod = 'get' | 'put' | 'post' | 'patch' | 'delete'
 
-  // @ts-expect-error TS(7052) FIXME: Element implicitly has an 'any' type because type ... Remove this comment to see the full error message
-  const requestFunc = {'put': axios.put,
-    'post': axios.post,
-    'get': axios.get,
-    'patch': axios.patch,
-    'delete': axios.delete}[method]
+function request(method: HTTPMethod, url: string, body = undefined) {
+  const requestFunc = {'put': axiosInstance.put,
+    'post': axiosInstance.post,
+    'get': axiosInstance.get,
+    'patch': axiosInstance.patch,
+    'delete': axiosInstance.delete}[method]
 
+  const appConfig: AppConfig = getState(['app', 'appConfig'])
   const region = getState(['app', 'selectedRegion']);
-  url = host + ((region && !url.includes('region')) ? (url.includes('?') ? `${url}&region=${region}` : `${url}?region=${region}` ) : url)
+  url = (region && !url.includes('region')) ? (url.includes('?') ? `${url}&region=${region}` : `${url}?region=${region}` ) : url
   const headers = {"Content-Type": "application/json"}
 
-  return requestFunc(url, body, headers)
+  const handle401and403 = appConfig ? handleNotAuthorizedErrors(appConfig) : identityFn<Promise<any>>
+
+  return handle401and403(requestFunc(url, body, {headers}))
 }
 
 function CreateCluster(clusterName: any, clusterConfig: any, region: any, disableRollback=false, dryrun=false, successCallback=null, errorCallback=null) {
@@ -153,19 +163,18 @@ function DeleteCluster(clusterName: any, callback=null) {
   })
 }
 
-function ListClusters(callback: any) {
+async function ListClusters() {
   var url = 'api?path=/v3/clusters';
-  request('get', url).then((response: any) => {
-    //console.log("List Success", response)
-    if(response.status === 200) {
-      callback && callback(response.data.clusters);
-      setState(['clusters', 'list'], response.data.clusters);
+  try {
+    const { data } = await request('get', url);
+    setState(['clusters', 'list'], data?.clusters);
+    return data?.clusters || [];
+  } catch (error) {
+    if((error as any).response) {
+      notify(`Error: ${(error as any).response.data.message}`, 'error');
     }
-  }).catch((error: any) => {
-    if(error.response)
-      notify(`Error: ${error.response.data.message}`, 'error');
-    console.log(error)
-  });
+    throw error;
+  }
 }
 
 function GetConfiguration(clusterName: any, callback=null) {
@@ -753,12 +762,13 @@ function SlurmAccounting(clusterName: any, instanceId: any, user: any, args: any
 
 function GetIdentity(callback: any) {
   const url = "manager/get_identity"
-  axios.get(getHost() + url).then(response => {
+  request('get', url).then(response => {
     if(response.status === 200) {
       setState(['identity'], response.data);
       callback && callback(response.data)
     }
-  }).catch(error => {
+  })
+  .catch(error => {
     if(error.response)
     {
       console.log(error.response)
@@ -768,17 +778,37 @@ function GetIdentity(callback: any) {
   })
 }
 
-function LoadInitialState() {
+async function GetAppConfig() {
+  try {
+    const appConfig = await getAppConfig(axiosInstance)
+    setState(['app', 'appConfig'], appConfig);
+    return appConfig;
+  } catch (error) {
+    if((error as any).response) {
+      notify(`Error: ${(error as any).response.data.message}`, 'error');
+    }
+    throw error;
+  }
+}
+
+async function LoadInitialState() {
   const region = getState(['app', 'selectedRegion']);
   clearState(['app', 'aws']);
   clearAllState();
   GetVersion();
+  await GetAppConfig()
   GetIdentity((identity: any) => {
     let groups = identity[USER_ROLES_CLAIM];
-    if(groups && (groups.includes("admin") || groups.includes("user")))
-    {
+
+    if (!groups) {
+      return
+    }
+
+    if(groups.includes("admin")) {
       ListUsers();
-      // @ts-expect-error TS(2554) FIXME: Expected 1 arguments, but got 0.
+    }
+
+    if(groups.includes("admin") || groups.includes("user")) {
       ListClusters();
       // @ts-expect-error TS(2554) FIXME: Expected 3 arguments, but got 0.
       ListCustomImages();

@@ -37,6 +37,7 @@ import { getState, setState, useState, clearState } from '../../store'
 // Components
 import HelpTooltip from '../../components/HelpTooltip'
 import { LabeledIcon } from './Components'
+import { Storages, StorageType, STORAGE_TYPE_PROPS, UIStorageSettings } from './Storage.types';
 
 // Constants
 const storagePath = ['app', 'wizard', 'config', 'SharedStorage'];
@@ -405,7 +406,6 @@ function EbsSettings({
           <Select
             disabled={editing}
             placeholder={t('wizard.queues.validation.scriptWithArgs', {defaultVlumeType: defaultVolumeType})}
-            // @ts-expect-error TS(2322) FIXME: Type '{ disabled: any; placeholder: string; select... Remove this comment to see the full error message
             selectedOption={volumeType && strToOption(volumeType)} onChange={({detail}) => {setState(volumeTypePath, detail.selectedOption.value)}}
             options={volumeTypes.map(strToOption)}
           />
@@ -476,7 +476,6 @@ function EbsSettings({
         <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
           <Trans i18nKey="wizard.storage.Ebs.deletionPolicy.label" />:
           <Select
-            // @ts-expect-error TS(2322) FIXME: Type '{ selectedOption: { value: any; label: any; ... Remove this comment to see the full error message
             selectedOption={strToOption(deletionPolicy || "Delete")} onChange={({detail}) => {setState(deletionPolicyPath, detail.selectedOption.value)}}
             options={deletionPolicies.map(strToOption)}
           />
@@ -491,56 +490,21 @@ function EbsSettings({
   )
 }
 
-/*
- * Used to configure the Storage part of the Cluster wizard:
- *  - controls whether a storage type can be created or just linked
- *  - specify if a storage type can be mounted as a file system or just one of its volumes
- */
-const STORAGE_TYPE_PROPS = {
-  "FsxLustre": {
-    mountFilesystem: true,
-    maxToCreate: 1,
-    maxExistingToAttach: 20
-  },
-  "FsxOntap": {
-    mountFilesystem: false,
-    maxToCreate: 0,
-    maxExistingToAttach: 20
-  },
-  "FsxOpenZfs": {
-    mountFilesystem: false,
-    maxToCreate: 0,
-    maxExistingToAttach: 20
-  },
-  "Efs": {
-    mountFilesystem: true,
-    maxToCreate: 1,
-    maxExistingToAttach: 20
-  },
-  "Ebs": {
-    mountFilesystem: false,
-    maxToCreate: 5,
-    maxExistingToAttach: 5
-  },
-}
-
 function StorageInstance({
   index
 }: any) {
   const path = [...storagePath, index]
   const storageAppPath = ['app', 'wizard', 'storage', index];
-  const storageType = useState([...path, 'StorageType']) || "none";
+  const storageType: StorageType = useState([...path, 'StorageType']);
   const storageName = useState([...path, 'Name']) || "";
   const mountPoint = useState([...path, 'MountDir']);
-  // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
-  const useExisting = useState([...storageAppPath, 'useExisting']) || !STORAGE_TYPE_PROPS[storageType].maxToCreate > 0;
+  const useExisting = useState([...storageAppPath, 'useExisting']) || !(STORAGE_TYPE_PROPS[storageType].maxToCreate > 0);
   const settingsPath = [...path, `${storageType}Settings`]
-  // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   const existingPath = STORAGE_TYPE_PROPS[storageType].mountFilesystem ? [...settingsPath, 'FileSystemId'] : [...settingsPath, 'VolumeId'];
   const existingId = useState(existingPath) || "";
   const storages = useState(storagePath);
   const uiStorageSettings = useState(['app', 'wizard', 'storage']);
-
+  const { t } = useTranslation();
 
   const fsxFilesystems = useState(['aws', 'fsxFilesystems']);
   const fsxVolumes = useState(['aws', 'fsxVolumes']);
@@ -600,7 +564,6 @@ function StorageInstance({
             </HelpTooltip>
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
-            {/* @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message */}
             {STORAGE_TYPE_PROPS[storageType].maxToCreate > 0 ? <div style={{marginTop: "10px", display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
               <Toggle disabled={!canToggle} checked={useExisting} onChange={toggleUseExisting}><Trans i18nKey="wizard.storage.instance.useExisting.label" /></Toggle>
               <HelpTooltip>
@@ -612,7 +575,6 @@ function StorageInstance({
               </HelpTooltip>
             </div> : null} 
             { useExisting &&
-                // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
                 {
                   "Ebs":
                     <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px", marginTop: "10px"}}>
@@ -665,10 +627,11 @@ function StorageInstance({
             }
           </div>
         </ColumnLayout>
-        {/* @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message */}
         { ! useExisting && {"FsxLustre": <FsxLustreSettings index={index}/>,
           "Efs": <EfsSettings index={index}/>,
-          "Ebs": <EbsSettings index={index}/>}[storageType]
+          "Ebs": <EbsSettings index={index}/>,
+          "FsxOntap": null,
+          "FsxOpenZfs": null}[storageType]
         }
       </div>
     </Container>
@@ -759,7 +722,7 @@ function Storage() {
   );
 }
 
-function canCreateStorage(storageType, storages, uiStorageSettings) {
+function canCreateStorage(storageType: StorageType, storages: Storages, uiStorageSettings: UIStorageSettings) {
   if (!storageType) {
     return false;
   }
@@ -778,7 +741,7 @@ function canCreateStorage(storageType, storages, uiStorageSettings) {
   return alreadyCreated < maxToCreate;
 }
 
-function canAttachExistingStorage(storageType, storages, uiStorageSettings) {
+function canAttachExistingStorage(storageType: StorageType, storages: Storages, uiStorageSettings: UIStorageSettings) {
   if (!storageType) {
     return false;
   }

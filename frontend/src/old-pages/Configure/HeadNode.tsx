@@ -113,7 +113,6 @@ function headNodeValidate() {
 }
 
 function enableSsm(enable: any) {
-  const { t } = useTranslation();
   const iamPolicies = getState([...headNodePath, 'Iam', 'AdditionalIamPolicies']);
   const defaultRegion = getState(['aws', 'region']);
   const region = getState(['app', 'selectedRegion']) || defaultRegion;
