@@ -12,9 +12,14 @@ import { Modal, Box, SpaceBetween, Button, Input, FormField, Select } from "@aws
 import { OptionDefinition } from "@awsui/components-react/internal/components/option/interfaces";
 import React from "react";
 
+interface Props {
+  jobDefinitionId: string;
+  visible: boolean;
+  onDiscard: () => void;
+  onConfirm: (jobDefinitionId: string, propId: string, value: unknown) => void;
+}
 
-// @ts-expect-error TS(7031) FIXME: Binding element 'visible' implicitly has an 'any' ... Remove this comment to see the full error message
-export default function AddFieldModal({ visible, onDiscard, onConfirm, jobDefinitionId }) {
+export default function AddFieldModal({ visible, onDiscard, onConfirm, jobDefinitionId }: Props) {
   const [type, setType] = React.useState<OptionDefinition>({ label: "string", value: "string" });
   const [id, setId] = React.useState<string>("");
   const [label, setLabel] = React.useState<string>("");

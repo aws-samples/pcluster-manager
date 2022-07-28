@@ -10,8 +10,6 @@
 // limitations under the License.
 
 import { Input, Toggle } from "@awsui/components-react";
-import { useState } from "react";
-
 
 const PolarisTextWidget = (props: any) => {
   return (

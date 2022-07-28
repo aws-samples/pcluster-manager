@@ -10,9 +10,13 @@
 // limitations under the License.
 import { Modal, Box, SpaceBetween, Button } from "@awsui/components-react";
 
+interface Props {
+  visible: boolean;
+  onDiscard: () => void;
+  jobData: unknown;
+}
 
-// @ts-expect-error TS(7031) FIXME: Binding element 'visible' implicitly has an 'any' ... Remove this comment to see the full error message
-export default function SubmitModal({ visible, onDiscard, jobData }) {
+export default function SubmitModal({ visible, onDiscard, jobData }: Props) {
   return (
     <Modal
       header="Job Result"
@@ -27,9 +31,9 @@ export default function SubmitModal({ visible, onDiscard, jobData }) {
         </Box>
       }
     >
-     <code>
-      {JSON.stringify(jobData, null, "\t")}
-     </code>
+      <code>
+        {JSON.stringify(jobData, null, "\t")}
+      </code>
     </Modal>
   );
 }
