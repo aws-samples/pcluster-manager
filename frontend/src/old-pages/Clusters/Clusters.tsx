@@ -121,6 +121,7 @@ function ClusterList({ clusters }: ClusterListProps) {
   );
 
   return (<Table {...collectionProps} header={<Header variant="h2" description="" counter={clusters && `(${clusters.length})`} actions={<SpaceBetween direction="horizontal" size="xs">
+              {selectedClusterName && <Actions/>}
               {clusters && <Button onClick={configure} variant="primary" iconName={"add-plus"} disabled={!isAdmin()}>Create Cluster</Button>}
             </SpaceBetween>}>
           Clusters
@@ -189,15 +190,7 @@ export default function Clusters () {
             openButtonAriaLabel: t("cluster.list.splitPanel.openButtonAriaLabel"),
             resizeHandleAriaLabel: t("cluster.list.splitPanel.resizeHandleAriaLabel"),
           }}
-          // FIXME move Actions from SplitPanel to Table header
-          // @ts-expect-error TS(2322) FIXME: Type 'Element' is not assignable to type 'string'.
-          header={
-            <Header
-              variant="h2"
-              actions={cluster && <Actions/>}>
-              {clusterName ? `Cluster: ${clusterName}` : t("cluster.list.splitPanel.noClusterSelectedText") }
-            </Header>
-          }>
+          header={clusterName ? `Cluster: ${clusterName}` : t("cluster.list.splitPanel.noClusterSelectedText") }>
           {clusterName ? <Details /> : <div>{t("cluster.list.splitPanel.selectClusterText")}</div>}
         </SplitPanel>
       }
