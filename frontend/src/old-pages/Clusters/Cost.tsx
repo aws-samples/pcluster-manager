@@ -10,9 +10,6 @@
 // limitations under the License.
 import React from 'react';
 import { useState, consoleDomain, setState, clearState } from '../../store'
-// import { getIn } from '../../util'
-// import { useCollection } from '@awsui/collection-hooks';
-
 
 // UI Elements
 import {
@@ -23,21 +20,29 @@ import {
   Container,
   Header,
   SpaceBetween,
+  Table,
+  ProgressBar
 } from "@awsui/components-react";
 
 // Components
 import HelpTooltip from '../../components/HelpTooltip'
-import { ActivateTags, GetTagStatus, GetGraphData } from '../../model';
-import { Star } from '@mui/icons-material';
-import { totalmem } from 'os';
+import { ActivateTags, GetTagStatus, GetGraphData, GetBudget } from '../../model';
 
 export default function Cost() {
+  const [dateValue, setDateValue] = React.useState(undefined);
+  const defaultRegion = useState(['aws', 'region']) || 'us-east-1';
+  const region = useState(['app', 'selectedRegion']) || defaultRegion;
   const cluster_name = useState(['app', 'clusters', 'selected']);
   const tag_active = useState(['app', 'tags', 'active']);
-  const y_domain = useState(['app', 'cost', cluster_name, 'max']);
-  const [dateValue, setDateValue] = React.useState(undefined);
-  const dates = useState(['app', 'cost', cluster_name, 'dates']) || [];
-  const stack_info = useState(['app', 'cost', cluster_name, 'stack_info']) || [];
+  const y_axis = useState(['app', 'cost', cluster_name, 'max']);
+  const x_axis = useState(['app', 'cost', cluster_name, 'dates']) || [];
+  const graph_data = useState(['app', 'cost', cluster_name, 'graph_data']) || [];
+  const start_url = useState(['app', 'cost', cluster_name, 'Start']) || [];
+  const end_url = useState(['app', 'cost', cluster_name, 'End']) || [];
+  const budget_used = useState(['app', 'cost', cluster_name, 'budget']) || [];
+  const table_data = useState(['app', 'cost', cluster_name, 'table_data']) || [];
+  const url_data = useState(['app', 'cost', cluster_name, 'object']) || [];
+  const account_id =  useState(['app', 'account']) || [];
 
   // Check tag status
   const check_tags = () => {
@@ -55,22 +60,57 @@ export default function Cost() {
     ActivateTags(status_update)
   }
 
+  // Get Budget Limit(Monthly)
+  const get_budget = () => {
+    const budget_data = (value: any) => {
+      let budget = value['Budget']
+      let percent_used =  (budget.CalculatedSpend.ActualSpend.Amount / budget.BudgetLimit.Amount) * 100;
+      setState(['app','cost', cluster_name, 'budget'], percent_used);
+    }
+    GetBudget(budget_data, cluster_name, account_id)
+  }
+
+  // Create URL for Cost Explorer Link
+  const create_url = () => {
+    let data = [
+      {
+        "dimension": "TagKeyValue",
+        "values": null,
+        "include": true,
+        "children": [
+          {
+            "dimension": "parallelcluster:cluster-name",
+            "values": [
+              cluster_name,
+            ],
+            "include": true,
+            "children": null
+          }
+        ]
+      }
+    ]
+    setState(['app', 'cost', cluster_name, 'object'], data)
+  }
+
   // Pull cost and usage from CE API
   const get_graph_data = (Start: string, End: string) => {
     const query_costs = (data: any) => {
       const usage_data = data['ResultsByTime'];
       const dates: Date[] = [];
       const instance_types = new Set();
-      const stack_info: any[] = [];
+      const day_costs: any[] = [];
+      let table_cost_data = [];
       let day_info: any[] = [];
       let total = 0;
       let max = 0;
+      let instance_cost = 0;
+      let total_range_cost = 0;
   
       // Find XDomain
       const x_domain = usage_data?.map((obj: any) => {
-          dates.push(new Date(obj.TimePeriod.Start));
+          dates.push(new Date(obj.TimePeriod.End));
       })
-    
+
       // Find All Instance Types
       const data_instance_types = usage_data?.map((obj: any) => {
         let data_by_instance_type = obj.Groups;
@@ -85,28 +125,57 @@ export default function Cost() {
               let data_by_instance_type = obj.Groups;
               const day_data = data_by_instance_type?.map((obj2: any) => {
                 if (obj2.Keys[0] == type) {
+                    instance_cost = Number(obj2.Metrics.NetUnblendedCost.Amount) + instance_cost
                     total = Number(obj2.Metrics.NetUnblendedCost.Amount) + total
+                    total_range_cost = Number(obj2.Metrics.NetUnblendedCost.Amount) + total_range_cost;
                     day_info.push({
-                      x: new Date(obj.TimePeriod.Start),
+                      x: new Date(obj.TimePeriod.End),
                       y: Number(parseFloat(obj2.Metrics.NetUnblendedCost.Amount).toFixed(2)),
                     },)
                 }
               })
+              // Find highest Cost data in range of days
               if (total > max) {
                 max = total
               }
               total = 0
           })
-          stack_info.push({
+          // Cost Data for each day
+          if (type == 'NoInstanceType') {
+            type = 'NoInstanceType*'
+          }
+          day_costs.push({
             title: type,
             type: 'bar',
             data: day_info,
           })
           day_info = []
+          // Cost Data for each instance type
+          if (table_cost_data.length != instance_types.size) {
+            table_cost_data.push({
+              name: type,
+              alt: '$' + instance_cost.toFixed(2),
+              description: `Total Cost for  ${type} instances from ${Start} to ${End}`,
+              type: "1A",
+              size: "xxLarge"
+            })
+          }
+          instance_cost = 0
     }) 
-    setState(['app', 'cost', cluster_name, 'stack_info'], stack_info);
+    // Total Cost data for range of days
+    table_cost_data.push({
+      name: <b> All Instance Types </b>,
+      alt: <b> ${total_range_cost.toFixed(2)} </b>,
+      description: <b> Total Cost for all instance types from {Start} to {End} </b>,
+      type: "1A",
+      size: "xxLarge"
+    })
+    setState(['app', 'cost', cluster_name, 'graph_data'], day_costs);
     setState(['app', 'cost', cluster_name, 'dates'], dates);
     setState(['app', 'cost', cluster_name, 'max'], max);
+    setState(['app', 'cost', cluster_name, 'table_data'], table_cost_data);
+    get_budget()
+    table_cost_data = [];
     }
     GetGraphData(query_costs, cluster_name, Start, End)
   }
@@ -140,6 +209,8 @@ export default function Cost() {
         end_value = String(end[0])
       }
     }
+    setState(['app', 'cost', cluster_name, 'End'],String(end_value));
+    setState(['app', 'cost', cluster_name, 'Start'], String(start_value));
     get_graph_data(String(start_value), String(end_value));
   }
 
@@ -154,6 +225,7 @@ export default function Cost() {
         };
       fetchGraphData(Default);
       setDateValue(Default);
+      create_url();
   },[])
 
   return (
@@ -164,10 +236,11 @@ export default function Cost() {
           actions={
             <SpaceBetween
               direction="horizontal"
-              size="xs"
+              size="l"
             >
+              <Button disabled={tag_active} onClick={activate_tags} variant="primary">Activate Tags</Button>
               <DateRangePicker
-              onChange={({ detail }) => {fetchGraphData(detail.value); setDateValue(detail.value); }}
+              onChange={({ detail }) => {fetchGraphData(detail.value); setDateValue(detail.value);}}
                 value={dateValue}
                 relativeOptions={[
                   {
@@ -226,22 +299,35 @@ export default function Cost() {
                   applyButtonLabel: "Apply"
                 }}
                 placeholder="Filter by a date range" />
-        <Button disabled={tag_active} onClick={activate_tags} variant="primary">Activate Tags</Button> 
+        <ProgressBar
+      value={budget_used}
+      additionalInfo="Create a Budget with an identical name as your respective cluster for accurate information"
+      description="Progress"
+      label="Cost Usage of Budget"
+    />
         <HelpTooltip> 
-        The NoInstanceType category includes miscellaneous costs such as EBS, read more about <a href="https://aws.amazon.com/ebs/pricing/" target="-blank"> EBS Pricing</a>.
+            If you haven't created a budget, create a custom cost budget on <a href="https://us-east-1.console.aws.amazon.com/billing/home?#/budgets/overview" target="_blank"> AWS Budgets</a>.
         </HelpTooltip>
+        <Button
+          href={`https://${region}.console.aws.amazon.com/cost-management/home?region=${region}"#/custom?groupBy=InstanceType&hasBlended=false&hasAmortized=false&excludeDiscounts=true&excludeTaggedResources=false&excludeCategorizedResources=false&excludeForecast=false&timeRangeOption=Custom&granularity=Daily&reportName=&reportType=CostUsage&isTemplate=true&filter=${JSON.stringify(url_data)}&chartStyle=Stack&forecastTimeRangeOption=None&usageAs=usageQuantity&startDate=${start_url}&endDate=${end_url}`}
+          target='-blank'
+          iconAlign="right"
+          iconName="external"
+        >
+          View Data in Cost Explorer
+        </Button> 
             </SpaceBetween>
           }
         >
-          Cluster Costs
+        Cluster Costs
         </Header>
       }
     >
+      <SpaceBetween size="xxl">
          <BarChart
-        series={stack_info}
-        xDomain={dates}
-        // Set Max Dynamically
-        yDomain={[0,(y_domain * 2)]}
+        series={graph_data}
+        xDomain={x_axis}
+        yDomain={[0,(y_axis * 1.9)]}
         i18nStrings={{
           filterLabel: "Filter displayed data",
           filterPlaceholder: "Filter data",
@@ -253,9 +339,6 @@ export default function Cost() {
               .toLocaleDateString("en-US", {
                 month: "short",
                 day: "numeric",
-                // hour: "numeric",
-                // minute: "numeric",
-                // hour12: !1
               })
               .split(",")
               .join("\n")
@@ -288,6 +371,47 @@ export default function Cost() {
           </Box>
         }
       ></BarChart>
+      <Table
+      columnDefinitions={[
+      {
+        id: "variable",
+        header: "Instance Type",
+        cell: item => item.name || "-",
+        sortingField: "name"
+      },
+      {
+        id: "alt",
+        header: "Total Cost",
+        cell: item => item.alt || "-",
+        sortingField: "alt"
+      },
+      {
+        id: "description",
+        header: "Summary",
+        cell: item => item.description || "-"
+      }
+      ]}
+      items={table_data}
+      loadingText="Loading resources"
+      sortingDisabled
+      empty={
+        <Box textAlign="center" color="inherit">
+          <b>No resources</b>
+          <Box
+            padding={{ bottom: "s" }}
+            variant="p"
+            color="inherit"
+          >
+            No resources to display.
+          </Box>
+          <Button>Create resource</Button>
+        </Box>
+      }
+      header={<Header> Cluster Costs </Header>}
+    />
+    <div> *The <b>NoInstanceType</b> category includes miscellaneous costs such as EBS, read more about <a href="https://aws.amazon.com/ebs/pricing/" target="-blank"> EBS Pricing</a>.</div>
+
+    </SpaceBetween>
     </Container>
   );
 }

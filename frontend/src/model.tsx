@@ -654,6 +654,22 @@ function GetGraphData(callback: any, cluster_name: string, Start: string, End: s
   })
 }
 
+function GetBudget(callback: any, cluster_name: string, AccountId: string): void {
+  var url = `manager/get_budget_data?cluster_name=${cluster_name}&AccountId=${AccountId}`
+  request('get', url).then((response: any) => {
+    if(response.status === 200) {
+      console.log("Getting Budget Data from Budgets API....");
+      console.log(response.data)
+      callback && callback(response.data)
+    }
+  }).catch((error: any) => {
+    if(error.response) {
+      console.log(error.response)
+    }
+    console.log(error)
+  })
+} 
+
 function Ec2Action(instanceIds: any, action: any, callback: any) {
   let url = `manager/ec2_action?instance_ids=${instanceIds.join(',')}&action=${action}`
 
@@ -872,4 +888,4 @@ export {CreateCluster, UpdateCluster, ListClusters, DescribeCluster,
   GetCustomImageLogEvents, ListOfficialImages, LoadInitialState,
   Ec2Action,LoadAwsConfig, GetDcvSession, QueueStatus, CancelJob, SubmitJob,
   PriceEstimate, SlurmAccounting, JobInfo, ListUsers, SetUserRole, notify,
-  CreateUser, DeleteUser, GetTagStatus, ActivateTags, GetGraphData}
+  CreateUser, DeleteUser, GetTagStatus, ActivateTags, GetGraphData, GetBudget}

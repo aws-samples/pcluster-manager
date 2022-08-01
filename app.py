@@ -29,6 +29,7 @@ from api.PclusterApiHandler import (
     ec2_action,
     get_app_config,
     get_aws_config,
+    get_budget_data,
     get_cluster_config,
     get_custom_image_config,
     get_dcv_session,
@@ -160,6 +161,12 @@ def run():
     @authenticated()
     def get_graph_data_():
         return get_graph_data()
+
+    @app.route("/manager/get_budget_data")
+    @authenticated()
+    def get_budget_data_():
+        return get_budget_data()
+
 
     @app.route("/manager/queue_status")
     @authenticated()

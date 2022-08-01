@@ -695,7 +695,7 @@ def _get_params(_request):
 
 def check_tags():
     try:
-        cost_explorer = boto3.client('ce',)
+        cost_explorer = boto3.client('ce')
         inactive_tags = cost_explorer.list_cost_allocation_tags(Status='Inactive',TagKeys=PCLUSTER_COST_TAGS)
         return {'TagStatus': not (len(inactive_tags['CostAllocationTags']) > 0)}
     except Exception as e:
@@ -715,7 +715,9 @@ def get_graph_data():
         cluster_name = request.args.get("cluster_name")
         Start = request.args.get("Start")
         End = request.args.get("End")
-        cost_explorer = boto3.client('ce',)
+        if cluster_name is None or Start is None or End is None:
+            return {"message": "cluster_name , start date, or end date are not specified"}, 400
+        cost_explorer = boto3.client('ce')
         data = cost_explorer.get_cost_and_usage(
             TimePeriod={
                 'Start': Start,
@@ -742,6 +744,18 @@ def get_graph_data():
                     'Key': 'INSTANCE_TYPE'
                 },
             ],
+        )
+        return data
+    except Exception as e:
+        return {"message": str(e)}, 500
+
+def get_budget_data():
+    try:
+        account_id = boto3.client('sts').get_caller_identity().get('Account')
+        cluster_name = request.args.get('cluster_name')
+        data = boto3.client('budgets').describe_budget(
+            AccountId=account_id,
+            BudgetName=cluster_name,
         )
         return data
     except Exception as e:
