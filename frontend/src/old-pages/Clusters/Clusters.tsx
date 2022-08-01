@@ -32,6 +32,7 @@ import Status from "../../components/Status";
 import Actions from './Actions';
 import Details from "./Details";
 import { wizardShow } from '../Configure/Configure';
+import AddIcon from '@mui/icons-material/Add';
 
 
 export interface Cluster {
@@ -122,7 +123,11 @@ function ClusterList({ clusters }: ClusterListProps) {
 
   return (<Table {...collectionProps} header={<Header variant="h2" description="" counter={clusters && `(${clusters.length})`} actions={<SpaceBetween direction="horizontal" size="xs">
               {selectedClusterName && <Actions/>}
-              {clusters && <Button onClick={configure} variant="primary" iconName={"add-plus"} disabled={!isAdmin()}>Create Cluster</Button>}
+              {clusters && <Button className="action" onClick={configure} variant="primary" disabled={!isAdmin()}>
+                <div className="container">
+                  <AddIcon/> {t("cluster.list.actions.create")}
+                </div>
+              </Button>}
             </SpaceBetween>}>
           Clusters
         </Header>} trackBy="clusterName" columnDefinitions={[
