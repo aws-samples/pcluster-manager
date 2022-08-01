@@ -16,15 +16,14 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import EmptyState from '../../components/EmptyState';
 import { getState, isAdmin, setState } from '../../store';
+import { JobDefinition } from './jobDefinition';
 
 function JobDefinitionsList() {
-  let jobDefinitions = getState(['jobs-definitions', 'list']);
-  const [selectedJobDefinitions, setSelectedJobDefinitions] = React.useState([])
+  let jobDefinitions: JobDefinition[] = getState(['jobs-definitions', 'list']);
+  const [selectedJobDefinitions, setSelectedJobDefinitions] = React.useState<JobDefinition[]>([])
 
   let navigate = useNavigate();
-  // @ts-expect-error TS(2339) FIXME: Property 'id' does not exist on type 'never'.
   const onEditJobDefinition = () => (navigate(`/jobs-definitions/${selectedJobDefinitions[0].id}`))
-  // @ts-expect-error TS(2339) FIXME: Property 'id' does not exist on type 'never'.
   const onExecuteJobDefinition = () => (navigate(`/jobs/${selectedJobDefinitions[0].id}`))
 
 
@@ -85,7 +84,6 @@ function JobDefinitionsList() {
       filteringAriaLabel="Filter job definitions" />}
     selectedItems={selectedJobDefinitions}
     onSelectionChange={({ detail }) => {
-      // @ts-expect-error TS(2345) FIXME: Argument of type 'unknown[]' is not assignable to ... Remove this comment to see the full error message
       setSelectedJobDefinitions(detail.selectedItems);
     }}
   />

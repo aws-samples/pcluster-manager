@@ -17,29 +17,33 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import { getState, setState } from '../../store';
 import AddFieldModal from './AddFieldModal';
+import { JobDefinition } from "./jobDefinition";
 
 
 function getJobDefinitionFields(jobDefinitionId: string) {
-  // @ts-expect-error TS(7006) FIXME: Parameter 'j' implicitly has an 'any' type.
-  const jobDefinitionProperties = getState(['jobs-definitions', 'list']).filter((j) => (j as any).id === jobDefinitionId)[0].schema.properties
+  const jobDefinitions: JobDefinition[] = getState(['jobs-definitions', 'list'])
+  const jobDefinitionProperties = jobDefinitions.filter((j) => (j as any).id === jobDefinitionId)[0].schema.properties
+  // @ts-expect-error TS(2769) FIXME: No overload matches this call.
   return Object.keys(jobDefinitionProperties).map((key) => ({ ...jobDefinitionProperties[key], "id": key }))
 }
 
 function addJobDefinitionField(jobDefinitionId: string, propId: string, value: any) {
-  const oldJobsDefinitions = getState(['jobs-definitions', 'list'])
-  // @ts-expect-error TS(7006) FIXME: Parameter 'j' implicitly has an 'any' type.
+  const oldJobsDefinitions: JobDefinition[] = getState(['jobs-definitions', 'list'])
   const jobDef = oldJobsDefinitions.find((j) => (j as any).id === jobDefinitionId)
+  if (!jobDef?.schema?.properties) {
+    return
+  }
   jobDef.schema.properties[propId] = value;
-  // @ts-expect-error TS(7006) FIXME: Parameter 'jd' implicitly has an 'any' type.
   setState(['jobs-definitions', 'list'], oldJobsDefinitions.map((jd) => jd.id === jobDef.id ? jobDef : jd))
 }
 
 function deleteJobDefinitionField(jobDefinitionId: string, propId: string) {
-  const oldJobsDefinitions = getState(['jobs-definitions', 'list'])
-  // @ts-expect-error TS(7006) FIXME: Parameter 'j' implicitly has an 'any' type.
+  const oldJobsDefinitions: JobDefinition[] = getState(['jobs-definitions', 'list'])
   const jobDef = oldJobsDefinitions.find((j) => (j as any).id === jobDefinitionId)
+  if (!jobDef?.schema?.properties) {
+    return
+  }
   delete jobDef.schema.properties[propId];
-  // @ts-expect-error TS(7006) FIXME: Parameter 'jd' implicitly has an 'any' type.
   setState(['jobs-definitions', 'list'], oldJobsDefinitions.map((jd) => jd.id === jobDef.id ? jobDef : jd))
 }
 
@@ -49,9 +53,8 @@ interface JobDefinitionInputProps {
 }
 
 function JobDefinitionInput({ onAddField, jobDefinitionId }: JobDefinitionInputProps) {
-  const [selectedItems, setSelectedItems] = React.useState([]);
+  const [selectedItems, setSelectedItems] = React.useState<JobDefinition[]>([]);
   const fields = getJobDefinitionFields(jobDefinitionId);
-  // @ts-expect-error TS(2339) FIXME: Property 'id' does not exist on type 'never'.
   const onDelete = () => deleteJobDefinitionField(jobDefinitionId, selectedItems[0].id)
 
   return (
@@ -68,7 +71,6 @@ function JobDefinitionInput({ onAddField, jobDefinitionId }: JobDefinitionInputP
         </Header>
       }
       onSelectionChange={({ detail }) =>
-        // @ts-expect-error TS(2345) FIXME: Argument of type 'any[]' is not assignable to para... Remove this comment to see the full error message
         setSelectedItems(detail.selectedItems)
       }
       selectedItems={selectedItems}
@@ -123,8 +125,8 @@ interface JobDefinitionExecutionProps {
 }
 
 function JobDefinitionExecution({ jobDefinitionId, onSave }: JobDefinitionExecutionProps) {
-  // @ts-expect-error TS(7006) FIXME: Parameter 'j' implicitly has an 'any' type.
-  const executionProps = getState(['jobs-definitions', 'list']).filter((j) => (j as any).id === jobDefinitionId)[0].jobExecution
+  const jobDefinitions: JobDefinition[] = getState(['jobs-definitions', 'list'])
+  const executionProps = jobDefinitions.filter((j) => (j as any).id === jobDefinitionId)[0].jobExecution
   const [jobScript, setJobScript] = React.useState(executionProps.jobScript);
   const [postInstallScript, setPostInstallScript] = React.useState(executionProps.postInstallScript);
   const onSaveClick = () => onSave();
@@ -150,7 +152,7 @@ function JobDefinitionExecution({ jobDefinitionId, onSave }: JobDefinitionExecut
           value={executionProps.postInstallScript}
           placeholder={"This is a sample post-install script"}
         />
-        <Button variant='primary'>Save</Button>
+        <Button onClick={onSaveClick} variant='primary'>Save</Button>
       </SpaceBetween>
     </Container>
   );
@@ -162,6 +164,10 @@ export default function JobDefinitionEditor() {
   const onAddField = () => setAddFieldModalVisible(true);
   const onDiscard = () => setAddFieldModalVisible(false);
   const params = useParams();
+
+  if (!params.jobDefinitionId) {
+    return null
+  }
 
   return <AppLayout
     className="inner-app-layout"
@@ -178,13 +184,10 @@ export default function JobDefinitionEditor() {
           </Header>
         }>
           <SpaceBetween direction='vertical' size='m'>
-            {/* @ts-expect-error TS(2322) FIXME: Type 'string | undefined' is not assignable to typ... Remove this comment to see the full error message */}
             <JobDefinitionInput onAddField={onAddField} jobDefinitionId={params.jobDefinitionId} />
-            {/* @ts-expect-error TS(2322) FIXME: Type 'string | undefined' is not assignable to typ... Remove this comment to see the full error message */}
             <JobDefinitionExecution jobDefinitionId={params.jobDefinitionId} onSave={() => { }} />
           </SpaceBetween>
         </Container>
-        {/* @ts-expect-error TS(2322) FIXME: Type 'string | undefined' is not assignable to typ... Remove this comment to see the full error message */}
         <AddFieldModal visible={addFieldModalVisible} onDiscard={onDiscard} onConfirm={addJobDefinitionField} jobDefinitionId={params.jobDefinitionId} />
       </>
     }
