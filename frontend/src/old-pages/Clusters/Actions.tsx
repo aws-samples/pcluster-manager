@@ -18,19 +18,18 @@ import { setState, useState, isAdmin, ssmPolicy, consoleDomain } from '../../sto
 import { UpdateComputeFleet, GetConfiguration, GetDcvSession, DeleteCluster, DescribeCluster, ListClusters } from '../../model'
 import { findFirst, clusterDefaultUser } from '../../util'
 import { loadTemplate } from '../Configure/util'
+import { useTranslation } from 'react-i18next';
 
-// UI Elements
 import Button from "@awsui/components-react/button"
 import SpaceBetween from "@awsui/components-react/space-between"
-
-// Icons
 import CancelIcon from '@mui/icons-material/Cancel';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FeaturedPlayListIcon from '@mui/icons-material/FeaturedPlayList';
 import FolderIcon from '@mui/icons-material/Folder';
 import MonitorIcon from '@mui/icons-material/Monitor';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import EditIcon from '@mui/icons-material/Edit';
 
-// Components
 import { DeleteDialog, showDialog, hideDialog } from '../../components/DeleteDialog'
 import { StopDialog, stopComputeFleet } from './StopDialog'
 
@@ -42,6 +41,7 @@ export default function Actions () {
   const region = useState(['app', 'selectedRegion']) || defaultRegion;
   const headNode = useState([...clusterPath, 'headNode']);
   let navigate = useNavigate();
+  const { t } = useTranslation();
 
   const fleetStatus = useState([...clusterPath, 'computeFleetStatus']);
   const clusterStatus = useState([...clusterPath, 'clusterStatus']);
@@ -98,44 +98,48 @@ export default function Actions () {
 
   return <div style={{marginLeft: "20px"}}>
     <DeleteDialog id='deleteCluster' header='Delete Cluster?' deleteCallback={deleteCluster}>
-      Are you sure you want to delete cluster {clusterName}?
+      {t("cluster.list.dialogs.delete", { clusterName: clusterName })}
     </DeleteDialog>
     <StopDialog clusterName={clusterName} />
     <SpaceBetween direction="horizontal" size="xs">
-      <Button className="action" disabled={clusterStatus === 'CREATING' || clusterStatus === 'DELETE_IN_PROGRESS' || clusterStatus === 'CREATE_FAILED' || !isAdmin()} variant="normal" onClick={editConfiguration} iconName={"edit"}> Edit</Button>
-      {fleetStatus === "STOPPED" && <Button className="action" variant="normal" onClick={startFleet} iconName={"caret-right-filled"}> Start</Button>}
-      {fleetStatus === "RUNNING" && <Button className="action" variant="normal" onClick={stopComputeFleet}>
+      <Button className="action" disabled={clusterStatus === 'CREATING' || clusterStatus === 'DELETE_IN_PROGRESS' || clusterStatus === 'CREATE_FAILED' || !isAdmin()} variant="normal" onClick={editConfiguration}>
         <div className="container">
-          <CancelIcon /> Stop
+          <EditIcon /> {t("cluster.list.actions.edit")}
+        </div>
+      </Button>
+      {fleetStatus === "STOPPED" && <Button className="action" variant="normal" onClick={startFleet}>
+        <div className="container">
+          <PlayArrowIcon /> {t("cluster.list.actions.start")}
         </div>
       </Button>}
-      {/* @ts-expect-error TS(2322) FIXME: Type '{ children: Element; className: string; disa... Remove this comment to see the full error message */}
-      <Button className="action" disabled={clusterStatus === 'DELETE_IN_PROGRESS' || !isAdmin()} color="default" onClick={() => {showDialog('deleteCluster')}}>
+      {fleetStatus === "RUNNING" && <Button className="action" variant="normal" onClick={stopComputeFleet}>
         <div className="container">
-          <DeleteIcon /> Delete
+          <CancelIcon /> {t("cluster.list.actions.stop")}
+        </div>
+      </Button>}
+      <Button className="action" disabled={clusterStatus === 'DELETE_IN_PROGRESS' || !isAdmin()} onClick={() => {showDialog('deleteCluster')}}>
+        <div className="container">
+          <DeleteIcon /> {t("cluster.list.actions.delete")}
         </div>
       </Button>
       {headNode && headNode.publicIpAddress && headNode.publicIpAddress !== "" && ssmEnabled &&
       <Button className="action" disabled={clusterStatus === 'DELETE_IN_PROGRESS'} onClick={() => {ssmFilesystem(headNode.instanceId)}}>
         <div className="container">
-          <FolderIcon />
-          Filesystem
+          <FolderIcon /> {t("cluster.list.actions.filesystem")}
         </div>
       </Button>}
       {headNode && headNode.publicIpAddress && headNode.publicIpAddress !== "" && ssmEnabled &&
       <Button className="action" disabled={clusterStatus === 'DELETE_IN_PROGRESS'} onClick={() => {shellCluster(headNode.instanceId)}}>
         <div className="container">
-          <FeaturedPlayListIcon />
-          Shell
+          <FeaturedPlayListIcon /> {t("cluster.list.actions.shell")}
         </div>
       </Button>}
       {headNode && headNode.publicIpAddress && headNode.publicIpAddress !== "" && dcvEnabled &&
-        <Button className="action" disabled={clusterStatus === 'DELETE_IN_PROGRESS'} onClick={() => {dcvConnect(headNode)}}>
-          <div className="container">
-            <MonitorIcon />
-            DCV
-          </div>
-            </Button>}
+      <Button className="action" disabled={clusterStatus === 'DELETE_IN_PROGRESS'} onClick={() => {dcvConnect(headNode)}}>
+        <div className="container">
+          <MonitorIcon /> {t("cluster.list.actions.dcv")}
+        </div>
+      </Button>}
     </SpaceBetween>
   </div>
 }

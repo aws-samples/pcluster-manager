@@ -6,6 +6,19 @@
   },
   "cluster": {
     "list": {
+      "dialogs": {
+        "delete": "Are you sure you want to delete cluster {{clusterName}}?"
+      },
+      "actions": {
+        "create": "Create Cluster",
+        "edit": "Edit",
+        "start": "Start",
+        "stop": "Stop",
+        "delete": "Delete",
+        "shell": "Shell",
+        "filesystem": "Filesystem",
+        "dcv": "DCV"
+      },
       "filtering": {
         "empty": {
           "title": "No clusters",
@@ -333,6 +346,14 @@
           "placeholder": "Default ({{defaultRootVolumeType}})"
         }
       }
+    }
+  },
+  "components": {
+    "ValidationErrors": {
+      "update": "Update",
+      "validation": "Validation",
+      "errors": "Errors",
+      "warnings": "Warnings"
     }
   },
   "JobSubmitDialog": {
