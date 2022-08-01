@@ -10,9 +10,10 @@
 // limitations under the License.
 import { createStore, combineReducers } from '@reduxjs/toolkit'
 import { useSelector } from 'react-redux'
-import notifications from './redux/snackbar_reducer'
 import { getIn, swapIn } from './util'
 import { USER_ROLES_CLAIM } from './auth/constants'
+
+import cloneDeep from 'lodash/cloneDeep'
 
 // These are identity reducers that allow the names to be at the top level for combining
 function clusters(state = {}, action: any){ return state }
@@ -24,7 +25,7 @@ function app(state = {}, action: any){ return state }
 function aws(state = {}, action: any){ return state }
 function identity(state = {}, action: any){ return state }
 
-const appReducer = combineReducers({ clusters, customImages, notifications, officialImages, wizard, app, users, identity, aws });
+const appReducer = combineReducers({ clusters, customImages, officialImages, wizard, app, users, identity, aws });
 
 function recurseAction(state: any, action: any) {
   const {path} = action.payload
@@ -32,31 +33,6 @@ function recurseAction(state: any, action: any) {
   const nested = rootReducer(subState, {type: action.type, payload: {...action.payload, path: path.slice(1)}})
   const ret = swapIn(state, path[0], nested)
   return ret
-}
-
-// @ts-expect-error TS(7023) FIXME: 'clone' implicitly has return type 'any' because i... Remove this comment to see the full error message
-function clone(thing: any, opts: any) {
-    var newObject = {};
-    if (thing instanceof Array) {
-        return thing.map(function (i) { return clone(i, opts); });
-    } else if (thing instanceof Date) {
-        return new Date(thing);
-    } else if (thing instanceof Set) {
-        return new Set(thing);
-    } else if (thing instanceof RegExp) {
-        return new RegExp(thing);
-    } else if (thing instanceof Object) {
-        // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
-        Object.keys(thing).forEach(function (key) { newObject[key] = clone(thing[key], opts); });
-        return newObject;
-    } else if ([ undefined, null ].indexOf(thing) > -1) {
-        return thing;
-    } else {
-        if (thing.constructor.name === 'Symbol') {
-            return Symbol(thing.toString().replace(/^Symbol\(/, '').slice(0, -1));
-        }
-        return thing.__proto__.constructor(thing);
-    }
 }
 
 function rootReducer(state: any, action: any) {
@@ -95,8 +71,7 @@ function rootReducer(state: any, action: any) {
       if(path.length > 1)
         return recurseAction(state, action);
 
-      // @ts-expect-error TS(2554) FIXME: Expected 2 arguments, but got 1.
-      const existing = path[0] in state ? clone(state[path[0]]) : null;
+      const existing = path[0] in state ? cloneDeep(state[path[0]]) : null;
       return swapIn(state, path[0], update(existing));
     }
     default:
