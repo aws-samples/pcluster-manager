@@ -12,17 +12,8 @@ import React from 'react';
 import { Link as InternalLink } from "react-router-dom"
 import { useNavigate } from "react-router-dom"
 
-// UI Elements
-import { useTheme } from '@mui/material/styles';
-
-// Icons
-import CancelIcon from '@mui/icons-material/Cancel';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import CircularProgress from '@mui/material/CircularProgress';
-import DangerousIcon from '@mui/icons-material/Dangerous';
-import NotInterestedIcon from '@mui/icons-material/NotInterested';
 import HelpTooltip from '../components/HelpTooltip'
-import { Link } from "@awsui/components-react";
+import { Link, StatusIndicator, StatusIndicatorProps } from "@awsui/components-react";
 import { useState } from '../store'
 
 function ClusterFailedHelp({
@@ -48,32 +39,27 @@ function ClusterFailedHelp({
 export default function Status({
   status,
   cluster
-}: any) {
+}: {status: string, cluster?: any}) {
   const failedStatuses = new Set(['CREATE_FAILED', 'DELETE_FAILED', 'UPDATE_FAILED']);
-  const theme = useTheme();
 
-  const aligned = (icon: any, text: any, color: any) => <div style={{
-    color: color || 'black',
-    display: 'flex',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-  }}>
-    {icon}
-    <span style={{display: 'inline-block', paddingLeft: '10px'}}> {text ? text.replaceAll("_", " ") : "<unknown>"}</span>
+  const statusMap: Record<string, StatusIndicatorProps.Type> = {"CREATE_IN_PROGRESS": 'in-progress',
+    "CREATE_COMPLETE": 'success',
+    "CREATE_FAILED": 'error',
+    "DELETE_IN_PROGRESS": 'in-progress',
+    "DELETE_FAILED": 'error',
+    "RUNNING": 'success',
+    "STOPPED": 'error',
+    "STOP_REQUESTED": 'in-progress',
+    "UPDATE_FAILED": 'error',
+    "UPDATE_IN_PROGRESS": 'in-progress',
+    "UNKNOWN": 'error',
+    "UPDATE_COMPLETE": 'success'};
+
+  if(!(status in statusMap))
+    return <span>{status ? status.replaceAll("_", " ") : "<unknown>"}</span>
+
+  return <StatusIndicator type={statusMap[status]}>
+    {status ? status.replaceAll("_", " ") : "<unknown>"}
     { cluster && failedStatuses.has(status) && <ClusterFailedHelp clusterName={cluster.clusterName} />  }
-  </div>
-    const statusMap = {"CREATE_IN_PROGRESS": aligned(<CircularProgress color='info' size={15} />, status, theme.palette.info.main),
-      "CREATE_COMPLETE": aligned(<CheckCircleOutlineIcon />, status, theme.palette.success.main),
-      "CREATE_FAILED": aligned(<DangerousIcon />, status, theme.palette.error.main),
-      "DELETE_IN_PROGRESS": aligned(<CircularProgress size={15} color='error' />, status, theme.palette.error.main),
-      "DELETE_FAILED": aligned(<NotInterestedIcon />, status, theme.palette.error.main),
-      "RUNNING": aligned(<CheckCircleOutlineIcon />, status, theme.palette.success.main),
-      "STOPPED": aligned(<CancelIcon />, status, theme.palette.error.main),
-      "STOP_REQUESTED": aligned(<CircularProgress size={15} color='error' />, status, theme.palette.error.main),
-      "UPDATE_FAILED": aligned(<DangerousIcon />, status, theme.palette.error.main),
-      "UPDATE_IN_PROGRESS": aligned(<CircularProgress color='info' size={15} />, status, theme.palette.info.main),
-      "UNKNOWN": aligned(<CircularProgress size={15} color='info' />, status, theme.palette.info.main),
-      "UPDATE_COMPLETE": aligned(<CheckCircleOutlineIcon />, status, theme.palette.success.main),};
-  // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
-  return status in statusMap ? statusMap[status] : <span>{status ? status.replaceAll("_", " ") : "<unknown>"}</span>;
+  </StatusIndicator>
 }
