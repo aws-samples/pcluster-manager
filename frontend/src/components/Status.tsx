@@ -13,7 +13,7 @@ import { Link as InternalLink } from "react-router-dom"
 import { useNavigate } from "react-router-dom"
 
 import HelpTooltip from '../components/HelpTooltip'
-import { Link, StatusIndicator } from "@awsui/components-react";
+import { Link, StatusIndicator, StatusIndicatorProps } from "@awsui/components-react";
 import { useState } from '../store'
 
 function ClusterFailedHelp({
@@ -39,10 +39,10 @@ function ClusterFailedHelp({
 export default function Status({
   status,
   cluster
-}: any) {
+}: {status: string, cluster?: any}) {
   const failedStatuses = new Set(['CREATE_FAILED', 'DELETE_FAILED', 'UPDATE_FAILED']);
 
-  const statusMap = {"CREATE_IN_PROGRESS": 'in-progress',
+  const statusMap: Record<string, StatusIndicatorProps.Type> = {"CREATE_IN_PROGRESS": 'in-progress',
     "CREATE_COMPLETE": 'success',
     "CREATE_FAILED": 'error',
     "DELETE_IN_PROGRESS": 'in-progress',
@@ -58,7 +58,6 @@ export default function Status({
   if(!(status in statusMap))
     return <span>{status ? status.replaceAll("_", " ") : "<unknown>"}</span>
 
-  // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
   return <StatusIndicator type={statusMap[status]}>
     {status ? status.replaceAll("_", " ") : "<unknown>"}
     { cluster && failedStatuses.has(status) && <ClusterFailedHelp clusterName={cluster.clusterName} />  }
