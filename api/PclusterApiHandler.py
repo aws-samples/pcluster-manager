@@ -13,7 +13,6 @@ import json
 import os
 import re
 import time
-from types import TracebackType
 
 import boto3
 import botocore
@@ -43,11 +42,10 @@ AUTH_URL = os.getenv("AUTH_URL", f"{AUTH_PATH}/login")
 JWKS_URL = os.getenv("JWKS_URL")
 AUDIENCE = os.getenv("AUDIENCE")
 USER_ROLES_CLAIM = os.getenv("USER_ROLES_CLAIM", "cognito:groups")
-REDIRECT_URL = f"{SITE_URL}/login"
 PCLUSTER_COST_TAGS = ['parallelcluster:attributes', 
-        'parallelcluster:cluster-name', 'parallelcluster:compute-resource-name', 'parallelcluster:filesystem', 
-        'parallelcluster:networking', 'parallelcluster:node-type', 'parallelcluster:queue-name', 
-        'parallelcluster:resource', 'parallelcluster:version']
+    'parallelcluster:cluster-name', 'parallelcluster:compute-resource-name', 'parallelcluster:filesystem', 
+    'parallelcluster:networking', 'parallelcluster:node-type', 'parallelcluster:queue-name', 
+    'parallelcluster:resource', 'parallelcluster:version']
 
 try:
     if (not USER_POOL_ID or USER_POOL_ID == "") and SECRET_ID:
@@ -706,22 +704,22 @@ def activate_tags():
         cost_explorer = boto3.client('ce')
         newlist = [{'TagKey': tag, 'Status': 'Active'} for tag in PCLUSTER_COST_TAGS]
         cost_explorer.update_cost_allocation_tags_status(CostAllocationTagsStatus=newlist)
-        return "Activated Tags"
+        return {"message": "Activated Tags"}
     except Exception as e:
         return {"message": str(e)}, 500
-
+ 
 def get_graph_data():
     try:
         cluster_name = request.args.get("cluster_name")
-        Start = request.args.get("Start")
-        End = request.args.get("End")
-        if cluster_name is None or Start is None or End is None:
+        start = request.args.get("start")
+        end = request.args.get("end")
+        if cluster_name is None or start is None or end is None:
             return {"message": "cluster_name , start date, or end date are not specified"}, 400
         cost_explorer = boto3.client('ce')
         data = cost_explorer.get_cost_and_usage(
             TimePeriod={
-                'Start': Start,
-                'End': End
+                'Start': start,
+                'End': end
             },
             Filter={
                 'Tags': {

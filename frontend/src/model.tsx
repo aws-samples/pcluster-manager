@@ -638,8 +638,8 @@ function ActivateTags(callback: any): void {
   })
 }
 
-function GetGraphData(callback: any, cluster_name: string, Start: string, End: string): void {
-  var url = `manager/graph_data?cluster_name=${cluster_name}&Start=${Start}&End=${End}`
+function GetGraphData(callback: any, cluster_name: string, start: string, end: string): void {
+  var url = `manager/graph_data?cluster_name=${cluster_name}&start=${start}&end=${end}`
   request('get', url).then((response: any) => {
     if(response.status === 200) {
       console.log("Getting Usage data from Cost Explorer API....");
@@ -654,8 +654,8 @@ function GetGraphData(callback: any, cluster_name: string, Start: string, End: s
   })
 }
 
-function GetBudget(callback: any, cluster_name: string, AccountId: string): void {
-  var url = `manager/get_budget_data?cluster_name=${cluster_name}&AccountId=${AccountId}`
+function GetBudget(callback: any, cluster_name: string, accountId: string): void {
+  var url = `manager/get_budget_data?cluster_name=${cluster_name}&accountId=${accountId}`
   request('get', url).then((response: any) => {
     if(response.status === 200) {
       console.log("Getting Budget Data from Budgets API....");
