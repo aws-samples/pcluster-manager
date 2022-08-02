@@ -46,6 +46,7 @@ const ValueWithLabel = ({
   </div>
 );
 
+
 export default function ClusterProperties () {
 
   const clusterName = useState(['app', 'clusters', 'selected']);
@@ -64,7 +65,6 @@ export default function ClusterProperties () {
   React.useEffect(() => {
     const tick = () => {
       const clusterName = getState(['app', "clusters", "selected"]);
-      // @ts-expect-error TS(2554) FIXME: Expected 2 arguments, but got 1.
       clusterName && DescribeCluster(clusterName);
     }
     const timerId = setInterval(tick, 5000);

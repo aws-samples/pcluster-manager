@@ -42,7 +42,7 @@ const imageBuildPath = ['app', 'customImages', 'imageBuild'];
 // selectors
 const selectCustomImagesList = (state: any) => state.customImages.list;
 
-function CustomImagesList(props: any) {
+function CustomImagesList() {
   const images = useSelector(selectCustomImagesList) || [];
   const open = useState([...imageBuildPath, 'dialog']);
 
@@ -135,7 +135,6 @@ function StatusSelect() {
         // @ts-expect-error TS(2345) FIXME: Argument of type 'OptionDefinition' is not assigna... Remove this comment to see the full error message
         setStatus(detail.selectedOption);
         setState(['app', 'customImages', 'selectedImageStatus'], detail.selectedOption.value);
-        // @ts-expect-error TS(2554) FIXME: Expected 3 arguments, but got 1.
         ListCustomImages(detail.selectedOption.value);
       }}
       options={[
@@ -164,13 +163,11 @@ export default function CustomImages() {
   const refreshImages = () => {
     clearState(['customImages', 'list'])
     clearState(['app', 'customImages', 'selected'])
-    // @ts-expect-error TS(2554) FIXME: Expected 3 arguments, but got 1.
     ListCustomImages(imageStatus || "AVAILABLE");
   }
 
   React.useEffect(() => {
     const imageStatus = getState(['app', 'customImages', 'selectedImageStatus']);
-    // @ts-expect-error TS(2554) FIXME: Expected 3 arguments, but got 1.
     ListCustomImages(imageStatus || "AVAILABLE");
   }, [])
 
@@ -200,13 +197,7 @@ export default function CustomImages() {
             openButtonAriaLabel: "Open panel",
             resizeHandleAriaLabel: "Resize split panel"
           }}
-          // @ts-expect-error TS(2322) FIXME: Type 'Element' is not assignable to type 'string'.
-          header={
-            <Header
-              variant="h2">
-              {imageId ? `Image: ${imageId}` : "No image selected" }
-            </Header>
-          }>
+          header={imageId ? `Image: ${imageId}` : "No image selected" }>
           {imageId ? <CustomImageDetails /> : <div><h3 style={{userSelect: "none"}}>Select an image above</h3></div>}
         </SplitPanel>
       }

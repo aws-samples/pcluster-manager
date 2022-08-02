@@ -32,10 +32,10 @@ import { setState, getState, useState } from '../../store'
 const configPath = ['app', 'wizard', 'clusterConfigYaml'];
 
 function handleWarnings(resp: any) {
-  if(!resp.validatonMessages)
+  if(!resp.validationMessages)
     return;
 
-  resp.validatonMessages.forEach((message: any, i: any) => {
+  resp.validationMessages.forEach((message: any) => {
       notify(message.message, 'warning');
   })
 }
@@ -54,7 +54,6 @@ function handleCreate(handleClose: any, navigate: any) {
     handleWarnings(resp);
 
     setState(['app', 'wizard', 'pending'], false);
-    // @ts-expect-error TS(2554) FIXME: Expected 2 arguments, but got 1.
     DescribeCluster(clusterName)
     setState(['app', 'clusters', 'selected'], clusterName);
     ListClusters();
@@ -66,18 +65,16 @@ function handleCreate(handleClose: any, navigate: any) {
   if(editing)
   {
     setState(['app', 'wizard', 'pending'], "Update");
-    // @ts-expect-error TS(2345) FIXME: Argument of type '(resp: any) => void' is not assi... Remove this comment to see the full error message
     UpdateCluster(clusterName, clusterConfig, dryRun, forceUpdate, successHandler, errHandler);
   }
   else
   {
     setState(['app', 'wizard', 'pending'], "Create");
-    // @ts-expect-error TS(2345) FIXME: Argument of type '(resp: any) => void' is not assi... Remove this comment to see the full error message
     CreateCluster(clusterName, clusterConfig, region, disableRollback, dryRun, successHandler, errHandler);
   }
 }
 
-function handleDryRun(handleClose: any) {
+function handleDryRun() {
   const clusterName = getState(['app', 'wizard', 'clusterName']);
   const editing = getState(['app', 'wizard', 'editing']);
   const forceUpdate = getState(['app', 'wizard', 'forceUpdate']);
@@ -93,10 +90,8 @@ function handleDryRun(handleClose: any) {
   setState(['app', 'wizard', 'pending'], "Dry Run");
   setState(['app', 'wizard', 'errors', "create"], null);
   if(editing)
-    // @ts-expect-error TS(2345) FIXME: Argument of type '(resp: any) => void' is not assi... Remove this comment to see the full error message
     UpdateCluster(clusterName, clusterConfig, dryRun, forceUpdate, successHandler, errHandler);
   else
-    // @ts-expect-error TS(2345) FIXME: Argument of type '(resp: any) => void' is not assi... Remove this comment to see the full error message
     CreateCluster(clusterName, clusterConfig, region, disableRollback, dryRun, successHandler, errHandler);
 }
 

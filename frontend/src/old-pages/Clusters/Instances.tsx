@@ -14,8 +14,6 @@ import { useNavigate } from "react-router-dom"
 import { GetClusterInstances, Ec2Action } from '../../model'
 import { setState, clearState, useState, getState, consoleDomain } from '../../store'
 
-
-
 // UI Elements
 import {
   Button,
@@ -29,37 +27,62 @@ import {
 
 import { useCollection } from '@awsui/collection-hooks';
 
-import { useTheme } from '@mui/material/styles';
-
-// Icons
-import CancelIcon from '@mui/icons-material/Cancel';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-
 // Components
+import Status, { StatusMap }from "../../components/Status";
 import EmptyState from '../../components/EmptyState';
 import DateView from '../../components/DateView'
 
-function Status(props: any) {
-  const theme = useTheme();
-  const aligned = (icon: any, text: any, color: any) => <div style={{
-    color: color || 'black',
-    display: 'flex',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-  }}>
-    {icon}
-    <span style={{display: 'inline-block', paddingLeft: '10px'}}> {text}</span>
-  </div>
-  const statusMap = {"stopped": aligned(<CancelIcon />, props.status, theme.palette.error.main),
-    "running": aligned(<CheckCircleOutlineIcon />, props.status, theme.palette.success.main),};
-  // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
-  return props.status in statusMap ? statusMap[props.status] : <span>{props.status}</span>;
+//TODO: these types should be placed somewhere more global
+enum FleetStatus {
+  Stopped = "STOPPED",
+  Running = "RUNNING",
+  Stopping = "STOPPING",
+  Starting = "STARTING",
+  StopRequested = "STOP_REQUESTED",
+  StartRequested = "START_REQUESTED",
+  Enabled = "ENABLED",
+  Disabled = "DISABLED",
+  Unknown = "UNKNOWN",
+  Protected = "PROTECTED",
 }
+
+enum InstanceState {
+  Pending = "pending",
+  Running = "running",
+  ShuttingDown = "shutting-down",
+  Terminated = "terminated",
+  Stopping = "stopping",
+  Stopped = "stopped",
+}
+
+enum NodeType {
+  HeadNode = "HeadNode",
+  ComputeNode = "ComputeNode",
+}
+
+type Instance = {
+  instanceId: string,
+  instanceType: string,
+  launchTime: string,
+  nodeType: NodeType,
+  privateIpAddress: string,
+  state: InstanceState,
+  queueName?: string,
+  publicIpAddress?: string,
+}
+
+const instanceStatusMap: StatusMap = {
+  'pending': 'in-progress',
+  'running': 'success',
+  'stopping': 'in-progress',
+  'stopped': 'error'
+}
+
 
 function InstanceActions({
   fleetStatus,
   instance
-}: any) {
+}: {fleetStatus: FleetStatus, instance: Instance}) {
 
   const pending = useState(['app', 'clusters', 'action', 'pending']);
   const clusterName = useState(['app', 'clusters', 'selected']);
@@ -71,26 +94,26 @@ function InstanceActions({
     clusterName && GetClusterInstances(clusterName, () => clearState(['app', 'clusters', 'action', 'pending']));
   }
 
-  const stopInstance = (instance: any) => {
+  const stopInstance = (instance: Instance) => {
     setState(['app', 'clusters', 'action', 'pending'], true);
     Ec2Action([instance.instanceId], "stop_instances", refresh);
   }
 
-  const startInstance = (instance: any) => {
+  const startInstance = (instance: Instance) => {
     setState(['app', 'clusters', 'action', 'pending'], true);
     Ec2Action([instance.instanceId], "start_instances", refresh);
   }
 
   return <SpaceBetween direction='horizontal' size='s'>
-      {fleetStatus === "STOPPED" &&
+      {fleetStatus === FleetStatus.Stopped &&
       <div>
-        {instance.nodeType === 'HeadNode' &&  instance.state === 'running' && <Button loading={pending} onClick={() => {stopInstance(instance)}}>Stop</Button>}
-        {instance.nodeType === 'HeadNode' &&  instance.state === 'stopped' && <Button loading={pending} onClick={() => {startInstance(instance)}}>Start</Button>}
+        {instance.nodeType === NodeType.HeadNode &&  instance.state === InstanceState.Running && <Button loading={pending} onClick={() => {stopInstance(instance)}}>Stop</Button>}
+        {instance.nodeType === NodeType.HeadNode &&  instance.state === InstanceState.Stopped && <Button loading={pending} onClick={() => {startInstance(instance)}}>Start</Button>}
       </div>
       }
-      {fleetStatus !== "STOPPED" &&
+      {fleetStatus !== FleetStatus.Stopped &&
         <div title="Compute Fleet must be stopped.">
-          {instance.nodeType === 'HeadNode' &&  instance.state === 'running' && <Button disabled={true}>Stop</Button>}
+          {instance.nodeType === NodeType.HeadNode &&  instance.state === InstanceState.Running && <Button disabled={true}>Stop</Button>}
         </div>
       }
     <Button href={logHref} onClick={(e) => {navigate(logHref); e.preventDefault();}}>Logs</Button>
@@ -111,11 +134,9 @@ export default function ClusterInstances() {
   React.useEffect(() => {
     const tick = () => {
       const clusterName = getState(['app', 'clusters', 'selected']);
-      // @ts-expect-error TS(2554) FIXME: Expected 2 arguments, but got 1.
       clusterName && GetClusterInstances(clusterName);
     }
     const clusterName = getState(['app', 'clusters', 'selected']);
-    // @ts-expect-error TS(2554) FIXME: Expected 2 arguments, but got 1.
     clusterName && GetClusterInstances(clusterName);
     const timerId = setInterval(tick, 10000);
     return () => { clearInterval(timerId); }
@@ -152,49 +173,49 @@ export default function ClusterInstances() {
         {
             id: "id",
             header: "Id",
-            cell: item => <Link external externalIconAriaLabel="Opens in a new tab" href={`${consoleDomain(region)}/ec2/v2/home?region=${region}#InstanceDetails:instanceId=${(item as any).instanceId}`}>{(item as any).instanceId}</Link>,
+            cell: (instance: Instance) => <Link external externalIconAriaLabel="Opens in a new tab" href={`${consoleDomain(region)}/ec2/v2/home?region=${region}#InstanceDetails:instanceId=${instance.instanceId}`}>{instance.instanceId}</Link>,
             sortingField: "instanceId"
         },
         {
             id: "instance-type",
             header: "instance",
-            cell: item => (item as any).instanceType,
+            cell: (instance: Instance) => instance.instanceType,
             sortingField: "instanceType"
         },
         {
             id: "launch-time",
             header: "Launch",
-            cell: item => <DateView date={(item as any).launchTime}/>,
+            cell: (instance: Instance) => <DateView date={instance.launchTime}/>,
             sortingField: "launchTime"
         },
         {
             id: "node-type",
             header: "Type",
-            cell: item => (item as any).nodeType,
+            cell: (instance: Instance) => instance.nodeType,
             sortingField: "nodeType"
         },
         {
             id: "private-ip",
             header: "Private IP",
-            cell: item => (item as any).privateIpAddress,
+            cell: (instance: Instance) => instance.privateIpAddress,
             sortingField: "privateIpAddress"
         },
         {
             id: "public-ip",
             header: "Public IP",
-            cell: item => (item as any).publicIpAddress,
+            cell: (instance: Instance) => instance.publicIpAddress,
             sortingField: "publicIpAddress"
         },
         {
             id: "state",
             header: "State",
-            cell: item => <Status status={(item as any).state} cluster={item}/>,
+            cell: (instance: Instance) => <Status status={instance.state} statusMapOverrides={instanceStatusMap} />,
             sortingField: "state"
         },
         {
             id: "actions",
             header: "Actions",
-            cell: item => <InstanceActions fleetStatus={fleetStatus} instance={item}/>,
+            cell: (instance: Instance) => <InstanceActions fleetStatus={fleetStatus} instance={instance}/>,
         },
     ]} loading={instances === null} items={items} loadingText="Loading instances..." pagination={<Pagination {...paginationProps}/>} filter={<TextFilter {...filterProps} countText={`Results: ${filteredItemsCount}`} filteringAriaLabel="Filter instances"/>}/>;
 }

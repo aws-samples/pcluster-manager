@@ -101,18 +101,15 @@ export default function ClusterStackEvents() {
     const cluster = getState(clusterPath);
     const headNode = getState([...clusterPath, 'headNode']);
     GetClusterStackEvents(clusterName);
-    // @ts-expect-error TS(2554) FIXME: Expected 2 arguments, but got 1.
     DescribeCluster(clusterName);
 
-    let timerId = (setInterval(() => {
+    let timerId: ReturnType<typeof setInterval> | undefined = (setInterval(() => {
       if(cluster.clusterStatus !== 'CREATE_IN_PROGRESS')
       {
         clearInterval(timerId);
-        // @ts-expect-error TS(2322) FIXME: Type 'null' is not assignable to type 'Timer'.
-        timerId = null;
+        timerId = undefined;
       } else {
         if(!headNode)
-          // @ts-expect-error TS(2554) FIXME: Expected 2 arguments, but got 1.
           DescribeCluster(clusterName);
         GetClusterStackEvents(clusterName);
       }

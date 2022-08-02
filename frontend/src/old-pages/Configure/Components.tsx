@@ -118,7 +118,7 @@ function InstanceSelect({
 
   let groupNames = ['General Purpose', 'Compute', 'HPC', 'High Memory', 'Graviton', 'Mixed', 'GPU'];
 
-  let groups = {};
+  let groups: {[key: string]: [string, string, string][]} = {};
 
   for(let instance of instanceTypes)
   {
@@ -145,7 +145,6 @@ function InstanceSelect({
     }
 
     if(!(group in groups))
-      // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
       groups[group] = []
 
     let desc = `${instance.VCpuInfo.DefaultVCpus} vcpus, ${instance.MemoryInfo.SizeInMiB / 1024}GB memory`
@@ -153,7 +152,6 @@ function InstanceSelect({
     if(Object.keys(instance.GpuInfo).length > 0)
       desc = `${instance.GpuInfo.Count} x ${instance.GpuInfo.Name}, ${desc}`
 
-    // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     groups[group].push([instance.InstanceType, desc, img])
   }
 
@@ -191,7 +189,6 @@ function InstanceSelect({
       options={groupNames.map((groupName) => {
         return {
           label: groupName,
-          // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
           options: groups[groupName].map(instanceToOption)}})}/>
   )
 }

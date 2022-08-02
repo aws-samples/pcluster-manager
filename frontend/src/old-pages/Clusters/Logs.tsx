@@ -145,7 +145,6 @@ function StreamList({
       const selected = getState(['app', 'clusters', 'selected']);
       const logStreamName = `${ip}.${instanceId}.${searchParams.get('filename')}`;
       setState(['app', 'clusters', 'selectedLogStreamName'], logStreamName);
-      // @ts-expect-error TS(2554) FIXME: Expected 4 arguments, but got 2.
       GetClusterLogEvents(selected, logStreamName);
     }
   }, [searchParams, instanceId]);

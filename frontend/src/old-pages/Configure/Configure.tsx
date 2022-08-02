@@ -137,7 +137,7 @@ function Configure() {
     navigate('/clusters');
   };
 
-  const validators = {
+  const validators: {[key: string]: (...args: any[]) => boolean} = {
     source: sourceValidate,
     cluster: clusterValidate,
     headNode: headNodeValidate,
@@ -151,7 +151,6 @@ function Configure() {
     let currentPage = getState(['app', 'wizard', 'page']) || 'source';
 
     // Run the validators corresponding to the page we are on
-    // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     if(validators[currentPage] && !validators[currentPage]())
       return;
 
@@ -220,7 +219,6 @@ function Configure() {
   }
 
   const handleDryRun = () => {
-    // @ts-expect-error TS(2554) FIXME: Expected 1 arguments, but got 0.
     wizardHandleDryRun();
   }
 
@@ -284,8 +282,7 @@ function Configure() {
                   {fleetStatus !== "RUNNING" ? <span>Stop Compute Fleet</span>
                   : <div className="container"><CancelIcon /> Stop Compute Fleet</div>}
                 </Button>}
-                {/* @ts-expect-error TS(2322) FIXME: Type '{ children: string; onClick: () => void; aut... Remove this comment to see the full error message */}
-                <Button onClick={() => handleClose(true)} autoFocus>Cancel</Button>
+                <Button onClick={() => handleClose(true)}>Cancel</Button>
                 <Button disabled={page === pages[0]} onClick={handlePrev}>Back</Button>
                 {page === "create" && <Button onClick={handleDryRun}>Dry Run</Button>}
                 <Button disabled={loading} onClick={handleNext}>{page === "create" ? (editing ? "Update" : "Create") : "Next"}</Button>

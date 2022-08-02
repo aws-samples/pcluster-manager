@@ -12,19 +12,13 @@
 import React from 'react';
 import { useCollection } from '@awsui/collection-hooks';
 
-import { useTheme } from '@mui/material/styles';
-
 import { useState, getState, setState, clearState } from '../../store'
 
 import { SlurmAccounting } from '../../model'
 import { clusterDefaultUser, getIn, findFirst } from '../../util'
 
-// Icons
-import CancelIcon from '@mui/icons-material/Cancel';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import CircularProgress from '@mui/material/CircularProgress';
-
 // Components
+import Status from "../../components/Status";
 import EmptyState from '../../components/EmptyState';
 import Loading from '../../components/Loading'
 import HelpTooltip from '../../components/HelpTooltip'
@@ -116,27 +110,6 @@ function refreshAccounting(args: any, callback: any, list: any) {
     const headNode = getState([...clusterPath, 'headNode']);
     headNode && SlurmAccounting(clusterName, headNode.instanceId, user, defaultArgs, defaultCallback, failCallback);
   }
-}
-
-function Status(props: any) {
-  const theme = useTheme();
-  const aligned = (icon: any, text: any, color: any) => <div style={{
-    color: color || 'black',
-    display: 'flex',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-  }}>
-    {icon}
-    <span style={{display: 'inline-block', paddingLeft: '10px'}}> {text}</span>
-  </div>
-  const statusMap = {"CANCELLED": aligned(<CancelIcon />, props.status, theme.palette.error.main),
-      "FAILED": aligned(<CancelIcon />, props.status, theme.palette.error.main),
-      "CONFIGURING": aligned(<CircularProgress size={15} color='info' />, props.status, theme.palette.info.main),
-      "COMPLETED": aligned(<CheckCircleOutlineIcon />, props.status, theme.palette.success.main),
-      "SUCCESS": aligned(<CheckCircleOutlineIcon />, props.status, theme.palette.success.main),
-    "RUNNING": aligned(<CheckCircleOutlineIcon />, props.status, theme.palette.success.main),};
-  // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
-  return props.status in statusMap ? statusMap[props.status] : <span>{props.status}</span>;
 }
 
 function JobStateSelect() {

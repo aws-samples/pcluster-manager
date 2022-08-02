@@ -55,7 +55,7 @@ function itemToDisplayIconOption([value, label, icon]){
 }
 
 function strToOption(str: any){
-  return {value: str, label: str}
+  return {value: str, label: str.toString()}
 }
 
 function storageValidate() {
