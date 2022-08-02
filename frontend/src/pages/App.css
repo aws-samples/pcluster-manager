@@ -113,22 +113,6 @@ a:hover {
 }
 
 
-
-#region-select-menu .MuiMenu-list ,
-#region-select-menu .MuiButtonBase-root-MuiMenuItem-root
-{
-  max-height: 200px;
-}
-
-#wizard-content {
-  padding-top: 0px;
-}
-
-#wizard-content .MuiList-root {
-  padding-top: 0px;
-}
-
-
 table th {
   text-align: left;
 }

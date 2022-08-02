@@ -13,7 +13,6 @@ import { Link, useLocation } from "react-router-dom"
 import { setState, useState, isGuest, isUser, isAdmin } from '../store'
 
 // UI Elements
-import Divider from '@mui/material/Divider';
 import useNotifier from '../redux/useNotifier';
 
 // Icons
@@ -102,7 +101,6 @@ export default function SideBar(props: any) {
         <Link to='/users' className={section === "users" ? "selected" : ""} key="Users">
           <GroupIcon />Users
         </Link>}
-      <Divider />
       <div style={{display: 'flex', justifyContent: "center", alignItems: "flex-start", paddingTop: "20px", paddingRight: "20px"}}>
         <img style={{display: "inline-block"}} alt="AWS Logo" width={140} src="/img/aws_logo.png" />
       </div>

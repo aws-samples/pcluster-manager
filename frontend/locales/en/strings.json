@@ -348,6 +348,10 @@
       }
     }
   },
+  "customImages": {
+    "copyImageConfiguration": "Image Configuration URL copied to clipboard.",
+    "copyAmiId": "AMI Id copied to clipboard."
+  },
   "components": {
     "ValidationErrors": {
       "update": "Update",
