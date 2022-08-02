@@ -1,6 +1,6 @@
 +++
-title = "d. Cloud9 ☁️"
-weight = 25
+title = "e. Cloud9 ☁️"
+weight = 26
 +++
 
 [Cloud9](https://aws.amazon.com/cloud9/) is a web-based code editor, terminal and file-browser. You can connect to the cluster via Cloud9 and advantage of the following  convenient features:
