@@ -29,19 +29,16 @@ import HelpTooltip from '../../components/HelpTooltip'
 import { ActivateTags, GetTagStatus, GetGraphData, GetBudget } from '../../model';
 
 export default function Cost() {
-  const [dateValue, setDateValue] = React.useState(undefined);
+  const [dateValue, setDateValue] = React.useState(null);
   const defaultRegion = useState(['aws', 'region']) || 'us-east-1';
   const region = useState(['app', 'selectedRegion']) || defaultRegion;
   const clusterName = useState(['app', 'clusters', 'selected']);
   const tagActive = useState(['app', 'tags', 'active']);
   const yAxis = useState(['app', 'cost', clusterName, 'max']);
-  const xAxis = useState(['app', 'cost', clusterName, 'dates']) || [];
+  const xAxis = useState(['app', 'cost', clusterName, 'date']);
   const graphData = useState(['app', 'cost', clusterName, 'graphData']) || [];
-  const startUrl = useState(['app', 'cost', clusterName, 'Start']) || [];
-  const endUrl = useState(['app', 'cost', clusterName, 'End']) || [];
   const budgetUsed = useState(['app', 'cost', clusterName, 'budget']) || [];
   const tableData = useState(['app', 'cost', clusterName, 'tableData']) || [];
-  const urlData = useState(['app', 'cost', clusterName, 'object']) || [];
   const accountId =  useState(['app', 'account']) || [];
   const Options = [
     {
@@ -67,9 +64,69 @@ export default function Cost() {
       amount: 1,
       unit: "day",
       type: "relative",
-    }
+    },
   ]
-
+  const dateRangePickerSettings = {
+    todayAriaLabel: "Today",
+    nextMonthAriaLabel: "Next month",
+    previousMonthAriaLabel: "Previous month",
+    customRelativeRangeDurationLabel: "Duration",
+    customRelativeRangeDurationPlaceholder: "Enter duration",
+    customRelativeRangeOptionLabel: "Custom range",
+    customRelativeRangeOptionDescription: "Set a custom range of days in the past. Use Days as Unit of Time.",
+    customRelativeRangeUnitLabel: "Unit of time",
+    formatRelativeRange: (e:any) => {
+      const t = 1 === e.amount ? e.unit : `${e.unit}s`;
+      return `Last ${e.amount} ${t}`;
+    },
+    formatUnit: (e:any, t:any) => (1 === t ? e : `${e}s`),
+    dateTimeConstraintText: "Select any Range of days. Use 24 hour format.",
+    relativeModeTitle: "Relative range",
+    absoluteModeTitle: "Absolute range",
+    relativeRangeSelectionHeading: "Choose a range",
+    startDateLabel: "Start date",
+    endDateLabel: "End date",
+    startTimeLabel: "Start time",
+    endTimeLabel: "End time",
+    clearButtonLabel: "Clear and dismiss",
+    cancelButtonLabel: "Cancel",
+    applyButtonLabel: "Apply",
+  }
+  const barChartSettings = {
+    filterLabel: "Filter displayed data",
+    filterPlaceholder: "Filter data",
+    filterSelectedAriaLabel: "selected",
+    legendAriaLabel: "Legend",
+    chartAriaRoleDescription: "line chart",
+    xTickFormatter: (e: any) =>
+      e
+        .toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+        })
+        .split(",")
+        .join("\n"),
+  }
+  const barChartColumns = [
+    {
+      id: "variable",
+      header: "Instance Type",
+      cell: (item: any) => item.name || "-",
+      sortingField: "name",
+    },
+    {
+      id: "alt",
+      header: "Total Cost",
+      cell: (item: any) => item.alt || "-",
+      sortingField: "alt",
+    },
+    {
+      id: "description",
+      header: "Summary",
+      cell: (item: any) => item.description || "-",
+    },
+  ]
+  
   const checkTags = () => {   // Check tag status
     const statusUpdate = (value: {TagStatus?: boolean}) => {
       setState(['app', 'tags', 'active'], value['TagStatus']);
@@ -93,34 +150,13 @@ export default function Cost() {
     GetBudget(budgetData, clusterName, accountId)
   }
 
-  const createUrl = () => {   // Create URL for Cost Explorer Link
-    let data = [
-      {
-        "dimension": "TagKeyValue",
-        "values": null,
-        "include": true,
-        "children": [
-          {
-            "dimension": "parallelcluster:cluster-name",
-            "values": [
-              clusterName,
-            ],
-            "include": true,
-            "children": null
-          }
-        ]
-      }
-    ]
-    setState(['app', 'cost', clusterName, 'object'], data)
-  }
-
   const getGraphData = (Start: string, End: string) => { // Pull cost and usage from CE API
     const queryCosts = (data: any) => {
       const usageData = data['ResultsByTime'];
       let instanceTypes = new Set();
-      let dayCosts: any[] = [];
       let dates: Date[] = [];
-      let tableCostData = [];
+      let dayCosts: object[] = [];
+      let tableCostData: object[] = [];
       let dayInfo: any[] = [];
       let total = 0;
       let max = 0;
@@ -137,7 +173,7 @@ export default function Cost() {
           instanceTypes.add(type.Keys[0]);
         })
       })
-      
+
       instanceTypes.forEach((type) => { // Create a data set for each instance type
           const costs = usageData?.map((date: any) => {
               let dataByInstanceType = date.Groups;
@@ -183,14 +219,14 @@ export default function Cost() {
       size: "xxLarge"
     })
     setState(['app', 'cost', clusterName, 'graphData'], dayCosts);
-    setState(['app', 'cost', clusterName, 'dates'], dates);
+    setState(['app', 'cost', clusterName, 'date'], dates);
     setState(['app', 'cost', clusterName, 'max'], max);
     setState(['app', 'cost', clusterName, 'tableData'], tableCostData);
     getBudget()
     tableCostData = [];
     }
     GetGraphData(queryCosts, clusterName, Start, End)
-  }
+    }
 
   const fetchGraphData = (val: any) => {
     let startValue = ""
@@ -226,6 +262,29 @@ export default function Cost() {
     getGraphData(String(startValue), String(endValue));
   }
 
+  const getCostExplorerUrl = () => {
+    let data = [
+      {
+        "dimension": "TagKeyValue",
+        "values": null,
+        "include": true,
+        "children": [
+          {
+            "dimension": "parallelcluster:cluster-name",
+            "values": [
+              clusterName,
+            ],
+            "include": true,
+            "children": null
+          }
+        ]
+      }
+    ]
+    const startDate = useState(['app', 'cost', clusterName, 'Start']);
+    const endDate = useState(['app', 'cost', clusterName, 'End']);
+    return `https://${region}.console.aws.amazon.com/cost-management/home?region=${region}"#/custom?groupBy=InstanceType&hasBlended=false&hasAmortized=false&excludeDiscounts=true&excludeTaggedResources=false&excludeCategorizedResources=false&excludeForecast=false&timeRangeOption=Custom&granularity=Daily&reportName=&reportType=CostUsage&isTemplate=true&filter=${JSON.stringify(data)}&chartStyle=Stack&forecastTimeRangeOption=None&usageAs=usageQuantity&startDate=${startDate}&endDate=${endDate}`;
+  }
+
   React.useEffect(() => { // These will be called once on loading of page
       checkTags()
       const Default = {
@@ -236,7 +295,6 @@ export default function Cost() {
         };
       fetchGraphData(Default);
       setDateValue(Default);
-      createUrl();
   },[])
 
   return (
@@ -255,35 +313,33 @@ export default function Cost() {
                 setDateValue(detail.value);
               }}
               value={dateValue}
-              relativeOptions={Options}
-              i18nStrings={{
-                todayAriaLabel: "Today",
-                nextMonthAriaLabel: "Next month",
-                previousMonthAriaLabel: "Previous month",
-                customRelativeRangeDurationLabel: "Duration",
-                customRelativeRangeDurationPlaceholder: "Enter duration",
-                customRelativeRangeOptionLabel: "Custom range",
-                customRelativeRangeOptionDescription:
-                  "Set a custom range of days in the past. Use Days as Unit of Time.",
-                customRelativeRangeUnitLabel: "Unit of time",
-                formatRelativeRange: (e) => {
-                  const t = 1 === e.amount ? e.unit : `${e.unit}s`;
-                  return `Last ${e.amount} ${t}`;
+              relativeOptions={[
+                {
+                  key: "previous-30-days",
+                  amount: 30,
+                  unit: "day",
+                  type: "relative",
                 },
-                formatUnit: (e, t) => (1 === t ? e : `${e}s`),
-                dateTimeConstraintText:
-                  "Select any Range of days. Use 24 hour format.",
-                relativeModeTitle: "Relative range",
-                absoluteModeTitle: "Absolute range",
-                relativeRangeSelectionHeading: "Choose a range",
-                startDateLabel: "Start date",
-                endDateLabel: "End date",
-                startTimeLabel: "Start time",
-                endTimeLabel: "End time",
-                clearButtonLabel: "Clear and dismiss",
-                cancelButtonLabel: "Cancel",
-                applyButtonLabel: "Apply",
-              }}
+                {
+                  key: "previous-14-days",
+                  amount: 14,
+                  unit: "day",
+                  type: "relative",
+                },
+                {
+                  key: "previous-7-days",
+                  amount: 7,
+                  unit: "day",
+                  type: "relative",
+                },
+                {
+                  key: "previous-1-day",
+                  amount: 1,
+                  unit: "day",
+                  type: "relative",
+                }
+              ]}
+              i18nStrings={dateRangePickerSettings}
               placeholder="Filter by a date range"
             />
             <ProgressBar
@@ -298,15 +354,12 @@ export default function Cost() {
                 href="https://us-east-1.console.aws.amazon.com/billing/home?#/budgets/overview"
                 target="_blank"
               >
-                {" "}
                 AWS Budgets
               </a>
               .
             </HelpTooltip>
             <Button
-              href={`https://${region}.console.aws.amazon.com/cost-management/home?region=${region}"#/custom?groupBy=InstanceType&hasBlended=false&hasAmortized=false&excludeDiscounts=true&excludeTaggedResources=false&excludeCategorizedResources=false&excludeForecast=false&timeRangeOption=Custom&granularity=Daily&reportName=&reportType=CostUsage&isTemplate=true&filter=${JSON.stringify(
-                urlData
-              )}&chartStyle=Stack&forecastTimeRangeOption=None&usageAs=usageQuantity&startDate=${startUrl}&endDate=${endUrl}`}
+              href={getCostExplorerUrl()}
               target="-blank"
               iconAlign="right"
               iconName="external"
@@ -325,21 +378,7 @@ export default function Cost() {
         series={graphData}
         xDomain={xAxis}
         yDomain={[0, yAxis * 1.9]}
-        i18nStrings={{
-          filterLabel: "Filter displayed data",
-          filterPlaceholder: "Filter data",
-          filterSelectedAriaLabel: "selected",
-          legendAriaLabel: "Legend",
-          chartAriaRoleDescription: "line chart",
-          xTickFormatter: (e) =>
-            e
-              .toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-              })
-              .split(",")
-              .join("\n"),
-        }}
+        i18nStrings={barChartSettings}
         ariaLabel="Stacked bar chart"
         errorText="Error loading data."
         height={300}
@@ -369,25 +408,7 @@ export default function Cost() {
         }
       ></BarChart>
       <Table
-        columnDefinitions={[
-          {
-            id: "variable",
-            header: "Instance Type",
-            cell: (item) => item.name || "-",
-            sortingField: "name",
-          },
-          {
-            id: "alt",
-            header: "Total Cost",
-            cell: (item) => item.alt || "-",
-            sortingField: "alt",
-          },
-          {
-            id: "description",
-            header: "Summary",
-            cell: (item) => item.description || "-",
-          },
-        ]}
+        columnDefinitions={barChartColumns}
         items={tableData}
         loadingText="Loading resources"
         sortingDisabled
@@ -413,6 +434,6 @@ export default function Cost() {
         .
       </div>
     </SpaceBetween>
-  </Container>
+</Container>
   );
 }
