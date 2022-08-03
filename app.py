@@ -181,6 +181,14 @@ def run():
     def logout_():
         return logout()
 
+    @app.route('/<regex("(home|clusters|users|configure|custom-images|official-images).*"):base>', defaults={"base": ""})
+    def catch_all(base):
+        return utils.serve_frontend(app, base)
+
+    @app.route('/<regex("(home|clusters|users|configure|custom-images|official-images).*"):base>/<path:u_path>', defaults={"base": "", "u_path": ""})
+    def catch_all2(base, u_path):
+        return utils.serve_frontend(app, base)
+
     api.add_resource(PclusterApiHandler, "/api")
     return app
 
