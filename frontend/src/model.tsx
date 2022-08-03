@@ -9,13 +9,11 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import axios from 'axios'
-import { store, setState, getState, clearState, updateState, clearAllState } from './store'
-import { enqueueSnackbar as enqueueSnackbarAction } from './redux/snackbar_actions';
-import { closeSnackbar as closeSnackbarAction } from './redux/snackbar_actions';
+import { setState, getState, clearState, updateState, clearAllState } from './store'
 import { USER_ROLES_CLAIM } from './auth/constants';
+import { v4 as uuidv4 } from 'uuid';
 
 // UI Elements
-import Button from '@mui/material/Button';
 import { handleNotAuthorizedErrors } from './auth/handleNotAuthorizedErrors';
 import { AppConfig } from './app-config/types';
 import identityFn from 'lodash/identity';
@@ -28,17 +26,29 @@ const axiosInstance = axios.create({
   baseURL: getHost(),
 });
 
-function notify(text: any, type = 'info', duration = 5000, dismissButton = false) {
-  // @ts-expect-error TS(2556) FIXME: A spread argument must either have a tuple type or... Remove this comment to see the full error message
-  const closeSnackbar = (...args: any[]) => store.dispatch(closeSnackbarAction(...args));
-  store.dispatch(enqueueSnackbarAction(
-    {message: text,
-      options: {
-        variant: type,
-        anchorOrigin: {vertical: 'top', horizontal: 'right'},
-        autoHideDuration: duration,
-        ...(dismissButton ? {action: (key: any) => <Button onClick={() => {closeSnackbar(key)}}>X</Button>} : {})
-      },}));
+function notify(text: any, type='info', id?: string, dismissible=true) {
+
+  let messageId = id || uuidv4();
+  let newMessage = {type: type,
+    content: text,
+    id: messageId,
+    dismissible: dismissible,
+    onDismiss: () => updateState(['app', 'messages'], (currentMessages: Array<any>) => currentMessages.filter(message => message.id !== messageId)),
+  };
+
+  const updateFn = (currentMessages: Array<any>) => {
+    for(let message of (currentMessages || []))
+      if(message.id === messageId)
+      {
+        Object.assign(message, newMessage);
+        return currentMessages;
+      }
+    let newMessages = currentMessages || [];
+    newMessages.push(newMessage);
+    return newMessages;
+  }
+
+  updateState(['app', 'messages'], updateFn);
 }
 
 function getHost() {
@@ -282,7 +292,7 @@ function ListCustomImages(imageStatus?: string, region?: string, callback?: Call
     }
   }).catch((error: any) => {
     if(error.response)
-      notify(`Error retrieving images: ${error.response.data.message}`, 'error', 10000, true);
+      notify(`Error retrieving images: ${error.response.data.message}`, 'error');
     console.log(error)
   })
 }
@@ -296,7 +306,7 @@ function DescribeCustomImage(imageId: any) {
     }
   }).catch((error: any) => {
     if(error.response)
-      notify(`Error (${imageId}): ${error.response.data.message}`, 'error', 10000, true);
+      notify(`Error (${imageId}): ${error.response.data.message}`, 'error');
     console.log(error)
   })
 }
@@ -485,7 +495,7 @@ function GetInstanceTypes(region?: string, callback?: Callback) {
     if(error.response)
     {
       console.log(error.response)
-      notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
+      notify(`Error: ${error.response.data.message}`, 'error');
     }
     console.log(error)
   })
@@ -519,7 +529,7 @@ function LoadAwsConfig(region?: string, callback?: Callback) {
     if(error.response)
     {
       console.log(error.response)
-      notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
+      notify(`Error: ${error.response.data.message}`, 'error');
     }
     console.log(error)
   })
@@ -589,7 +599,7 @@ function GetVersion() {
     if(error.response)
     {
       console.log(error.response)
-      notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
+      notify(`Error: ${error.response.data.message}`, 'error');
     }
     console.log(error)
   })
@@ -607,7 +617,7 @@ function Ec2Action(instanceIds: any, action: any, callback?: Callback) {
     if(error.response)
     {
       console.log(error.response)
-      notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
+      notify(`Error: ${error.response.data.message}`, 'error');
     }
     console.log(error)
   })
@@ -625,7 +635,7 @@ function GetDcvSession(instanceId: any, user: any, callback?: Callback) {
     if(error.response)
     {
       console.log(error.response)
-      notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
+      notify(`Error: ${error.response.data.message}`, 'error');
     }
     console.log(error)
   })
@@ -645,7 +655,7 @@ function QueueStatus(clusterName: any, instanceId: any, user: any, successCallba
     if(error.response)
     {
       console.log(error.response)
-      notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
+      notify(`Error: ${error.response.data.message}`, 'error');
     }
     console.log(error)
   })
@@ -663,7 +673,7 @@ function CancelJob(instanceId: any, user: any, jobId: any, callback?: Callback) 
     if(error.response)
     {
       console.log(error.response)
-      notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
+      notify(`Error: ${error.response.data.message}`, 'error');
     }
     console.log(error)
   })
@@ -682,7 +692,7 @@ function SubmitJob(instanceId: any, user: any, job: any, successCallback?: Callb
     {
       failureCallback && failureCallback(error.response.data.message)
       console.log(error.response)
-      notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
+      notify(`Error: ${error.response.data.message}`, 'error');
     }
     console.log(error)
   })
@@ -703,7 +713,7 @@ function JobInfo(instanceId: any, user: any, jobId: any, successCallback?: Callb
     {
       failureCallback && failureCallback(error.response)
       console.log(error.response)
-      notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
+      notify(`Error: ${error.response.data.message}`, 'error');
     }
     console.log(error)
   })
@@ -723,7 +733,7 @@ function PriceEstimate(clusterName: any, queueName: any, successCallback?: Callb
     {
       failureCallback && failureCallback(error.response)
       console.log(error.response)
-      notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
+      notify(`Error: ${error.response.data.message}`, 'error');
     }
     console.log(error)
   })
@@ -742,7 +752,7 @@ function SlurmAccounting(clusterName: any, instanceId: any, user: any, args: any
     {
       failureCallback && failureCallback(error.response)
       console.log(error.response)
-      notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
+      notify(`Error: ${error.response.data.message}`, 'error');
     }
     console.log(error)
   })
@@ -760,7 +770,7 @@ function GetIdentity(successCallback?: Callback) {
     if(error.response)
     {
       console.log(error.response)
-      notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
+      notify(`Error: ${error.response.data.message}`, 'error');
     }
     console.log(error)
   })

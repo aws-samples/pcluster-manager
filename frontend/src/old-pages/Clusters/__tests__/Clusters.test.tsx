@@ -2,7 +2,6 @@ import { ThemeProvider } from '@emotion/react'
 import { createTheme } from '@mui/material'
 import { render, waitFor, screen, prettyDOM } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { SnackbarProvider } from 'notistack'
 import { I18nextProvider } from 'react-i18next'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { Provider } from 'react-redux'
@@ -28,11 +27,9 @@ const MockProviders = (props: any) => (
     <I18nextProvider i18n={i18n}>
       <Provider store={store}>
         <ThemeProvider theme={createTheme()}>
-          <SnackbarProvider>
             <BrowserRouter>
               {props.children}
             </BrowserRouter>
-          </SnackbarProvider>
         </ThemeProvider>
       </Provider>
     </I18nextProvider>

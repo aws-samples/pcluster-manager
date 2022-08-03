@@ -148,8 +148,7 @@ function ClusterList({ clusters }: ClusterListProps) {
             header: t("cluster.list.cols.version"),
             cell: item => (item as any).version || "-"
         }
-    
-    ]} 
+    ]}
     loading={clusters === null}
     items={items}
     selectionType="single"

@@ -561,7 +561,7 @@ def get_identity():
 
     access_token = request.cookies.get("accessToken")
     id_token = request.cookies.get("idToken")
-    if not access_token:
+    if not (access_token and id_token):
         return {"message": "No access token."}, 401
     try:
         decoded = jwt_decode(access_token)

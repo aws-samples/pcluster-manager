@@ -14,6 +14,7 @@ import { Outlet } from "react-router-dom";
 
 // UI Elements
 import AppLayout from "@awsui/components-react/app-layout";
+import { Flashbar } from "@awsui/components-react";
 
 // Components
 import TopBar from '../components/TopBar';
@@ -21,6 +22,8 @@ import SideBar from '../components/SideBar';
 
 export default function Layout() {
   const navigationOpen = useState(['app', 'sidebar', 'drawerOpen']);
+
+  const messages = useState(['app', 'messages']);
 
   return <>
     <TopBar />
@@ -33,9 +36,13 @@ export default function Layout() {
       splitHide
       navigationOpen={navigationOpen}
       onNavigationChange = {(e) => {setState(['app', 'sidebar', 'drawerOpen'], e.detail.open)}}
-      content={<Outlet />}
+      content={<>
+        <div style={{marginBottom: "30px"}}>
+          <Flashbar items={messages} />
+        </div>
+        <Outlet />
+      </>}
       navigation={<SideBar />}
     />
   </>;
 }
-

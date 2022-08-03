@@ -14,7 +14,7 @@
 import * as React from 'react';
 import i18next from "i18next";
 import { Trans, useTranslation } from 'react-i18next';
-import { findFirst } from '../../util'
+import { findFirst, clamp } from '../../util'
 
 // UI Elements
 import {
@@ -24,12 +24,11 @@ import {
   FormField,
   Header,
   Input,
+  InputProps,
   Select,
   SpaceBetween,
   Toggle,
 } from "@awsui/components-react";
-
-import Slider from '@mui/material/Slider';
 
 // State
 import { getState, setState, useState, clearState } from '../../store'
@@ -43,14 +42,15 @@ import { Storages, StorageType, STORAGE_TYPE_PROPS, UIStorageSettings } from './
 const storagePath = ['app', 'wizard', 'config', 'SharedStorage'];
 const errorsPath = ['app', 'wizard', 'errors', 'sharedStorage'];
 
+// Types
+type StorageTypeOption = [string, string, string];
+
 // Helper Functions
-// @ts-expect-error TS(7031) FIXME: Binding element 'value' implicitly has an 'any' ty... Remove this comment to see the full error message
-function itemToIconOption([value, label, icon]){
-  return {value: value, label: label, ...(icon ? {iconUrl: icon} : {})}
+function itemToIconOption([value, label, icon]: StorageTypeOption){
+  return {value: value, label: label, iconUrl: icon}
 }
 
-// @ts-expect-error TS(7031) FIXME: Binding element 'value' implicitly has an 'any' ty... Remove this comment to see the full error message
-function itemToDisplayIconOption([value, label, icon]){
+function itemToDisplayIconOption([value, label, icon]: StorageTypeOption){
   return {value: value, label: (icon ? <LabeledIcon label={label} icon={icon} /> : label)}
 }
 
@@ -147,21 +147,25 @@ function FsxLustreSettings({
       clearState(exportPathPath);
   }
 
+  const capacityMin = 1200;
+  const capacityMax = 100800;
+  const capacityStep = 1200;
+
+  const clampCapacity = (inCapacityStr: string) => {
+    return clamp(parseInt(inCapacityStr), capacityMin, capacityMax, capacityStep).toString();
+  }
+
   return (
     <ColumnLayout columns={2} borders="vertical">
       <div key="capacity" style={{display: "flex", flexDirection: "column"}}>
         <Trans i18nKey="wizard.storage.Fsx.capacity.label" values={{storageCapacity: storageCapacity}} />
-        <Slider
-          disabled={editing}
-          aria-label="Storage Capacity"
-          defaultValue={1200}
-          getAriaValueText={(v) => {return `${v} GB`}}
-          valueLabelDisplay="auto"
+        <Input
           value={storageCapacity}
-          onChange={((e) => {setState(storageCapacityPath, (e.target as any).value);})}
           step={1200}
-          min={1200}
-          max={100800}
+          onChange={({detail}) => {setState(storageCapacityPath, detail.value)}}
+          onBlur={(_e) => {setState(storageCapacityPath, clampCapacity(storageCapacity))}}
+          type="number"
+          disabled={editing}
         />
       </div>
       <div key="lustre-type" style={{display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
@@ -169,8 +173,7 @@ function FsxLustreSettings({
           <Trans i18nKey="wizard.storage.Fsx.lustreType.label" values={{storageCapacity: storageCapacity}} />
           <Select
             disabled={editing}
-            // @ts-expect-error TS(2322) FIXME: Type '{ disabled: any; selectedOption: { value: an... Remove this comment to see the full error message
-            selectedOption={strToOption(lustreType || 'PERSISTENT_1')} label="FSx Lustre Type" onChange={({detail}) => {
+            selectedOption={strToOption(lustreType || 'PERSISTENT_1')} onChange={({detail}) => {
               setState(lustreTypePath, detail.selectedOption.value);
               if(detail.selectedOption.value === 'PERSISTENT_1') {
                 setState(storageThroughputPath, 200);
@@ -252,7 +255,6 @@ function FsxLustreSettings({
 function EfsSettings({
   index
 }: any) {
-  const { t } = useTranslation();
   const efsPath = [...storagePath, index, 'EfsSettings'];
   const encryptedPath = [...efsPath, 'Encrypted'];
   const kmsPath = [...efsPath, 'KmsKeyId'];
@@ -299,7 +301,7 @@ function EfsSettings({
                 KMS ID:
               </div>
               <div style={{display: "flex", flexShrink: 1}}>
-                <Input value={kmsId} onChange={(({detail}) => {setState(kmsPath, detail.value)})} />
+                <Input value={kmsId} onChange={({detail}) => {setState(kmsPath, detail.value)}} />
               </div>
             </div>
             }
@@ -320,7 +322,7 @@ function EfsSettings({
         </div>
         <div style={{display: "flex", flexDirection: "column", gap: "10px"}}>
           <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
-            <Toggle checked={throughputMode !== 'bursting'} onChange={(event) => {
+            <Toggle checked={throughputMode !== 'bursting'} onChange={(_event) => {
               setState(throughputModePath, throughputMode === 'bursting' ? 'provisioned' : 'bursting' );
               if(throughputMode === 'provisioned')
                 setState(provisionedThroughputPath, 128)
@@ -339,8 +341,10 @@ function EfsSettings({
             <div style={{display: "flex", flexShrink: 1}}>
               <Input
                 type="number"
-                // @ts-expect-error TS(2322) FIXME: Type 'number' is not assignable to type 'string'.
-                value={Math.max(Math.min(provisionedThroughput, 1024), 1)} onChange={(({detail}) => {setState(provisionedThroughputPath, Math.max(Math.min(detail.value, 1024), 1))})} />
+                value={clamp(parseInt(provisionedThroughput), 1, 1024).toString()}
+                onChange={({detail}) => {
+                  console.log("value: ", detail.value, parseInt(detail.value));
+                  setState(provisionedThroughputPath, clamp(parseInt(detail.value), 1, 1024).toString())}} />
             </div>
           </div>
           }
@@ -418,9 +422,8 @@ function EbsSettings({
             <FormField errorText = {volumeErrors}>
               <Input
                 disabled={editing}
-                style={{marginTop: 10}}
-                // @ts-expect-error TS(2322) FIXME: Type '"decimal"' is not assignable to type 'Type |... Remove this comment to see the full error message
-                type="decimal"
+                inputMode={'decimal'}
+                type={'number' as InputProps.Type}
                 value={volumeSize}
                 onChange={({detail}) => {setState(volumeSizePath, detail.value); validated && storageValidate()}} />
             </FormField>
@@ -454,12 +457,11 @@ function EbsSettings({
 
       <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
         <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
-          <Toggle checked={snapshotId !== null} onChange={(event) => {setState(snapshotIdPath, snapshotId === null ? '' : null )}}><Trans i18nKey="wizard.storage.Ebs.snapshotId.label" /></Toggle>
+          <Toggle checked={snapshotId !== null} onChange={(_event) => {setState(snapshotIdPath, snapshotId === null ? '' : null )}}><Trans i18nKey="wizard.storage.Ebs.snapshotId.label" /></Toggle>
           { snapshotId !== null &&
           <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
             :
-            {/* @ts-expect-error TS(2322) FIXME: Type '{ style: { marginBottom: number; }; value: a... Remove this comment to see the full error message */}
-            <Input style={{ marginBottom: 10}} value={snapshotId} onChange={(({detail}) => {setState(snapshotIdPath, detail.value)})} />
+            <Input value={snapshotId} onChange={(({detail}) => {setState(snapshotIdPath, detail.value)})} />
           </div>
           }
         </div>
@@ -513,8 +515,8 @@ function StorageInstance({
 
   const canToggle = (useExisting && canCreateStorage(storageType, storages, uiStorageSettings)) ||
                     (!useExisting && canAttachExistingStorage(storageType, storages, uiStorageSettings));
-  
-  const removeStorage = (type: any) => {
+
+  const removeStorage = () => {
     if(index === 0 && storages.length === 1)
       clearState(storagePath);
     else
@@ -587,8 +589,7 @@ function StorageInstance({
                   "FsxLustre": <FormField label="FSx Lustre Filesystem">
                     <Select
                       placeholder="Please Select"
-                      // @ts-expect-error TS(2322) FIXME: Type '{ placeholder: string; selectedOption: any; ... Remove this comment to see the full error message
-                      selectedOption={existingId && idToOption(existingId)} label="FSx Filesystem" onChange={({detail}) => {setState(existingPath, detail.selectedOption.value)}}
+                      selectedOption={existingId && idToOption(existingId)} onChange={({detail}) => {setState(existingPath, detail.selectedOption.value)}}
                       options={fsxFilesystems.lustre.map((fs: any) => ({
                         value: fs.id,
                         label: fs.displayName
@@ -598,8 +599,7 @@ function StorageInstance({
                   "FsxOpenZfs": <FormField label="Existing FSx OpenZFS volume">
                     <Select
                       placeholder="Please Select"
-                      // @ts-expect-error TS(2322) FIXME: Type '{ placeholder: string; selectedOption: any; ... Remove this comment to see the full error message
-                      selectedOption={existingId && idToOption(existingId)} label="FSx OpenZFS volume" onChange={({detail}) => {setState(existingPath, detail.selectedOption.value)}}
+                      selectedOption={existingId && idToOption(existingId)} onChange={({detail}) => {setState(existingPath, detail.selectedOption.value)}}
                       options={fsxVolumes.zfs.map((vol: any) => ({
                         value: vol.id,
                         label: vol.displayName
@@ -609,8 +609,7 @@ function StorageInstance({
                   "FsxOntap": <FormField label="Existing FSx NetApp ONTAP volume">
                     <Select
                       placeholder="Please Select"
-                      // @ts-expect-error TS(2322) FIXME: Type '{ placeholder: string; selectedOption: any; ... Remove this comment to see the full error message
-                      selectedOption={existingId && idToOption(existingId)} label="FSx ONTAP volume" onChange={({detail}) => {setState(existingPath, detail.selectedOption.value)}}
+                      selectedOption={existingId && idToOption(existingId)} onChange={({detail}) => {setState(existingPath, detail.selectedOption.value)}}
                       options={fsxVolumes.ontap.map((vol: any) => ({
                         value: vol.id,
                         label: vol.displayName
@@ -619,9 +618,8 @@ function StorageInstance({
                   </FormField>,
                   "Efs": <FormField label="EFS Filesystem">
                     <Select
-                      // @ts-expect-error TS(2322) FIXME: Type '{ selectedOption: { label: any; value: any; ... Remove this comment to see the full error message
-                      selectedOption={idToOption(existingId || "")} label="EFS Filesystem" onChange={({detail}) => {setState(existingPath, detail.selectedOption.value)}}
-                      options={efsFilesystems.map((x: any, i: any) => {return {value: x.FileSystemId, label: (x.FileSystemId + (x.Name ? ` (${x.Name})` : ""))}})}
+                      selectedOption={idToOption(existingId || "")} onChange={({detail}) => {setState(existingPath, detail.selectedOption.value)}}
+                      options={efsFilesystems.map((x: any) => {return {value: x.FileSystemId, label: (x.FileSystemId + (x.Name ? ` (${x.Name})` : ""))}})}
                     />
                   </FormField>}[storageType]
             }
@@ -645,12 +643,12 @@ function Storage() {
   const storageType = useState(['app', 'wizard', 'storage', 'type']);
   const versionMinor = useState(['app', 'version', 'minor']);
 
-  const storageMaxes = {"FsxLustre": 21, "FsxOntap": 20, "FsxOpenZfs": 20, "Efs": 21, "Ebs": 5}
-  
+  const storageMaxes: Record<string, number> = {"FsxLustre": 21, "FsxOntap": 20, "FsxOpenZfs": 20, "Efs": 21, "Ebs": 5}
+
   /*
     Activate ONTAP/OpenZFS only from ParallelCluster 3.2.0
    */
-  const storageTypesSource = versionMinor >= 2 ? [
+  const storageTypesSource: StorageTypeOption[] = versionMinor >= 2 ? [
     ["FsxLustre", "Amazon FSx for Lustre (FSX)", "/img/fsx.svg"],
     ["FsxOntap", "Amazon FSx for NetApp ONTAP (FSX)", "/img/fsx.svg"],
     ["FsxOpenZfs", "Amazon FSx for OpenZFS (FSX)", "/img/fsx.svg"],
@@ -671,10 +669,8 @@ function Storage() {
   }
   const storageCounts = storages ? storages.reduce(storageReducer, defaultCounts) : defaultCounts;
 
-  // @ts-expect-error TS(2769) FIXME: No overload matches this call.
-  const storageTypes = storageTypesSource.reduce((newStorages, storageType) => {
+  const storageTypes = storageTypesSource.reduce((newStorages: StorageTypeOption[], storageType: StorageTypeOption) => {
     const st = storageType[0];
-    // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
     return storageCounts[st] >= storageMaxes[st] ? newStorages : [...newStorages, storageType];
   }, [])
 
@@ -683,7 +679,7 @@ function Storage() {
 
     const useExistingPath = ['app', 'wizard', 'storage', newIndex, 'useExisting'];
     setState(useExistingPath, !canCreateStorage(storageType, storages, uiStorageSettings));
-    
+
     if(!storages)
       setState(storagePath, [{Name: `${storageType}${newIndex}`, StorageType: storageType, MountDir: '/shared'}]);
     else
@@ -710,7 +706,6 @@ function Storage() {
                 placeholder="Please Select a Filesystem Type"
                 selectedOption={storageType && itemToDisplayIconOption(findFirst(storageTypes, (s: any) => {return s[0] === storageType}))}
                 onChange={({detail}) => {setStorageType(detail.selectedOption.value)}}
-                // @ts-expect-error TS(2345) FIXME: Argument of type '([value, label, icon]: [any, any... Remove this comment to see the full error message
                 options={storageTypes.map(itemToIconOption)}
               />
               <Button onClick={addStorage} disabled={!storageType} iconName={"add-plus"}>Add Storage</Button>
