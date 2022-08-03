@@ -24,7 +24,7 @@ Parameters:
   Version:
     Description: Version of AWS ParallelCluster to deploy
     Type: String
-    Default: 3.1.4
+    Default: 3.2.0
   ImageBuilderVpcId:
     Description: (Optional) Select the VPC to use for building the container images. If not selected, default VPC will be used.
     Type: String
@@ -71,8 +71,8 @@ Conditions:
 Mappings:
   PclusterManager:
     Constants:
-      Version: 3.1.4
-      ShortVersion: 3.1.4
+      Version: 3.2.0
+      ShortVersion: 3.2.0
 
 Resources:
 
