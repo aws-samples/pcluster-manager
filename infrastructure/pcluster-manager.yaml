@@ -429,7 +429,7 @@ Resources:
     Properties:
       ServiceToken: !GetAtt CognitoPostActionsFunction.Arn
       LoginURL: !Sub
-       - https://${Api}.execute-api.${AWS::Region}.${AWS::URLSuffix}/login
+       - https://${Api}.execute-api.${AWS::Region}.${AWS::URLSuffix}
        - Api: !Ref ApiGateway
       UserPoolId: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]
 
