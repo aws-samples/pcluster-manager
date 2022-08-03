@@ -54,7 +54,6 @@ function CustomImageConfiguration() {
   const configuration = useState([...customImagesPath, 'config']);
   React.useEffect(() => {
     const imageId = getState([...customImagesPath, 'selected']);
-    // @ts-expect-error TS(2345) FIXME: Argument of type '(configuration: any) => void' is... Remove this comment to see the full error message
     GetCustomImageConfiguration(imageId, (configuration: any) => {setState([...customImagesPath, 'config'], configuration)});
   }, [])
 

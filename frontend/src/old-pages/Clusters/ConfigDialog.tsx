@@ -67,7 +67,6 @@ export default function ConfigDialog() {
               iconName="download"
               disabled={cluster && cluster.clusterStatus === 'CREATE_FAILED'}
               onClick={() => {
-                // @ts-expect-error TS(2345) FIXME: Argument of type '(configuration: any) => void' is... Remove this comment to see the full error message
                 GetConfiguration(clusterName, (configuration: any) => {
                   const blob = new Blob([configuration], {type: 'text/yaml'});
                   downloadBlob(blob, 'config.yaml')});

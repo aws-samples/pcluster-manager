@@ -87,12 +87,11 @@ function RegionSelect() {
     detail
   }: any) => {
     const chosenRegion = detail.selectedOption.value === "Default" ? null : detail.selectedOption.value;
-    // @ts-expect-error TS(2554) FIXME: Expected 2 arguments, but got 1.
     LoadAwsConfig(chosenRegion);
     setState(['app', 'wizard', 'vpc'], null)
     setState(['app', 'wizard', 'headNode', 'subnet'], null)
     if(queues)
-      queues.forEach((queue: any, i: any) => {
+      queues.forEach((_queue: any, i: any) => {
         clearState(['app', 'wizard', 'queues', i, "subnet"]);
       })
     setState(['app', 'wizard', 'config', 'Region'], chosenRegion);

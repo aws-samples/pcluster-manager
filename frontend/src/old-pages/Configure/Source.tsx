@@ -44,7 +44,6 @@ const sourceErrorsPath = ['app', 'wizard', 'errors', 'source'];
 function copyFrom(sourceClusterName: any)
 {
   const loadingPath = ['app', 'wizard', 'source', 'loading'];
-  // @ts-expect-error TS(2345) FIXME: Argument of type '(configuration: any) => void' is... Remove this comment to see the full error message
   GetConfiguration(sourceClusterName, (configuration: any) => {
     loadTemplate(jsyaml.load(configuration), () => setState(loadingPath, false));
   });
