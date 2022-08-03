@@ -275,7 +275,7 @@ function GetClusterLogEvents(clusterName: any, logStreamName: any, successCallba
 function ListCustomImages(imageStatus?: string, region?: string, callback?: Callback) {
   imageStatus ||= "AVAILABLE";
   var url;
-  if(region === undefined)
+  if(!region)
     url = `api?path=/v3/images/custom&imageStatus=${imageStatus}`;
   else
     url = `api?path=/v3/images/custom&imageStatus=${imageStatus}&region=${region}`;
@@ -479,7 +479,7 @@ function GetCustomImageLogEvents(imageId: any, logStreamName: any) {
 
 function GetInstanceTypes(region?: string, callback?: Callback) {
   var url;
-  if(region === undefined) {
+  if(!region) {
     url = `manager/get_instance_types`
   } else {
     url = `manager/get_instance_types?region=${region}`
@@ -507,7 +507,7 @@ function LoadAwsConfig(region?: string, callback?: Callback) {
   ListCustomImages("AVAILABLE", region, (images: any) => setState(['app', 'wizard', 'customImages'], images));
   ListOfficialImages(region).then(images => setState(['app', 'wizard', 'officialImages'], images));
 
-  if(region === undefined) {
+  if(!region) {
     url = `manager/get_aws_configuration`
   } else {
     url = `manager/get_aws_configuration?region=${region}`
