@@ -2,7 +2,7 @@
 set -e
 
 ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
-ECR_ENDPOINT="${ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
+ECR_ENDPOINT="${ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com"
 ECR_REPO=pcluster-manager-awslambda
 
 USAGE="$(basename "$0") [-h] [--release] [--tag TAG]"
