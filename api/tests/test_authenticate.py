@@ -22,6 +22,21 @@ def test_authenticate_with_no_access_token_returns_401(mocker, app):
 
         mock_abort.assert_called_once_with(401)
 
+def test_authenticate_with_access_token_no_id_token_returns_401(mocker, app):
+    with app.test_request_context(headers={'Cookie': 'accessToken=access-token'}):
+        mock_abort = mocker.patch('api.PclusterApiHandler.abort')
+
+        authenticate('any-group')
+
+        mock_abort.assert_called_once_with(401)
+
+def test_authenticate_with_id_token_no_access_token_returns_401(mocker, app):
+    with app.test_request_context(headers={'Cookie': 'idToken=access-token'}):
+        mock_abort = mocker.patch('api.PclusterApiHandler.abort')
+
+        authenticate('any-group')
+
+        mock_abort.assert_called_once_with(401)
 
 def test_authenticate_with_expired_signature_returns_401(mocker, app):
     with app.test_request_context(headers={'Cookie': 'accessToken=access-token'}):
