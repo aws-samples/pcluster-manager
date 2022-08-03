@@ -14,7 +14,6 @@ import { setState, useState, isGuest, isUser, isAdmin } from '../store'
 
 // UI Elements
 import Divider from '@mui/material/Divider';
-import useNotifier from '../redux/useNotifier';
 
 // Icons
 import GridOnIcon from '@mui/icons-material/GridOn';
@@ -24,9 +23,9 @@ import HomeIcon from '@mui/icons-material/Home';
 import GroupIcon from '@mui/icons-material/Group';
 import { useTranslation } from 'react-i18next';
 
-export function SideBarIcons(props: any) {
+export function SideBarIcons() {
   const drawerOpen = useState(['app', 'sidebar', 'drawerOpen']);
-  
+
   const location = useLocation();
   let defaultPage = isGuest() ? "home" : "clusters";
   let section = location && location.pathname && location.pathname.substring(1);
@@ -62,10 +61,9 @@ export function SideBarIcons(props: any) {
   )
 }
 
-export default function SideBar(props: any) {
+export default function SideBar() {
   const drawerOpen = useState(['app', 'sidebar', 'drawerOpen']);
   const { t } = useTranslation();
-  useNotifier();
 
   const location = useLocation();
   let defaultPage = isGuest() ? "home" : "clusters";
