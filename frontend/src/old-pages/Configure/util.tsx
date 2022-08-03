@@ -14,7 +14,7 @@ import { setState, getState, clearState } from '../../store'
 import { LoadAwsConfig } from '../../model'
 import { getIn, setIn } from '../../util'
 
-function loadTemplateLazy(config: any, callback: any)
+function loadTemplateLazy(config: any, callback?: () => void)
 {
   const loadingPath = ['app', 'wizard', 'source', 'loading'];
   const subnets = getState(['aws', 'subnets']) || [];
@@ -103,7 +103,6 @@ export default function loadTemplate(config: any, callback: any) {
   if(!getIn(config, ['Region']) || region === getIn(config, ['Region']))
   {
     config['Region'] = region;
-    // @ts-expect-error TS(2554) FIXME: Expected 2 arguments, but got 1.
     loadTemplateLazy(config);
   }
   else

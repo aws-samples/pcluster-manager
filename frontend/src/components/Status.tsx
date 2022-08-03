@@ -16,6 +16,8 @@ import HelpTooltip from '../components/HelpTooltip'
 import { Link, StatusIndicator, StatusIndicatorProps } from "@awsui/components-react";
 import { useState } from '../store'
 
+export type StatusMap = Record<string, StatusIndicatorProps.Type>
+
 function ClusterFailedHelp({
   clusterName
 }: any) {
@@ -38,22 +40,31 @@ function ClusterFailedHelp({
 
 export default function Status({
   status,
-  cluster
-}: {status: string, cluster?: any}) {
+  cluster,
+  statusMapOverrides
+}: {status: string, cluster?: any, statusMapOverrides?: StatusMap}) {
   const failedStatuses = new Set(['CREATE_FAILED', 'DELETE_FAILED', 'UPDATE_FAILED']);
 
-  const statusMap: Record<string, StatusIndicatorProps.Type> = {"CREATE_IN_PROGRESS": 'in-progress',
-    "CREATE_COMPLETE": 'success',
-    "CREATE_FAILED": 'error',
-    "DELETE_IN_PROGRESS": 'in-progress',
-    "DELETE_FAILED": 'error',
-    "RUNNING": 'success',
-    "STOPPED": 'error',
-    "STOP_REQUESTED": 'in-progress',
-    "UPDATE_FAILED": 'error',
-    "UPDATE_IN_PROGRESS": 'in-progress',
-    "UNKNOWN": 'error',
-    "UPDATE_COMPLETE": 'success'};
+  const defaultStatusMap: StatusMap = {'CREATE_IN_PROGRESS': 'in-progress',
+    'CREATE_COMPLETE': 'success',
+    'CREATE_FAILED': 'error',
+    'CANCELLED': 'error',
+    'CONFIGURING': 'in-progress',
+    'COMPLETING': 'in-progress',
+    'COMPLETED': 'success',
+    'DELETE_IN_PROGRESS': 'in-progress',
+    'DELETE_FAILED': 'error',
+    'FAILED': 'error',
+    'RUNNING': 'success',
+    'STOPPED': 'error',
+    'SUCCESS': 'success',
+    'STOP_REQUESTED': 'in-progress',
+    'UPDATE_FAILED': 'error',
+    'UPDATE_IN_PROGRESS': 'in-progress',
+    'UNKNOWN': 'error',
+    'UPDATE_COMPLETE': 'success'};
+
+  const statusMap: StatusMap = {...defaultStatusMap, ...(statusMapOverrides || {})}
 
   if(!(status in statusMap))
     return <span>{status ? status.replaceAll("_", " ") : "<unknown>"}</span>

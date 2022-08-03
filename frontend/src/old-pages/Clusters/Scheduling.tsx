@@ -15,8 +15,6 @@ import { QueueStatus, CancelJob, JobInfo } from '../../model'
 import { clusterDefaultUser, findFirst } from '../../util'
 import { useCollection } from '@awsui/collection-hooks';
 
-import { useTheme } from '@mui/material/styles';
-
 // UI Elements
 import {
   Button,
@@ -33,20 +31,25 @@ import {
 
 import JobSubmitDialog from './JobSubmitDialog'
 
-// Icons
-import CancelIcon from '@mui/icons-material/Cancel';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import CircularProgress from '@mui/material/CircularProgress';
-
 // Components
+import Status from "../../components/Status";
 import EmptyState from '../../components/EmptyState';
 import Loading from '../../components/Loading'
+
+type Job = {
+  job_id: string,
+  name: string,
+  partition: string,
+  nodes: string,
+  job_state: string,
+  time: string
+}
 
 // Key:Value pair (label / children)
 const ValueWithLabel = ({
   label,
   children
-}: any) => (
+}: {label: string, children?: React.ReactNode}) => (
   <div>
     <Box margin={{ bottom: 'xxxs' }} color="text-label">
       {label}
@@ -55,7 +58,7 @@ const ValueWithLabel = ({
   </div>
 );
 
-function refreshQueues(callback: any) {
+function refreshQueues(callback?: (arg: any) => void) {
   const clusterName = getState(['app', 'clusters', 'selected']);
   const region = getState(['aws', 'region']);
   if(clusterName){
@@ -67,29 +70,11 @@ function refreshQueues(callback: any) {
   }
 }
 
-function Status(props: any) {
-  const theme = useTheme();
-  const aligned = (icon: any, text: any, color: any) => <div style={{
-    color: color || 'black',
-    display: 'flex',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-  }}>
-    {icon}
-    <span style={{display: 'inline-block', paddingLeft: '10px'}}> {text}</span>
-  </div>
-  const statusMap = {"CANCELLED": aligned(<CancelIcon />, props.status, theme.palette.error.main),
-    "CONFIGURING": aligned(<CircularProgress size={15} color='info' />, props.status, theme.palette.info.main),
-    "RUNNING": aligned(<CheckCircleOutlineIcon />, props.status, theme.palette.success.main),};
-  // @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message
-  return props.status in statusMap ? statusMap[props.status] : <span>{props.status}</span>;
-}
-
 function JobActions({
   job,
   disabled,
   cancelCallback
-}: any) {
+}: {job: Job, disabled: boolean, cancelCallback?: () => void}) {
   let pendingPath = ['app', 'clusters', 'queue', 'action', job.job_id, 'pending'];
   const pending = useState(pendingPath);
 
@@ -117,7 +102,7 @@ function JobActions({
 function FileLink({
   path,
   isFile
-}: any) {
+}: {path: string, isFile?: boolean}) {
   const clusterName = useState(['app', 'clusters', 'selected']);
   const clusterPath = ['clusters', 'index', clusterName];
   const defaultRegion = useState(['aws', 'region']);
@@ -192,9 +177,8 @@ function JobModal() {
       footer={
         <Box float="right">
           <SpaceBetween direction="horizontal" size="xs">
-            {job && <JobActions job={{job_id: job.JobId, job_state: job.JobState}} disabled={fleetStatus !== "RUNNING"} cancelCallback={close}/>}
-            {/* @ts-expect-error TS(2322) FIXME: Type '{ children: string; onClick: () => void; aut... Remove this comment to see the full error message */}
-            <Button onClick={close} autoFocus>Close</Button>
+            {job && <JobActions job={{job_id: job.JobId, job_state: job.JobState, name: job.JobName, partition: job.Partition, nodes: job.NodeList, time: job.RunTime}} disabled={fleetStatus !== "RUNNING"} cancelCallback={close}/>}
+            <Button onClick={close}>Close</Button>
           </SpaceBetween>
         </Box>
       }
@@ -223,10 +207,8 @@ export default function ClusterScheduling() {
 
   React.useEffect(() => {
     const tick = () => {
-      // @ts-expect-error TS(2554) FIXME: Expected 1 arguments, but got 0.
       clusterMinor > 0 && ssmEnabled && refreshQueues();
     }
-    // @ts-expect-error TS(2554) FIXME: Expected 1 arguments, but got 0.
     clusterMinor > 0 && ssmEnabled && refreshQueues();
     const timerId = setInterval(tick, 10000);
     return () => { clearInterval(timerId); }
@@ -236,7 +218,7 @@ export default function ClusterScheduling() {
     setState(['app', 'clusters', 'jobInfo', 'data'], jobInfo);
   }
 
-  const selectJob = (jobId: any) => {
+  const selectJob = (jobId: string) => {
     const clusterName = getState(['app', 'clusters', 'selected']);
     if(clusterName){
       const clusterPath = ['clusters', 'index', clusterName];
@@ -245,8 +227,7 @@ export default function ClusterScheduling() {
       const headNode = getState([...clusterPath, 'headNode']);
       clearState(['app', 'clusters', 'jobInfo', 'data']);
       headNode && setState(['app', 'clusters', 'jobInfo', 'dialog'], true);
-      // @ts-expect-error TS(2554) FIXME: Expected 6 arguments, but got 5.
-      headNode && JobInfo(clusterName, headNode.instanceId, user, jobId, selectJobCallback);
+      headNode && JobInfo(headNode.instanceId, user, jobId, selectJobCallback);
     }
   }
 
@@ -284,43 +265,43 @@ export default function ClusterScheduling() {
                 {
                     id: "id",
                     header: "ID",
-                    cell: item => <Link onFollow={() => selectJob((item as any).job_id)}>{(item as any).job_id}</Link>,
+                    cell: (job: Job) => <Link onFollow={() => selectJob(job.job_id)}>{job.job_id}</Link>,
                     sortingField: "job_id"
                 },
                 {
                     id: "name",
                     header: "name",
-                    cell: item => (item as any).name,
+                    cell: (job: Job) => job.name,
                     sortingField: "name"
                 },
                 {
                     id: "partition",
                     header: "partition",
-                    cell: item => (item as any).partition,
+                    cell: (job: Job) => job.partition,
                     sortingField: "partition"
                 },
                 {
                     id: "nodes",
                     header: "nodes",
-                    cell: item => (item as any).nodes,
+                    cell: (job: Job) => job.nodes,
                     sortingField: "nodes"
                 },
                 {
                     id: "state",
                     header: "state",
-                    cell: item => <Status status={(item as any).job_state}/>,
+                    cell: (job: Job) => <Status status={job.job_state}/>,
                     sortingField: "job_state"
                 },
                 {
                     id: "time",
                     header: "time",
-                    cell: item => (item as any).time,
+                    cell: (job: Job) => job.time,
                     sortingField: "time"
                 },
                 {
                     id: "actions",
                     header: "Actions",
-                    cell: item => <JobActions disabled={fleetStatus !== "RUNNING"} job={item}/>,
+                    cell: (job: Job) => <JobActions disabled={fleetStatus !== "RUNNING"} job={job}/>,
                 },
             ]} items={items} loadingText="Loading jobs..." pagination={<Pagination {...paginationProps}/>} filter={<TextFilter {...filterProps} countText={`Results: ${filteredItemsCount}`} filteringAriaLabel="Filter jobs"/>}/> : <div style={{ textAlign: "center", paddingTop: "40px" }}><Loading /></div>)}
     {clusterMinor === 0 && <div>Scheduling is only available in clusters with version 3.1.x and greater.</div>}

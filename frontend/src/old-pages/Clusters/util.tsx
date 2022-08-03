@@ -19,7 +19,6 @@ export function selectCluster(clusterName: any, navigate: any)
   const name = clusterName;
   let config_path = ['clusters', 'index', name, 'config'];
   clearState(['clusters', 'index', name]);
-  // @ts-expect-error TS(2345) FIXME: Argument of type '(configuration: any) => void' is... Remove this comment to see the full error message
   GetConfiguration(name, (configuration: any) => {
     setState(['clusters', 'index', name, 'configYaml'], configuration);
     setState(config_path, jsyaml.load(configuration))});
