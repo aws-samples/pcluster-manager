@@ -51,7 +51,8 @@ const knownExtensions = [{name: 'Cloud9', path: 'cloud9.sh', description: 'Cloud
   {name: 'Spack', path: "spack.sh", description: 'Install Spack package manager.', args:[{name: 'Spack Root'}]},
   {name: 'Memory', path: "mem.sh", description: 'Setup Memory Resource in Slurm.', args:[]},
   {name: 'Cost Tags', path: "cost-tags.sh", description: 'Set cost tags on compute instances.', args:[]},
-  {name: 'All or Nothing Scaling', path: "all-or-nothing.sh", description: 'Sets up all-or-nothing scaling behaviour.', args:[]}
+  {name: 'All or Nothing Scaling', path: "all-or-nothing.sh", description: 'Sets up all-or-nothing scaling behaviour.', args:[]},
+  {name: 'On-Demand Capacity Reservation', path: "odcr.sh", description: 'Associates an existing capacity reservation with a queue. See [On-Demand Capacity Reservations with AWS ParallelCluster](https://docs.aws.amazon.com/parallelcluster/latest/ug/launch-instances-odcr-v3.html)', args:[{name: 'Queue Name', default: 'queue0'}, {name: 'Compute Resource', default: 'queue0-p4d24xlarge'}, {name: 'Capacity Reservation Group', default: 'EC2CRGroup'}]}
 ]
 
 // Selectors
