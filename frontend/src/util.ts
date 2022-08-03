@@ -70,4 +70,12 @@ function clusterDefaultUser(cluster: any) {
     "centos7": "centos"}[os]
 }
 
-export { getIn, swapIn, setIn, updateIn, findFirst, clusterDefaultUser }
+function clamp(num: number, min: number, max: number, step?: number): number
+{
+  step ||= 1;
+  const clamped = Math.max(min, Math.min(max, num));
+  const remain = clamped % step;
+  return clamped - remain;
+}
+
+export { clamp, getIn, swapIn, setIn, updateIn, findFirst, clusterDefaultUser }
