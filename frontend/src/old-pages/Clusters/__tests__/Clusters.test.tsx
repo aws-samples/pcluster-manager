@@ -1,16 +1,15 @@
 import { ThemeProvider } from '@emotion/react'
 import { createTheme } from '@mui/material'
-import { render, waitFor, screen, prettyDOM } from '@testing-library/react'
+import { render, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { SnackbarProvider } from 'notistack'
 import { I18nextProvider } from 'react-i18next'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { Provider } from 'react-redux'
-import { BrowserRouter, useNavigate } from 'react-router-dom'
+import { BrowserRouter } from 'react-router-dom'
 import i18n from '../../../i18n'
 import { ListClusters } from '../../../model'
-import { store, isAdmin } from '../../../store'
-import Clusters from '../Clusters'
+import { store, clearState, setState } from '../../../store'
+import Clusters, { onClustersUpdate } from '../Clusters'
 
 
 const queryClient = new QueryClient();
@@ -28,11 +27,9 @@ const MockProviders = (props: any) => (
     <I18nextProvider i18n={i18n}>
       <Provider store={store}>
         <ThemeProvider theme={createTheme()}>
-          <SnackbarProvider>
             <BrowserRouter>
               {props.children}
             </BrowserRouter>
-          </SnackbarProvider>
         </ThemeProvider>
       </Provider>
     </I18nextProvider>
@@ -46,13 +43,15 @@ jest.mock('../../../model', () => ({
 jest.mock('../../../store', () => ({
   ...jest.requireActual('../../../store') as any,
   isAdmin: () => true,
+  setState: jest.fn(),
+  clearState: jest.fn(),
 }));
 
-const mockedUseNavigate = jest.fn();
+const mockNavigate = jest.fn();
 
 jest.mock('react-router-dom', () => ({
    ...jest.requireActual('react-router-dom') as any,
-  useNavigate: () => mockedUseNavigate,
+  useNavigate: () => mockNavigate,
 }));
 
 describe('given a component to show the clusters list', () => {
@@ -60,7 +59,7 @@ describe('given a component to show the clusters list', () => {
   describe('when the clusters list is available', () => {
     beforeEach(() => {
       (ListClusters as jest.Mock).mockResolvedValue(mockClusters);
-      mockedUseNavigate.mockReset();
+      mockNavigate.mockReset();
     });
 
     it('should render the clusters', async () => {
@@ -84,7 +83,7 @@ describe('given a component to show the clusters list', () => {
         ))       
         
         await userEvent.click(output.getByRole('radio'))
-        expect(mockedUseNavigate).toHaveBeenCalledWith('/clusters/test-cluster')
+        expect(mockNavigate).toHaveBeenCalledWith('/clusters/test-cluster')
       })
     })
 
@@ -97,7 +96,7 @@ describe('given a component to show the clusters list', () => {
         ))       
         
         await userEvent.click(output.getByText('Create Cluster'))
-        expect(mockedUseNavigate).toHaveBeenCalledWith('/configure')
+        expect(mockNavigate).toHaveBeenCalledWith('/configure')
       })
     })
   })
@@ -118,3 +117,36 @@ describe('given a component to show the clusters list', () => {
     }) 
   }) 
 })
+
+describe("Given a list of clusters", () => {
+  beforeEach(() => jest.resetAllMocks()); 
+  describe("when a cluster is selected and the list is updated", () => {
+    describe("when the cluster has a new status", () => {
+      it("should be saved", () => {
+        onClustersUpdate("test-cluster", mockClusters, "CREATE_IN_PROGRESS", mockNavigate);
+
+        expect(setState).toHaveBeenCalledWith(['app', 'clusters', 'selectedStatus'], "CREATE_COMPLETE");
+      });
+    });
+
+    describe("when the cluster has the same status", () => {
+      it("should not be updated", () => {
+        onClustersUpdate("test-cluster", mockClusters, "CREATE_COMPLETE", mockNavigate);
+
+        expect(setState).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("when a cluster is deleted", () => {
+      beforeEach(() => {
+        onClustersUpdate("test-cluster", mockClusters, "DELETE_IN_PROGRESS", mockNavigate);
+      });
+      it("should become unselected", () => {
+        expect(clearState).toHaveBeenCalledWith(['app', 'clusters', 'selected']);
+      });
+      it("should navigate to the clusters list", () => {
+        expect(mockNavigate).toHaveBeenCalledWith('/clusters');
+      });
+    });
+  })
+});

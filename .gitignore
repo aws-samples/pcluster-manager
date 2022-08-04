@@ -8,3 +8,4 @@ infrastructure/cognitolambda/node_modules
 .hugo_build.lock
 public/*
 /frontend/tsconfig.tsbuildinfo
+.idea/

@@ -561,7 +561,7 @@ def get_identity():
 
     access_token = request.cookies.get("accessToken")
     id_token = request.cookies.get("idToken")
-    if not access_token:
+    if not (access_token and id_token):
         return {"message": "No access token."}, 401
     try:
         decoded = jwt_decode(access_token)
@@ -675,7 +675,7 @@ def login():
 
 
 def logout():
-    resp = redirect("/login", code=302)
+    resp = redirect("/index.html", code=302)
     resp.set_cookie("accessToken", "", expires=0)
     resp.set_cookie("idToken", "", expires=0)
     resp.set_cookie("refreshToken", "", expires=0)

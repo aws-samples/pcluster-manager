@@ -9,33 +9,46 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import axios from 'axios'
-import { store, setState, getState, clearState, updateState, clearAllState } from './store'
-import { enqueueSnackbar as enqueueSnackbarAction } from './redux/snackbar_actions';
-import { closeSnackbar as closeSnackbarAction } from './redux/snackbar_actions';
+import { setState, getState, clearState, updateState, clearAllState } from './store'
 import { USER_ROLES_CLAIM } from './auth/constants';
+import { generateRandomId } from './util';
 
 // UI Elements
-import Button from '@mui/material/Button';
 import { handleNotAuthorizedErrors } from './auth/handleNotAuthorizedErrors';
 import { AppConfig } from './app-config/types';
 import identityFn from 'lodash/identity';
 import { getAppConfig } from './app-config';
 
+// Types
+type Callback = (arg?: any) => void;
+
 const axiosInstance = axios.create({
   baseURL: getHost(),
 });
 
-function notify(text: any, type = 'info', duration = 5000, dismissButton = false) {
-  // @ts-expect-error TS(2556) FIXME: A spread argument must either have a tuple type or... Remove this comment to see the full error message
-  const closeSnackbar = (...args: any[]) => store.dispatch(closeSnackbarAction(...args));
-  store.dispatch(enqueueSnackbarAction(
-    {message: text,
-      options: {
-        variant: type,
-        anchorOrigin: {vertical: 'top', horizontal: 'right'},
-        autoHideDuration: duration,
-        ...(dismissButton ? {action: (key: any) => <Button onClick={() => {closeSnackbar(key)}}>X</Button>} : {})
-      },}));
+function notify(text: any, type='info', id?: string, dismissible=true) {
+
+  let messageId = id || generateRandomId();
+  let newMessage = {type: type,
+    content: text,
+    id: messageId,
+    dismissible: dismissible,
+    onDismiss: () => updateState(['app', 'messages'], (currentMessages: Array<any>) => currentMessages.filter(message => message.id !== messageId)),
+  };
+
+  const updateFn = (currentMessages: Array<any>) => {
+    for(let message of (currentMessages || []))
+      if(message.id === messageId)
+      {
+        Object.assign(message, newMessage);
+        return currentMessages;
+      }
+    let newMessages = currentMessages || [];
+    newMessages.push(newMessage);
+    return newMessages;
+  }
+
+  updateState(['app', 'messages'], updateFn);
 }
 
 function getHost() {
@@ -46,7 +59,7 @@ function getHost() {
 
 type HTTPMethod = 'get' | 'put' | 'post' | 'patch' | 'delete'
 
-function request(method: HTTPMethod, url: string, body = undefined) {
+function request(method: HTTPMethod, url: string, body: any = undefined) {
   const requestFunc = {'put': axiosInstance.put,
     'post': axiosInstance.post,
     'get': axiosInstance.get,
@@ -63,21 +76,19 @@ function request(method: HTTPMethod, url: string, body = undefined) {
   return handle401and403(requestFunc(url, body, {headers}))
 }
 
-function CreateCluster(clusterName: any, clusterConfig: any, region: any, disableRollback=false, dryrun=false, successCallback=null, errorCallback=null) {
+function CreateCluster(clusterName: any, clusterConfig: any, region: string, disableRollback=false, dryrun=false, successCallback?: Callback, errorCallback?: Callback) {
   const selectedRegion = getState(['app', 'selectedRegion']);
   var url = 'api?path=/v3/clusters';
   url += dryrun ? "&dryrun=true" : ""
   url += disableRollback ? "&disableRollback=true" : ""
   url += region ? `&region=${region}` : ""
   var body = {clusterName: clusterName, clusterConfiguration: clusterConfig}
-  // @ts-expect-error TS(2345) FIXME: Argument of type '{ clusterName: any; clusterConfi... Remove this comment to see the full error message
   request('post', url, body).then((response: any) => {
     if(response.status === 202) {
       if(!dryrun && region === selectedRegion) {
         notify("Successfully created: " + clusterName, 'success');
         updateState(['clusters', 'index', clusterName], (existing: any) => {return {...existing, ...response.data}});
       }
-      // @ts-expect-error TS(2349) FIXME: This expression is not callable.
       successCallback && successCallback(response.data)
     } else {
       console.log(response)
@@ -87,19 +98,17 @@ function CreateCluster(clusterName: any, clusterConfig: any, region: any, disabl
     if(error.response)
     {
       //notify(`Error (${clusterName}): ${error.response.data.message}`, 'error');
-      // @ts-expect-error TS(2349) FIXME: This expression is not callable.
       errorCallback && errorCallback(error.response.data)
       console.log(error.response.data)
     }
   })
 }
 
-function UpdateCluster(clusterName: any, clusterConfig: any, dryrun=false, forceUpdate: any, successCallback=null, errorCallback=null) {
+function UpdateCluster(clusterName: any, clusterConfig: any, dryrun=false, forceUpdate: any, successCallback?: Callback, errorCallback?: Callback) {
   var url = `api?path=/v3/clusters/${clusterName}`;
   url += dryrun ? "&dryrun=true" : ""
   url += forceUpdate ? "&forceUpdate=true" : ""
   var body = {clusterConfiguration: clusterConfig}
-  // @ts-expect-error TS(2345) FIXME: Argument of type '{ clusterConfiguration: any; }' ... Remove this comment to see the full error message
   request('put', url, body).then((response: any) => {
     if(response.status === 202) {
       if(!dryrun)
@@ -107,7 +116,6 @@ function UpdateCluster(clusterName: any, clusterConfig: any, dryrun=false, force
         notify("Successfully Updated: " + clusterName, 'success')
         updateState(['clusters', 'index', clusterName], (existing: any) => {return {...existing, ...response.data}});
       }
-      // @ts-expect-error TS(2349) FIXME: This expression is not callable.
       successCallback && successCallback(response.data)
     } else {
       console.log(response)
@@ -117,14 +125,13 @@ function UpdateCluster(clusterName: any, clusterConfig: any, dryrun=false, force
     if(error.response)
     {
       notify(`Error (${clusterName}): ${error.response.data.message}`, 'error');
-      // @ts-expect-error TS(2349) FIXME: This expression is not callable.
       errorCallback && errorCallback(error.response.data)
       console.log(error.response.data)
     }
   })
 }
 
-function DescribeCluster(clusterName: any, errorCallback: any) {
+function DescribeCluster(clusterName: any, errorCallback?: Callback) {
   var url = `api?path=/v3/clusters/${clusterName}`;
   request('get', url).then((response: any) => {
     //console.log("Describe Success", response)
@@ -148,12 +155,11 @@ function DescribeCluster(clusterName: any, errorCallback: any) {
   })
 }
 
-function DeleteCluster(clusterName: any, callback=null) {
+function DeleteCluster(clusterName: any, callback?: Callback) {
   var url = `api?path=/v3/clusters/${clusterName}`;
   request('delete', url).then((response: any) => {
     if(response.status === 200) {
       console.log("Delete Success", response)
-      // @ts-expect-error TS(2349) FIXME: This expression is not callable.
       callback && callback(response.data)
     }
   }).catch((error: any) => {
@@ -177,12 +183,11 @@ async function ListClusters() {
   }
 }
 
-function GetConfiguration(clusterName: any, callback=null) {
+function GetConfiguration(clusterName: any, callback?: Callback) {
   request('get', `manager/get_cluster_configuration?cluster_name=${clusterName}`).then((response: any) => {
     console.log("Configuration Success", response)
     if(response.status === 200) {
       setState(['clusters', 'index', clusterName, 'configuration'], response.data);
-      // @ts-expect-error TS(2349) FIXME: This expression is not callable.
       callback && callback(response.data)
     }
   }).catch((error: any) => {
@@ -194,12 +199,10 @@ function GetConfiguration(clusterName: any, callback=null) {
 
 function UpdateComputeFleet(clusterName: any, fleetStatus: any) {
   request('patch', `api?path=/v3/clusters/${clusterName}/computefleet`,
-    // @ts-expect-error TS(2345) FIXME: Argument of type '{ status: any; }' is not assigna... Remove this comment to see the full error message
     {"status": fleetStatus}
     ).then((response: any) => {
     //console.log("Configuration Success", response)
     if(response.status === 200) {
-      // @ts-expect-error TS(2554) FIXME: Expected 2 arguments, but got 1.
       DescribeCluster(clusterName);
       //store.dispatch({type: 'clusters/configuration', payload: response.data})
     }
@@ -210,7 +213,7 @@ function UpdateComputeFleet(clusterName: any, fleetStatus: any) {
   })
 }
 
-function GetClusterInstances(clusterName: any, callback: any) {
+function GetClusterInstances(clusterName: any, callback?: Callback) {
   request('get', `api?path=/v3/clusters/${clusterName}/instances`
     ).then((response: any) => {
     //console.log("Instances Success", response)
@@ -252,26 +255,27 @@ function ListClusterLogStreams(clusterName: any) {
   })
 }
 
-function GetClusterLogEvents(clusterName: any, logStreamName: any, success: any, failure: any) {
+function GetClusterLogEvents(clusterName: any, logStreamName: any, successCallback?: Callback, failureCallback?: Callback) {
   let url = `api?path=/v3/clusters/${clusterName}/logstreams/${logStreamName}`
   request('get', url
     ).then((response: any) => {
     //console.log(response)
     if(response.status === 200) {
       setState(['clusters', 'index', clusterName, 'logEventIndex', logStreamName], response.data);
-      success && success(response.data)
+      successCallback && successCallback(response.data)
     }
   }).catch((error: any) => {
-    failure && failure()
+    failureCallback && failureCallback()
     if(error.response)
       notify(`Error (${clusterName}/${logStreamName}): ${error.response.data.message}`, 'error');
     console.log(error)
   })
 }
 
-function ListCustomImages(imageStatus = "AVAILABLE", region: any, callback: any) {
+function ListCustomImages(imageStatus?: string, region?: string, callback?: Callback) {
+  imageStatus ||= "AVAILABLE";
   var url;
-  if(region === null || region === undefined)
+  if(!region)
     url = `api?path=/v3/images/custom&imageStatus=${imageStatus}`;
   else
     url = `api?path=/v3/images/custom&imageStatus=${imageStatus}&region=${region}`;
@@ -288,7 +292,7 @@ function ListCustomImages(imageStatus = "AVAILABLE", region: any, callback: any)
     }
   }).catch((error: any) => {
     if(error.response)
-      notify(`Error retrieving images: ${error.response.data.message}`, 'error', 10000, true);
+      notify(`Error retrieving images: ${error.response.data.message}`, 'error');
     console.log(error)
   })
 }
@@ -302,17 +306,16 @@ function DescribeCustomImage(imageId: any) {
     }
   }).catch((error: any) => {
     if(error.response)
-      notify(`Error (${imageId}): ${error.response.data.message}`, 'error', 10000, true);
+      notify(`Error (${imageId}): ${error.response.data.message}`, 'error');
     console.log(error)
   })
 }
 
-function GetCustomImageConfiguration(imageId: any, callback=null) {
+function GetCustomImageConfiguration(imageId: any, callback?: Callback) {
   request('get', `manager/get_custom_image_configuration?image_id=${imageId}`).then((response: any) => {
     console.log("Configuration Success", response)
     if(response.status === 200) {
       setState(['customImages', 'index', imageId, 'configuration'], response.data);
-      // @ts-expect-error TS(2349) FIXME: This expression is not callable.
       callback && callback(response.data)
     }
   }).catch((error: any) => {
@@ -322,15 +325,13 @@ function GetCustomImageConfiguration(imageId: any, callback=null) {
   })
 }
 
-function BuildImage(imageId: any, imageConfig: any, successCallback=null, errorCallback=null) {
+function BuildImage(imageId: any, imageConfig: any, successCallback?: Callback, errorCallback?: Callback) {
   var url = 'api?path=/v3/images/custom';
   var body = {imageId: imageId, imageConfiguration: imageConfig}
-  // @ts-expect-error TS(2345) FIXME: Argument of type '{ imageId: any; imageConfigurati... Remove this comment to see the full error message
   request('post', url, body).then((response: any) => {
     if(response.status === 202) {
       notify(`Successfully queued build for ${imageId}.`, 'success')
       updateState(['customImages', 'index', imageId], (existing: any) => {return {...existing, ...response.data}});
-      // @ts-expect-error TS(2349) FIXME: This expression is not callable.
       successCallback && successCallback(response.data)
     } else {
       console.log(response)
@@ -340,14 +341,13 @@ function BuildImage(imageId: any, imageConfig: any, successCallback=null, errorC
     if(error.response)
     {
       notify(`Error creating: ${imageId} - ${error.response.data.message}`, 'error');
-      // @ts-expect-error TS(2349) FIXME: This expression is not callable.
       errorCallback && errorCallback(error.response.data)
     }
     console.log(error.response.data)
   })
 }
 
-async function ListOfficialImages(region: any) {
+async function ListOfficialImages(region?: string) {
   const url = `api?path=/v3/images/official${region ? `&region=${region}`: ""}`;
   try {
     const { data } = await request('get', url);
@@ -378,7 +378,7 @@ function ListUsers() {
   })
 }
 
-function CreateUser(user: any, successCallback: any) {
+function CreateUser(user: any, successCallback?: Callback) {
   var url = 'manager/create_user';
   request('post', url, user
   ).then((response: any) => {
@@ -397,7 +397,7 @@ function CreateUser(user: any, successCallback: any) {
   })
 }
 
-function DeleteUser(user: any, successCallback: any) {
+function DeleteUser(user: any, successCallback?: Callback) {
   var url = `manager/delete_user?username=${user.Username}`;
   request('delete', url,
   ).then((response: any) => {
@@ -415,10 +415,9 @@ function DeleteUser(user: any, successCallback: any) {
   })
 }
 
-function SetUserRole(user: any, role: any, callback: any) {
+function SetUserRole(user: any, role: any, callback?: Callback) {
   var url = 'manager/set_user_role';
   let body = {username: user.Username, role: role};
-  // @ts-expect-error TS(2345) FIXME: Argument of type '{ username: any; role: any; }' i... Remove this comment to see the full error message
   request('put', url, body
   ).then((response: any) => {
     if(response.status === 200) {
@@ -478,9 +477,9 @@ function GetCustomImageLogEvents(imageId: any, logStreamName: any) {
   })
 }
 
-function GetInstanceTypes(region = null, callback: any) {
+function GetInstanceTypes(region?: string, callback?: Callback) {
   var url;
-  if(region === null) {
+  if(!region) {
     url = `manager/get_instance_types`
   } else {
     url = `manager/get_instance_types?region=${region}`
@@ -496,19 +495,19 @@ function GetInstanceTypes(region = null, callback: any) {
     if(error.response)
     {
       console.log(error.response)
-      notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
+      notify(`Error: ${error.response.data.message}`, 'error');
     }
     console.log(error)
   })
 }
 
-function LoadAwsConfig(region = null, callback: any) {
+function LoadAwsConfig(region?: string, callback?: Callback) {
   var url;
 
   ListCustomImages("AVAILABLE", region, (images: any) => setState(['app', 'wizard', 'customImages'], images));
   ListOfficialImages(region).then(images => setState(['app', 'wizard', 'officialImages'], images));
 
-  if(region === null) {
+  if(!region) {
     url = `manager/get_aws_configuration`
   } else {
     url = `manager/get_aws_configuration?region=${region}`
@@ -523,7 +522,6 @@ function LoadAwsConfig(region = null, callback: any) {
         fsxVolumes: extractFsxVolumes(fsx_volumes),
         ...data,
       });
-      // @ts-expect-error TS(2554) FIXME: Expected 2 arguments, but got 1.
       GetInstanceTypes(region);
     }
     callback && callback(response.data);
@@ -531,7 +529,7 @@ function LoadAwsConfig(region = null, callback: any) {
     if(error.response)
     {
       console.log(error.response)
-      notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
+      notify(`Error: ${error.response.data.message}`, 'error');
     }
     console.log(error)
   })
@@ -601,13 +599,13 @@ function GetVersion() {
     if(error.response)
     {
       console.log(error.response)
-      notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
+      notify(`Error: ${error.response.data.message}`, 'error');
     }
     console.log(error)
   })
 }
 
-function Ec2Action(instanceIds: any, action: any, callback: any) {
+function Ec2Action(instanceIds: any, action: any, callback?: Callback) {
   let url = `manager/ec2_action?instance_ids=${instanceIds.join(',')}&action=${action}`
 
   request('post', url).then((response: any) => {
@@ -619,13 +617,13 @@ function Ec2Action(instanceIds: any, action: any, callback: any) {
     if(error.response)
     {
       console.log(error.response)
-      notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
+      notify(`Error: ${error.response.data.message}`, 'error');
     }
     console.log(error)
   })
 }
 
-function GetDcvSession(instanceId: any, user: any, callback: any) {
+function GetDcvSession(instanceId: any, user: any, callback?: Callback) {
   const region = getState(['app', 'selectedRegion']) || getState(['aws', 'region']);
   let url = `manager/get_dcv_session?instance_id=${instanceId}&user=${user || 'ec2-user'}&region=${region}`
   request('get', url).then((response: any) => {
@@ -637,33 +635,33 @@ function GetDcvSession(instanceId: any, user: any, callback: any) {
     if(error.response)
     {
       console.log(error.response)
-      notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
+      notify(`Error: ${error.response.data.message}`, 'error');
     }
     console.log(error)
   })
 }
 
 // Queue Operations
-function QueueStatus(clusterName: any, instanceId: any, user: any, callback: any) {
+function QueueStatus(clusterName: any, instanceId: any, user: any, successCallback?: Callback) {
   const region = getState(['app', 'selectedRegion']) || getState(['aws', 'region']);
   let url = `manager/queue_status?instance_id=${instanceId}&user=${user || 'ec2-user'}&region=${region}`
   request('get', url).then((response: any) => {
     if(response.status === 200) {
       console.log(response.data)
       setState(['clusters', 'index', clusterName, 'jobs'], response.data.jobs);
-      callback && callback(response.data)
+      successCallback && successCallback(response.data);
     }
   }).catch((error: any) => {
     if(error.response)
     {
       console.log(error.response)
-      notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
+      notify(`Error: ${error.response.data.message}`, 'error');
     }
     console.log(error)
   })
 }
 
-function CancelJob(instanceId: any, user: any, jobId: any, callback: any) {
+function CancelJob(instanceId: any, user: any, jobId: any, callback?: Callback) {
   const region = getState(['app', 'selectedRegion']) || getState(['aws', 'region']);
   let url = `manager/cancel_job?instance_id=${instanceId}&user=${user || 'ec2-user'}&region=${region}&job_id=${jobId}`
   request('get', url).then((response: any) => {
@@ -675,104 +673,104 @@ function CancelJob(instanceId: any, user: any, jobId: any, callback: any) {
     if(error.response)
     {
       console.log(error.response)
-      notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
+      notify(`Error: ${error.response.data.message}`, 'error');
     }
     console.log(error)
   })
 }
 
-function SubmitJob(instanceId: any, user: any, job: any, callback: any, failure: any) {
+function SubmitJob(instanceId: any, user: any, job: any, successCallback?: Callback, failureCallback?: Callback) {
   const region = getState(['app', 'selectedRegion']) || getState(['aws', 'region']);
   let url = `manager/submit_job?instance_id=${instanceId}&user=${user || 'ec2-user'}&region=${region}`
   request('post', url, job).then((response: any) => {
     if(response.status === 200) {
       console.log(response.data)
-      callback && callback(response.data)
+      successCallback && successCallback(response.data)
     }
   }).catch((error: any) => {
     if(error.response)
     {
-      failure && failure(error.response.data.message)
+      failureCallback && failureCallback(error.response.data.message)
       console.log(error.response)
-      notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
+      notify(`Error: ${error.response.data.message}`, 'error');
     }
     console.log(error)
   })
 }
 
 
-function JobInfo(clusterName: any, instanceId: any, user: any, jobId: any, callback: any, failure: any) {
+function JobInfo(instanceId: any, user: any, jobId: any, successCallback?: Callback, failureCallback?: Callback) {
   const region = getState(['app', 'selectedRegion']) || getState(['aws', 'region']);
   let url = `manager/scontrol_job?instance_id=${instanceId}&user=${user || 'ec2-user'}&region=${region}&job_id=${jobId}`
   request('get', url).then((response: any) => {
     if(response.status === 200) {
       console.log(response.data)
-      callback && callback(response.data)
+      successCallback && successCallback(response.data)
     }
   }).catch((error: any) => {
     console.log("jif", error)
     if(error.response)
     {
-      failure && failure(error.response)
+      failureCallback && failureCallback(error.response)
       console.log(error.response)
-      notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
+      notify(`Error: ${error.response.data.message}`, 'error');
     }
     console.log(error)
   })
 }
 
 
-function PriceEstimate(clusterName: any, queueName: any, callback: any, failure: any) {
+function PriceEstimate(clusterName: any, queueName: any, successCallback?: Callback, failureCallback?: Callback) {
   const region = getState(['app', 'selectedRegion']) || getState(['aws', 'region']);
   let url = `manager/price_estimate?cluster_name=${clusterName}&queue_name=${queueName}&region=${region}`
   request('get', url).then((response: any) => {
     if(response.status === 200) {
       console.log(response.data)
-      callback && callback(response.data)
+      successCallback && successCallback(response.data)
     }
   }).catch((error: any) => {
     if(error.response)
     {
-      failure && failure(error.response)
+      failureCallback && failureCallback(error.response)
       console.log(error.response)
-      notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
+      notify(`Error: ${error.response.data.message}`, 'error');
     }
     console.log(error)
   })
 }
 
-function SlurmAccounting(clusterName: any, instanceId: any, user: any, args: any, callback: any, failure: any) {
+function SlurmAccounting(clusterName: any, instanceId: any, user: any, args: any, successCallback?: Callback, failureCallback?: Callback) {
   const region = getState(['app', 'selectedRegion']) || getState(['aws', 'region']);
   let url = `manager/sacct?instance_id=${instanceId}&cluster_name=${clusterName}&user=${user || 'ec2-user'}&region=${region}`
   request('post', url, args).then((response: any) => {
     if(response.status === 200) {
       console.log(response.data)
-      callback && callback(response.data)
+      successCallback && successCallback(response.data)
     }
   }).catch((error: any) => {
     if(error.response)
     {
-      failure && failure(error.response)
+      failureCallback && failureCallback(error.response)
       console.log(error.response)
-      notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
+      notify(`Error: ${error.response.data.message}`, 'error');
     }
     console.log(error)
   })
 }
 
-function GetIdentity(callback: any) {
+function GetIdentity(successCallback?: Callback) {
   const url = "manager/get_identity"
   request('get', url).then(response => {
     if(response.status === 200) {
       setState(['identity'], response.data);
-      callback && callback(response.data)
+      successCallback && successCallback(response.data)
     }
   })
   .catch(error => {
     if(error.response)
     {
       console.log(error.response)
-      notify(`Error: ${error.response.data.message}`, 'error', 10000, true);
+      notify(`Error: ${error.response.data.message}`, 'error');
     }
     console.log(error)
   })
@@ -810,11 +808,8 @@ async function LoadInitialState() {
 
     if(groups.includes("admin") || groups.includes("user")) {
       ListClusters();
-      // @ts-expect-error TS(2554) FIXME: Expected 3 arguments, but got 0.
       ListCustomImages();
-      // @ts-expect-error TS(2554) FIXME: Expected 1 arguments, but got 0.
       ListOfficialImages();
-      // @ts-expect-error TS(2554) FIXME: Expected 2 arguments, but got 1.
       LoadAwsConfig(region);
     }
   });

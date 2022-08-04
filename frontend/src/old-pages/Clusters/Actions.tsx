@@ -64,7 +64,6 @@ export default function Actions () {
 
     navigate('/configure');
 
-    // @ts-expect-error TS(2345) FIXME: Argument of type '(configuration: any) => void' is... Remove this comment to see the full error message
     GetConfiguration(clusterName, (configuration: any) => {
       // @ts-expect-error TS(2554) FIXME: Expected 2 arguments, but got 1.
       loadTemplate(jsyaml.load(configuration));
@@ -73,8 +72,7 @@ export default function Actions () {
 
   const deleteCluster = () => {
     console.log(`Deleting: ${clusterName}`);
-    // @ts-expect-error TS(2345) FIXME: Argument of type '(resp: any) => void' is not assi... Remove this comment to see the full error message
-    DeleteCluster(clusterName, (resp: any) => {DescribeCluster(clusterName); ListClusters()});
+    DeleteCluster(clusterName, (_resp: any) => {DescribeCluster(clusterName); ListClusters()});
     hideDialog('deleteCluster');
   }
 
