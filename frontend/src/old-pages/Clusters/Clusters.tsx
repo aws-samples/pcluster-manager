@@ -8,7 +8,7 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import React, { useEffect } from 'react';
-import { useNavigate, useParams } from "react-router-dom"
+import { NavigateFunction, useNavigate, useParams } from "react-router-dom"
 import { ListClusters } from '../../model'
 import { useState, clearState, setState, isAdmin } from '../../store'
 import { selectCluster } from './util'
@@ -45,6 +45,22 @@ export interface Cluster {
 
 type ClusterListProps = {
   clusters: Cluster[]
+}
+
+export function onClustersUpdate(selectedClusterName:string, clusters: Cluster[], oldStatus: string, navigate: NavigateFunction): void {
+  if(!selectedClusterName) {
+    return;
+  }
+  const selectedCluster = findFirst(clusters, (c: Cluster) => c.clusterName === selectedClusterName);
+  if(selectedCluster) {
+    if(oldStatus !== selectedCluster.clusterStatus) {
+      setState(['app', 'clusters', 'selectedStatus'], selectedCluster.clusterStatus);
+    }
+    if (oldStatus === 'DELETE_IN_PROGRESS') {
+      clearState(['app', 'clusters', 'selected']);
+      navigate('/clusters');
+    }
+  }
 }
 
 function ClusterList({ clusters }: ClusterListProps) {
@@ -145,22 +161,10 @@ export default function Clusters () {
   const oldStatus = useState(['app', 'clusters', 'selectedStatus']);
   let navigate = useNavigate();
 
-  useEffect(() => {
-    if(selectedClusterName) {
-      const selectedCluster = findFirst(data, (c: Cluster) => c.clusterName === selectedClusterName);
-      if(selectedCluster) {
-        if(oldStatus !== selectedCluster.clusterStatus) {
-          setState(['app', 'clusters', 'selectedStatus'], selectedCluster.clusterStatus);
-        }
-        if((oldStatus === 'CREATE_IN_PROGRESS' && selectedCluster.clusterStatus === 'CREATE_COMPLETE') || (oldStatus === 'UPDATE_IN_PROGRESS' && selectedCluster.clusterStatus === 'UPDATE_COMPLETE')) {
-            selectCluster(selectedClusterName, null);
-        } else if (oldStatus === 'DELETE_IN_PROGRESS') {
-          clearState(['app', 'clusters', 'selected']);
-          navigate('/clusters');
-        }
-      }
-    }
-  }, [selectedClusterName, oldStatus, data, navigate])
+  useEffect(
+    () => onClustersUpdate(selectedClusterName, data, oldStatus, navigate),
+    [selectedClusterName, oldStatus, data, navigate],
+  );
 
   return (
     <AppLayout
