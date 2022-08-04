@@ -10,6 +10,7 @@
 
 import { AxiosError } from 'axios';
 import { AppConfig } from '../app-config/types';
+import { generateRandomId } from '../util';
 
 export const handleNotAuthorizedErrors = ({authUrl, clientId, scopes, redirectUri}: AppConfig) => async (requestPromise: Promise<any>) => {
   return requestPromise.catch(
@@ -26,10 +27,6 @@ export const handleNotAuthorizedErrors = ({authUrl, clientId, scopes, redirectUr
 }
 
 function redirectToAuthServer(authUrl: string, clientId: string, scopes: string, redirectUri: string) {
-  const url = `${authUrl}?response_type=code&client_id=${clientId}&scope=${encodeURIComponent(scopes)}&redirect_uri=${redirectUri}&state=${oauth2StateParameter()}`
+  const url = `${authUrl}?response_type=code&client_id=${clientId}&scope=${encodeURIComponent(scopes)}&redirect_uri=${redirectUri}&state=${generateRandomId()}`
   window.location.replace(url)
-}
-
-function oauth2StateParameter(length = 16): string {
-    return Math.random().toString(20).substring(2, length)
 }

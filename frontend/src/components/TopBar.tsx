@@ -17,6 +17,7 @@ import { LoadInitialState} from '../model'
 // UI Elements
 import { SideBarIcons } from './SideBar';
 import TopNavigation from "@awsui/components-react/top-navigation";
+import { useQueryClient } from 'react-query';
 
 function regions(selected: any) {
   let supportedRegions = [
@@ -90,6 +91,7 @@ function regions(selected: any) {
 
 export default function Topbar() {
   let username = useState(['identity', 'attributes', 'email']);
+  const queryClient = useQueryClient();
 
   const defaultRegion = useState(['aws', 'region']) || "DEFAULT";
   const region = useState(['app', 'selectedRegion']) || defaultRegion;
@@ -102,6 +104,7 @@ export default function Topbar() {
     let newRegion = region.detail.id;
     setState(['app', 'selectedRegion'], newRegion);
     LoadInitialState();
+    queryClient.invalidateQueries();
   }
 
   const profileActions = [

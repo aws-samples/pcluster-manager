@@ -78,4 +78,8 @@ function clamp(num: number, min: number, max: number, step?: number): number
   return clamped - remain;
 }
 
-export { clamp, getIn, swapIn, setIn, updateIn, findFirst, clusterDefaultUser }
+function generateRandomId(length = 16) {
+  return Math.random().toString(20).substring(2, length)
+}
+
+export { generateRandomId, clamp, getIn, swapIn, setIn, updateIn, findFirst, clusterDefaultUser }
