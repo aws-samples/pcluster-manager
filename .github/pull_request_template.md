@@ -8,7 +8,7 @@
 
 ## Changelog entry
 
-<!-- A sentence to be added to the next release's changelog that captures the chagnes in this PR -->
+<!-- A sentence to be added to the next release's changelog that captures the changes in this PR -->
 
 ## How Has This Been Tested?
 
