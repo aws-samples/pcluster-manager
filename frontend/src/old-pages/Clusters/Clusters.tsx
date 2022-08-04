@@ -14,6 +14,9 @@ import { useState, getState, clearState, setState, isAdmin } from '../../store'
 import { selectCluster } from './util'
 import { findFirst } from '../../util'
 import { useTranslation } from 'react-i18next';
+
+import { ClusterStatus } from '../../types/constants'
+
 import { useQuery } from 'react-query';
 import {
   AppLayout,

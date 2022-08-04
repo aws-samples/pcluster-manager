@@ -14,6 +14,8 @@ import { useNavigate } from "react-router-dom"
 import { GetClusterInstances, Ec2Action } from '../../model'
 import { setState, clearState, useState, getState, consoleDomain } from '../../store'
 
+import { ComputeFleetStatus, NodeType, InstanceState } from '../../types/constants'
+
 // UI Elements
 import {
   Button,
