@@ -30,7 +30,7 @@ import {
 // Components
 import ConfigDialog from './ConfigDialog'
 import DateView from '../../components/DateView'
-import Status from '../../components/Status'
+import { ClusterStatusIndicator, ComputeFleetStatusIndicator } from '../../components/Status'
 import HelpTooltip from '../../components/HelpTooltip'
 
 // Key:Value pair (label / children)
@@ -51,7 +51,7 @@ export default function ClusterProperties () {
 
   const clusterName = useState(['app', 'clusters', 'selected']);
   const clusterPath = ['clusters', 'index', clusterName];
-  const cluster = useState(clusterPath);
+  const cluster: ClusterDescription = useState(clusterPath);
   const headNode = useState([...clusterPath, 'headNode']);
   const defaultRegion = useState(['aws', 'region']);
   const region = useState(['app', 'selectedRegion']) || defaultRegion;
@@ -100,10 +100,10 @@ export default function ClusterProperties () {
         </SpaceBetween>
         <SpaceBetween size="l">
           <ValueWithLabel label="clusterStatus">
-            <Status status={cluster.clusterStatus} cluster={cluster} />
+            <ClusterStatusIndicator cluster={cluster} />
           </ValueWithLabel>
           <ValueWithLabel label="computeFleetStatus">
-            <Status status={cluster.computeFleetStatus} />
+            <ComputeFleetStatusIndicator status={cluster.computeFleetStatus} />
           </ValueWithLabel>
           <ValueWithLabel label="creationTime">
             <DateView date={cluster.creationTime} />

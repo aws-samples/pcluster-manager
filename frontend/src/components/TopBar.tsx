@@ -88,7 +88,7 @@ function regions(selected: any) {
   })
 }
 
-export default function Topbar(props: any) {
+export default function Topbar() {
   let username = useState(['identity', 'attributes', 'email']);
 
   const defaultRegion = useState(['aws', 'region']) || "DEFAULT";

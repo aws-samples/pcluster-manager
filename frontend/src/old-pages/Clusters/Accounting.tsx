@@ -18,7 +18,7 @@ import { SlurmAccounting } from '../../model'
 import { clusterDefaultUser, getIn, findFirst } from '../../util'
 
 // Components
-import Status from "../../components/Status";
+import { JobStatusIndicator } from "../../components/Status";
 import EmptyState from '../../components/EmptyState';
 import Loading from '../../components/Loading'
 import HelpTooltip from '../../components/HelpTooltip'
@@ -228,7 +228,7 @@ function JobProperties({
           <ValueWithLabel label="Time">{getIn(job, ['time', 'elapsed'])} s</ValueWithLabel>
         </SpaceBetween>
         <SpaceBetween direction="vertical" size="l">
-          <ValueWithLabel label="State">{<Status status={getIn(job, ['state', 'current'])} />}</ValueWithLabel>
+          <ValueWithLabel label="State">{<JobStatusIndicator status={getIn(job, ['state', 'current'])} />}</ValueWithLabel>
           <ValueWithLabel label="Name">{job.name}</ValueWithLabel>
           <ValueWithLabel label="Nodes">{job.nodes}</ValueWithLabel>
           <ValueWithLabel label="Account">{job.account}</ValueWithLabel>
@@ -237,7 +237,7 @@ function JobProperties({
         <SpaceBetween direction="vertical" size="l">
           <ValueWithLabel label="Queue">{job.partition}</ValueWithLabel>
           <ValueWithLabel label="Return Code">{getIn(job, ['exit_code', 'return_code'])}</ValueWithLabel>
-          <ValueWithLabel label="Exit Status">{<Status status={getIn(job, ['exit_code', 'status'])} />}</ValueWithLabel>
+          <ValueWithLabel label="Exit Status">{<JobStatusIndicator status={getIn(job, ['exit_code', 'status'])} />}</ValueWithLabel>
           {getIn(job, ['price_estimate']) && <ValueWithLabel label="Cost Estimate"><CostEstimate job={job} /></ValueWithLabel>}
         </SpaceBetween>
       </ColumnLayout>
@@ -265,8 +265,7 @@ function JobModal() {
       footer={
         <Box float="right">
           <SpaceBetween direction="horizontal" size="xs">
-            {/* @ts-expect-error TS(2322) FIXME: Type '{ children: string; onClick: () => void; aut... Remove this comment to see the full error message */}
-            <Button onClick={close} autoFocus>Close</Button>
+            <Button onClick={close}>Close</Button>
           </SpaceBetween>
         </Box>
       }
@@ -288,7 +287,7 @@ export default function ClusterAccounting() {
   const nodes = useState(['app', 'clusters', 'accounting', 'nodes']) || []
   const user = useState(['app', 'clusters', 'accounting', 'user']) || ''
   const jobName = useState(['app', 'clusters', 'accounting', 'jobName']) || []
-  const jobs = useState(['clusters', 'index', clusterName, 'accounting', 'jobs']);
+  const jobs: AccountingJobSummary[] = useState(['clusters', 'index', clusterName, 'accounting', 'jobs']);
 
   React.useEffect(() => {
     refreshAccounting({}, null, true);
@@ -446,35 +445,35 @@ export default function ClusterAccounting() {
       </Container>
 
       {jobs ? <SpaceBetween direction="vertical" size="s">
-        <Table {...collectionProps} trackBy={i => `${(i as any).job_id}-${(i as any).name}`} columnDefinitions={[
+        <Table {...collectionProps} trackBy={i => `${(i as AccountingJobSummary).job_id}-${(i as AccountingJobSummary).name}`} columnDefinitions={[
             {
                 id: "id",
                 header: "ID",
-                cell: item => <Link onFollow={() => selectJob((item as any).job_id)}>{(item as any).job_id}</Link>,
+                cell: job => <Link onFollow={() => selectJob(job.job_id)}>{job.job_id}</Link>,
                 sortingField: "job_id"
             },
             {
                 id: "name",
                 header: "name",
-                cell: item => (item as any).name,
+                cell: job => job.name,
                 sortingField: "name"
             },
             {
                 id: "queue",
                 header: "queue",
-                cell: item => (item as any).partition,
+                cell: job => job.partition,
                 sortingField: "partition"
             },
             {
                 id: "user",
                 header: "user",
-                cell: item => (item as any).user,
+                cell: job => job.user,
                 sortingField: "user"
             },
             {
                 id: "state",
                 header: "state",
-                cell: item => <Status status={getIn(item, ['state', 'current'])}/>,
+                cell: job => <JobStatusIndicator status={getIn(job, ['state', 'current'])}/>,
                 sortingField: "job_state"
             }
         ]} items={items} loadingText="Loading jobs..." pagination={<Pagination {...paginationProps}/>} filter={<TextFilter {...filterProps} countText={`Results: ${filteredItemsCount}`} filteringAriaLabel="Filter jobs"/>}/>

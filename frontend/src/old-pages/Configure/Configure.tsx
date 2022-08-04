@@ -106,7 +106,7 @@ function Configure() {
   const open = useState(['app', 'wizard', 'dialog']);
   const loadingPath = ['app', 'wizard', 'source', 'loading'];
   const loading = useState(loadingPath);
-  const page = useState(['app', 'wizard', 'page']) || 'source';
+  const page: string = useState(['app', 'wizard', 'page']) || 'source';
   const clusterName = useState(['app', 'wizard', 'clusterName']);
   const [ refreshing, setRefreshing ] = React.useState(false);
   const aws = useState(['aws']);
@@ -261,7 +261,6 @@ function Configure() {
         <div style={{minWidth: '800px', maxWidth: '1000px'}}>
           <SpaceBetween direction="vertical" size='s'>
             <Box className="wizard-container">
-              {/* @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message */}
               {{"source": <Source />,
                 "cluster": aws ? <Cluster /> : <Loading />,
                 "headNode": aws ? <HeadNode /> : <Loading />,

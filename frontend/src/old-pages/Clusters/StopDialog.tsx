@@ -45,8 +45,7 @@ function StopDialog({
         <Box float="right">
           <SpaceBetween direction="horizontal" size="xs">
             <Button onClick={cancel}>Cancel</Button>
-            {/* @ts-expect-error TS(2322) FIXME: Type '{ children: string; onClick: () => void; aut... Remove this comment to see the full error message */}
-            <Button onClick={stopCluster} autoFocus>Stop!</Button>
+            <Button onClick={stopCluster}>Stop!</Button>
           </SpaceBetween>
         </Box>
       }

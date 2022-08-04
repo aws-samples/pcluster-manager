@@ -704,7 +704,7 @@ function Storage() {
               <Select
                 disabled={editing}
                 placeholder="Please Select a Filesystem Type"
-                selectedOption={storageType && itemToDisplayIconOption(findFirst(storageTypes, (s: any) => {return s[0] === storageType}))}
+                selectedOption={storageType && itemToDisplayIconOption(findFirst(storageTypes, s => s[0] === storageType) || ['', '', ''])}
                 onChange={({detail}) => {setStorageType(detail.selectedOption.value)}}
                 options={storageTypes.map(itemToIconOption)}
               />

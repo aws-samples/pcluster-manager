@@ -28,37 +28,28 @@ import {
 import { useCollection } from '@awsui/collection-hooks';
 
 import EmptyState from '../../components/EmptyState';
-import Status from "../../components/Status";
+import { ClusterStatusIndicator } from "../../components/Status";
 import Actions from './Actions';
 import Details from "./Details";
 import { wizardShow } from '../Configure/Configure';
 import AddIcon from '@mui/icons-material/Add';
 
-
-export interface Cluster {
-  cloudformationStackArn: string,
-  cloudformationStackStatus: string,
-  clusterName: string,
-  clusterStatus: string,
-  region: string,
-  version: string
-}
-
 async function updateClusterList(navigate: NavigateFunction) {
   const selectedClusterName = getState(['app', 'clusters', 'selected']);
-  const oldStatus = getState(['app', 'clusters', 'selectedStatus']);
+  const oldStatus: ClusterStatus = getState(['app', 'clusters', 'selectedStatus']);
 
   try {
     const clusterList = await ListClusters();
     if(selectedClusterName) {
-      const selectedCluster = findFirst(clusterList, (c: Cluster) => c.clusterName === selectedClusterName);
+      const selectedCluster = findFirst(clusterList, c => c.clusterName === selectedClusterName);
       if(selectedCluster) {
         if(oldStatus !== selectedCluster.clusterStatus) {
           setState(['app', 'clusters', 'selectedStatus'], selectedCluster.clusterStatus);
         }
-        if((oldStatus === 'CREATE_IN_PROGRESS' && selectedCluster.clusterStatus === 'CREATE_COMPLETE') || (oldStatus === 'UPDATE_IN_PROGRESS' && selectedCluster.clusterStatus === 'UPDATE_COMPLETE')) {
+        if((oldStatus === ClusterStatus.CreateInProgress && selectedCluster.clusterStatus === ClusterStatus.CreateComplete) ||
+           (oldStatus === ClusterStatus.UpdateInProgress && selectedCluster.clusterStatus === ClusterStatus.UpdateComplete)) {
             selectCluster(selectedClusterName, null);
-        } else if (oldStatus === 'DELETE_IN_PROGRESS') {
+        } else if (oldStatus === ClusterStatus.DeleteInProgress) {
           clearState(['app', 'clusters', 'selected']);
           navigate('/clusters');
         }
@@ -67,11 +58,7 @@ async function updateClusterList(navigate: NavigateFunction) {
   } catch (error) {}
 }
 
-type ClusterListProps = {
-  clusters: Cluster[]
-}
-
-function ClusterList({ clusters }: ClusterListProps) {
+function ClusterList({ clusters }: { clusters: ClusterInfoSummary[] | undefined}) {
   const selectedClusterName = useState(['app', 'clusters', 'selected']);
   let navigate = useNavigate();
   let params = useParams();
@@ -89,7 +76,7 @@ function ClusterList({ clusters }: ClusterListProps) {
 
   const onSelectionChangeCallback = React.useCallback(
     ({ detail }) => {
-      navigate(`/clusters/${(detail.selectedItems[0] as Cluster).clusterName}`);
+      navigate(`/clusters/${detail.selectedItems[0].clusterName}`);
   }, [navigate]);
 
   const configure = () => {
@@ -134,19 +121,19 @@ function ClusterList({ clusters }: ClusterListProps) {
         {
             id: "name",
             header: t("cluster.list.cols.name"),
-            cell: item => (item as any).clusterName,
+            cell: cluster => cluster.clusterName,
             sortingField: "clusterName"
         },
         {
             id: "status",
             header: t("cluster.list.cols.status"),
-            cell: item => <Status status={(item as any).clusterStatus} cluster={item}/> || "-",
+            cell: cluster => <ClusterStatusIndicator cluster={cluster}/> || "-",
             sortingField: "clusterStatus"
         },
         {
             id: "version",
             header: t("cluster.list.cols.version"),
-            cell: item => (item as any).version || "-"
+            cell: cluster => cluster.version || "-"
         }
     ]}
     loading={clusters === null}
@@ -157,7 +144,7 @@ function ClusterList({ clusters }: ClusterListProps) {
     filter={<TextFilter {...filterProps}
     countText={`${t("cluster.list.countText")} ${filteredItemsCount}`}
     filteringAriaLabel={t("cluster.list.filteringAriaLabel")}/>}
-    selectedItems={(items || []).filter((c) => (c as any).clusterName === selectedClusterName)}
+    selectedItems={(items || []).filter(cluster => cluster.clusterName === selectedClusterName)}
     onSelectionChange={onSelectionChangeCallback}
     />
   )
@@ -165,7 +152,6 @@ function ClusterList({ clusters }: ClusterListProps) {
 
 export default function Clusters () {
   const clusterName = useState(['app', 'clusters', 'selected']);
-  const cluster = useState(['clusters', 'index', clusterName]);
   const [ splitOpen, setSplitOpen ] = React.useState(true);
   const { t } = useTranslation();
   const { data } = useQuery('LIST_CLUSTERS', () => ListClusters());

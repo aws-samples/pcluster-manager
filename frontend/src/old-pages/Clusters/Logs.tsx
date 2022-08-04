@@ -18,7 +18,6 @@ import { useCollection } from '@awsui/collection-hooks';
 
 // UI Elements
 import Loading from '../../components/Loading'
-import HelpTooltip from '../../components/HelpTooltip'
 import {
   Button,
   CollectionPreferences,
@@ -31,7 +30,7 @@ import {
 // Components
 import EmptyState from '../../components/EmptyState';
 
-function LogEvents() {
+function LogEventsTable() {
   const selected = getState(['app', 'clusters', 'selected']);
   const selectedLogStreamName = useState(['app', 'clusters', 'selectedLogStreamName']);
   const events = useState(['clusters', 'index', selected, 'logEventIndex', selectedLogStreamName]);
@@ -54,7 +53,7 @@ function LogEvents() {
   }
 
   const { items, actions, filteredItemsCount, collectionProps, filterProps, paginationProps } = useCollection(
-    (events && events.events) || [],
+    ((events && events.events) as LogEvent[])  || [],
     {
       filtering: {
         empty: (
@@ -89,13 +88,13 @@ function LogEvents() {
         {
             id: 'timestamp',
             header: 'timestamp',
-            cell: item => (item as any).timestamp,
+            cell: log => log.timestamp,
             sortingField: 'timestamp'
         },
         {
             id: 'message',
             header: 'message',
-            cell: item => <pre style={{ margin: 0 }}>{(item as any).message}</pre>,
+            cell: log => <pre style={{ margin: 0 }}>{log.message}</pre>,
         },
     ]} loading={events === null} items={items} loadingText="Loading Logs..." pagination={<Pagination {...paginationProps}/>} filter={<TextFilter {...filterProps} filteringText={searchParams.get('filter') || ''} onChange={(e) => { searchParams.set('filter', e.detail.filteringText); setSearchParams(searchParams); filterProps.onChange(e); }} countText={`Results: ${filteredItemsCount}`} filteringAriaLabel="Filter logs"/>} preferences={<CollectionPreferences onConfirm={({ detail }) => {
             setState(['app', 'clusters', 'logs', 'columns'], detail.visibleContent);
@@ -132,7 +131,7 @@ function LogEvents() {
 
 function StreamList({
   instanceId
-}: any) {
+}: {instanceId: string}) {
   const logStreams = useState(['app', 'clusters', 'logs', 'index', instanceId, 'streams']) || [];
   const ip = useState(['app', 'clusters', 'logs', 'index', instanceId, 'ip']);
   const fnames = Object.keys(logStreams).sort()
@@ -199,7 +198,7 @@ export default function ClusterLogs() {
       <div style={{display: 'flex', flexDirection: 'row'}}>
           <LogStreamList />
         <div style={{width: "calc(100% - 165px)", overflowX: "auto"}}>
-          {selectedLogStreamName && (logEvents ? <LogEvents /> : <Loading />) }
+          {selectedLogStreamName && (logEvents ? <LogEventsTable /> : <Loading />) }
           {!selectedLogStreamName && "Please select a log stream from the left." }
         </div>
       </div>

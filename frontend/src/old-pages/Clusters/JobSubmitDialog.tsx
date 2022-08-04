@@ -32,12 +32,8 @@ import {
 
 const submitPath = ['app', 'clusters', 'jobSubmit'];
 
-function itemToOption(item: any) {
-  if(!item)
-    return;
-  const [value, title] = item;
-  return {label: <div style={{minWidth: "200px"}}>{title}</div>,
-    value: value}
+function itemToOption([value, title]: [string, string]) {
+  return {label: title, value: value}
 }
 
 function QueueSelect() {
@@ -55,7 +51,6 @@ function QueueSelect() {
     <Header variant="h4"
       description="Queue where the job will run.">Queue</Header>
     <Select
-      // @ts-expect-error TS(2322) FIXME: Type '{ label: Element; value: any; } | undefined'... Remove this comment to see the full error message
       selectedOption={itemToOption(findFirst(queuesOptions, (x: any) => {return x[0] === partition}) || ["[ANY]", "[ANY]"])}
       onChange={({detail}) => {
         if(detail.selectedOption.value === "[ANY]")
@@ -65,7 +60,6 @@ function QueueSelect() {
           setState([...jobPath, 'partition'], detail.selectedOption.value);
         }
       }}
-      // @ts-expect-error TS(2322) FIXME: Type '({ label: Element; value: any; } | undefined... Remove this comment to see the full error message
       options={queuesOptions.map(itemToOption)}
       selectedAriaLabel="Selected"/>
   </>;
@@ -204,8 +198,7 @@ export default function JobSubmitDialog({
         <Box float="right">
           <SpaceBetween direction="horizontal" size="xs">
             <Button onClick={cancel}>Cancel</Button>
-            {/* @ts-expect-error TS(2322) FIXME: Type '{ children: string; loading: any; onClick: (... Remove this comment to see the full error message */}
-            <Button loading={submitting} onClick={submitJob} autoFocus>Submit</Button>
+            <Button loading={submitting} onClick={submitJob}>Submit</Button>
           </SpaceBetween>
         </Box>
       }

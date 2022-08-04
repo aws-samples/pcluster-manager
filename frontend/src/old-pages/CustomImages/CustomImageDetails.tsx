@@ -148,14 +148,12 @@ export default function CustomImageDetails() {
       {
         label: "Configuration",
         id: "configuration",
-        // @ts-expect-error TS(2322) FIXME: Type '{ imageId: any; }' is not assignable to type... Remove this comment to see the full error message
-        content: <CustomImageConfiguration imageId={selected} />
+        content: <CustomImageConfiguration />
       },
       ...(image && (image.imageBuildStatus !== 'BUILD_COMPLETE') ? [{
         label: "Stack Events",
         id: "stack-events",
-        // @ts-expect-error TS(2322) FIXME: Type '{ imageId: any; }' is not assignable to type... Remove this comment to see the full error message
-        content: <CustomImageStackEvents imageId={selected} />
+        content: <CustomImageStackEvents />
       }] : []),
       // {
       //   label: "Logs",

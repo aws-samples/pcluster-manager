@@ -69,7 +69,7 @@ function clusterValidate() {
   return valid;
 }
 
-function itemToOption(item: any) {
+function itemToOption(item: [string, string, string] | null) {
   if(!item)
     return;
   const [value, title, icon] = item;
@@ -172,7 +172,7 @@ function SchedulerSelect() {
 
 function OsSelect() {
   const { t } = useTranslation();
-  const oses = [
+  const oses: [string, string, string][] = [
     ["alinux2", "Amazon Linux 2", "/img/aws.svg"],
     ["centos7", "CentOS 7", "/img/centos.svg"],
     ["ubuntu1804", "Ubuntu 18.04", "/img/ubuntu.svg"],
@@ -242,7 +242,7 @@ function VpcSelect() {
       if(!subnetSet.has(getState(headNodeSubnetPath)))
         setState(headNodeSubnetPath, subnet.SubnetId);
       if(queues)
-        queues.forEach((queue: any, i: any) => {
+        queues.forEach((_queue: any, i: any) => {
           const queueSubnetPath = ['app', 'wizard', 'config', 'Scheduling', 'SlurmQueues', i, "Networking", "SubnetIds"];
           if(!subnetSet.has(getState(queueSubnetPath)))
             setState(queueSubnetPath, [subnet.SubnetId]);
@@ -258,7 +258,7 @@ function VpcSelect() {
           <Select
             disabled={editing}
             // @ts-expect-error TS(2322) FIXME: Type '{ label: JSX.Element; value: any; }' is not ... Remove this comment to see the full error message
-            selectedOption={vpcToDisplayOption(findFirst(vpcs, (x: any) => {return x.VpcId === vpc}))}
+            selectedOption={vpcToDisplayOption(findFirst(vpcs, x => x.VpcId === vpc))}
             onChange={({detail}) => {setVpc(detail.selectedOption.value)}}
             options={vpcs.map(vpcToOption)}
             selectedAriaLabel="Selected"

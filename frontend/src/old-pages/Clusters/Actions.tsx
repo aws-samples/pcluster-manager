@@ -65,7 +65,6 @@ export default function Actions () {
     navigate('/configure');
 
     GetConfiguration(clusterName, (configuration: any) => {
-      // @ts-expect-error TS(2554) FIXME: Expected 2 arguments, but got 1.
       loadTemplate(jsyaml.load(configuration));
     });
   }

@@ -93,7 +93,7 @@ function loadTemplateLazy(config: any, callback?: () => void)
   callback && callback();
 }
 
-export default function loadTemplate(config: any, callback: any) {
+export default function loadTemplate(config: any, callback?: () => void) {
   const loadingPath = ['app', 'wizard', 'source', 'loading'];
   let defaultRegion = getState(['aws', 'region']) || "";
   const region = getState(['app', 'selectedRegion']) || defaultRegion;

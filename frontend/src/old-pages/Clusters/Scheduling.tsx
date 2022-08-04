@@ -32,18 +32,9 @@ import {
 import JobSubmitDialog from './JobSubmitDialog'
 
 // Components
-import Status from "../../components/Status";
+import { JobStatusIndicator }from "../../components/Status";
 import EmptyState from '../../components/EmptyState';
 import Loading from '../../components/Loading'
-
-type Job = {
-  job_id: string,
-  name: string,
-  partition: string,
-  nodes: string,
-  job_state: string,
-  time: string
-}
 
 // Key:Value pair (label / children)
 const ValueWithLabel = ({
@@ -74,7 +65,7 @@ function JobActions({
   job,
   disabled,
   cancelCallback
-}: {job: Job, disabled: boolean, cancelCallback?: () => void}) {
+}: {job: JobSummary, disabled: boolean, cancelCallback?: () => void}) {
   let pendingPath = ['app', 'clusters', 'queue', 'action', job.job_id, 'pending'];
   const pending = useState(pendingPath);
 
@@ -116,7 +107,7 @@ function FileLink({
 
 function JobProperties({
   job
-}: any) {
+}: {job: Job}) {
   return <Container>
       <ColumnLayout columns={3} variant="text-grid">
         <SpaceBetween direction="vertical" size="l">
@@ -127,7 +118,7 @@ function JobProperties({
           <ValueWithLabel label="Group Id">{job.GroupId}</ValueWithLabel>
           <ValueWithLabel label="Priority">{job.Priority}</ValueWithLabel>
           <ValueWithLabel label="Account">{job.Account}</ValueWithLabel>
-          <ValueWithLabel label="State"><Status status={job.JobState} /></ValueWithLabel>
+          <ValueWithLabel label="State"><JobStatusIndicator status={job.JobState} /></ValueWithLabel>
           <ValueWithLabel label="Reason">{job.Reason}</ValueWithLabel>
           <ValueWithLabel label="Requeue">{job.Requeue}</ValueWithLabel>
         </SpaceBetween>
@@ -162,7 +153,7 @@ function JobModal() {
   const clusterPath = ['clusters', 'index', clusterName];
   const fleetStatus = useState([...clusterPath, 'computeFleetStatus']);
   const open = useState(['app', 'clusters', 'jobInfo', 'dialog']);
-  const job = useState(['app', 'clusters', 'jobInfo', 'data']);
+  const job: Job = useState(['app', 'clusters', 'jobInfo', 'data']);
 
   const close = () => {
     setState(['app', 'clusters', 'jobInfo', 'dialog'], false)
@@ -194,7 +185,7 @@ export default function ClusterScheduling() {
   const cluster = useState(clusterPath);
   const fleetStatus = useState([...clusterPath, 'computeFleetStatus']);
   const clusterMinor = cluster.version ? parseInt(cluster.version.split(".")[1]) : 0;
-  const jobs = useState(['clusters', 'index', clusterName, 'jobs']);
+  const jobs: JobSummary[] = useState(['clusters', 'index', clusterName, 'jobs']);
   const defaultRegion = useState(['aws', 'region']);
   const region = useState(['app', 'selectedRegion']) || defaultRegion;
 
@@ -265,43 +256,43 @@ export default function ClusterScheduling() {
                 {
                     id: "id",
                     header: "ID",
-                    cell: (job: Job) => <Link onFollow={() => selectJob(job.job_id)}>{job.job_id}</Link>,
+                    cell: job => <Link onFollow={() => selectJob(job.job_id)}>{job.job_id}</Link>,
                     sortingField: "job_id"
                 },
                 {
                     id: "name",
                     header: "name",
-                    cell: (job: Job) => job.name,
+                    cell: job => job.name,
                     sortingField: "name"
                 },
                 {
                     id: "partition",
                     header: "partition",
-                    cell: (job: Job) => job.partition,
+                    cell: job => job.partition,
                     sortingField: "partition"
                 },
                 {
                     id: "nodes",
                     header: "nodes",
-                    cell: (job: Job) => job.nodes,
+                    cell: job => job.nodes,
                     sortingField: "nodes"
                 },
                 {
                     id: "state",
                     header: "state",
-                    cell: (job: Job) => <Status status={job.job_state}/>,
+                    cell: job => <JobStatusIndicator status={job.job_state}/>,
                     sortingField: "job_state"
                 },
                 {
                     id: "time",
                     header: "time",
-                    cell: (job: Job) => job.time,
+                    cell: job => job.time,
                     sortingField: "time"
                 },
                 {
                     id: "actions",
                     header: "Actions",
-                    cell: (job: Job) => <JobActions disabled={fleetStatus !== "RUNNING"} job={job}/>,
+                    cell: job => <JobActions disabled={fleetStatus !== "RUNNING"} job={job}/>,
                 },
             ]} items={items} loadingText="Loading jobs..." pagination={<Pagination {...paginationProps}/>} filter={<TextFilter {...filterProps} countText={`Results: ${filteredItemsCount}`} filteringAriaLabel="Filter jobs"/>}/> : <div style={{ textAlign: "center", paddingTop: "40px" }}><Loading /></div>)}
     {clusterMinor === 0 && <div>Scheduling is only available in clusters with version 3.1.x and greater.</div>}

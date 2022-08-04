@@ -8,7 +8,8 @@
 // or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-import React from 'react';
+import React, { useCallback } from 'react';
+import { Trans } from 'react-i18next';
 import { Link as InternalLink } from "react-router-dom"
 import { useNavigate } from "react-router-dom"
 
@@ -18,9 +19,8 @@ import { useState } from '../store'
 
 export type StatusMap = Record<string, StatusIndicatorProps.Type>
 
-function ClusterFailedHelp({
-  clusterName
-}: any) {
+function ClusterFailedHelp({cluster}: {cluster: ClusterInfoSummary | ClusterDescription}) {
+  const {clusterName} = cluster;
   let navigate = useNavigate();
 
   const clusterPath = ['clusters', 'index', clusterName];
@@ -30,47 +30,132 @@ function ClusterFailedHelp({
   if(headNode)
     href += `?instance=${headNode.instanceId}`
 
+  const navigateLogs = useCallback((e) => {navigate(href); e.preventDefault()},[href])
+
   return <HelpTooltip>
-    Stack failed to create, see <InternalLink to={cfnHref}>CloudFormation Stack Events</InternalLink> 
-    &nbsp; or &nbsp;
-    <Link onFollow={(e) => {navigate(href); e.preventDefault()}}>Cluster Logs</Link>
-    &nbsp; to see why.
+    <Trans i18nKey="components.ClusterFaildHelp.errorMessage" >
+      <InternalLink to={cfnHref}></InternalLink>
+      <Link onFollow={navigateLogs}></Link>
+    </Trans>
   </HelpTooltip>
 }
 
-export default function Status({
-  status,
-  cluster,
-  statusMapOverrides
-}: {status: string, cluster?: any, statusMapOverrides?: StatusMap}) {
+function ClusterStatusIndicator({cluster}: {cluster: ClusterInfoSummary | ClusterDescription}) {
+  const {clusterStatus} = cluster;
   const failedStatuses = new Set(['CREATE_FAILED', 'DELETE_FAILED', 'UPDATE_FAILED']);
 
-  const defaultStatusMap: StatusMap = {'CREATE_IN_PROGRESS': 'in-progress',
+  const statusMap: Record<ClusterStatus, StatusIndicatorProps.Type> = {
     'CREATE_COMPLETE': 'success',
     'CREATE_FAILED': 'error',
-    'CANCELLED': 'error',
-    'CONFIGURING': 'in-progress',
-    'COMPLETING': 'in-progress',
-    'COMPLETED': 'success',
-    'DELETE_IN_PROGRESS': 'in-progress',
+    'CREATE_IN_PROGRESS': 'in-progress',
     'DELETE_FAILED': 'error',
-    'FAILED': 'error',
-    'RUNNING': 'success',
-    'STOPPED': 'error',
-    'SUCCESS': 'success',
-    'STOP_REQUESTED': 'in-progress',
+    'DELETE_IN_PROGRESS': 'in-progress',
+    'DELETE_COMPLETE': 'error',
+    'UPDATE_COMPLETE': 'success',
     'UPDATE_FAILED': 'error',
     'UPDATE_IN_PROGRESS': 'in-progress',
-    'UNKNOWN': 'error',
-    'UPDATE_COMPLETE': 'success'};
+  };
 
-  const statusMap: StatusMap = {...defaultStatusMap, ...(statusMapOverrides || {})}
-
-  if(!(status in statusMap))
-    return <span>{status ? status.replaceAll("_", " ") : "<unknown>"}</span>
-
-  return <StatusIndicator type={statusMap[status]}>
-    {status ? status.replaceAll("_", " ") : "<unknown>"}
-    { cluster && failedStatuses.has(status) && <ClusterFailedHelp clusterName={cluster.clusterName} />  }
+  return <StatusIndicator type={statusMap[clusterStatus]}>
+    {clusterStatus.replaceAll("_", " ")}
+    {failedStatuses.has(clusterStatus) && <ClusterFailedHelp cluster={cluster} />  }
   </StatusIndicator>
 }
+
+function JobStatusIndicator({status}: {status: JobStateCode})
+{
+  const statusMap: Record<JobStateCode, StatusIndicatorProps.Type> = {
+    "BOOT_FAIL": 'error',
+    "CANCELLED": 'error',
+    "COMPLETED": 'success',
+    "COMPLETING": 'in-progress',
+    "CONFIGURING": 'loading',
+    "DEADLINE": 'info',
+    "FAILED": 'error',
+    "NODE_FAIL": 'error',
+    "OUT_OF_MEMORY": 'error',
+    "PENDING": 'pending',
+    "PREEMPTED": 'info',
+    "REQUEUED": 'info',
+    "REQUEUE_FED": 'info',
+    "REQUEUE_HOLD": 'info',
+    "RESIZING": 'info',
+    "RESV_DEL_HOLD": 'info',
+    "REVOKED": 'info',
+    "RUNNING": 'success',
+    "SIGNALING": 'info',
+    "SPECIAL_EXIT": 'info',
+    "STAGE_OUT": 'info',
+    "STOPPED": 'stopped',
+    "SUSPENDED": 'stopped',
+    "TIMEOUT": 'error',
+  };
+
+  return <StatusIndicator type={statusMap[status]}>
+    {status.replaceAll("_", " ")}
+  </StatusIndicator>
+}
+
+function ComputeFleetStatusIndicator({status}: {status: ComputeFleetStatus})
+{
+  const statusMap: Record<ComputeFleetStatus, StatusIndicatorProps.Type> = {
+    "START_REQUESTED": 'loading',
+    "STARTING": 'pending',
+    "RUNNING": 'success',
+    "PROTECTED": 'stopped',
+    "STOP_REQUESTED": 'loading',
+    "STOPPING": 'stopped',
+    "STOPPED": 'stopped',
+    "UNKNOWN": 'info',
+    "ENABLED": 'success',
+    "DISABLED": 'stopped',
+  };
+
+  return <StatusIndicator type={statusMap[status]}>
+    {status.replaceAll("_", " ")}
+  </StatusIndicator>
+}
+
+function InstanceStatusIndicator({instance}: {instance: EC2Instance | Instance})
+{
+  const statusMap: Record<InstanceState, StatusIndicatorProps.Type> = {
+    "pending": 'pending',
+    "running": 'success',
+    "shutting-down": 'loading',
+    "stopped": 'stopped',
+    "stopping": 'pending',
+    "terminated": 'stopped',
+  };
+
+  return <StatusIndicator type={statusMap[instance.state]}>
+    {instance.state.replaceAll("-", " ").toUpperCase()}
+  </StatusIndicator>
+}
+
+function StackEventStatusIndicator({stackEvent, children}: {stackEvent: StackEvent, children?: React.ReactNode})
+{
+  const statusMap: Record<StackEventStatus, StatusIndicatorProps.Type> = {
+    'CREATE_COMPLETE': 'success',
+    'CREATE_FAILED': 'error',
+    'CREATE_IN_PROGRESS': 'in-progress',
+    'DELETE_COMPLETE': 'success',
+    'DELETE_FAILED': 'error',
+    'DELETE_IN_PROGRESS': 'error',
+    'DELETE_SKIPPED': 'error',
+    'IMPORT_COMPLETE': 'success',
+    'IMPORT_FAILED': 'error',
+    'IMPORT_IN_PROGRESS': 'in-progress',
+    'IMPORT_ROLLBACK_COMPLETE': 'success',
+    'IMPORT_ROLLBACK_FAILED': 'error',
+    'IMPORT_ROLLBACK_IN_PROGRESS': 'in-progress',
+    'UPDATE_COMPLETE': 'success',
+    'UPDATE_FAILED': 'error',
+    'UPDATE_IN_PROGRESS': 'info',
+  }
+  return <StatusIndicator type={statusMap[stackEvent.resourceStatus]}>
+    {stackEvent.resourceStatus.replaceAll("_", " ")}
+    {children}
+  </StatusIndicator>
+}
+
+export { ClusterStatusIndicator, ComputeFleetStatusIndicator, InstanceStatusIndicator, JobStatusIndicator, StackEventStatusIndicator }

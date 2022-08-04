@@ -169,7 +169,7 @@ function DeleteCluster(clusterName: any, callback?: Callback) {
   })
 }
 
-async function ListClusters() {
+async function ListClusters(): Promise<ClusterInfoSummary[]> {
   var url = 'api?path=/v3/clusters';
   try {
     const { data } = await request('get', url);

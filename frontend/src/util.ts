@@ -23,7 +23,7 @@ function getIn(src: any, path: any) {
   return src && (src.hasOwnProperty(path[0]) ? src[path[0]] : null);
 }
 
-function findFirst(xs: any, predicate: any) {
+function findFirst<Type>(xs: Type[], predicate: (arg: Type) => boolean) {
   for(const x of (xs || []))
     if(predicate(x))
       return x
