@@ -238,7 +238,7 @@ function CustomAMISettings({
       })
     }
 
-  const toggleCustomAmi = (_e: any) => {
+  const toggleCustomAmi = () => {
     const value = !customAmiEnabled;
     setState([...appPath, 'customAMI', 'enabled'], value);
     if(!value)

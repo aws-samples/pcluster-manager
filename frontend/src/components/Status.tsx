@@ -34,7 +34,7 @@ function ClusterFailedHelp({cluster}: {cluster: ClusterInfoSummary | ClusterDesc
   const navigateLogs = useCallback((e) => {navigate(href); e.preventDefault()},[href])
 
   return <HelpTooltip>
-    <Trans i18nKey="components.ClusterFaildHelp.errorMessage" >
+    <Trans i18nKey="components.ClusterFailedHelp.errorMessage" >
       <InternalLink to={cfnHref}></InternalLink>
       <Link onFollow={navigateLogs}></Link>
     </Trans>

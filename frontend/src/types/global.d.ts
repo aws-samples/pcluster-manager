@@ -23,9 +23,6 @@ import {
     JobStateCode,
 } from './enums'
 
-
-export {}
-
 declare global {
 
   // Instance
@@ -224,9 +221,6 @@ declare global {
 
   type CloudFormationResourceStatus = CloudFormationResourceStatus
   type StackEventStatus = CloudFormationResourceStatus
-
-  // Instances
-
 
   // Logs
 

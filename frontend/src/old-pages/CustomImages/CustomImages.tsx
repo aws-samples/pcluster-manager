@@ -40,10 +40,10 @@ import {
 const imageBuildPath = ['app', 'customImages', 'imageBuild'];
 
 // selectors
-const selectCustomImagesList = (state: any) => state.customImages.list;
+const selectCustomImagesList = (state: any) : ImageInfoSummary[] => state.customImages.list;
 
 function CustomImagesList() {
-  const images: ImageInfoSummary[] = useSelector(selectCustomImagesList) || [];
+  const images = useSelector(selectCustomImagesList) || [];
 
   const [ selected, setSelected ] = React.useState<ImageInfoSummary[]>([]);
 

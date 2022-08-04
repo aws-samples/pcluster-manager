@@ -37,11 +37,11 @@ import Details from "./Details";
 import { wizardShow } from '../Configure/Configure';
 import AddIcon from '@mui/icons-material/Add';
 
-export function onClustersUpdate(selectedClusterName: ClusterName, clusters: Cluster[], oldStatus: ClusterStatus, navigate: NavigateFunction): void {
+export function onClustersUpdate(selectedClusterName: ClusterName, clusters: ClusterInfoSummary[], oldStatus: ClusterStatus, navigate: NavigateFunction): void {
   if(!selectedClusterName) {
     return;
   }
-  const selectedCluster = findFirst(clusters, (c: Cluster) => c.clusterName === selectedClusterName);
+  const selectedCluster = findFirst(clusters, c => c.clusterName === selectedClusterName);
   if(selectedCluster) {
     if(oldStatus !== selectedCluster.clusterStatus) {
       setState(['app', 'clusters', 'selectedStatus'], selectedCluster.clusterStatus);
@@ -53,7 +53,7 @@ export function onClustersUpdate(selectedClusterName: ClusterName, clusters: Clu
   }
 }
 
-function ClusterList({ clusters }: ClusterListProps) {
+function ClusterList({ clusters }: {clusters: ClusterInfoSummary[]}) {
   const selectedClusterName = useState(['app', 'clusters', 'selected']);
   let navigate = useNavigate();
   let params = useParams();
@@ -144,16 +144,17 @@ export default function Clusters () {
   const clusterName = useState(['app', 'clusters', 'selected']);
   const [ splitOpen, setSplitOpen ] = React.useState(true);
   const { t } = useTranslation();
-  const { data } = useQuery('LIST_CLUSTERS', () => ListClusters(),  {
+  let { data: clusters } = useQuery('LIST_CLUSTERS', ListClusters,  {
     refetchInterval: 5000,
   });
+
   const selectedClusterName = useState(['app', 'clusters', 'selected']);
   const oldStatus = useState(['app', 'clusters', 'selectedStatus']);
   let navigate = useNavigate();
 
   useEffect(
-    () => onClustersUpdate(selectedClusterName, data, oldStatus, navigate),
-    [selectedClusterName, oldStatus, data, navigate],
+    () => onClustersUpdate(selectedClusterName, clusters!, oldStatus, navigate),
+    [selectedClusterName, oldStatus, clusters, navigate],
   );
 
   return (
@@ -184,7 +185,7 @@ export default function Clusters () {
           {clusterName ? <Details /> : <div>{t("cluster.list.splitPanel.selectClusterText")}</div>}
         </SplitPanel>
       }
-      content={<ClusterList clusters={data}/>
+      content={<ClusterList clusters={clusters!}/>
       }
     />
   );
