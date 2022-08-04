@@ -22,7 +22,7 @@
 
 - [ ] I added tests to new or existing code
 - [ ] I removed hardcoded strings and used our `i18n` solution instead (see [here](https://github.com/aws-samples/pcluster-manager/pull/175/commits/fdc6b77987c87a26f51dbc8da5d371d95ef80601))
-- [ ] I checked that `npm run build` build without any error
+- [ ] I checked that `npm run build` builds without any error
 - [ ] I checked that clusters are listed correctly
 - [ ] I checked that a new cluster can be created (config is produced and dry run passes)
 - [ ] I checked that login and logout work as expected
