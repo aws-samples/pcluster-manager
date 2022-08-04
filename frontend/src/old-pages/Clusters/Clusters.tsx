@@ -7,10 +7,10 @@
 // or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavigateFunction, useNavigate, useParams } from "react-router-dom"
 import { ListClusters } from '../../model'
-import { useState, getState, clearState, setState, isAdmin } from '../../store'
+import { useState, clearState, setState, isAdmin } from '../../store'
 import { selectCluster } from './util'
 import { findFirst } from '../../util'
 import { useTranslation } from 'react-i18next';
@@ -34,7 +34,6 @@ import Details from "./Details";
 import { wizardShow } from '../Configure/Configure';
 import AddIcon from '@mui/icons-material/Add';
 
-
 export interface Cluster {
   cloudformationStackArn: string,
   cloudformationStackStatus: string,
@@ -44,31 +43,24 @@ export interface Cluster {
   version: string
 }
 
-async function updateClusterList(navigate: NavigateFunction) {
-  const selectedClusterName = getState(['app', 'clusters', 'selected']);
-  const oldStatus = getState(['app', 'clusters', 'selectedStatus']);
-
-  try {
-    const clusterList = await ListClusters();
-    if(selectedClusterName) {
-      const selectedCluster = findFirst(clusterList, (c: Cluster) => c.clusterName === selectedClusterName);
-      if(selectedCluster) {
-        if(oldStatus !== selectedCluster.clusterStatus) {
-          setState(['app', 'clusters', 'selectedStatus'], selectedCluster.clusterStatus);
-        }
-        if((oldStatus === 'CREATE_IN_PROGRESS' && selectedCluster.clusterStatus === 'CREATE_COMPLETE') || (oldStatus === 'UPDATE_IN_PROGRESS' && selectedCluster.clusterStatus === 'UPDATE_COMPLETE')) {
-            selectCluster(selectedClusterName, null);
-        } else if (oldStatus === 'DELETE_IN_PROGRESS') {
-          clearState(['app', 'clusters', 'selected']);
-          navigate('/clusters');
-        }
-      }
-    }
-  } catch (error) {}
-}
-
 type ClusterListProps = {
   clusters: Cluster[]
+}
+
+export function onClustersUpdate(selectedClusterName:string, clusters: Cluster[], oldStatus: string, navigate: NavigateFunction): void {
+  if(!selectedClusterName) {
+    return;
+  }
+  const selectedCluster = findFirst(clusters, (c: Cluster) => c.clusterName === selectedClusterName);
+  if(selectedCluster) {
+    if(oldStatus !== selectedCluster.clusterStatus) {
+      setState(['app', 'clusters', 'selectedStatus'], selectedCluster.clusterStatus);
+    }
+    if (oldStatus === 'DELETE_IN_PROGRESS') {
+      clearState(['app', 'clusters', 'selected']);
+      navigate('/clusters');
+    }
+  }
 }
 
 function ClusterList({ clusters }: ClusterListProps) {
@@ -76,11 +68,6 @@ function ClusterList({ clusters }: ClusterListProps) {
   let navigate = useNavigate();
   let params = useParams();
   const { t } = useTranslation();
-
-  React.useEffect(() => {
-    const timerId = (setInterval(() => updateClusterList(navigate), 5000));
-    return () => { clearInterval(timerId); }
-  }, [])
 
   React.useEffect(() => {
     if(params.clusterName && selectedClusterName !== params.clusterName)
@@ -165,10 +152,19 @@ function ClusterList({ clusters }: ClusterListProps) {
 
 export default function Clusters () {
   const clusterName = useState(['app', 'clusters', 'selected']);
-  const cluster = useState(['clusters', 'index', clusterName]);
   const [ splitOpen, setSplitOpen ] = React.useState(true);
   const { t } = useTranslation();
-  const { data } = useQuery('LIST_CLUSTERS', () => ListClusters());
+  const { data } = useQuery('LIST_CLUSTERS', () => ListClusters(),  {
+    refetchInterval: 5000,
+  });
+  const selectedClusterName = useState(['app', 'clusters', 'selected']);
+  const oldStatus = useState(['app', 'clusters', 'selectedStatus']);
+  let navigate = useNavigate();
+
+  useEffect(
+    () => onClustersUpdate(selectedClusterName, data, oldStatus, navigate),
+    [selectedClusterName, oldStatus, data, navigate],
+  );
 
   return (
     <AppLayout

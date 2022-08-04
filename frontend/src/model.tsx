@@ -11,7 +11,7 @@
 import axios from 'axios'
 import { setState, getState, clearState, updateState, clearAllState } from './store'
 import { USER_ROLES_CLAIM } from './auth/constants';
-import { v4 as uuidv4 } from 'uuid';
+import { generateRandomId } from './util';
 
 // UI Elements
 import { handleNotAuthorizedErrors } from './auth/handleNotAuthorizedErrors';
@@ -28,7 +28,7 @@ const axiosInstance = axios.create({
 
 function notify(text: any, type='info', id?: string, dismissible=true) {
 
-  let messageId = id || uuidv4();
+  let messageId = id || generateRandomId();
   let newMessage = {type: type,
     content: text,
     id: messageId,
