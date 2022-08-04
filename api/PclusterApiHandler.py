@@ -675,7 +675,7 @@ def login():
 
 
 def logout():
-    resp = redirect("/login", code=302)
+    resp = redirect("/index.html", code=302)
     resp.set_cookie("accessToken", "", expires=0)
     resp.set_cookie("idToken", "", expires=0)
     resp.set_cookie("refreshToken", "", expires=0)
