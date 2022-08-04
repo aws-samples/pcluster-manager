@@ -8,6 +8,7 @@
 // or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
+import { ClusterStatus } from '../../types/constants'
 import { CloudFormationResourceStatus } from '../../types/constants'
 import React from 'react';
 import { Link, useSearchParams } from "react-router-dom"
@@ -88,7 +89,7 @@ export default function ClusterStackEvents() {
     DescribeCluster(clusterName);
 
     let timerId: ReturnType<typeof setInterval> | undefined = (setInterval(() => {
-      if(cluster.clusterStatus !== 'CREATE_IN_PROGRESS')
+      if(cluster.clusterStatus !== ClusterStatus.CreateInProgress)
       {
         clearInterval(timerId);
         timerId = undefined;

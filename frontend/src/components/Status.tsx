@@ -8,6 +8,7 @@
 // or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
+import { ClusterStatus } from '../types/constants'
 import React, { useCallback } from 'react';
 import { Trans } from 'react-i18next';
 import { Link as InternalLink } from "react-router-dom"
@@ -41,8 +42,12 @@ function ClusterFailedHelp({cluster}: {cluster: ClusterInfoSummary | ClusterDesc
 }
 
 function ClusterStatusIndicator({cluster}: {cluster: ClusterInfoSummary | ClusterDescription}) {
-  const {clusterStatus} = cluster;
-  const failedStatuses = new Set(['CREATE_FAILED', 'DELETE_FAILED', 'UPDATE_FAILED']);
+  const {clusterStatus}: {clusterStatus: ClusterStatus} = cluster;
+  const failedStatuses = new Set<ClusterStatus>([
+    ClusterStatus.CreateFailed,
+    ClusterStatus.DeleteFailed,
+    ClusterStatus.UpdateFailed,
+  ]);
 
   const statusMap: Record<ClusterStatus, StatusIndicatorProps.Type> = {
     'CREATE_COMPLETE': 'success',

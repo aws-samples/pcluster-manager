@@ -8,6 +8,7 @@
 // or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
+import { ClusterStatus } from '../../types/constants'
 import * as React from 'react';
 
 import { GetConfiguration } from '../../model'
@@ -65,7 +66,7 @@ export default function ConfigDialog() {
           <SpaceBetween direction="horizontal" size="xs">
             <Button
               iconName="download"
-              disabled={cluster && cluster.clusterStatus === 'CREATE_FAILED'}
+              disabled={cluster && cluster.clusterStatus === ClusterStatus.CreateFailed}
               onClick={() => {
                 GetConfiguration(clusterName, (configuration: any) => {
                   const blob = new Blob([configuration], {type: 'text/yaml'});
