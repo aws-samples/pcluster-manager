@@ -194,8 +194,8 @@ Resources:
           - !Ref AWS::NoValue
       Schema: !If
         - MFA
-        - [{Name: email, AttributeDataType: String, Mutable: false, Required: true}, {Name: phone_number, AttributeDataType: String, Mutable: false, Required: true}]
-        - [{Name: email, AttributeDataType: String, Mutable: false, Required: true}]
+        - [{Name: email, AttributeDataType: String, Mutable: true, Required: true}, {Name: phone_number, AttributeDataType: String, Mutable: false, Required: true}]
+        - [{Name: email, AttributeDataType: String, Mutable: true, Required: true}]
       UserPoolName: !Sub ${AWS::StackName}-userpool
       UsernameConfiguration:
         CaseSensitive: false
