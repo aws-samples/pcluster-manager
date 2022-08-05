@@ -12,7 +12,7 @@ import React from 'react';
 import { useNavigate, useParams } from "react-router-dom"
 
 import { useState } from '../../store'
-import { getIn } from '../../util'
+import { getScripts } from './util'
 
 // UI Elements
 import Tabs from "@awsui/components-react/tabs"
@@ -35,24 +35,7 @@ export default function ClusterTabs() {
   const customActions = useState([...clusterPath, 'config', 'HeadNode', 'CustomActions']);
   const selectedClusterName = useState(['app', 'clusters', 'selected']);
 
-  let allScripts = [];
-  const scriptName = (script: any) => {
-    let suffix = script.slice(script.lastIndexOf('/') + 1);
-    return suffix.slice(0, suffix.lastIndexOf('.'));
-  }
-
-  for(let actionName of ['OnNodeStart', 'OnNodeConfigured'])
-  {
-    if(getIn(customActions, [actionName, 'Script']))
-      allScripts.push(scriptName(getIn(customActions, [actionName, 'Script'])));
-    for(let arg of (getIn(customActions, [actionName, 'Args']) || []))
-    {
-      if(arg.length > 0 && arg[0] !== '-')
-        allScripts.push(scriptName(arg));
-    }
-  }
-
-  let accountingEnabled = allScripts.includes('slurm-accounting');
+  let accountingEnabled = getScripts(customActions).includes('slurm-accounting');
   let navigate = useNavigate();
   let params = useParams();
 
