@@ -551,9 +551,16 @@ def get_instance_types():
     return {"instance_types": sorted(instance_types, key=lambda x: x["InstanceType"])}
 
 
-def _get_user_roles(decoded):
-    return decoded[USER_ROLES_CLAIM] if USER_ROLES_CLAIM in decoded else ["user"]
+def _populate_identity(identity, decoded, claims):
+    if USER_ROLES_CLAIM in decoded:
+        identity["user_roles"] = decoded[USER_ROLES_CLAIM]
+    if "username" in decoded:
+        identity["username"] = decoded["username"]
 
+    for key, value in decoded.items():
+        if key in claims:
+            identity["attributes"][key] = value
+    
 
 def get_identity():
     if disable_auth():
@@ -562,18 +569,25 @@ def get_identity():
     access_token = request.cookies.get("accessToken")
     id_token = request.cookies.get("idToken")
     if not (access_token and id_token):
-        return {"message": "No access token."}, 401
+        return {"message": "No access or id token."}, 401
     try:
-        decoded = jwt_decode(access_token)
-        decoded["user_roles"] = _get_user_roles(decoded)
-        decoded.pop(USER_ROLES_CLAIM)
+        identity = {"attributes": {}}
+        claims = ["email"]
 
+        decoded_access = jwt_decode(access_token)
+        _populate_identity(identity=identity, decoded=decoded_access, claims=claims)
         decoded_id = jwt_decode(id_token, audience=AUDIENCE, access_token=access_token)
-        decoded["attributes"] = {key: value for key, value in decoded_id.items()}
+        _populate_identity(identity=identity, decoded=decoded_id, claims=claims)
+
+        if "username" not in identity:
+            return {"message": "No username present in access or id token."}, 400
+        if "user_roles" not in identity:
+            identity["user_roles"] = ["user"]
+
     except jwt.ExpiredSignatureError:
         return {"message": "Signature expired."}, 401
-
-    return decoded
+    
+    return identity
 
 
 def _augment_user(cognito, user):
