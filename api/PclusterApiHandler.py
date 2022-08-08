@@ -557,9 +557,9 @@ def _populate_identity(identity, decoded, claims):
     if "username" in decoded:
         identity["username"] = decoded["username"]
 
-    for key, value in decoded.items():
-        if key in claims:
-            identity["attributes"][key] = value
+    for claim in claims:
+      if claim in decoded:
+        identity["attributes"][claim] = decoded[claim]
     
 
 def get_identity():
