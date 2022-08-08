@@ -29,7 +29,8 @@ import HelpTooltip from '../../components/HelpTooltip'
 import { ActivateTags, GetTagStatus, GetGraphData, GetBudget } from '../../model';
 
 export default function Cost() {
-  const [dateValue, setDateValue] = React.useState(null);
+
+  const [dateValue, setDateValue] = React.useState(undefined);
   const defaultRegion = useState(['aws', 'region']) || 'us-east-1';
   const region = useState(['app', 'selectedRegion']) || defaultRegion;
   const clusterName = useState(['app', 'clusters', 'selected']);
@@ -162,7 +163,7 @@ export default function Cost() {
       let max = 0;
       let instanceCost = 0;
       let totalRangeCost = 0;
-  
+
       usageData?.forEach((day: any) => { // Find XDomain
         dates.push(new Date(day.TimePeriod.End));
       })
@@ -226,7 +227,7 @@ export default function Cost() {
     tableCostData = [];
     }
     GetGraphData(queryCosts, clusterName, Start, End)
-    }
+  }
 
   const fetchGraphData = (val: any) => {
     let startValue = ""
@@ -294,6 +295,7 @@ export default function Cost() {
           amount: 7,
         };
       fetchGraphData(Default);
+      /* @ts-expect-error TS(2345) FIXME: Argument of type 'Value | null' is not assignable ... Remove this comment to see the full error message */
       setDateValue(Default);
   },[])
 
@@ -308,10 +310,9 @@ export default function Cost() {
               Activate Tags
             </Button>
             <DateRangePicker
-              onChange={({ detail }) => {
-                fetchGraphData(detail.value);
-                setDateValue(detail.value);
-              }}
+              /* @ts-expect-error TS(2345) FIXME: Argument of type 'Value | null' is not assignable ... Remove this comment to see the full error message */
+              onChange={({ detail }) => { fetchGraphData(detail.value); setDateValue(detail.value); } }
+              /* @ts-expect-error TS(2345) FIXME: Argument of type 'Value | null' is not assignable ... Remove this comment to see the full error message */
               value={dateValue}
               relativeOptions={[
                 {
@@ -341,7 +342,8 @@ export default function Cost() {
               ]}
               i18nStrings={dateRangePickerSettings}
               placeholder="Filter by a date range"
-            />
+              isValidRange={function (value: any): any { return; } }
+              />
             <ProgressBar
               value={budgetUsed}
               additionalInfo="Create a Budget with an identical name as your respective cluster for accurate information"
