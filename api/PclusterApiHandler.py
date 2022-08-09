@@ -551,7 +551,9 @@ def get_instance_types():
     return {"instance_types": sorted(instance_types, key=lambda x: x["InstanceType"])}
 
 
-def _populate_identity(identity, decoded, claims):
+def _get_identity_from_token(decoded, claims):
+    identity = {"attributes": {}}
+
     if USER_ROLES_CLAIM in decoded:
         identity["user_roles"] = decoded[USER_ROLES_CLAIM]
     if "username" in decoded:
@@ -561,6 +563,7 @@ def _populate_identity(identity, decoded, claims):
       if claim in decoded:
         identity["attributes"][claim] = decoded[claim]
     
+    return identity
 
 def get_identity():
     if disable_auth():
@@ -571,13 +574,14 @@ def get_identity():
     if not (access_token and id_token):
         return {"message": "No access or id token."}, 401
     try:
-        identity = {"attributes": {}}
         claims = ["email"]
 
         decoded_access = jwt_decode(access_token)
-        _populate_identity(identity=identity, decoded=decoded_access, claims=claims)
+        identity_from_access_token = _get_identity_from_token(decoded=decoded_access, claims=claims)
         decoded_id = jwt_decode(id_token, audience=AUDIENCE, access_token=access_token)
-        _populate_identity(identity=identity, decoded=decoded_id, claims=claims)
+        identity_from_id_token = _get_identity_from_token(decoded=decoded_id, claims=claims)
+
+        identity = {**identity_from_access_token, **identity_from_id_token}
 
         if "username" not in identity:
             return {"message": "No username present in access or id token."}, 400
