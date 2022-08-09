@@ -1,20 +1,17 @@
-import os
-from unittest import mock
 from api.PclusterApiHandler import get_identity
 
 
 MOCK_IDENTITY_OBJECT = {"user_roles": ["user", "admin"], "username": "username", "attributes": {"email": "user@domain.com"}}
 
-@mock.patch.dict(os.environ,{"ENABLE_AUTH": "false"})
-def test_get_identity_auth_disabled():
+def test_get_identity_auth_disabled(monkeypatch):
     """
     Given an handler for the /get-identity endpoint
       When authentication is disabled
         Then it should return a static identity object
     """
+    monkeypatch.setenv("ENABLE_AUTH", "false")
     assert get_identity() == MOCK_IDENTITY_OBJECT
 
-@mock.patch.dict(os.environ,{"ENABLE_AUTH": "true"})
 def test_get_identity_auth_enabled_both_tokens_provide_attributes(monkeypatch, mocker, app):
     """
     Given an handler for the /get-identity endpoint
@@ -22,6 +19,7 @@ def test_get_identity_auth_enabled_both_tokens_provide_attributes(monkeypatch, m
       When both access token and identity token contain the same user attributes
         Then it should return the attributes contained in the identity token
     """
+    monkeypatch.setenv("ENABLE_AUTH", "true")
     monkeypatch.setattr('api.PclusterApiHandler.USER_ROLES_CLAIM', 'user_roles_claim')
     accessTokenDecoded = {
       'user_roles_claim': ['access-token-group'],
@@ -42,7 +40,6 @@ def test_get_identity_auth_enabled_both_tokens_provide_attributes(monkeypatch, m
           'username': 'id-token-username'
       }
 
-@mock.patch.dict(os.environ,{"ENABLE_AUTH": "true"})
 def test_get_identity_auth_enabled_access_tokens_used_as_fallback(monkeypatch, mocker, app):
     """
     Given an handler for the /get-identity endpoint
@@ -50,6 +47,7 @@ def test_get_identity_auth_enabled_access_tokens_used_as_fallback(monkeypatch, m
       When identity token is missing some user attributes
         Then it should fallback to the attributes contained in the access token
     """
+    monkeypatch.setenv("ENABLE_AUTH", "true")
     monkeypatch.setattr('api.PclusterApiHandler.USER_ROLES_CLAIM', 'user_roles_claim')
     accessTokenDecoded = {
       'user_roles_claim': ['access-token-group'],
@@ -68,7 +66,6 @@ def test_get_identity_auth_enabled_access_tokens_used_as_fallback(monkeypatch, m
           'username': 'access-token-username'
       }
 
-@mock.patch.dict(os.environ,{"ENABLE_AUTH": "true"})
 def test_get_identity_auth_enabled_no_username_provided(monkeypatch, mocker, app):
     """
     Given an handler for the /get-identity endpoint
@@ -76,6 +73,7 @@ def test_get_identity_auth_enabled_no_username_provided(monkeypatch, mocker, app
       When username could not be retrieved
         Then it should return a 400
     """
+    monkeypatch.setenv("ENABLE_AUTH", "true")
     monkeypatch.setattr('api.PclusterApiHandler.USER_ROLES_CLAIM', 'user_roles_claim')
     accessTokenDecoded = {}
     identityTokenDecoded = {
@@ -87,7 +85,6 @@ def test_get_identity_auth_enabled_no_username_provided(monkeypatch, mocker, app
 
       assert get_identity() == ({"message": "No username present in access or id token."}, 400)
 
-@mock.patch.dict(os.environ,{"ENABLE_AUTH": "true"})
 def test_get_identity_auth_enabled_no_user_roles_provided(monkeypatch, mocker, app):
     """
     Given an handler for the /get-identity endpoint
@@ -95,6 +92,7 @@ def test_get_identity_auth_enabled_no_user_roles_provided(monkeypatch, mocker, a
       When user roles could not be retrieved
         Then it should fallback to "user" as user role
     """
+    monkeypatch.setenv("ENABLE_AUTH", "true")
     monkeypatch.setattr('api.PclusterApiHandler.USER_ROLES_CLAIM', 'user_roles_claim')
     accessTokenDecoded = {}
     identityTokenDecoded = {
