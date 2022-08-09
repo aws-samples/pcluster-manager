@@ -229,7 +229,6 @@ Resources:
         - { Version: !Join ['_', !Split ['.', !FindInMap [PclusterManager, Constants, Version]]], StackIdSuffix: !Select [2, !Split ['/', !Ref 'AWS::StackId']] }
       InstanceProfileName: !Ref ImageBuilderInstanceProfile
       TerminateInstanceOnFailure: true
-      SnsTopicArn: !Ref EcrImageBuilderSNSTopic
       SubnetId:
         Fn::If:
           - NonDefaultVpc
@@ -279,11 +278,6 @@ Resources:
       InfrastructureConfigurationArn: !Ref InfrastructureConfiguration
       ImageTestsConfiguration:
         ImageTestsEnabled: false
-
-  EcrImageBuilderSNSTopic:
-    Type: AWS::SNS::Topic
-    Properties:
-      DisplayName: "PclusterManager ECR Image Builder SNS topic"
 
   EcrImageDeletionLambda:
     Type: AWS::Lambda::Function
