@@ -27,9 +27,10 @@ import {
 // Components
 import HelpTooltip from '../../components/HelpTooltip'
 import { ActivateTags, GetTagStatus, GetGraphData, GetBudget } from '../../model';
+import { useTranslation } from 'react-i18next';
 
 export default function Cost() {
-
+  const { t } = useTranslation();
   const [dateValue, setDateValue] = React.useState(undefined);
   const defaultRegion = useState(['aws', 'region']) || 'us-east-1';
   const region = useState(['app', 'selectedRegion']) || defaultRegion;
@@ -41,64 +42,39 @@ export default function Cost() {
   const budgetUsed = useState(['app', 'cost', clusterName, 'budget']) || [];
   const tableData = useState(['app', 'cost', clusterName, 'tableData']) || [];
   const accountId =  useState(['app', 'account']) || [];
-  const Options = [
-    {
-      key: "previous-30-days",
-      amount: 30,
-      unit: "day",
-      type: "relative",
-    },
-    {
-      key: "previous-14-days",
-      amount: 14,
-      unit: "day",
-      type: "relative",
-    },
-    {
-      key: "previous-7-days",
-      amount: 7,
-      unit: "day",
-      type: "relative",
-    },
-    {
-      key: "previous-1-day",
-      amount: 1,
-      unit: "day",
-      type: "relative",
-    },
-  ]
   const dateRangePickerSettings = {
-    todayAriaLabel: "Today",
-    nextMonthAriaLabel: "Next month",
-    previousMonthAriaLabel: "Previous month",
-    customRelativeRangeDurationLabel: "Duration",
-    customRelativeRangeDurationPlaceholder: "Enter duration",
-    customRelativeRangeOptionLabel: "Custom range",
-    customRelativeRangeOptionDescription: "Set a custom range of days in the past. Use Days as Unit of Time.",
-    customRelativeRangeUnitLabel: "Unit of time",
-    formatRelativeRange: (e:any) => {
-      const t = 1 === e.amount ? e.unit : `${e.unit}s`;
-      return `Last ${e.amount} ${t}`;
+    todayAriaLabel: t("CostTab.dateRangePicker.dateRangePickerSetting.todayAriaLabel"),
+    nextMonthAriaLabel: t("CostTab.dateRangePicker.dateRangePickerSetting.nextMonthAriaLabel"),
+    previousMonthAriaLabel: t("CostTab.dateRangePicker.dateRangePickerSetting.previousMonthAriaLabel"),
+    customRelativeRangeDurationLabel: t("CostTab.dateRangePicker.dateRangePickerSetting.customRelativeRangeDurationLabel"),
+    customRelativeRangeDurationPlaceholder: t("CostTab.dateRangePicker.dateRangePickerSetting.customRelativeRangeDurationPlaceholder"),
+    customRelativeRangeOptionLabel: t("CostTab.dateRangePicker.dateRangePickerSetting.customRelativeRangeOptionLabel"),
+    customRelativeRangeOptionDescription: t("CostTab.dateRangePicker.dateRangePickerSetting.customRelativeRangeOptionDescription"),
+    customRelativeRangeUnitLabel: t("CostTab.dateRangePicker.dateRangePickerSetting.customRelativeRangeUnitLabel"),
+    formatRelativeRange: (e: { amount: number; unit: any; }) => {
+      const t =
+        1 === e.amount ? e.unit : `${e.unit}s`;
+      return  `Last ${e.amount} ${t}`;
     },
-    formatUnit: (e:any, t:any) => (1 === t ? e : `${e}s`),
-    dateTimeConstraintText: "Select any Range of days. Use 24 hour format.",
-    relativeModeTitle: "Relative range",
-    absoluteModeTitle: "Absolute range",
-    relativeRangeSelectionHeading: "Choose a range",
-    startDateLabel: "Start date",
-    endDateLabel: "End date",
-    startTimeLabel: "Start time",
-    endTimeLabel: "End time",
-    clearButtonLabel: "Clear and dismiss",
-    cancelButtonLabel: "Cancel",
-    applyButtonLabel: "Apply",
+    formatUnit: (e: any, t: number) => (1 === t ? e : `${e}s`),
+    dateTimeConstraintText: t("CostTab.dateRangePicker.dateRangePickerSetting.dateTimeConstraintText"),
+    relativeModeTitle: t("CostTab.dateRangePicker.dateRangePickerSetting.relativeModeTitle"),
+    absoluteModeTitle: t("CostTab.dateRangePicker.dateRangePickerSetting.absoluteModeTitle"),
+    relativeRangeSelectionHeading: t("CostTab.dateRangePicker.dateRangePickerSetting.relativeRangeSelectionHeading"),
+    startDateLabel: t("CostTab.dateRangePicker.dateRangePickerSetting.startDateLabel"),
+    endDateLabel: t("CostTab.dateRangePicker.dateRangePickerSetting.endDateLabel"),
+    startTimeLabel: t("CostTab.dateRangePicker.dateRangePickerSetting.startTimeLabel"),
+    endTimeLabel: t("CostTab.dateRangePicker.dateRangePickerSetting.endTimeLabel"),
+    clearButtonLabel: t("CostTab.dateRangePicker.dateRangePickerSetting.clearButtonLabel"),
+    cancelButtonLabel: t("CostTab.dateRangePicker.dateRangePickerSetting.cancelButtonLabel"),
+    applyButtonLabel: t("CostTab.dateRangePicker.dateRangePickerSetting.applyButtonLabel"),
   }
   const barChartSettings = {
-    filterLabel: "Filter displayed data",
-    filterPlaceholder: "Filter data",
-    filterSelectedAriaLabel: "selected",
-    legendAriaLabel: "Legend",
-    chartAriaRoleDescription: "line chart",
+    filterLabel: t("CostTab.BarChartSetting.filterLabel"),
+    filterPlaceholder: t("CostTab.BarChartSetting.filterPlaceHolder"),
+    filterSelectedAriaLabel: t("CostTab.BarChartSetting.filterSelectedAriaLabel"),
+    legendAriaLabel: t("CostTab.BarChartSetting.legendAriaLabel"),
+    chartAriaRoleDescription: t("CostTab.BarChartSetting.chartAriaRoleDescription"),
     xTickFormatter: (e: any) =>
       e
         .toLocaleDateString("en-US", {
@@ -111,19 +87,19 @@ export default function Cost() {
   const barChartColumns = [
     {
       id: "variable",
-      header: "Instance Type",
+      header: t("CostTab.BarChartColumns.InstanceType"),
       cell: (item: any) => item.name || "-",
       sortingField: "name",
     },
     {
       id: "alt",
-      header: "Total Cost",
+      header: t("CostTab.BarChartColumns.TotalCost"),
       cell: (item: any) => item.alt || "-",
       sortingField: "alt",
     },
     {
       id: "description",
-      header: "Summary",
+      header: t("CostTab.BarChartColumns.Summary"),
       cell: (item: any) => item.description || "-",
     },
   ]
@@ -205,7 +181,7 @@ export default function Cost() {
             tableCostData.push({
               name: type,
               alt: '$' + instanceCost.toFixed(2),
-              description: `Total Cost for  ${type} instances from ${Start} to ${End}`,
+              description: <div> {t("CostTab.CostTable.description.TotalCostFor")} {type} {t("CostTab.CostTable.description.Transition")} {Start} {t("CostTab.CostTable.description.To")} {End}</div>,
               type: "1A",
               size: "xxLarge"
             })
@@ -213,9 +189,9 @@ export default function Cost() {
           instanceCost = 0
     }) 
     tableCostData.push({ // Total Cost data for range of days
-      name: <b> All Instance Types </b>,
+      name: <b> {t("CostTab.CostTable.Name")} </b>,
       alt: <b> ${totalRangeCost.toFixed(2)} </b>,
-      description: <b> Total Cost for all instance types from {Start} to {End} </b>,
+      description: <b> {t("CostTab.CostTable.description.Sentence")} {Start} {t("CostTab.CostTable.description.To")} {End} </b>,
       type: "1A",
       size: "xxLarge"
     })
@@ -289,7 +265,7 @@ export default function Cost() {
   React.useEffect(() => { // These will be called once on loading of page
       checkTags()
       const Default = {
-          key: 'previous-7-days',
+          key: "previous-7-days",
           type: 'relative',
           unit: 'day',
           amount: 7,
@@ -307,7 +283,7 @@ export default function Cost() {
         actions={
           <SpaceBetween direction="horizontal" size="l">
             <Button disabled={tagActive} onClick={activateTags} variant="primary">
-              Activate Tags
+            {t("CostTab.TagsButton.Text")}
             </Button>
             <DateRangePicker
               /* @ts-expect-error TS(2345) FIXME: Argument of type 'Value | null' is not assignable ... Remove this comment to see the full error message */
@@ -341,22 +317,22 @@ export default function Cost() {
                 }
               ]}
               i18nStrings={dateRangePickerSettings}
-              placeholder="Filter by a date range"
+              placeholder={t("CostTab.dateRangePicker.placeholder")}
               isValidRange={function (value: any): any { return; } }
               />
             <ProgressBar
               value={budgetUsed}
-              additionalInfo="Create a Budget with an identical name as your respective cluster for accurate information"
-              description="Progress"
-              label="Cost Usage of Budget"
+              additionalInfo={t("CostTab.ProgressBar.additionalInfo")}
+              description={t("CostTab.ProgressBar.description")}
+              label={t("CostTab.ProgressBar.label")}
             />
             <HelpTooltip>
-              If you haven't created a budget, create a custom cost budget on{" "}
+              {t("CostTab.HelpToolTip.Text")}{" "}
               <a
                 href="https://us-east-1.console.aws.amazon.com/billing/home?#/budgets/overview"
                 target="_blank"
               >
-                AWS Budgets
+              {t("CostTab.HelpToolTip.Title")}
               </a>
               .
             </HelpTooltip>
@@ -366,12 +342,12 @@ export default function Cost() {
               iconAlign="right"
               iconName="external"
             >
-              View Data in Cost Explorer
+              {t("CostTab.CostExplorerButton.Text")}
             </Button>
           </SpaceBetween>
         }
       >
-        Cluster Costs
+        {t("CostTab.Header.Title")}
       </Header>
     }
   >
@@ -381,57 +357,56 @@ export default function Cost() {
         xDomain={xAxis}
         yDomain={[0, yAxis * 1.9]}
         i18nStrings={barChartSettings}
-        ariaLabel="Stacked bar chart"
-        errorText="Error loading data."
+        ariaLabel={t("CostTab.BarChart.values.arialLabel")}
+        errorText={t("CostTab.BarChart.values.errorText")}
         height={300}
         hideFilter
-        loadingText="Loading chart"
-        recoveryText="Retry"
+        loadingText={t("CostTab.BarChart.values.loadingText")}
+        recoveryText={t("CostTab.BarChart.values.recoveryText")}
         stackedBars
-        xScaleType="categorical"
-        xTitle="Date"
-        yTitle="Cost(s) $"
+        xScaleType={t("CostTab.BarChart.values.xScaleType")}
+        xTitle={t("CostTab.BarChart.values.xTitle")}
+        yTitle={t("CostTab.BarChart.values.yTitle")}
         empty={
           <Box textAlign="center" color="inherit">
-            <b>No data available</b>
+            <b>{t("CostTab.BarChart.empty.NoData")}</b>
             <Box variant="p" color="inherit">
-              There is no data available
+            {t("CostTab.BarChart.noMatch.ThereIsNoData")}
             </Box>
           </Box>
         }
         noMatch={
           <Box textAlign="center" color="inherit">
-            <b>No matching data</b>
+            <b>{t("CostTab.BarChart.noMatch.NoMatchingData")}</b>
             <Box variant="p" color="inherit">
-              There is no matching data to display
+            {t("CostTab.BarChart.noMatch.ThereIsNoMatchingData")}
             </Box>
-            <Button>Clear filter</Button>
+            <Button>{t("CostTab.BarChart.noMatch.ClearFilter")}</Button>
           </Box>
         }
       ></BarChart>
       <Table
         columnDefinitions={barChartColumns}
         items={tableData}
-        loadingText="Loading resources"
+        loadingText={t("CostTab.Table.NoResources")}
         sortingDisabled
         empty={
           <Box textAlign="center" color="inherit">
-            <b>No resources</b>
+            <b>{t("CostTab.Table.LoadingText.NoResources")}</b>
             <Box padding={{ bottom: "s" }} variant="p" color="inherit">
-              No resources to display.
+            {t("CostTab.Table.LoadingText.NoResourcesToDisplay")}
             </Box>
-            <Button>Create resource</Button>
+            <Button>{t("CostTab.Table.LoadingText.CreateResources")}</Button>
           </Box>
         }
-        header={<Header> Cluster Costs </Header>}
+        header={<Header> {t("CostTab.Header.Title")} </Header>}
       />
       <div>
         {" "}
-        *The <b>NoInstanceType</b> category includes miscellaneous costs such as
-        EBS, read more about{" "}
+        {t("CostTab.NoInstanceType.Text")}
         <a href="https://aws.amazon.com/ebs/pricing/" target="-blank">
           {" "}
-          EBS Pricing
+          {t("CostTab.NoInstanceType.Title")}
         </a>
         .
       </div>
