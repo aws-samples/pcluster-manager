@@ -333,7 +333,8 @@
     "components": {
       "customAmi": {
         "label": "Use Custom AMI?",
-        "help": "Custom AMI's provide a way to customize the cluster. See the <0>Image section</0> of the documentation for more information."
+        "help": "Custom AMI's provide a way to customize the cluster. See the <0>Image section</0> of the documentation for more information.",
+        "suggestLabel": "Custom AMI ID"
       },
       "rootVolume": {
         "size": {
@@ -347,6 +348,10 @@
         }
       }
     }
+  },
+  "customImages": {
+    "copyImageConfiguration": "Image Configuration URL copied to clipboard.",
+    "copyAmiId": "AMI Id copied to clipboard."
   },
   "components": {
     "ClusterFailedHelp": {

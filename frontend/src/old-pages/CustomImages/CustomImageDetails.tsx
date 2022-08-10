@@ -9,14 +9,14 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import { ImageBuildStatus } from '../../types/constants'
-import React from 'react';
+import React, { useCallback } from 'react';
 
 import { setState, getState, useState } from '../../store'
 import { GetCustomImageConfiguration } from '../../model'
 
 // UI Elements
+import { Trans } from 'react-i18next';
 import Tabs from "@awsui/components-react/tabs"
-import Tooltip from '@mui/material/Tooltip';
 import {
   Box,
   Button,
@@ -66,6 +66,19 @@ function CustomImageConfiguration() {
 function CustomImageProperties() {
   const selected = useState([...customImagesPath, 'selected'])
   const image = useState(['customImages', 'index', selected])
+
+  const copyImageConfigUrl = useCallback(
+    () => {
+      navigator.clipboard.writeText(image.imageConfiguration.url);
+    }, [image.imageConfiguration.url]
+  )
+
+  const copyAmiId = useCallback(
+    () => {
+      navigator.clipboard.writeText(image.ec2AmiInfo.amiId);
+    }, [image.ec2AmiInfo.amiId]
+  )
+
   return (
     <Container header={<Header variant="h3">Properties</Header>}>
       <ColumnLayout columns={3} variant="text-grid">
@@ -84,9 +97,14 @@ function CustomImageProperties() {
         </SpaceBetween>
         <SpaceBetween size="l">
           <ValueWithLabel label="configuration url">
-            <Tooltip title={image.imageConfiguration.url}>
-              <span>URL (hover)</span>
-            </Tooltip>
+            <Popover
+              size="large"
+              position="top"
+              triggerType="custom"
+              dismissButton={false}
+              content={<StatusIndicator type="success"><Trans i18nKey="customImages.copyImageConfiguration" /></StatusIndicator>}>
+              <Button iconName="copy" onClick={copyImageConfigUrl} >copy</Button>
+            </Popover>
           </ValueWithLabel>
           <ValueWithLabel label="buildStatus">{image.imageBuildStatus}</ValueWithLabel>
           <ValueWithLabel label="amiId">
@@ -94,20 +112,14 @@ function CustomImageProperties() {
               <div>
                 {image.ec2AmiInfo && image.ec2AmiInfo.amiId}
               </div>
-              {image.ec2AmiInfo && 
+              {image.ec2AmiInfo &&
               <Popover
                 size="medium"
                 position="top"
                 triggerType="custom"
                 dismissButton={false}
-                content={<StatusIndicator type="success">AMI Id copied to clipboard.</StatusIndicator>}
-              >
-                <Button
-                  iconName="copy"
-                  onClick={() => {
-                    navigator.clipboard.writeText(image.ec2AmiInfo.amiId);
-                  }}
-                >copy</Button>
+                content={<StatusIndicator type="success"><Trans i18nKey="customImages.copyAmiId" /></StatusIndicator>}>
+                <Button iconName="copy" onClick={copyAmiId}>copy</Button>
               </Popover>
               }
               {!image.ec2AmiInfo && "Loading..."}

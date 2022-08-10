@@ -12,9 +12,6 @@ import * as React from 'react';
 import { Link, useLocation } from "react-router-dom"
 import { setState, useState, isGuest, isUser, isAdmin } from '../store'
 
-// UI Elements
-import Divider from '@mui/material/Divider';
-
 // Icons
 import GridOnIcon from '@mui/icons-material/GridOn';
 import ImageIcon from '@mui/icons-material/Image';
@@ -100,7 +97,6 @@ export default function SideBar() {
         <Link to='/users' className={section === "users" ? "selected" : ""} key="Users">
           <GroupIcon />Users
         </Link>}
-      <Divider />
       <div style={{display: 'flex', justifyContent: "center", alignItems: "flex-start", paddingTop: "20px", paddingRight: "20px"}}>
         <img style={{display: "inline-block"}} alt="AWS Logo" width={140} src="/img/aws_logo.png" />
       </div>

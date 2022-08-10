@@ -260,7 +260,7 @@ function CustomAMISettings({
         </HelpTooltip>
       </div>
       {customAmiEnabled &&
-        <FormField label={t('wizard.components.customAmi.AmiId')} errorText={error}>
+        <FormField label={t('wizard.components.customAmi.suggestLabel')} errorText={error}>
           <Autosuggest
             onChange={({ detail }) => {if(detail.value !== customAmi){setState(customAmiPath, detail.value);}}}
             value={customAmi || ""}
