@@ -9,7 +9,7 @@ Type=simple
 User=slurmrestd
 Group=slurmrestd
 Environment="SLURM_JWT=daemon"
-ExecStart=/opt/slurm/sbin/slurmrestd -a rest_auth/jwt -vvvv  0.0.0.0:8080
+ExecStart=/opt/slurm/sbin/slurmrestd unix:/var/spool/socket/slurmrestd.sock -a rest_auth/jwt
 ExecReload=/bin/kill -HUP $MAINPID
 
 [Install]

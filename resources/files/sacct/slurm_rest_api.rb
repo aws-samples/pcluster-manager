@@ -2,36 +2,18 @@ require 'json'
 return if node['cluster']['node_type'] != 'HeadNode'
 
 slurm_etc = '/opt/slurm/etc'
+socket_location = '/var/spool/socket'
 state_save_location = '/var/spool/slurm.state'
 key_location = state_save_location + '/jwt_hs256.key'
 certs_location = '/etc/ssl/certs'
 key_and_crt_name = 'nginx-selfsigned'
 id = 2005
 
-platform = node['platform']
-if platform == 'amazon'
-  platform = 'amzn2'
-end
-
 # Configure Slurm for JWT authentication
 ruby_block 'Create JWT key file' do
   block do
     shell_out!("dd if=/dev/random of=#{key_location} bs=32 count=1")
   end
-end
-
-# TODO: Not idempotent if user is in process
-group 'slurmrestd' do
-    comment 'slurmrestd group'
-    gid id
-    system true
-end
-
-user 'slurmrestd' do
-  comment 'slurmrestd user'
-  uid id
-  gid id
-  system true
 end
 
 file key_location do
@@ -94,19 +76,7 @@ ruby_block 'Generate JWT token and create/update AWS secret' do
   end
 end
 
-# Enable slurmrestd
-file '/etc/systemd/system/slurmrestd.service' do
-  owner 'slurmrestd'
-  group 'slurmrestd'
-  mode '0644'
-  content ::File.open('/tmp/slurm_rest_api/slurmrestd.service').read
-end
-
-service 'slurmrestd' do
-  action :start
-end
-
-# NGINX installation
+# NGINX installation and configuration
 package 'nginx' do
   action :install
 end
@@ -134,7 +104,7 @@ user 'nginx' do
   system true
 end
 
-file 'etc/nginx/nginx.conf' do
+file '/etc/nginx/nginx.conf' do
   owner 'nginx'
   group 'nginx'
   mode '0644'
@@ -143,4 +113,54 @@ end
 
 service 'nginx' do
   action :start
+end
+
+# Enable slurmrestd
+# TODO: Not idempotent if user is in process
+group 'slurmrestd' do
+  comment 'slurmrestd group'
+  gid id
+  system true
+end
+
+user 'slurmrestd' do
+comment 'slurmrestd user'
+uid id
+gid id
+system true
+end
+
+directory socket_location do
+  owner 'nginx'
+  group 'nginx'
+  mode '0777'
+end
+
+file '/etc/systemd/system/slurmrestd.service' do
+  owner 'slurmrestd'
+  group 'slurmrestd'
+  mode '0644'
+  content ::File.open('/tmp/slurm_rest_api/slurmrestd.service').read
+end
+
+service 'slurmrestd' do
+  action :start
+end
+
+ruby_block 'Wait for slurmrestd' do
+  block do
+    iter=0
+    until ::File.exists?("#{socket_location}/slurmrestd.sock") || iter > 20 do
+      sleep 1
+      iter += 1
+    end
+    raise "Timeout waiting for slurmrestd startup" unless iter < 20
+  end
+end
+
+ruby_block 'Modify socket permissions' do
+  notifies :start, 'service[slurmrestd]', :before
+  block do
+    shell_out!("chmod 0666 #{socket_location}/slurmrestd.sock").run_command
+  end
 end
