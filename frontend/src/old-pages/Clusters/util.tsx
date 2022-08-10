@@ -12,6 +12,7 @@ import jsyaml from 'js-yaml';
 
 import { DescribeCluster, GetConfiguration } from '../../model'
 import { clearState, getState, setState } from '../../store'
+import { getIn } from '../../util'
 
 export function selectCluster(clusterName: any, navigate: any)
 {
@@ -25,4 +26,24 @@ export function selectCluster(clusterName: any, navigate: any)
   DescribeCluster(name, () => {navigate && navigate('/clusters')});
   if(oldClusterName !== clusterName)
     setState(['app', 'clusters', 'selected'], name);
+}
+
+export function getScripts(customActions: Record<string, any> | null) {
+  const scriptName = (script: string) => {
+    let suffix = script.slice(script.lastIndexOf('/') + 1);
+    return suffix.slice(0, suffix.lastIndexOf('.'));
+  }
+  
+  let allScripts = [];
+  for(let actionName of ['OnNodeStart', 'OnNodeConfigured'])
+  {
+    if(getIn(customActions, [actionName, 'Script']))
+      allScripts.push(scriptName(getIn(customActions, [actionName, 'Script'])));
+    for(let arg of (getIn(customActions, [actionName, 'Args']) || []))
+    {
+      if(arg.length > 0 && arg[0] !== '-')
+        allScripts.push(scriptName(arg));
+    }
+  }
+  return allScripts
 }
