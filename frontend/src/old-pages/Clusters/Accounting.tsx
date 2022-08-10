@@ -9,6 +9,7 @@
 // or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
+import { AccountingJobSummary } from '../../types/jobs'
 import React from 'react';
 import { useCollection } from '@awsui/collection-hooks';
 
@@ -445,7 +446,7 @@ export default function ClusterAccounting() {
       </Container>
 
       {jobs ? <SpaceBetween direction="vertical" size="s">
-        <Table {...collectionProps} trackBy={i => `${(i as AccountingJobSummary).job_id}-${(i as AccountingJobSummary).name}`} columnDefinitions={[
+        <Table {...collectionProps} trackBy={i => `${i.job_id}-${i.name}`} columnDefinitions={[
             {
                 id: "id",
                 header: "ID",

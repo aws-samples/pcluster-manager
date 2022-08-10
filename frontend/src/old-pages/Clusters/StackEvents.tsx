@@ -8,8 +8,9 @@
 // or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-import { ClusterStatus } from '../../types/constants'
-import { CloudFormationResourceStatus } from '../../types/constants'
+import { CloudFormationResourceStatus, Region } from '../../types/base'
+import { ClusterName, ClusterStatus } from '../../types/clusters'
+import { StackEvent, StackEvents } from '../../types/stackevents'
 import React from 'react';
 import { Link, useSearchParams } from "react-router-dom"
 

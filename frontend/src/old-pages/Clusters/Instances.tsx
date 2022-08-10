@@ -8,13 +8,16 @@
 // or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
+import { Region } from '../../types/base'
+import { ClusterName, ComputeFleetStatus } from '../../types/clusters'
+import { InstanceState, Instance, NodeType } from '../../types/instances'
 import React from 'react';
 import { useNavigate } from "react-router-dom"
+import { useTranslation } from 'react-i18next';
 
 import { GetClusterInstances, Ec2Action } from '../../model'
 import { setState, clearState, useState, getState, consoleDomain } from '../../store'
 
-import { ComputeFleetStatus, NodeType, InstanceState } from '../../types/constants'
 
 // UI Elements
 import {

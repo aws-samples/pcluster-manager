@@ -7,6 +7,7 @@
 // or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
+import { ClusterInfoSummary, ClusterName, ClusterStatus } from '../../types/clusters'
 import React, { useEffect } from 'react';
 import { NavigateFunction, useNavigate, useParams } from "react-router-dom"
 import { ListClusters } from '../../model'
@@ -14,8 +15,6 @@ import { useState, clearState, setState, isAdmin } from '../../store'
 import { selectCluster } from './util'
 import { findFirst } from '../../util'
 import { useTranslation } from 'react-i18next';
-
-import { ClusterStatus } from '../../types/constants'
 
 import { useQuery } from 'react-query';
 import {

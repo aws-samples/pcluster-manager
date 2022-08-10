@@ -8,7 +8,11 @@
 // or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-import { ClusterStatus } from '../types/constants'
+import { CloudFormationResourceStatus } from '../types/base'
+import { ClusterStatus, ClusterDescription, ClusterInfoSummary, ComputeFleetStatus } from '../types/clusters'
+import { InstanceState, Instance, EC2Instance } from '../types/instances'
+import { StackEvent } from '../types/stackevents'
+import { JobStateCode } from '../types/jobs'
 import React, { useCallback } from 'react';
 import { Trans } from 'react-i18next';
 import { Link as InternalLink } from "react-router-dom"
@@ -139,7 +143,7 @@ function InstanceStatusIndicator({instance}: {instance: EC2Instance | Instance})
 
 function StackEventStatusIndicator({stackEvent, children}: {stackEvent: StackEvent, children?: React.ReactNode})
 {
-  const statusMap: Record<StackEventStatus, StatusIndicatorProps.Type> = {
+  const statusMap: Record<CloudFormationResourceStatus, StatusIndicatorProps.Type> = {
     'CREATE_COMPLETE': 'success',
     'CREATE_FAILED': 'error',
     'CREATE_IN_PROGRESS': 'in-progress',

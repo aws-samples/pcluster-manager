@@ -11,8 +11,7 @@
 // limitations under the License.
 
 // Fameworks
-import * as React from 'react';
-import i18next from "i18next";
+import React, { useCallback } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux'
 import { findFirst } from '../../util'
@@ -249,6 +248,15 @@ function CustomAMISettings({
     }
   }
 
+  const selectText = useCallback(
+    (value: string) => {
+      if(value !== customAmi){
+        setState(customAmiPath, value);
+      }
+      return value
+    }, [customAmi]
+  )
+
   return (
     <>
       <div style={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
@@ -264,7 +272,7 @@ function CustomAMISettings({
           <Autosuggest
             onChange={({ detail }) => {if(detail.value !== customAmi){setState(customAmiPath, detail.value);}}}
             value={customAmi || ""}
-            enteredTextLabel={(value: string) => {if(value !== customAmi){setState(customAmiPath, value);} return value}}
+            enteredTextLabel={selectText}
             ariaLabel="Custom AMI Selector"
             placeholder="AMI ID"
             empty="No matches found"

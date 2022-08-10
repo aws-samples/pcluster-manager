@@ -10,17 +10,18 @@ import i18n from '../../../i18n'
 import { ListClusters } from '../../../model'
 import { store, clearState, setState } from '../../../store'
 import Clusters, { onClustersUpdate } from '../Clusters'
-import { ClusterStatus } from '../../../types/constants'
+import { ClusterStatus, ClusterInfoSummary } from '../../../types/clusters'
+import { CloudFormationStackStatus } from '../../../types/base'
 
 
 const queryClient = new QueryClient();
-const mockClusters = [{
+const mockClusters: ClusterInfoSummary[] = [{
   clusterName: 'test-cluster',
-  clusterStatus: 'CREATE_COMPLETE',
+  clusterStatus: ClusterStatus.CreateComplete,
   version: '3.1.4',
   cloudformationStackArn: 'arn',
   region: 'region',
-  cloudformationStackStatus: 'status'
+  cloudformationStackStatus: CloudFormationStackStatus.CreateComplete
 }];
 
 const MockProviders = (props: any) => (
