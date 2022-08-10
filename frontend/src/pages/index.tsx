@@ -24,9 +24,6 @@ import OfficialImages from "../old-pages/OfficialImages/OfficialImages"
 import Users from "../old-pages/Users/Users"
 import Home from "../old-pages/Home/Home"
 
-// UI Elements
-import CssBaseline from '@mui/material/CssBaseline';
-
 // Components
 import Loading from '../components/Loading'
 
@@ -41,7 +38,6 @@ export default function App() {
   }, [])
 
   return <>
-    <CssBaseline />
     {identity ?
       <BrowserRouter>
         <Routes>

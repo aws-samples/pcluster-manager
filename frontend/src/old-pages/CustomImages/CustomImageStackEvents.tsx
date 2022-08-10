@@ -15,20 +15,25 @@ import { GetCustomImageStackEvents } from '../../model'
 import { getState, useState } from '../../store'
 
 // UI Elements
-import TreeView from '@mui/lab/TreeView';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import TreeItem from '@mui/lab/TreeItem';
+import {
+  ExpandableSection,
+} from "@awsui/components-react";
 
 // Components
 import DateView from '../../components/DateView'
 import Loading from '../../components/Loading'
 
-function EventDetails(props: any) {
+type Event = {
+  resourceStatus: string,
+  resourceStatusReason: string,
+  timestamp: string
+}
+
+function EventDetails({event}: {event: Event}) {
   return (
     <div style={{marginLeft: "20px"}}>
-      <div>Status {props.event.resourceStatus} (<DateView date={props.event.timestamp} />)</div>
-      <div>Reason: {props.event.resourceStatusReason}</div>
+      <div>Status {event.resourceStatus} (<DateView date={event.timestamp} />)</div>
+      <div>Reason: {event.resourceStatusReason}</div>
     </div>
   );
 }
@@ -42,17 +47,10 @@ export default function CustomImageStackEvents() {
     GetCustomImageStackEvents(selected);
   }, []);
 
-  return (
-    <div>{ events ?
-      <TreeView
-        aria-label="stack events list"
-        defaultCollapseIcon={<ExpandMoreIcon />}
-        defaultExpandIcon={<ChevronRightIcon />}
-        sx={{ textAlign: 'left'}}>
-        {events.map((event: any, i: any) => <TreeItem nodeId={event.eventId} label={event.eventId} key={event.eventId}>
-          <TreeItem nodeId={event.eventId + 'details'}/><EventDetails event={event} /></TreeItem>)}
-      </TreeView>
-      : <Loading />}
-    </div>
-  );
+  if(!events)
+    return <Loading />
+
+  return events.map((event: any) => <ExpandableSection header={event.eventId} key={event.eventId}>
+    <EventDetails event={event} />
+  </ExpandableSection>);
 }
