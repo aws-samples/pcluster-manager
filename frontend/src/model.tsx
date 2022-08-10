@@ -8,6 +8,7 @@
 // or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
+import { ClusterInfoSummary } from './types/clusters'
 import axios from 'axios'
 import { setState, getState, clearState, updateState, clearAllState } from './store'
 import { USER_ROLES_CLAIM } from './auth/constants';
@@ -169,7 +170,7 @@ function DeleteCluster(clusterName: any, callback?: Callback) {
   })
 }
 
-async function ListClusters() {
+async function ListClusters(): Promise<ClusterInfoSummary[]> {
   var url = 'api?path=/v3/clusters';
   try {
     const { data } = await request('get', url);

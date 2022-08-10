@@ -7,6 +7,7 @@
 // or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
+import { ClusterInfoSummary, ClusterName, ClusterStatus } from '../../types/clusters'
 import React, { useEffect } from 'react';
 import { NavigateFunction, useNavigate, useParams } from "react-router-dom"
 import { ListClusters } from '../../model'
@@ -14,6 +15,7 @@ import { useState, clearState, setState, isAdmin } from '../../store'
 import { selectCluster } from './util'
 import { findFirst } from '../../util'
 import { useTranslation } from 'react-i18next';
+
 import { useQuery } from 'react-query';
 import {
   AppLayout,
@@ -28,30 +30,17 @@ import {
 import { useCollection } from '@awsui/collection-hooks';
 
 import EmptyState from '../../components/EmptyState';
-import Status from "../../components/Status";
+import { ClusterStatusIndicator } from "../../components/Status";
 import Actions from './Actions';
 import Details from "./Details";
 import { wizardShow } from '../Configure/Configure';
 import AddIcon from '@mui/icons-material/Add';
 
-export interface Cluster {
-  cloudformationStackArn: string,
-  cloudformationStackStatus: string,
-  clusterName: string,
-  clusterStatus: string,
-  region: string,
-  version: string
-}
-
-type ClusterListProps = {
-  clusters: Cluster[]
-}
-
-export function onClustersUpdate(selectedClusterName:string, clusters: Cluster[], oldStatus: string, navigate: NavigateFunction): void {
+export function onClustersUpdate(selectedClusterName: ClusterName, clusters: ClusterInfoSummary[], oldStatus: ClusterStatus, navigate: NavigateFunction): void {
   if(!selectedClusterName) {
     return;
   }
-  const selectedCluster = findFirst(clusters, (c: Cluster) => c.clusterName === selectedClusterName);
+  const selectedCluster = findFirst(clusters, c => c.clusterName === selectedClusterName);
   if(selectedCluster) {
     if(oldStatus !== selectedCluster.clusterStatus) {
       setState(['app', 'clusters', 'selectedStatus'], selectedCluster.clusterStatus);
@@ -63,7 +52,7 @@ export function onClustersUpdate(selectedClusterName:string, clusters: Cluster[]
   }
 }
 
-function ClusterList({ clusters }: ClusterListProps) {
+function ClusterList({ clusters }: {clusters: ClusterInfoSummary[]}) {
   const selectedClusterName = useState(['app', 'clusters', 'selected']);
   let navigate = useNavigate();
   let params = useParams();
@@ -76,7 +65,7 @@ function ClusterList({ clusters }: ClusterListProps) {
 
   const onSelectionChangeCallback = React.useCallback(
     ({ detail }) => {
-      navigate(`/clusters/${(detail.selectedItems[0] as Cluster).clusterName}`);
+      navigate(`/clusters/${detail.selectedItems[0].clusterName}`);
   }, [navigate]);
 
   const configure = () => {
@@ -121,19 +110,19 @@ function ClusterList({ clusters }: ClusterListProps) {
         {
             id: "name",
             header: t("cluster.list.cols.name"),
-            cell: item => (item as any).clusterName,
+            cell: cluster => cluster.clusterName,
             sortingField: "clusterName"
         },
         {
             id: "status",
             header: t("cluster.list.cols.status"),
-            cell: item => <Status status={(item as any).clusterStatus} cluster={item}/> || "-",
+            cell: cluster => <ClusterStatusIndicator cluster={cluster}/> || "-",
             sortingField: "clusterStatus"
         },
         {
             id: "version",
             header: t("cluster.list.cols.version"),
-            cell: item => (item as any).version || "-"
+            cell: cluster => cluster.version || "-"
         }
     ]}
     loading={clusters === null}
@@ -144,7 +133,7 @@ function ClusterList({ clusters }: ClusterListProps) {
     filter={<TextFilter {...filterProps}
     countText={`${t("cluster.list.countText")} ${filteredItemsCount}`}
     filteringAriaLabel={t("cluster.list.filteringAriaLabel")}/>}
-    selectedItems={(items || []).filter((c) => (c as any).clusterName === selectedClusterName)}
+    selectedItems={(items || []).filter(cluster => cluster.clusterName === selectedClusterName)}
     onSelectionChange={onSelectionChangeCallback}
     />
   )
@@ -154,16 +143,17 @@ export default function Clusters () {
   const clusterName = useState(['app', 'clusters', 'selected']);
   const [ splitOpen, setSplitOpen ] = React.useState(true);
   const { t } = useTranslation();
-  const { data } = useQuery('LIST_CLUSTERS', () => ListClusters(),  {
+  let { data: clusters } = useQuery('LIST_CLUSTERS', ListClusters,  {
     refetchInterval: 5000,
   });
+
   const selectedClusterName = useState(['app', 'clusters', 'selected']);
   const oldStatus = useState(['app', 'clusters', 'selectedStatus']);
   let navigate = useNavigate();
 
   useEffect(
-    () => onClustersUpdate(selectedClusterName, data, oldStatus, navigate),
-    [selectedClusterName, oldStatus, data, navigate],
+    () => onClustersUpdate(selectedClusterName, clusters!, oldStatus, navigate),
+    [selectedClusterName, oldStatus, clusters, navigate],
   );
 
   return (
@@ -194,7 +184,7 @@ export default function Clusters () {
           {clusterName ? <Details /> : <div>{t("cluster.list.splitPanel.selectClusterText")}</div>}
         </SplitPanel>
       }
-      content={<ClusterList clusters={data}/>
+      content={<ClusterList clusters={clusters!}/>
       }
     />
   );

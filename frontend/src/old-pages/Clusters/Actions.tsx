@@ -8,6 +8,7 @@
 // or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
+import { ClusterStatus } from '../../types/clusters'
 import React from 'react';
 import { useNavigate } from "react-router-dom"
 
@@ -65,7 +66,6 @@ export default function Actions () {
     navigate('/configure');
 
     GetConfiguration(clusterName, (configuration: any) => {
-      // @ts-expect-error TS(2554) FIXME: Expected 2 arguments, but got 1.
       loadTemplate(jsyaml.load(configuration));
     });
   }
@@ -100,7 +100,7 @@ export default function Actions () {
     </DeleteDialog>
     <StopDialog clusterName={clusterName} />
     <SpaceBetween direction="horizontal" size="xs">
-      <Button className="action" disabled={clusterStatus === 'CREATING' || clusterStatus === 'DELETE_IN_PROGRESS' || clusterStatus === 'CREATE_FAILED' || !isAdmin()} variant="normal" onClick={editConfiguration}>
+      <Button className="action" disabled={clusterStatus === ClusterStatus.CreateInProgress || clusterStatus === ClusterStatus.DeleteInProgress || clusterStatus === ClusterStatus.CreateFailed || !isAdmin()} variant="normal" onClick={editConfiguration}>
         <div className="container">
           <EditIcon /> {t("cluster.list.actions.edit")}
         </div>
@@ -115,25 +115,25 @@ export default function Actions () {
           <CancelIcon /> {t("cluster.list.actions.stop")}
         </div>
       </Button>}
-      <Button className="action" disabled={clusterStatus === 'DELETE_IN_PROGRESS' || !isAdmin()} onClick={() => {showDialog('deleteCluster')}}>
+      <Button className="action" disabled={clusterStatus === ClusterStatus.DeleteInProgress || !isAdmin()} onClick={() => {showDialog('deleteCluster')}}>
         <div className="container">
           <DeleteIcon /> {t("cluster.list.actions.delete")}
         </div>
       </Button>
       {headNode && headNode.publicIpAddress && headNode.publicIpAddress !== "" && ssmEnabled &&
-      <Button className="action" disabled={clusterStatus === 'DELETE_IN_PROGRESS'} onClick={() => {ssmFilesystem(headNode.instanceId)}}>
+      <Button className="action" disabled={clusterStatus === ClusterStatus.DeleteInProgress} onClick={() => {ssmFilesystem(headNode.instanceId)}}>
         <div className="container">
           <FolderIcon /> {t("cluster.list.actions.filesystem")}
         </div>
       </Button>}
       {headNode && headNode.publicIpAddress && headNode.publicIpAddress !== "" && ssmEnabled &&
-      <Button className="action" disabled={clusterStatus === 'DELETE_IN_PROGRESS'} onClick={() => {shellCluster(headNode.instanceId)}}>
+      <Button className="action" disabled={clusterStatus === ClusterStatus.DeleteInProgress} onClick={() => {shellCluster(headNode.instanceId)}}>
         <div className="container">
           <FeaturedPlayListIcon /> {t("cluster.list.actions.shell")}
         </div>
       </Button>}
       {headNode && headNode.publicIpAddress && headNode.publicIpAddress !== "" && dcvEnabled &&
-      <Button className="action" disabled={clusterStatus === 'DELETE_IN_PROGRESS'} onClick={() => {dcvConnect(headNode)}}>
+      <Button className="action" disabled={clusterStatus === ClusterStatus.DeleteInProgress} onClick={() => {dcvConnect(headNode)}}>
         <div className="container">
           <MonitorIcon /> {t("cluster.list.actions.dcv")}
         </div>

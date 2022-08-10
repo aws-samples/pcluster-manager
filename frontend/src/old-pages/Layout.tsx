@@ -30,10 +30,8 @@ export default function Layout() {
     <AppLayout
       className="app-layout"
       headerSelector="#top-bar"
-      // @ts-expect-error TS(2322) FIXME: Type 'string' is not assignable to type 'number'.
-      navigationWidth="220px"
+      navigationWidth={220}
       toolsHide
-      splitHide
       navigationOpen={navigationOpen}
       onNavigationChange = {(e) => {setState(['app', 'sidebar', 'drawerOpen'], e.detail.open)}}
       content={<>

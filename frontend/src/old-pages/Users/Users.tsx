@@ -230,8 +230,7 @@ export default function Users() {
             {enableMfa && <Input inputMode='tel' onChange={({ detail }) => setState(userphonePath, detail.value)} value={userphone} placeholder='+11234567890'></Input>}
             <div onKeyPress={e => e.key === 'Enter' && createUser()}>
               <FormField errorText={error}>
-                {/* @ts-expect-error TS(2322) FIXME: Type '{ onChange: ({ detail }: NonCancelableCustom... Remove this comment to see the full error message */}
-                <Input onChange={({ detail }) => setState(usernamePath, detail.value)} value={username} placeholder='email@domain.com' onSubmit={createUser}></Input>
+                <Input onChange={({ detail }) => setState(usernamePath, detail.value)} value={username} placeholder='email@domain.com'></Input>
               </FormField>
             </div>
             <Button className="action" onClick={createUser}>Create User</Button>

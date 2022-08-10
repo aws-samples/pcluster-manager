@@ -18,7 +18,8 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "sourceMap": true,
-    "allowJs": true
+    "allowJs": true,
+    "typeRoots": ["./node_modules/@types", "src/types"]
   },
   "include": [
     "next-env.d.ts",

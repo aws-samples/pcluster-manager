@@ -354,6 +354,9 @@
     "copyAmiId": "AMI Id copied to clipboard."
   },
   "components": {
+    "ClusterFailedHelp": {
+      "errorMessage": "Stack failed to create, see <0>CloudFormation Stack Events</0> &nbsp; or &nbsp;<1>Cluster Logs</1>&nbsp; to see why."
+    },
     "ValidationErrors": {
       "update": "Update",
       "validation": "Validation",

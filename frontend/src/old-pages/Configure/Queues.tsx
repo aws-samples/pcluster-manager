@@ -154,8 +154,7 @@ function queuesValidate() {
   for(let i = 0; i < queues.length; i++)
   {
     let queueValid = queueValidate(i);
-    // @ts-expect-error TS(2447) FIXME: The '&=' operator is not allowed for boolean types... Remove this comment to see the full error message
-    valid &= queueValid;
+    valid &&= queueValid;
   }
 
   return valid;
@@ -173,11 +172,11 @@ function ComputeResource({
   const errorsPath = [...queuesErrorsPath, queueIndex, 'computeResource', index];
   const typeError = useState([...errorsPath, 'type']);
 
-  const tInstances = new Set(["t2.micro", "t2.medium"]);
-  const gravitonInstances = new Set([]);
+  const tInstances = new Set<string>(["t2.micro", "t2.medium"]);
+  const gravitonInstances = new Set<string>([]);
 
   const instanceTypePath = [...path, "InstanceType"]
-  const instanceType = useState(instanceTypePath);
+  const instanceType: string = useState(instanceTypePath);
   const memoryBasedSchedulingEnabledPath = ['app', 'wizard', 'config', 'Scheduling', 'SlurmSettings', 'EnableMemoryBasedScheduling']
   const enableMemoryBasedScheduling = useState(memoryBasedSchedulingEnabledPath)
 
@@ -280,12 +279,11 @@ function ComputeResource({
               <Input
                 value={computeResource.MinCount || 0}
                 type="number"
-                onChange={(({detail}) => setMinCount(parseInt(detail.value)))} />
+                onChange={({detail}) => setMinCount(parseInt(detail.value))} />
             </FormField>
             <FormField label={t('wizard.queues.computeResource.dynamicNodes')}>
               <Input
-                // @ts-expect-error TS(2322) FIXME: Type 'number' is not assignable to type 'string'.
-                value={Math.max((computeResource.MaxCount || 0) - (computeResource.MinCount || 0), 0)}
+                value={Math.max((computeResource.MaxCount || 0) - (computeResource.MinCount || 0), 0).toString()}
                 type="number"
                 onChange={({detail}) => setMaxCount(parseInt(detail.value))} />
             </FormField>
@@ -306,11 +304,10 @@ function ComputeResource({
           }
         </ColumnLayout>
         <div style={{display: "flex", flexDirection: "row", gap: "20px"}}>
-          {/* @ts-expect-error TS(2345) FIXME: Argument of type 'any' is not assignable to parame... Remove this comment to see the full error message */}
-          <Toggle disabled={tInstances.has(instanceType) || gravitonInstances.has(instanceType)} checked={disableHT} onChange={(event) => {setDisableHT(!disableHT)}}><Trans i18nKey="wizard.queues.computeResource.disableHT" /></Toggle>
-          <Toggle disabled={!efaInstances.has(instanceType)} checked={enableEFA} onChange={(event) => {setEnableEFA(!enableEFA)}}><Trans i18nKey="wizard.queues.computeResource.enableEfa" /></Toggle>
+          <Toggle disabled={tInstances.has(instanceType) || gravitonInstances.has(instanceType)} checked={disableHT} onChange={_e => {setDisableHT(!disableHT)}}><Trans i18nKey="wizard.queues.computeResource.disableHT" /></Toggle>
+          <Toggle disabled={!efaInstances.has(instanceType)} checked={enableEFA} onChange={_e => {setEnableEFA(!enableEFA)}}><Trans i18nKey="wizard.queues.computeResource.enableEfa" /></Toggle>
           <div style={{display: "flex", flexDirection: "row", alignItems: "center"}}>
-            <Toggle disabled={!instanceSupportsGdr } checked={enableGPUDirect} onChange={(event) => {setEnableGPUDirect(!enableGPUDirect)}}><Trans i18nKey="wizard.queues.computeResource.enableGpuDirect" /></Toggle>
+            <Toggle disabled={!instanceSupportsGdr } checked={enableGPUDirect} onChange={_e => {setEnableGPUDirect(!enableGPUDirect)}}><Trans i18nKey="wizard.queues.computeResource.enableGpuDirect" /></Toggle>
             <HelpTooltip>
               <Trans i18nKey="wizard.queues.Gdr.help" >
                 <a rel="noreferrer" target="_blank" href='https://docs.aws.amazon.com/parallelcluster/latest/ug/Scheduling-v3.html#yaml-Scheduling-SlurmQueues-ComputeResources-Efa-GdrSupport'></a>
@@ -347,12 +344,12 @@ function Queue({
   const errorsPath = [...queuesErrorsPath, index];
   const subnetError = useState([...errorsPath, 'subnet']);
 
-  const capacityTypes = [
+  const capacityTypes: [string, string, string][] = [
     ["ONDEMAND", "On-Demand", "/img/od.svg"],
     ["SPOT", "Spot", "/img/spot.svg"],
   ];
   const capacityTypePath = [...queuesPath, index, "CapacityType"];
-  const capacityType = useState(capacityTypePath) || "ONDEMAND";
+  const capacityType: string = useState(capacityTypePath) || "ONDEMAND";
 
   const subnetPath = [...queuesPath, index, "Networking", "SubnetIds"];
   const subnetValue = useState([...subnetPath, 0]) || "";
@@ -395,14 +392,13 @@ function Queue({
               <Button disabled={queue.ComputeResources.length >= 3} onClick={addComputeResource}>Add Resource</Button>
               {index > 0 && <Button onClick={remove}>Remove Queue</Button>}
             </SpaceBetween>}>
-            {/* @ts-expect-error TS(2322) FIXME: Type '{ children: Element; direction: "horizontal"... Remove this comment to see the full error message */}
-            <SpaceBetween direction="horizontal" size="xs" style={{alignItems: "center"}}>
+            <SpaceBetween direction="horizontal" size="xs">
               { editingName ?
                 <Input
                   value={queue.Name}
                   onKeyDown={(e) => {if(e.detail.key === 'Enter' || e.detail.key === 'Escape'){setEditingName(false); e.stopPropagation()}}}
                   onChange={({detail}) => renameQueue(detail.value)} />
-                  : <span>Queue: {queue.Name} <Button variant="icon" onClick={(e) => setEditingName(true)} iconName={"edit"} ></Button></span>
+                  : <span>Queue: {queue.Name} <Button variant="icon" onClick={_e => setEditingName(true)} iconName={"edit"} ></Button></span>
               }
             </SpaceBetween>
           </Header>
@@ -413,12 +409,11 @@ function Queue({
           </FormField>
           <FormField label={t('wizard.queues.purchaseType.label')}>
             <Select
-              selectedOption={itemToDisplayIconOption(findFirst(capacityTypes, (x: any) => x[0] === capacityType))}
+              selectedOption={itemToDisplayIconOption(findFirst(capacityTypes, x => x[0] === capacityType) || ['', '', null])}
               onChange={({detail}) => {setState(capacityTypePath, detail.selectedOption.value)}}
-              // @ts-expect-error TS(2345) FIXME: Argument of type '([value, label, icon]: [any, any... Remove this comment to see the full error message
               options={capacityTypes.map(itemToIconOption)} />
           </FormField>
-          <Toggle checked={enablePlacementGroup} onChange={(event) => {setEnablePG(!enablePlacementGroup)}}><Trans i18nKey="wizard.queues.placementGroup.label" /></Toggle>
+          <Toggle checked={enablePlacementGroup} onChange={_e => {setEnablePG(!enablePlacementGroup)}}><Trans i18nKey="wizard.queues.placementGroup.label" /></Toggle>
           <div className="spacer">
           </div>
         </ColumnLayout>
@@ -441,7 +436,7 @@ function Queue({
   );
 }
 
-function QueuesView(props: any) {
+function QueuesView() {
   const queues = useState(queuesPath) || [];
   return (
     <SpaceBetween direction="vertical" size="l">

@@ -89,7 +89,7 @@ function regions(selected: any) {
   })
 }
 
-export default function Topbar(props: any) {
+export default function Topbar() {
   let username = useState(['identity', 'attributes', 'email']);
   const queryClient = useQueryClient();
 

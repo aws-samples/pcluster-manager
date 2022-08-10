@@ -11,8 +11,7 @@
 // limitations under the License.
 
 // Fameworks
-import * as React from 'react';
-import i18next from "i18next";
+import React, { useCallback } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux'
 import { findFirst } from '../../util'
@@ -44,8 +43,15 @@ function strToOption(str: any){
   return {value: str, label: str}
 }
 
+type Extension = {
+  name: string,
+  path: string,
+  description: string,
+  args: {name: string, default?: string}[]
+}
+
 const multiRunner = 'https://raw.githubusercontent.com/aws-samples/pcluster-manager/main/resources/scripts/multi-runner.py'
-const knownExtensions = [{name: 'Cloud9', path: 'cloud9.sh', description: 'Cloud9 Install', args: []},
+const knownExtensions: Extension[] = [{name: 'Cloud9', path: 'cloud9.sh', description: 'Cloud9 Install', args: []},
   {name: 'Downloader', path: 'downloader.sh', description: 'Downloader', args: [{name: 'Destination', default: '/tmp'}, {name: 'Source'}]},
   {name: 'Slurm Accounting', path: 'slurm-accounting.sh', description: 'Slurm Accounting', args: [{name: 'Secret ARN'}, {name: 'RDS Endpoint'}, {name: 'RDS Port', default: '3306'}]},
   {name: 'Spack', path: "spack.sh", description: 'Install Spack package manager.', args:[{name: 'Spack Root'}]},
@@ -231,7 +237,7 @@ function CustomAMISettings({
       })
     }
 
-  const toggleCustomAmi = (event: any) => {
+  const toggleCustomAmi = () => {
     const value = !customAmiEnabled;
     setState([...appPath, 'customAMI', 'enabled'], value);
     if(!value)
@@ -241,6 +247,15 @@ function CustomAMISettings({
         clearState([...basePath, 'Image']);
     }
   }
+
+  const selectText = useCallback(
+    (value: string) => {
+      if(value !== customAmi){
+        setState(customAmiPath, value);
+      }
+      return value
+    }, [customAmi]
+  )
 
   return (
     <>
@@ -257,8 +272,7 @@ function CustomAMISettings({
           <Autosuggest
             onChange={({ detail }) => {if(detail.value !== customAmi){setState(customAmiPath, detail.value);}}}
             value={customAmi || ""}
-            // @ts-expect-error TS(2322) FIXME: Type '(value: string) => void' is not assignable t... Remove this comment to see the full error message
-            enteredTextLabel={value => {if(value !== customAmi){setState(customAmiPath, value);}}}
+            enteredTextLabel={selectText}
             ariaLabel="Custom AMI Selector"
             placeholder="AMI ID"
             empty="No matches found"
@@ -312,8 +326,7 @@ function ArgEditor({
   return <SpaceBetween direction="horizontal" size="s">
     <div style={{marginLeft: "25px", width: "120px"}}>{argName}: </div>
     <div style={{width: "440px"}}>
-      {/* @ts-expect-error TS(2322) FIXME: Type '{ value: any; onChange: ({ detail }: NonCanc... Remove this comment to see the full error message */}
-      <Input value={multi? arg.slice(1) : arg} onChange={({detail}) => {setState([...path, i], multi? '-' + detail.value : detail.value)}} InputStyle={{width: "200px"}}/>
+      <Input value={multi? arg.slice(1) : arg} onChange={({detail}) => {setState([...path, i], multi? '-' + detail.value : detail.value)}} />
     </div>
     <Button onClick={remove}>Remove</Button>
   </SpaceBetween>;
@@ -329,7 +342,6 @@ function MultiRunnerScriptEditor({
   const args = useState(path);
   const arg = useState([...path, i]);
   const knownScripts = knownExtensions.map(({path}) => path);
-  const knownScriptNames = knownExtensions.map(({name}) => name.toLowerCase());
   const remove = () => {
     if(args.length > 1)
       setState([...path], [...args.slice(0, i), ...args.slice(i + 1)]);
@@ -370,8 +382,8 @@ function MultiRunnerScriptEditor({
     if(script.startsWith(baseScriptPath) && knownScripts.includes(script.slice(baseScriptPath.length)))
     {
       const path = script.slice(baseScriptPath.length);
-      const extension = findFirst(knownExtensions, (e: any) => e.path === path)
-      return extension.name;
+      const extension: Extension | undefined = findFirst(knownExtensions, e => e.path === path)
+      return extension ? extension.name : script;
     } else {
       return script;
     }
@@ -390,19 +402,17 @@ function MultiRunnerScriptEditor({
             setState([...path, i], detail.value);
         }
       }}
-      // @ts-expect-error TS(2322) FIXME: Type '(newValue: string) => void' is not assignabl... Remove this comment to see the full error message
       enteredTextLabel={(newValue) => {
         if(newValue !== arg)
           setState([...path, i], newValue);
+        return newValue;
       }}
       ariaLabel="Script Selector"
       placeholder="http://path/to/script"
       empty="No matches found"
       options={knownExtensions.map((({name, path, description}) => {return {label: name, value: path, description: description}}))}/>
-    {/* @ts-expect-error TS(2322) FIXME: Type '{ children: Element; style: { whiteSpace: st... Remove this comment to see the full error message */}
-    <Button style={{whiteSpace: "nowrap"}} onClick={remove}><span style={{whiteSpace: "nowrap", marginRight: "40px"}}>Remove</span></Button>
-    {/* @ts-expect-error TS(2322) FIXME: Type '{ children: Element; style: { whiteSpace: st... Remove this comment to see the full error message */}
-    <Button style={{whiteSpace: "nowrap"}} onClick={addArg}><span style={{whiteSpace: "nowrap", marginRight: "40px"}}>Add Arg</span></Button>
+    <Button onClick={remove}><span style={{whiteSpace: "nowrap", marginRight: "40px"}}>Remove</span></Button>
+    <Button onClick={addArg}><span style={{whiteSpace: "nowrap", marginRight: "40px"}}>Add Arg</span></Button>
   </div>
 }
 
@@ -430,7 +440,6 @@ function ActionEditor({
 }: any) {
   const script = useState([...path, 'Script']) || '';
   const args = useState([...path, 'Args']) || [];
-  const baseScriptPath = script.slice(0, script.lastIndexOf('/') + 1);
 
   const addArg = (path: any) => {
     updateState(path, (old: any) => [...(old || []), '']);
@@ -597,8 +606,7 @@ function RootVolume({
       <Select
         disabled={editing}
         placeholder={t('wizard.components.rootVolume.type.placeholder', {defaultRootVolumeType: defaultRootVolumeType})}
-        // @ts-expect-error TS(2322) FIXME: Type '{ disabled: any; placeholder: string | undef... Remove this comment to see the full error message
-        selectedOption={rootVolumeType && strToOption(rootVolumeType)} label="Volume Type" onChange={({detail}) => {setState(rootVolumeTypePath, detail.selectedOption.value)}}
+        selectedOption={rootVolumeType && strToOption(rootVolumeType)} onChange={({detail}) => {setState(rootVolumeTypePath, detail.selectedOption.value)}}
         options={volumeTypes.map(strToOption)}
       />
     </div>

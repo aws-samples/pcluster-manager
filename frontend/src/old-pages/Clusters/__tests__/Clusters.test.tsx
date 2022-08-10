@@ -10,16 +10,18 @@ import i18n from '../../../i18n'
 import { ListClusters } from '../../../model'
 import { store, clearState, setState } from '../../../store'
 import Clusters, { onClustersUpdate } from '../Clusters'
+import { ClusterStatus, ClusterInfoSummary } from '../../../types/clusters'
+import { CloudFormationStackStatus } from '../../../types/base'
 
 
 const queryClient = new QueryClient();
-const mockClusters = [{
+const mockClusters: ClusterInfoSummary[] = [{
   clusterName: 'test-cluster',
-  clusterStatus: 'CREATE_COMPLETE',
+  clusterStatus: ClusterStatus.CreateComplete,
   version: '3.1.4',
   cloudformationStackArn: 'arn',
   region: 'region',
-  cloudformationStackStatus: 'status'
+  cloudformationStackStatus: CloudFormationStackStatus.CreateComplete
 }];
 
 const MockProviders = (props: any) => (
@@ -123,15 +125,15 @@ describe("Given a list of clusters", () => {
   describe("when a cluster is selected and the list is updated", () => {
     describe("when the cluster has a new status", () => {
       it("should be saved", () => {
-        onClustersUpdate("test-cluster", mockClusters, "CREATE_IN_PROGRESS", mockNavigate);
+        onClustersUpdate("test-cluster", mockClusters, ClusterStatus.CreateInProgress, mockNavigate);
 
-        expect(setState).toHaveBeenCalledWith(['app', 'clusters', 'selectedStatus'], "CREATE_COMPLETE");
+        expect(setState).toHaveBeenCalledWith(['app', 'clusters', 'selectedStatus'], ClusterStatus.CreateComplete);
       });
     });
 
     describe("when the cluster has the same status", () => {
       it("should not be updated", () => {
-        onClustersUpdate("test-cluster", mockClusters, "CREATE_COMPLETE", mockNavigate);
+        onClustersUpdate("test-cluster", mockClusters, ClusterStatus.CreateComplete, mockNavigate);
 
         expect(setState).not.toHaveBeenCalled();
       });
@@ -139,7 +141,7 @@ describe("Given a list of clusters", () => {
 
     describe("when a cluster is deleted", () => {
       beforeEach(() => {
-        onClustersUpdate("test-cluster", mockClusters, "DELETE_IN_PROGRESS", mockNavigate);
+        onClustersUpdate("test-cluster", mockClusters, ClusterStatus.DeleteInProgress, mockNavigate);
       });
       it("should become unselected", () => {
         expect(clearState).toHaveBeenCalledWith(['app', 'clusters', 'selected']);

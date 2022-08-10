@@ -8,6 +8,7 @@
 // or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
+import { ImageBuildStatus } from '../../types/images'
 import React, { useCallback } from 'react';
 
 import { setState, getState, useState } from '../../store'
@@ -160,14 +161,12 @@ export default function CustomImageDetails() {
       {
         label: "Configuration",
         id: "configuration",
-        // @ts-expect-error TS(2322) FIXME: Type '{ imageId: any; }' is not assignable to type... Remove this comment to see the full error message
-        content: <CustomImageConfiguration imageId={selected} />
+        content: <CustomImageConfiguration />
       },
-      ...(image && (image.imageBuildStatus !== 'BUILD_COMPLETE') ? [{
+      ...(image && (image.imageBuildStatus !== ImageBuildStatus.BuildComplete) ? [{
         label: "Stack Events",
         id: "stack-events",
-        // @ts-expect-error TS(2322) FIXME: Type '{ imageId: any; }' is not assignable to type... Remove this comment to see the full error message
-        content: <CustomImageStackEvents imageId={selected} />
+        content: <CustomImageStackEvents />
       }] : []),
       // {
       //   label: "Logs",

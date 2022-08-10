@@ -50,8 +50,7 @@ export function DeleteDialog({
         <Box float="right">
           <SpaceBetween direction="horizontal" size="xs">
             <Button onClick={cancel}>Cancel</Button>
-            {/* @ts-expect-error TS(2322) FIXME: Type '{ children: string; onClick: any; autoFocus:... Remove this comment to see the full error message */}
-            <Button onClick={deleteCallback} autoFocus>Delete!</Button>
+            <Button onClick={deleteCallback}>Delete!</Button>
           </SpaceBetween>
         </Box>
       }

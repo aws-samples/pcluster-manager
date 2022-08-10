@@ -8,6 +8,7 @@
 // or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
+import { ImageInfoSummary } from '../../types/images'
 import React from 'react';
 import { useSelector } from 'react-redux'
 
@@ -40,25 +41,21 @@ import {
 const imageBuildPath = ['app', 'customImages', 'imageBuild'];
 
 // selectors
-const selectCustomImagesList = (state: any) => state.customImages.list;
+const selectCustomImagesList = (state: any) : ImageInfoSummary[] => state.customImages.list;
 
 function CustomImagesList() {
   const images = useSelector(selectCustomImagesList) || [];
-  const open = useState([...imageBuildPath, 'dialog']);
 
-  const[ selected, setSelected ] = React.useState([]);
+  const [ selected, setSelected ] = React.useState<ImageInfoSummary[]>([]);
 
-  let select = (image: any) => {
-    // @ts-expect-error TS(2322) FIXME: Type 'any' is not assignable to type 'never'.
+  let select = (image: ImageInfoSummary) => {
     setSelected([image]);
     DescribeCustomImage(image.imageId);
-    console.log("selecting: ", image.imageId);
     setState(['app', 'customImages', 'selected'], image.imageId);
   }
 
   const buildImage = () => {
     setState([...imageBuildPath, 'dialog'], true);
-    console.log("open", open);
   }
 
   const { items, actions, filteredItemsCount, collectionProps, filterProps, paginationProps } = useCollection(
@@ -91,30 +88,30 @@ function CustomImagesList() {
         {
             id: "name",
             header: "Name",
-            cell: item => (item as any).imageId,
+            cell: image => image.imageId,
             sortingField: "imageId"
         },
         {
             id: "ami-id",
             header: "AMI ID",
-            cell: item => (item as any).ec2AmiInfo ? (item as any).ec2AmiInfo.amiId : "",
+            cell: image => image.ec2AmiInfo ? image.ec2AmiInfo.amiId : "",
         },
         {
             id: "status",
             header: "Status",
-            cell: item => (item as any).imageBuildStatus || "-",
+            cell: image => image.imageBuildStatus || "-",
             sortingField: "imageBuildStatus"
         },
         {
             id: "region",
             header: "Region",
-            cell: item => (item as any).region || "-",
+            cell: image => image.region || "-",
             sortingField: "region"
         },
         {
             id: "version",
             header: "Version",
-            cell: item => (item as any).version || "-",
+            cell: image => image.version || "-",
         }
     ]} loading={images === null} items={items} selectionType="single" loadingText="Loading Images..." pagination={<Pagination {...paginationProps}/>} filter={<TextFilter {...filterProps} countText={`Results: ${filteredItemsCount}`} filteringAriaLabel="Filter image"/>} selectedItems={selected} onSelectionChange={(e) => { select(e.detail.selectedItems[0]); }}/>);
 }

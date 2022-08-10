@@ -8,6 +8,9 @@
 // or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
+import { CloudFormationResourceStatus, Region } from '../../types/base'
+import { ClusterName, ClusterStatus } from '../../types/clusters'
+import { StackEvent, StackEvents } from '../../types/stackevents'
 import React from 'react';
 import { Link, useSearchParams } from "react-router-dom"
 
@@ -24,69 +27,52 @@ import {
   Header,
   Pagination,
   SpaceBetween,
-  StatusIndicator,
   Table,
   TextFilter
 } from '@awsui/components-react';
 
 // Components
+import { StackEventStatusIndicator }from "../../components/Status";
 import DateView from '../../components/DateView'
 import Loading from '../../components/Loading'
 import EmptyState from '../../components/EmptyState';
 
+function EventStatus(stackEvent: StackEvent) {
+  const {logicalResourceId, resourceStatus} = stackEvent;
 
-function EventStatus({
-  logicalId,
-  status
-}: any) {
-  const statusIndicatorMap = {'DELETE_FAILED': 'error',
-    'UPDATE_FAILED': 'error',
-    'ROLLBACK_FAILED': 'error',
-    'CREATE_FAILED': 'error',
-    'DELETE_COMPLETE': 'success',
-    'CREATE_COMPLETE': 'success',
-    'ROLLBACK_COMPLETE': 'success',
-    'UPDATE_COMPLETE': 'success',
-    'CREATE_IN_PROGRESS': 'info',
-    'DELETE_IN_PROGRESS': 'info',
-    'UPDATE_IN_PROGRESS': 'info',
-    'ROLLBACK_IN_PROGRESS': 'error'
-  }
-
-  const clusterName = useState(['app', 'clusters', 'selected']);
+  const clusterName: ClusterName = useState(['app', 'clusters', 'selected']);
   const clusterPath = ['clusters', 'index', clusterName];
   let headNode = useState([...clusterPath, 'headNode']);
 
-  const events = useState(['clusters', 'index', clusterName, 'stackevents', 'events']);
+  const events: StackEvents = useState(['clusters', 'index', clusterName, 'stackevents', 'events']);
 
-  let getHeadNode = (events: any) => {
-    let event = findFirst(events, (e: any) => e.logicalResourceId === 'HeadNode');
+  let getHeadNode = (events: StackEvent[]) => {
+    let event = findFirst(events, (e: StackEvent) => e.logicalResourceId === 'HeadNode');
     if(event)
       return {instanceId: event.physicalResourceId};
   }
 
-  if(logicalId.startsWith('HeadNodeWaitCondition') && status === 'CREATE_FAILED' && !headNode)
+  if(logicalResourceId.startsWith('HeadNodeWaitCondition') && resourceStatus === CloudFormationResourceStatus.CreateFailed && !headNode)
   {
     headNode = getHeadNode(events);
   }
 
-  // @ts-expect-error TS(2820) FIXME: Type '"horizotnal"' is not assignable to type 'Dir... Remove this comment to see the full error message
-  return <SpaceBetween direction='horizotnal' size='s'>
-    {/* @ts-expect-error TS(7053) FIXME: Element implicitly has an 'any' type because expre... Remove this comment to see the full error message */}
-    <StatusIndicator type={status in statusIndicatorMap ? statusIndicatorMap[status] : 'info'}>{status}</StatusIndicator>
-    {headNode && logicalId.startsWith('HeadNodeWaitCondition') && status === 'CREATE_FAILED' && <div>
-      &nbsp; Logs: <Link to={`/clusters/${clusterName}/logs?instance=${headNode.instanceId}&filename=cfn-init&filter=ERROR`}>cfn-init</Link>
+  return <SpaceBetween direction='horizontal' size='s'>
+    <StackEventStatusIndicator stackEvent={stackEvent}>
+      {headNode && logicalResourceId.startsWith('HeadNodeWaitCondition') && resourceStatus === CloudFormationResourceStatus.CreateFailed && <div>
+        &nbsp; Logs: <Link to={`/clusters/${clusterName}/logs?instance=${headNode.instanceId}&filename=cfn-init&filter=ERROR`}>cfn-init</Link>
       </div>}
+    </StackEventStatusIndicator>
   </SpaceBetween>
 }
 
 export default function ClusterStackEvents() {
-  const clusterName = useState(['app', 'clusters', 'selected']);
-  const events = useState(['clusters', 'index', clusterName, 'stackevents', 'events']);
+  const clusterName: ClusterName = useState(['app', 'clusters', 'selected']);
+  const events: StackEvents = useState(['clusters', 'index', clusterName, 'stackevents', 'events']);
   const columns = useState(['app', 'clusters', 'stackevents', 'columns']) || ['timestamp', 'logicalId', 'status', 'statusReason']
   const pageSize = useState(['app', 'clusters', 'stackevents', 'pageSize']) || 100
   const defaultRegion = useState(['aws', 'region']);
-  const region = useState(['app', 'selectedRegion']) || defaultRegion;
+  const region: Region = useState(['app', 'selectedRegion']) || defaultRegion;
   let [searchParams, setSearchParams] = useSearchParams();
 
   const clusterPath = ['clusters', 'index', clusterName];
@@ -96,7 +82,7 @@ export default function ClusterStackEvents() {
     cfnHref = `${consoleDomain(region)}/cloudformation/home?region=${region}#/stacks/events?filteringStatus=active&filteringText=${clusterName}&viewNested=true&hideStacks=false&stackId=${encodeURIComponent(cluster.cloudformationStackArn)}`
 
   React.useEffect(() => {
-    const clusterName = getState(['app', 'clusters', 'selected']);
+    const clusterName: ClusterName = getState(['app', 'clusters', 'selected']);
     const clusterPath = ['clusters', 'index', clusterName];
     const cluster = getState(clusterPath);
     const headNode = getState([...clusterPath, 'headNode']);
@@ -104,7 +90,7 @@ export default function ClusterStackEvents() {
     DescribeCluster(clusterName);
 
     let timerId: ReturnType<typeof setInterval> | undefined = (setInterval(() => {
-      if(cluster.clusterStatus !== 'CREATE_IN_PROGRESS')
+      if(cluster.clusterStatus !== ClusterStatus.CreateInProgress)
       {
         clearInterval(timerId);
         timerId = undefined;
@@ -162,23 +148,23 @@ export default function ClusterStackEvents() {
             {
                 id: 'timestamp',
                 header: 'Timestamp',
-                cell: item => <DateView date={(item as any).timestamp}/>,
+                cell: event => <DateView date={event.timestamp}/>,
                 sortingField: 'timestamp'
             },
             {
                 id: 'logicalId',
                 header: 'Logical ID',
-                cell: item => (item as any).logicalResourceId,
+                cell: event => event.logicalResourceId,
             },
             {
                 id: 'status',
                 header: 'Status',
-                cell: item => <EventStatus logicalId={(item as any).logicalResourceId} status={(item as any).resourceStatus}/>,
+                cell: event => <EventStatus {...event} />,
             },
             {
                 id: 'statusReason',
                 header: 'Status reason',
-                cell: item => (item as any).resourceStatusReason,
+                cell: event => event.resourceStatusReason,
             },
         ]} loading={events === null} items={items} loadingText="Loading Logs..." pagination={<Pagination {...paginationProps}/>} filter={<TextFilter {...filterProps} filteringText={searchParams.get('filter') || ''} onChange={(e) => { searchParams.set('filter', e.detail.filteringText); setSearchParams(searchParams); filterProps.onChange(e); }} countText={`Results: ${filteredItemsCount}`} filteringAriaLabel="Filter logs"/>} preferences={<CollectionPreferences onConfirm={({ detail }) => {
                 setState(['app', 'clusters', 'stackevents', 'columns'], detail.visibleContent);

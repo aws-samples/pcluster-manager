@@ -100,11 +100,10 @@ export default function ImageBuildDialog(props: any) {
 
   const handleBuild = () => {
     var errHandler = (err: any) => {setState([...imageBuildPath, 'errors'], err); setState([...imageBuildPath, 'pending'], false);}
-    var successHandler = (resp: any) => {setState([...imageBuildPath, 'pending'], false); handleClose();}
+    var successHandler = (_resp: any) => {setState([...imageBuildPath, 'pending'], false); handleClose();}
     clearState([...imageBuildPath, 'errors']);
     setState([...imageBuildPath, 'pending'], true)
-    // @ts-expect-error TS(2774) FIXME: This condition will always return true since this ... Remove this comment to see the full error message
-    buildImageValidate && BuildImage(imageId, imageConfig, successHandler, errHandler);
+    buildImageValidate() && BuildImage(imageId, imageConfig, successHandler, errHandler);
   }
 
   const setImageId = (newImageId: any) => {

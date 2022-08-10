@@ -93,8 +93,7 @@ function sourceValidate(suppressUpload = false) {
     return false;
   }
 
-  // @ts-expect-error TS(2447) FIXME: The '&' operator is not allowed for boolean types.... Remove this comment to see the full error message
-  if(valid && (source === 'cluster') & !suppressUpload)
+  if(valid && (source === 'cluster') && !suppressUpload)
   {
     setState(loadingPath, true);
     copyFrom(sourceClusterName);
@@ -154,7 +153,6 @@ function Source() {
 
     } else if(source === 'template')
     {
-      // @ts-expect-error TS(2554) FIXME: Expected 2 arguments, but got 1.
       loadTemplate(jsyaml.load(data))
     }
   }

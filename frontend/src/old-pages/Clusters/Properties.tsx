@@ -8,6 +8,7 @@
 // or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
+import { ClusterStatus, ClusterDescription } from '../../types/clusters'
 import React from 'react';
 
 import { findFirst, clusterDefaultUser } from '../../util'
@@ -30,7 +31,7 @@ import {
 // Components
 import ConfigDialog from './ConfigDialog'
 import DateView from '../../components/DateView'
-import Status from '../../components/Status'
+import { ClusterStatusIndicator, ComputeFleetStatusIndicator } from '../../components/Status'
 import HelpTooltip from '../../components/HelpTooltip'
 
 // Key:Value pair (label / children)
@@ -51,7 +52,7 @@ export default function ClusterProperties () {
 
   const clusterName = useState(['app', 'clusters', 'selected']);
   const clusterPath = ['clusters', 'index', clusterName];
-  const cluster = useState(clusterPath);
+  const cluster: ClusterDescription = useState(clusterPath);
   const headNode = useState([...clusterPath, 'headNode']);
   const defaultRegion = useState(['aws', 'region']);
   const region = useState(['app', 'selectedRegion']) || defaultRegion;
@@ -95,15 +96,15 @@ export default function ClusterProperties () {
             </div>
           </ValueWithLabel>
           <ValueWithLabel label="clusterConfiguration">
-            <Button disabled={cluster.clusterStatus === 'CREATE_FAILED'} iconName="external" onClick={() => setState(['app', 'clusters', 'clusterConfig', 'dialog'], true)}>View</Button>
+            <Button disabled={cluster.clusterStatus === ClusterStatus.CreateFailed} iconName="external" onClick={() => setState(['app', 'clusters', 'clusterConfig', 'dialog'], true)}>View</Button>
           </ValueWithLabel>
         </SpaceBetween>
         <SpaceBetween size="l">
           <ValueWithLabel label="clusterStatus">
-            <Status status={cluster.clusterStatus} cluster={cluster} />
+            <ClusterStatusIndicator cluster={cluster} />
           </ValueWithLabel>
           <ValueWithLabel label="computeFleetStatus">
-            <Status status={cluster.computeFleetStatus} />
+            <ComputeFleetStatusIndicator status={cluster.computeFleetStatus} />
           </ValueWithLabel>
           <ValueWithLabel label="creationTime">
             <DateView date={cluster.creationTime} />
