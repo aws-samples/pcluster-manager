@@ -42,6 +42,10 @@ AUTH_URL = os.getenv("AUTH_URL", f"{AUTH_PATH}/login")
 JWKS_URL = os.getenv("JWKS_URL")
 AUDIENCE = os.getenv("AUDIENCE")
 USER_ROLES_CLAIM = os.getenv("USER_ROLES_CLAIM", "cognito:groups")
+PCLUSTER_COST_TAGS = ['parallelcluster:attributes', 
+    'parallelcluster:cluster-name', 'parallelcluster:compute-resource-name', 'parallelcluster:filesystem', 
+    'parallelcluster:networking', 'parallelcluster:node-type', 'parallelcluster:queue-name', 
+    'parallelcluster:resource', 'parallelcluster:version']
 
 try:
     if (not USER_POOL_ID or USER_POOL_ID == "") and SECRET_ID:
@@ -687,9 +691,75 @@ def _get_params(_request):
     params.pop("path")
     return params
 
+def check_tags():
+    cost_explorer = boto3.client('ce')
+    inactive_tags = cost_explorer.list_cost_allocation_tags(Status='Inactive',TagKeys=PCLUSTER_COST_TAGS)
+    try:
+        return {'TagStatus': not (len(inactive_tags['CostAllocationTags']) > 0)}
+    except Exception as e:
+        return {"message": str(e)}, 500
 
-# Proxy
+def activate_tags():
+    try:
+        cost_explorer = boto3.client('ce')
+        newlist = [{'TagKey': tag, 'Status': 'Active'} for tag in PCLUSTER_COST_TAGS]
+        cost_explorer.update_cost_allocation_tags_status(CostAllocationTagsStatus=newlist)
+        return {"message": "Activated Tags"}
+    except Exception as e:
+        return {"message": str(e)}, 500
+ 
+def get_graph_data():
+    cluster_name = request.args.get("cluster_name")
+    start = request.args.get("start")
+    end = request.args.get("end")
+    if cluster_name is None or start is None or end is None:
+        return {"message": "cluster_name , start date, or end date are not specified"}, 400
+    cost_explorer = boto3.client('ce')
+    try:
+        data = cost_explorer.get_cost_and_usage(
+            TimePeriod={
+                'Start': start,
+                'End': end
+            },
+            Filter={
+                'Tags': {
+                    'Key': 'parallelcluster:cluster-name',
+                    'Values': [
+                        cluster_name,
+                    ],
+                    'MatchOptions': [
+                        'EQUALS',
+                    ]
+                },
+            },
+            Granularity='DAILY',
+            Metrics=[
+                'NetUnblendedCost',
+            ],
+            GroupBy=[
+                {
+                    'Type': 'DIMENSION',
+                    'Key': 'INSTANCE_TYPE'
+                },
+            ],
+        )
+        return data
+    except Exception as e:
+        return {"message": str(e)}, 500
 
+def get_budget_data():
+    account_id = boto3.client('sts').get_caller_identity().get('Account')
+    if account_id is None:
+        return {"message": "Account ID is not specified"}, 400
+    try:
+        cluster_name = request.args.get('cluster_name')
+        data = boto3.client('budgets').describe_budget(
+            AccountId=account_id,
+            BudgetName=cluster_name,
+        )
+        return data
+    except Exception as e:
+        return {"message": str(e)}, 500
 
 class PclusterApiHandler(Resource):
     method_decorators = [authenticated("user")]

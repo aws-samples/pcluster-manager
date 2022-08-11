@@ -361,5 +361,102 @@
       "header": "Required memory",
       "description": "Real memory required per node, in MB. A memory size specification of zero is treated as a special case and grants the job access to all of the memory on each node. [optional]"
     }
+  },
+  "CostTab": {
+    "dateRangePicker": {
+      "placeholder": "Filter by a date range",
+      "dateRangePickerSetting":  {
+        "todayAriaLabel": "Today",
+        "nextMonthAriaLabel": "Next month",  
+        "previousMonthAriaLabel": "Previous month",
+        "customRelativeRangeDurationLabel": "Duration",
+        "customRelativeRangeDurationPlaceholder": "Enter duration",
+        "customRelativeRangeOptionLabel": "Custom range",
+        "customRelativeRangeOptionDescription": "Set a custom range of days in the past. Use Days as Unit of Time.",
+        "customRelativeRangeUnitLabel": "Unit of time",
+        "dateTimeConstraintText": "Select any Range of days. Use 24 hour format.",
+        "relativeModeTitle": "Relative range",
+        "absoluteModeTitle": "Absolute range",
+        "relativeRangeSelectionHeading": "Choose a range",
+        "startDateLabel": "Start date",
+        "endDateLabel": "End date",
+        "startTimeLabel": "Start time",
+        "endTimeLabel": "End time",
+        "clearButtonLabel": "Clear and dismiss",
+        "cancelButtonLabel": "Cancel",
+        "applyButtonLabel": "Apply"
+      }
+    },
+    "ProgressBar": {
+      "additionalInfo": "Create a Budget with an identical name as your respective cluster for accurate information", 
+      "description": "Progress",
+      "label": "Cost Usage of Budget"
+    },
+    "HelpToolTip": {
+      "Text": "If you haven't created a budget, create a custom cost budget on ",
+      "Title": "AWS Budgets"
+    },
+    "CostExplorerButton": {
+      "Text": "View Data in Cost Explorer"
+    },
+    "Header": {
+      "Title": "Cluster Costs"
+    },
+    "TagsButton": {
+      "Text": "Activate Tags"
+    },
+    "CostTable": {
+      "Name": "All Instance Types",
+      "description": {
+        "Sentence": "Total Cost for all instance types from",
+        "To": "to",
+        "TotalCostFor": "Total Cost for",
+        "Transition": "instances from"
+      }
+    },
+    "NoInstanceType": {
+      "Text": "*The NoInstanceType category includes miscellaneous costs such as EBS, read more about",
+      "Title": "EBS Pricing"
+    },
+    "Table": {
+      "NoResources":"Loading resources",
+      "LoadingText": {
+        "NoResources": "No Resources",
+        "NoResourcesToDisplay": "No Resources To Display.",
+        "CreateResources": "Create Resources"
+      }
+    },
+    "BarChart": {
+      "values": {
+        "ariaLabel": "Stacked bar chart",
+        "errorText": "Error loading data.",
+        "loadingText": "Loading chart",
+        "recoveryText": "Retry",
+        "xScaleType": "categorical",
+        "xTitle":"Date",
+        "yTitle":"Cost(s) $"
+      },
+      "empty": {
+        "NoData": "No data available",
+        "ThereIsNoData": "There is no data available"
+      },
+      "noMatch":{
+        "NoMatchingData": "No matching data",
+        "ThereIsNoMatchingData": "There is no matching data to display",
+        "ClearFilter": "Clear filter"
+      }
+    },
+    "BarChartSetting": {
+      "filterLabel": "Filter displayed data",
+      "filterPlaceholder": "Filter data",
+      "filterSelectedAriaLabel": "selected",
+      "legendAriaLabel": "Legend",
+      "chartAriaRoleDescription": "line chart"
+    },
+    "BarChartColumns": {
+      "InstanceType": "Instance Type",
+      "TotalCost": "Total Cost",
+      "Summary": "Summary"
+    }
   }
 }
