@@ -20,7 +20,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-region: eu-west-1
-          role-to-assume: PrivateDeployRole
+          role-to-assume: arn:aws:iam::063695377715:role/pcluster-manager-github-PrivateDeployRole-8D5K5C4RM02U
       
       - name: Test AWS credentials
         run: aws sts get-caller-identity --query "Account" --output text
