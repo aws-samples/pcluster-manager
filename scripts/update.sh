@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-REGION=$(python -c 'import boto3; print(boto3.Session().region_name)')
+REGION=$(aws configure get region)
 REGION_SET=false
 LOCAL=false
 TAG=latest
