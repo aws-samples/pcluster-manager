@@ -1,0 +1,22 @@
+name: Deploy to Demo
+
+on:
+  push:
+    branches:
+      - aws-credentials-demo
+
+jobs:
+  deploy:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: eu-west-1
+          role-to-assume: PrivateDeployRole
+      
+      - name: Test AWS credentials
+        run: aws sts get-caller-identity --query "Account" --output text
