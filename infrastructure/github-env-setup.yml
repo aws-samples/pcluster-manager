@@ -51,6 +51,14 @@ Resources:
                   - ecr:GetAuthorizationToken
                   - sts:GetCallerIdentity
                 Resource: "*"
+              - Effect: Allow
+                Action:
+                  - ecr:CompleteLayerUpload
+                  - ecr:UploadLayerPart
+                  - ecr:InitiateLayerUpload
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:PutImage
+                Resource: !Sub arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/pcluster-manager*
 
   GithubOidc:
     Type: AWS::IAM::OIDCProvider
