@@ -3,6 +3,10 @@ title = "c. Memory Scheduling 💾"
 weight = 23
 +++
 
+{{% notice info %}}
+This feature was launched in AWS ParallelCluster **3.2.0** and can be enabled by enabling **Slurm Memory Based Scheduling Enabled** in the **HeadNode** configuration screen. See [Slurm memory-based scheduling](https://docs.aws.amazon.com/parallelcluster/latest/ug/slurm-mem-based-scheduling-v3.html) in the AWS ParallelCluster docs for more info.
+{{% /notice %}}
+
 Slurm supports memory based scheduling via a `--mem` or `--mem-per-cpu` flag provided at job submission time. This allows scheduling of jobs with high memory requirements, allowing users to guarantee a set amount of memory per-job or per-process.
 
 For example users can run:
@@ -11,13 +15,21 @@ For example users can run:
 sbatch --mem-per-cpu=64G -n 8 ...
 ```
 
-To get 8 vcpus and 64 gigs of memory. 
+To get 8 vcpus and 64 gigs of memory.
 
 In order to add in memory information, we have a managed post-install script that can be setup with Pcluster Manager. This script sets the `RealMemory` to **85%** of the available system memory, allowing 15% to system processes.
 
-### Step 1 - enable post-install script
+### Setup with 3.2.0
 
-To enable this, create a new cluster and one the **HeadNode** configuration screen, click on the "Advanced" dropdown and add in the managed `Memory` script:
+When setting up a cluster with version > **3.2.0**, simply toggle **Slurm Memory Based Scheduling Enabled** to on:
+
+![Enable Memory Scheduling](memory-scheduling/HeadNode-Setup.png)
+
+Optionally you can setup the specific amount of memory that Slurm configures on each node, however I don't reccomend doing this as it may results in a job over-allocating memory.
+
+### Setup with < 3.2.0
+
+To enable this in versions < **3.2.0**, create a new cluster and in the **HeadNode** configuration screen, click on the "Advanced" dropdown and add in the managed `Memory` script:
 
 ![Enable Memory Script](memory-scheduling/memory.png)
 
@@ -26,8 +38,6 @@ Then add the following managed IAM policy to the head node:
 ```
 arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
 ```
-
-### Step 2 - review and launch
 
 On the last screen your config should look similar to the following, note you'll minimally need `AmazonEC2ReadOnlyAccess` and `https://raw.githubusercontent.com/aws-samples/pcluster-manager/main/resources/scripts/mem.sh` script.
 
@@ -70,7 +80,7 @@ Image:
   Os: alinux2
 ```
 
-### Step 3 - test
+### Test
 
 When the cluster has been created you can check the memory settings for each instance:
 
