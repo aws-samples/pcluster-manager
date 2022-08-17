@@ -5,6 +5,10 @@ on:
     branches:
       - aws-credentials-demo
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   deploy:
     runs-on: ubuntu-20.04
