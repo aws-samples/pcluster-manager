@@ -23,4 +23,4 @@ jobs:
           role-to-assume: arn:aws:iam::063695377715:role/pcluster-manager-github-PrivateDeployRole-8D5K5C4RM02U
       
       - name: Test AWS credentials
-        run: aws sts get-caller-identity --query "Account" --output text
+        run: aws lambda --region eu-west-1 list-functions --query "Functions[?contains(FunctionName, 'PclusterManagerFunction')] | [0].FunctionArn" | xargs echo
