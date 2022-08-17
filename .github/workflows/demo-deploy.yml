@@ -3,7 +3,7 @@ name: Deploy to Demo
 on:
   push:
     branches:
-      - aws-credentials-demo
+      - main
 
 permissions:
   id-token: write
