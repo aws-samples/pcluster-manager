@@ -43,7 +43,7 @@ Resources:
                   - ecr:DescribeRepositories
                 Resource:
                   - !Sub arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:PclusterManagerFunction*
-                  - !Sub arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/pcluster-manager*
+                  - !Sub arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/*
               - Effect: Allow
                 Action:
                   - lambda:ListFunctions
