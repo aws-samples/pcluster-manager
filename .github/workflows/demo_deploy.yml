@@ -1,0 +1,26 @@
+name: Deploy to Demo
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: eu-west-1
+          role-to-assume: arn:aws:iam::063695377715:role/pcluster-manager-github-PrivateDeployRole-8D5K5C4RM02U
+      
+      - name: Test AWS credentials
+        run: aws lambda --region eu-west-1 list-functions --query "Functions[?contains(FunctionName, 'PclusterManagerFunction')] | [0].FunctionArn" | xargs echo
