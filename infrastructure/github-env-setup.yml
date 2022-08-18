@@ -1,0 +1,75 @@
+Parameters:
+  GitHubOrg:
+    Type: String
+    Default: aws-samples
+  RepositoryName:
+    Type: String
+    Default: pcluster-manager
+  OIDCProviderArn:
+    Description: Arn for the GitHub OIDC Provider. If left empty a new OIDCProvider will be created.
+    Default: ""
+    Type: String
+
+Conditions:
+  CreateOIDCProvider: !Equals 
+    - !Ref OIDCProviderArn
+    - ""
+
+Resources:
+  PrivateDeployRole:
+    Type: AWS::IAM::Role
+    Description: "Role used to deploy PCM to a private environment (for example, demo)"
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action: sts:AssumeRoleWithWebIdentity
+            Principal:
+              Federated: !If 
+                - CreateOIDCProvider
+                - !Ref GithubOidc
+                - !Ref OIDCProviderArn
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+                token.actions.githubusercontent.com:sub: !Sub repo:${GitHubOrg}/${RepositoryName}:ref:refs/heads/main
+      Policies:
+        - PolicyName: UpdateLambdaFromPrivateECR
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:UpdateFunctionCode
+                  - ecr:DescribeRepositories
+                Resource:
+                  - !Sub arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:PclusterManagerFunction*
+                  - !Sub arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/*
+              - Effect: Allow
+                Action:
+                  - lambda:ListFunctions
+                  - ecr:GetAuthorizationToken
+                  - sts:GetCallerIdentity
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - ecr:CompleteLayerUpload
+                  - ecr:UploadLayerPart
+                  - ecr:InitiateLayerUpload
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:PutImage
+                Resource: !Sub arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/pcluster-manager*
+
+  GithubOidc:
+    Type: AWS::IAM::OIDCProvider
+    Condition: CreateOIDCProvider
+    Properties:
+      Url: https://token.actions.githubusercontent.com
+      ClientIdList: 
+        - sts.amazonaws.com
+      ThumbprintList:
+        - 6938fd4d98bab03faadb97b34396831e3780aea1
+
+Outputs:
+  PrivateDeployRole:
+    Value: !GetAtt PrivateDeployRole.Arn
