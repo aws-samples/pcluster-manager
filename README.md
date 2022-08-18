@@ -5,10 +5,7 @@ This project is a front-end for [AWS Parallel Cluster](https://github.com/aws/aw
 
 Quickly and easily create HPC cluster in AWS using ParallelCluster Manager. This UI uses the AWS ParallelCluster 3.0 API to Create, Update and Delete Clusters as well as access, view logs, and build Amazon Machine Images (AMI's).
 
-Want to request a new feature? 
-
-1. First checkout the [Roadmap](https://github.com/aws-samples/pcluster-manager/projects/1)
-2. If you don't already see your feature, [open a feature request](https://github.com/aws-samples/pcluster-manager/issues/new)
+Want to request a new feature? [open a feature request](https://github.com/aws-samples/pcluster-manager/issues/new)
 
 You can get started with your first cluster in as little as 15 minutes using the links below.
 
