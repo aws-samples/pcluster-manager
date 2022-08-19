@@ -175,6 +175,7 @@ See [Security Issue Notifications](CONTRIBUTING.md#security-issue-notifications)
 ## Contributing
 
 Please refer to our [Contributing Guidelines](CONTRIBUTING.md) before reporting bugs or feature requests
+
 Please refer to our [Project Guidelines](PROJECT_GUIDELINES.md) before diving into the code
 
 ## License
