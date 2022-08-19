@@ -27,6 +27,6 @@
 - [ ] I checked that a new cluster can be created (config is produced and dry run passes)
 - [ ] I checked that login and logout work as expected
 
-In order to increase the likelihood of your contribution being accepted, please make sure you have read both the [Contributing Guidelines](CONTRIBUTING.md) and the [Project Guidelines](PROJECT_GUIDELINES.md)
+In order to increase the likelihood of your contribution being accepted, please make sure you have read both the [Contributing Guidelines](../CONTRIBUTING.md) and the [Project Guidelines](../PROJECT_GUIDELINES.md)
 
 By submitting this pull request, I confirm that you can use, modify, copy, and redistribute this contribution, under the terms of your choice.
