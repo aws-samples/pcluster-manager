@@ -167,7 +167,13 @@ For detailed information on how to invoke `pytest`, see this [resource](https://
 
 ## Security
 
-See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
+See [Security Issue Notifications](CONTRIBUTING.md#security-issue-notifications) for more information.
+
+## Contributing
+
+Please refer to our [Contributing Guidelines](CONTRIBUTING.md) before reporting bugs or feature requests
+
+Please refer to our [Project Guidelines](PROJECT_GUIDELINES.md) before diving into the code
 
 ## License
 
