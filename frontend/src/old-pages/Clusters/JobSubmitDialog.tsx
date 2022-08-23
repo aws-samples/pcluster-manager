@@ -25,12 +25,13 @@ import {
   Header,
   Input,
   Modal,
+  RadioGroup,
   Select,
   SpaceBetween,
-  Toggle,
 } from "@awsui/components-react";
 
 const submitPath = ['app', 'clusters', 'jobSubmit'];
+const jobPath = [...submitPath, 'job'];
 
 function itemToOption([value, title]: [string, string]) {
   return {label: title, value: value}
@@ -139,28 +140,74 @@ function JobCostEstimate() {
   </>
 }
 
+interface JobFieldProps {
+  header: string;
+  description: string;
+  placeholder: string;
+  property: string;
+}
+
+function JobField({
+  header,
+  description,
+  placeholder,
+  property
+}: JobFieldProps) {
+  return <>
+    <SpaceBetween direction="vertical" size="xxs" key={property}>
+      <Header 
+        variant="h2" 
+        description={description}>
+        {header}
+      </Header>
+      <FormField>
+        <Input 
+          onChange={({ detail }) => {setState([...jobPath, property], detail.value);}}
+          value={useState([...jobPath, property])}
+          placeholder={placeholder}
+        />
+      </FormField>
+    </SpaceBetween>
+  </>
+}
+
 export default function JobSubmitDialog({
   submitCallback
 }: any) {
   const { t } = useTranslation();
   const open = useState([...submitPath, 'dialog']);
   const error = useState([...submitPath, 'error']);
-  const jobPath = [...submitPath, 'job'];
   const clusterName = getState(['app', 'clusters', 'selected']);
 
   const job = useState(jobPath);
   const submitting = useState([...submitPath, 'pending']);
-  let jobName = useState([...jobPath, 'job-name']);
-  let chdir = useState([...jobPath, 'chdir']);
-  let nodes = useState([...jobPath, 'nodes']);
-  let ntasks = useState([...jobPath, 'ntasks']);
-  let mem = useState([...jobPath, 'mem']);
-  let command = useState([...jobPath, 'command']);
-  let wrap = useState([...jobPath, 'wrap']) || false;
+  const jobType: string = useState([...submitPath, 'job-entry']) || 'command';
+
+  React.useEffect(() => setState([...jobPath, 'wrap'], true), []);
 
   let isMemBasedSchedulingEnabled = useState(
       ['clusters', 'index', clusterName, 'config', 'Scheduling', 'SlurmSettings', 'EnableMemoryBasedScheduling']
   ) || false;
+
+  const jobTypeSelect = (detail: string) => {
+    setState([...submitPath, 'job-entry'], detail)
+    detail === 'command' ? setState([...jobPath, 'wrap'], true) : clearState([...jobPath, 'wrap']);
+  }
+
+  const jobTypeHeader = {
+    'command': "Command",
+    'file': "Script Path"
+  }[jobType]
+
+  const jobTypeDescription = {
+    'command': "The command to run as a part of this job.",
+    'file': "Path to the script to run."
+  }[jobType]
+
+  const jobTypePlaceholder = {
+    'command': "sleep 30",
+    'file': "/home/ec2-user/myscript.sbatch"
+  }[jobType]
 
   const submitJob = () => {
     const clusterPath = ['clusters', 'index', clusterName];
@@ -184,10 +231,6 @@ export default function JobSubmitDialog({
     setState([...submitPath, 'dialog'], false)
   };
 
-  const enableWrap = (enable: any) => {
-    setState([...jobPath, 'wrap'], enable);
-  }
-
   return (
     <Modal
       onDismiss={cancel}
@@ -205,98 +248,62 @@ export default function JobSubmitDialog({
       header="Submit Job">
       <SpaceBetween direction="vertical" size="m">
       <ColumnLayout columns={2} borders="vertical">
-        <SpaceBetween direction="vertical" size="xxs" key="job-name">
-          <Header variant="h2"
-            description="Please choose an identifier for this job.">
-            Job Name
-          </Header>
-          <FormField>
-            <Input
-              onChange={({ detail }) => {setState([...jobPath, 'job-name'], detail.value);}}
-              value={jobName}
-              placeholder="job-name"
-            />
-          </FormField>
-        </SpaceBetween>
+      
+        <JobField 
+          header="Job Name" 
+          description="Please choose an identifier for this job." 
+          placeholder="job-name" 
+          property='job-name'
+        />
 
-        <SpaceBetween direction="vertical" size="xxs" key="chdir">
-          <Header variant="h2"
-            description="Please choose a working directory for the job [optional]">
-            Working Directory
-          </Header>
-          <FormField>
-            <Input
-              onChange={({ detail }) => {setState([...jobPath, 'chdir'], detail.value);}}
-              value={chdir}
-              placeholder="/home/ec2-user/"
-            />
-          </FormField>
-        </SpaceBetween>
+        <JobField
+          header="Working Directory" 
+          description="Please choose a working directory for the job [optional]" 
+          placeholder="/home/ec2-user" 
+          property='chdir'
+        />
 
-        <SpaceBetween direction="vertical" size="xxs" key="nodes">
-          <Header variant="h2"
-            description="Number of nodes for job [optional]">
-            Nodes
-          </Header>
-          <FormField>
-            <Input
-              onChange={({ detail }) => {setState([...jobPath, 'nodes'], detail.value);}}
-              value={nodes}
-              inputMode='numeric'
-              placeholder="0"
-            />
-          </FormField>
-        </SpaceBetween>
+        <JobField
+          header="Nodes"
+          description="Number of nodes for job [optional]"
+          placeholder="0"
+          property='nodes'
+        />
 
-        <SpaceBetween direction="vertical" size="xxs" key="ntasks">
-          <Header variant="h2"
-            description="Number of tasks for job [optional]">
-            Number of tasks
-          </Header>
-          <FormField>
-            <Input
-              onChange={({ detail }) => {setState([...jobPath, 'ntasks'], detail.value);}}
-              value={ntasks}
-              inputMode='numeric'
-              placeholder="0"
-            />
-          </FormField>
-        </SpaceBetween>
+        <JobField
+          header="Number of tasks"
+          description="Number of tasks for job [optional]"
+          placeholder="0"
+          property='ntasks'
+        />
 
-        {
-          isMemBasedSchedulingEnabled && <SpaceBetween direction="vertical" size="xxs" key="mem">
-          <Header variant="h2"
-            description={t("JobSubmitDialog.requiredMemory.description")}>
-            {t("JobSubmitDialog.requiredMemory.header")}
-          </Header>
-          <FormField>
-            <Input
-              onChange={({ detail }) => {setState([...jobPath, 'mem'], detail.value);}}
-              value={mem}
-              inputMode='numeric'
-              placeholder="0"
-            />
-          </FormField>
-        </SpaceBetween>
+        { isMemBasedSchedulingEnabled && 
+          <JobField
+            header={t("JobSubmitDialog.requiredMemory.header")}
+            description={t("JobSubmitDialog.requiredMemory.description")}
+            placeholder="0"
+            property='mem'
+          />
         }
 
         <QueueSelect />
 
-        <Toggle checked={wrap} onChange={({detail}) => enableWrap(!wrap)}>Run a Command (instead of script)</Toggle>
+        <RadioGroup 
+          onChange={({detail}) => {jobTypeSelect(detail.value);}}
+          value={jobType}
+          items={[
+            {value: "command", label: "Run a command"},
+            {value: "file", label: "Run a script on the head node"}
+          ]}
+        />
 
-        <SpaceBetween direction="vertical" size="xxs" key="command">
-          <Header variant="h2"
-            description= { wrap ? "The command to run as a part of this job." : "Path to the script to run."}>
-            {wrap ? "Command" : "Script Path"}
-          </Header>
-          <FormField>
-            <Input
-              onChange={({ detail }) => {setState([...jobPath, 'command'], detail.value);}}
-              value={command}
-              placeholder={ wrap ? "sleep 30" : "/home/ec2-user/myscript.sbatch"}
-            />
-          </FormField>
-        </SpaceBetween>
+        <JobField
+          header={jobTypeHeader!}
+          description={jobTypeDescription!}
+          placeholder={jobTypePlaceholder!}
+          property='command'
+        />
+
       </ColumnLayout>
       <ExpandableSection header="Cost estimate">
         <JobCostEstimate />
