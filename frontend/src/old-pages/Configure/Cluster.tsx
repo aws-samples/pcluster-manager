@@ -143,33 +143,6 @@ function RegionSelect() {
   </>;
 }
 
-function SchedulerSelect() {
-  const { t } = useTranslation();
-  const schedulers = [["slurm", "Slurm"], ["batch", "AWS Batch"]];
-  const scheduler = useState(['app', 'wizard', 'scheduler']) || "slurm";
-  const editing = useState(['app', 'wizard', 'editing']);
-
-  return <>
-    {/* @ts-expect-error TS(2322) FIXME: Type '"h4"' is not assignable to type 'Variant | u... Remove this comment to see the full error message */}
-    <Header variant="h4"
-      description={t('wizard.cluster.scheduler.description')}
-      actions={
-        <Select
-          disabled={editing}
-          // @ts-expect-error TS(2322) FIXME: Type '{ label: Element; value: any; } | undefined'... Remove this comment to see the full error message
-          selectedOption={itemToOption(findFirst(schedulers, (x: any) => {return x[0] === scheduler}))}
-          onChange={({detail}) => {setState(['app', 'wizard', 'scheduler'], detail.selectedOption.value)}}
-          // @ts-expect-error TS(2322) FIXME: Type '({ label: Element; value: any; } | undefined... Remove this comment to see the full error message
-          options={schedulers.map(itemToOption)}
-          selectedAriaLabel="Selected"
-        />
-      }
-    >
-      <Trans i18nKey="wizard.cluster.scheduler.label" />
-    </Header>
-  </>;
-}
-
 function OsSelect() {
   const { t } = useTranslation();
   const oses: [string, string][] = [

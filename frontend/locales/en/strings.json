@@ -104,10 +104,6 @@
         "label": "Region",
         "description": "Region where the cluster will be created."
       },
-      "scheduler": {
-        "label": "Scheduler",
-        "description": "Scheduler that will be used to manage applications."
-      },
       "os": {
         "label": "Operating System",
         "description": "OS installed on the cluster nodes."
