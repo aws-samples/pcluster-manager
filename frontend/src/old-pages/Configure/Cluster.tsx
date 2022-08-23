@@ -135,7 +135,7 @@ function RegionSelect() {
           onChange={handleChange}
           // @ts-expect-error TS(2322) FIXME: Type '({ label: Element; value: any; } | undefined... Remove this comment to see the full error message
           options={supportedRegions.map(itemToOption)}
-          selectedAriaLabel="Selected"/>
+          selectedAriaLabel={t('wizard.cluster.region.selectedAriaLabel')}/>
       }
     >
       <Trans i18nKey="wizard.cluster.region.label" />
@@ -165,7 +165,7 @@ function OsSelect() {
           onChange={({detail}) => setState(osPath, detail.selectedOption.value)}
           // @ts-expect-error TS(2322) FIXME: Type '({ label: Element; value: any; } | undefined... Remove this comment to see the full error message
           options={oses.map(itemToOption)}
-          selectedAriaLabel="Selected"
+          selectedAriaLabel={t('wizard.cluster.os.selectedAriaLabel')}
         />
       }
     >
@@ -234,7 +234,7 @@ function VpcSelect() {
             selectedOption={vpcToDisplayOption(findFirst(vpcs, x => x.VpcId === vpc))}
             onChange={({detail}) => {setVpc(detail.selectedOption.value)}}
             options={vpcs.map(vpcToOption)}
-            selectedAriaLabel="Selected"
+            selectedAriaLabel={t('wizard.cluster.vpc.selectedAriaLabel')}
           />
           </FormField>
         }>
