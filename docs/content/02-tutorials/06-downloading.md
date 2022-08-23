@@ -1,7 +1,7 @@
 
 +++
-title = "d. Downloading ⇓"
-weight = 25
+title = "f. Downloading ⇓"
+weight = 26
 +++
 
 This tutorial shows you how you can download a file from an external source at cluster start.
