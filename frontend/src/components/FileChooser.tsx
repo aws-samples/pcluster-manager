@@ -69,8 +69,7 @@ function FileUploadButton(props: any) {
   };
   return (
     <div>
-      {/* @ts-expect-error TS(2322) FIXME: Type '"contained"' is not assignable to type 'Vari... Remove this comment to see the full error message */}
-      <Button onClick={handleClick} variant="contained">
+      <Button onClick={handleClick}>
         Choose file...
       </Button>
       <input
