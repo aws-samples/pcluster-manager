@@ -21,6 +21,7 @@ import identityFn from 'lodash/identity';
 import { getAppConfig } from './app-config';
 
 // Types
+import { Job } from './types/jobs';
 type Callback = (arg?: any) => void;
 
 const axiosInstance = axios.create({
@@ -680,25 +681,33 @@ function CancelJob(instanceId: any, user: any, jobId: any, callback?: Callback) 
   })
 }
 
-function SubmitJob(instanceId: any, user: any, job: any, successCallback?: Callback, failureCallback?: Callback) {
+async function SubmitJob(instanceId: string, user: string, job: Job): Promise<string> {
   const region = getState(['app', 'selectedRegion']) || getState(['aws', 'region']);
   let url = `manager/submit_job?instance_id=${instanceId}&user=${user || 'ec2-user'}&region=${region}`
-  request('post', url, job).then((response: any) => {
-    if(response.status === 200) {
-      console.log(response.data)
-      successCallback && successCallback(response.data)
-    }
-  }).catch((error: any) => {
-    if(error.response)
-    {
-      failureCallback && failureCallback(error.response.data.message)
-      console.log(error.response)
+  try {
+    const { data } = await request('post', url, job);
+    return data?.message || "";
+  } catch (error: any) {
+    if(error.response) {
       notify(`Error: ${error.response.data.message}`, 'error');
     }
-    console.log(error)
-  })
+    throw error;
+  }
 }
 
+async function SubmitJobScript(clusterName: string, instanceId: string, user: string, job: Job): Promise<string> {
+  const region = getState(['app', 'selectedRegion']) || getState(['aws', 'region']);
+  let url = `manager/submit_job_script?cluster_name=${clusterName}&instance_id=${instanceId}&user=${user || 'ec2-user'}&region=${region}`
+  try {
+    const { data } = await request('post', url, job);
+    return data?.errors || "";
+  } catch (error: any) {
+    if(error.response) {
+      notify(`Error: ${error.response.data.message}`, 'error');
+    }
+    throw error;
+  }
+}
 
 function JobInfo(instanceId: any, user: any, jobId: any, successCallback?: Callback, failureCallback?: Callback) {
   const region = getState(['app', 'selectedRegion']) || getState(['aws', 'region']);
@@ -823,5 +832,6 @@ export {CreateCluster, UpdateCluster, ListClusters, DescribeCluster,
   BuildImage, GetCustomImageStackEvents, ListCustomImageLogStreams,
   GetCustomImageLogEvents, ListOfficialImages, LoadInitialState,
   Ec2Action,LoadAwsConfig, GetDcvSession, QueueStatus, CancelJob, SubmitJob,
-  PriceEstimate, SlurmAccounting, JobInfo, ListUsers, SetUserRole, notify,
-  CreateUser, DeleteUser}
+  SubmitJobScript, PriceEstimate, SlurmAccounting, JobInfo, ListUsers, 
+  SetUserRole, notify, CreateUser, DeleteUser}
+  
