@@ -25,6 +25,7 @@ import {
 
 // Components
 import ValidationErrors from '../../components/ValidationErrors'
+import FileUploadButton from '../../components/FileChooser'
 
 // State
 import { setState, useState, getState, clearState } from '../../store'
@@ -50,36 +51,6 @@ function buildImageValidate(suppressUpload = false) {
   }
 
   return valid;
-}
-
-const FileUploadButton = (props: any) => {
-  const hiddenFileInput = React.useRef(null);
-  const handleClick = (event: any) => {
-    // @ts-expect-error TS(2531) FIXME: Object is possibly 'null'.
-    hiddenFileInput.current.click();
-  };
-  const handleChange = (event: any) => {
-    var file = event.target.files[0]
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      // @ts-expect-error TS(2531) FIXME: Object is possibly 'null'.
-      props.handleData(e.target.result)
-    }
-    reader.readAsText(file);
-  };
-  return (
-    <>
-      <Button onClick={handleClick}>
-        Choose file...
-      </Button>
-      <input
-        type="file"
-        ref={hiddenFileInput}
-        onChange={handleChange}
-        style={{display: 'none'}}
-      />
-    </>
-  );
 }
 
 export default function ImageBuildDialog(props: any) {
