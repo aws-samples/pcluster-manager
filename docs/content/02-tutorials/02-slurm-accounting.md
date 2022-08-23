@@ -145,7 +145,7 @@ Choose a name for your job, a number of nodes to run under, choose to `Run a com
 
 ![Cluster Properties](accounting/submit-job-dialog.png)
 
-## Step 5 - View the Accounting Tab
+## Step 6 - View the Accounting Tab
 
 Once you've submitted a job, you can see the job information under the `Accounting tab`
 
