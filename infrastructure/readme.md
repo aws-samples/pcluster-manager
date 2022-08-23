@@ -11,3 +11,15 @@ To create the resources needed by the workflow action you can deploy the `./gith
 The stack will create a new role with the minimum set of policies needed to build and deploy an instance of PCluster Manager.
 
 **This procedure must be done only once per AWS account since IAM it's a global service.**
+
+## Update the infrastructure of an environment
+When a change is made to one of the following files:
+- pcluster-manager.yaml
+- pcluster-manager-cognito.yaml
+- SSMSessionProfile-cfn.yaml
+
+it is not sufficient to run the `update.sh` script to update the PCM instances because it builds and deploys the Lambda image (with only the changes to backend and frontend().
+To update the infrastructure just run the `infrastructure/update-environment-infra.sh` and pass the environment to update.
+If you have to update the `demo` environment do the following:
+- gain `Admin` access to the AWS account in which the environment is hosted
+- run `./infrastructure/update-environment-infra.sh demo`
