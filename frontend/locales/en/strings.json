@@ -102,19 +102,18 @@
       "title": "Cluster Properties",
       "region": {
         "label": "Region",
-        "description": "Region where the cluster will be created."
-      },
-      "scheduler": {
-        "label": "Scheduler",
-        "description": "Scheduler that will be used to manage applications."
+        "description": "Region where the cluster will be created.",
+        "selectedAriaLabel": "Selected"
       },
       "os": {
         "label": "Operating System",
-        "description": "OS installed on the cluster nodes."
+        "description": "OS installed on the cluster nodes.",
+        "selectedAriaLabel": "Selected"
       },
       "vpc": {
         "label": "VPC",
-        "description": "VPC where the cluster instances will reside."
+        "description": "VPC where the cluster instances will reside.",
+        "selectedAriaLabel": "Selected"
       },
       "multiuser": {
         "title": "Multi User",

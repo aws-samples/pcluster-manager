@@ -135,7 +135,7 @@ function RegionSelect() {
           onChange={handleChange}
           // @ts-expect-error TS(2322) FIXME: Type '({ label: Element; value: any; } | undefined... Remove this comment to see the full error message
           options={supportedRegions.map(itemToOption)}
-          selectedAriaLabel="Selected"/>
+          selectedAriaLabel={t('wizard.cluster.region.selectedAriaLabel')}/>
       }
     >
       <Trans i18nKey="wizard.cluster.region.label" />
@@ -143,40 +143,13 @@ function RegionSelect() {
   </>;
 }
 
-function SchedulerSelect() {
-  const { t } = useTranslation();
-  const schedulers = [["slurm", "Slurm"], ["batch", "AWS Batch"]];
-  const scheduler = useState(['app', 'wizard', 'scheduler']) || "slurm";
-  const editing = useState(['app', 'wizard', 'editing']);
-
-  return <>
-    {/* @ts-expect-error TS(2322) FIXME: Type '"h4"' is not assignable to type 'Variant | u... Remove this comment to see the full error message */}
-    <Header variant="h4"
-      description={t('wizard.cluster.scheduler.description')}
-      actions={
-        <Select
-          disabled={editing}
-          // @ts-expect-error TS(2322) FIXME: Type '{ label: Element; value: any; } | undefined'... Remove this comment to see the full error message
-          selectedOption={itemToOption(findFirst(schedulers, (x: any) => {return x[0] === scheduler}))}
-          onChange={({detail}) => {setState(['app', 'wizard', 'scheduler'], detail.selectedOption.value)}}
-          // @ts-expect-error TS(2322) FIXME: Type '({ label: Element; value: any; } | undefined... Remove this comment to see the full error message
-          options={schedulers.map(itemToOption)}
-          selectedAriaLabel="Selected"
-        />
-      }
-    >
-      <Trans i18nKey="wizard.cluster.scheduler.label" />
-    </Header>
-  </>;
-}
-
 function OsSelect() {
   const { t } = useTranslation();
-  const oses: [string, string, string][] = [
-    ["alinux2", "Amazon Linux 2", "/img/aws.svg"],
-    ["centos7", "CentOS 7", "/img/centos.svg"],
-    ["ubuntu1804", "Ubuntu 18.04", "/img/ubuntu.svg"],
-    ["ubuntu2004", "Ubuntu 20.04", "/img/ubuntu.svg"],
+  const oses: [string, string][] = [
+    ["alinux2", "Amazon Linux 2"],
+    ["centos7", "CentOS 7"],
+    ["ubuntu1804", "Ubuntu 18.04"],
+    ["ubuntu2004", "Ubuntu 20.04"],
   ];
   const osPath = ['app', 'wizard', 'config', 'Image', 'Os'];
   const os = useState(osPath) || "alinux2";
@@ -192,7 +165,7 @@ function OsSelect() {
           onChange={({detail}) => setState(osPath, detail.selectedOption.value)}
           // @ts-expect-error TS(2322) FIXME: Type '({ label: Element; value: any; } | undefined... Remove this comment to see the full error message
           options={oses.map(itemToOption)}
-          selectedAriaLabel="Selected"
+          selectedAriaLabel={t('wizard.cluster.os.selectedAriaLabel')}
         />
       }
     >
@@ -261,7 +234,7 @@ function VpcSelect() {
             selectedOption={vpcToDisplayOption(findFirst(vpcs, x => x.VpcId === vpc))}
             onChange={({detail}) => {setVpc(detail.selectedOption.value)}}
             options={vpcs.map(vpcToOption)}
-            selectedAriaLabel="Selected"
+            selectedAriaLabel={t('wizard.cluster.vpc.selectedAriaLabel')}
           />
           </FormField>
         }>
