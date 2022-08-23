@@ -16,10 +16,16 @@ Conditions:
     - ""
 
 Resources:
+  InfrastructureBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled
+
   PrivateDeployRole:
     Type: AWS::IAM::Role
-    Description: "Role used to deploy PCM to a private environment (for example, demo)"
     Properties:
+      Description: "Role used to deploy PCM to a private environment (for example, demo)"
       AssumeRolePolicyDocument:
         Statement:
           - Effect: Allow
