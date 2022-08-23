@@ -37,6 +37,9 @@ import {
 import { HiddenUploader } from '../../components/FileChooser'
 import Loading from '../../components/Loading'
 
+// Types
+import { ClusterInfoSummary, ClusterStatus } from '../../types/clusters';
+
 // Constants
 const sourcePath = ['app', 'wizard', 'source'];
 const sourceErrorsPath = ['app', 'wizard', 'errors', 'source'];
@@ -111,8 +114,8 @@ function ClusterSelect() {
   let source = useState([...sourcePath, 'type']);
   let validated = useState([...sourceErrorsPath, 'validated']);
 
-  const itemToOption = (item: any) => {
-    if(item)
+  const itemToOption = (item: ClusterInfoSummary) => {
+    if(item && item.clusterStatus != ClusterStatus.DeleteInProgress)
       return {label: item.clusterName, value: item.clusterName}
     else
       return {label: i18next.t('wizard.source.clusterSelect.placeholder')}
