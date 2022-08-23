@@ -172,11 +172,11 @@ function SchedulerSelect() {
 
 function OsSelect() {
   const { t } = useTranslation();
-  const oses: [string, string, string][] = [
-    ["alinux2", "Amazon Linux 2", "/img/aws.svg"],
-    ["centos7", "CentOS 7", "/img/centos.svg"],
-    ["ubuntu1804", "Ubuntu 18.04", "/img/ubuntu.svg"],
-    ["ubuntu2004", "Ubuntu 20.04", "/img/ubuntu.svg"],
+  const oses: [string, string][] = [
+    ["alinux2", "Amazon Linux 2"],
+    ["centos7", "CentOS 7"],
+    ["ubuntu1804", "Ubuntu 18.04"],
+    ["ubuntu2004", "Ubuntu 20.04"],
   ];
   const osPath = ['app', 'wizard', 'config', 'Image', 'Os'];
   const os = useState(osPath) || "alinux2";
