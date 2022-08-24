@@ -365,9 +365,62 @@
     }
   },
   "JobSubmitDialog": {
-    "requiredMemory": {
+    "header": "Submit Job",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "job-name": {
+      "header": "Job Name",
+      "description": "Please choose an identifier for this job.",
+      "placeholder": "job-name"
+    },
+    "chdir": {
+      "header": "Working Directory",
+      "description": "Please choose a working directory for the job [optional]"
+    },
+    "nodes": {
+      "header": "Nodes",
+      "description": "Number of nodes for job [optional]"
+    },
+    "ntasks": {
+      "header": "Number of tasks",
+      "description": "Number of tasks for a job [optional]"
+    },
+    "mem": {
       "header": "Required memory",
       "description": "Real memory required per node, in MB. A memory size specification of zero is treated as a special case and grants the job access to all of the memory on each node. [optional]"
+    },
+    "jobTypeCommand": {
+      "header": "Command",
+      "description": "The command to run as a part of this job.",
+      "radioGroup": "Run a command"
+    },
+    "jobTypeFile": {
+      "header": "Script Path",
+      "description": "Path to the script to run",
+      "radioGroup": "Run a script on the head node"
+    },
+    "jobTypeScript": {
+      "radioGroup": "Enter sbatch script manually",
+      "radioGroupDisabledDescription": "Requires Slurm REST API"
+    },
+    "queue": {
+      "header": "Queue",
+      "description": "Queue where the job will run."
+    },
+    "costEstimate": {
+      "header": "Cost estimate",
+      "alertHeader": "Experimental!",
+      "alertContent": "This provides a basic cost estimate based on the expected job run-time, the number of nodes and their instance type. Actual costs will vary based on node uptime, storage, and other factors. Please refer to Cost Explorer for actual cluster costs.",
+      "timeEstimateHeader": "Your estimate of the total runtime of the job (in Hours).",
+      "button": "Estimate",
+      "estimatedCost": "Estimated job cost:",
+      "formula": "Price ($/h) * Time (h) * NodeCount"
+    },
+    "errors": {
+      "mustSelectQueue": "Error: You must select a queue.",
+      "mustSelectNodes": "Error: You must select a node count.",
+      "mustSelectRuntime": "Error: You must select a job runtime.",
+      "emptyJob": "Error: Job is empty"
     }
   }
 }

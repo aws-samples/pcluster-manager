@@ -189,6 +189,8 @@ export default function ClusterScheduling() {
   const jobs: JobSummary[] = useState(['clusters', 'index', clusterName, 'jobs']);
   const defaultRegion = useState(['aws', 'region']);
   const region = useState(['app', 'selectedRegion']) || defaultRegion;
+  const jobInfoPath = ['app', 'clusters', 'jobInfo']
+  const jobSubmitPath = ['app', 'clusters', 'jobSubmit']
 
   function isSsmPolicy(p: any) {
     return p.hasOwnProperty('Policy') && p.Policy === ssmPolicy(region);
@@ -207,7 +209,7 @@ export default function ClusterScheduling() {
   }, [])
 
   const selectJobCallback = (jobInfo: any) => {
-    setState(['app', 'clusters', 'jobInfo', 'data'], jobInfo);
+    setState([...jobInfoPath, 'data'], jobInfo);
   }
 
   const selectJob = (jobId: string) => {
@@ -217,8 +219,8 @@ export default function ClusterScheduling() {
       const cluster = getState(clusterPath);
       let user = clusterDefaultUser(cluster);
       const headNode = getState([...clusterPath, 'headNode']);
-      clearState(['app', 'clusters', 'jobInfo', 'data']);
-      headNode && setState(['app', 'clusters', 'jobInfo', 'dialog'], true);
+      clearState([...jobInfoPath, 'data']);
+      headNode && setState([...jobInfoPath, 'dialog'], true);
       headNode && JobInfo(headNode.instanceId, user, jobId, selectJobCallback);
     }
   }
@@ -247,11 +249,18 @@ export default function ClusterScheduling() {
     }
   );
 
+  const showJobSubmitDialog = () => {
+    setState([...jobSubmitPath, 'dialog'], true);
+    if (!getState([...jobSubmitPath, 'job-entry'])) {
+      setState([...jobSubmitPath, 'job-entry'], 'command');
+      setState([...jobSubmitPath, 'job', 'wrap'], true);
+    }
+  }
 
   return <SpaceBetween direction="vertical" size="s">
     <JobModal />
     <JobSubmitDialog submitCallback={refreshQueues}/>
-    {ssmEnabled && <Button variant="primary" disabled={fleetStatus !== "RUNNING"} onClick={() => setState(['app', 'clusters', 'jobSubmit', 'dialog'], true)}>Submit Job</Button>}
+    {ssmEnabled && <Button variant="primary" disabled={fleetStatus !== "RUNNING"} onClick={showJobSubmitDialog}>Submit Job</Button>}
     {clusterMinor > 0 && ssmEnabled &&
         (jobs ? <Table {...collectionProps} trackBy="job_id" columnDefinitions={[
                 {

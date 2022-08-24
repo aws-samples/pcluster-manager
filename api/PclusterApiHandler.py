@@ -271,6 +271,69 @@ def submit_job():
     return resp if type(resp) == tuple else {"success": "true"}
 
 
+def translate_job(request_body, user):
+    # format job parameters so that they are accepted by Slurm API
+    job_properties_dict = {
+        "job-name": "name",
+        "chdir": "current_working_directory",
+        "mem": "memory_per_node"
+    }
+
+    translated_job = {
+        "job": {
+           "environment": {
+                "PATH": "/bin:/usr/bin/:/usr/local/bin/:/opt/slurm/bin/"
+            },
+            "name": ""
+        }
+    }
+
+    request_body["chdir"] = f"/home/{user}"
+    for key in request_body:
+        if key == "command":
+            translated_job["script"] = request_body[key]
+        else:
+            translated_job["job"][job_properties_dict.get(key, key)] = request_body[key]
+
+    return translated_job
+
+
+def post_job_slurm_api(body, user, token, ip):
+    body_data = json.dumps(translate_job(body, user))
+
+    url = "https://"+ip+"/slurm/v0.0.36/job/submit"
+    headers = {
+        "Content-Type": "application/json",
+        "X-SLURM-USER-NAME": user,
+        "X-SLURM-USER-TOKEN": token
+    }
+
+    resp = requests.post(url=url, data=body_data, headers=headers, verify=False)
+    print("POST /slurm/v0.0.36/job/submit", resp.status_code, resp.reason, '\n')
+
+    error_dicts = resp.json().get('errors')
+    errors_text = '\n'.join([error_data.get("error") for error_data in error_dicts])
+
+    return {"errors": errors_text, "status_code": resp.status_code, "reason": resp.reason}
+
+
+def submit_job_script():
+    body = request.json
+    cluster_name = request.args.get("cluster_name")
+    instance_id = request.args.get("instance_id")
+    region = request.args.get("region")
+    user = request.args.get("user", "ec2-user")
+
+    ec2 = boto3.resource("ec2", region_name=region)
+    instance = ec2.Instance(instance_id)
+    ip = instance.public_dns_name
+
+    client = boto3.client("secretsmanager")
+    jwt_token = client.get_secret_value(SecretId="slurm_token_"+cluster_name)["SecretString"]
+
+    return post_job_slurm_api(body, user, jwt_token, ip)
+
+
 def _price_estimate(cluster_name, region, queue_name):
     config_text = get_cluster_config_text(cluster_name, region)
     config_data = yaml.safe_load(config_text)
