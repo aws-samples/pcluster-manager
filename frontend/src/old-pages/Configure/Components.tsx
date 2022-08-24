@@ -467,7 +467,7 @@ function ActionEditor({
 
   return <>
       <FormField label={<div>{label} <Toggle checked={useMultiRunner} onChange={toggleUseMultiRunner}>Use Multi-Script Runner?</Toggle></div>} errorText={errorPath}>
-        {useMultiRunner && <div style={{marginBottom: "10px"}}><Alert><b>Experimental!</b> The Multi-Script Runner is experimental and uses scripts stored as a sibling <Link external href={script}>here</Link> which are maintained separate from the AWS ParallelCluster project. Please evaluate these scripts before running them and valiate that they are compatible with your environment.</Alert></div>}
+        {useMultiRunner && <div style={{marginBottom: "10px"}}><Alert><b>Experimental!</b> The Multi-Script Runner is experimental and uses scripts stored as a sibling <Link external href='https://github.com/aws-samples/pcluster-manager/tree/main/resources/scripts'>here</Link> which are maintained separate from the AWS ParallelCluster project. Please evaluate these scripts before running them and valiate that they are compatible with your environment.</Alert></div>}
         {useMultiRunner && <MultiRunnerEditor path={[...path, 'Args']}/>}
         {!useMultiRunner &&
         <SpaceBetween direction="vertical" size="xs">
