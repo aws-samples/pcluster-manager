@@ -71,4 +71,4 @@ aws ecr get-login-password --region ${REGION} | docker login --username AWS --pa
 echo "Pushing private docker container..."
 docker push ${IMAGE}
 echo "Updating lambda..."
-aws lambda --region ${REGION} update-function-code --function-name ${LAMBDA_ARN} --image-uri ${IMAGE} --publish
+aws lambda --region ${REGION} update-function-code --function-name ${LAMBDA_ARN} --image-uri ${IMAGE} --publish >/dev/null
