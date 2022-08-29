@@ -83,6 +83,7 @@ Resources:
 
   PclusterManagerCognito:
     Type: AWS::CloudFormation::Stack
+    DeletionPolicy: Retain
     Properties:
       Parameters:
         AdminUserEmail: !Ref AdminUserEmail
