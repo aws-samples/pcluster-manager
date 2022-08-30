@@ -117,7 +117,7 @@ def sigv4_request(method, host, path, params={}, headers={}, body=None):
 
 # Wrappers
 
-def authenticate(group):
+def authenticate(groups):
     if disable_auth():
         return
 
@@ -132,9 +132,10 @@ def authenticate(group):
     except Exception as e:
         return abort(401)
 
-    if (group != "guest") and (group not in set(decoded.get(USER_ROLES_CLAIM, []))):
+    jwt_roles = set(decoded.get(USER_ROLES_CLAIM, []))
+    groups_granted = groups.intersection(jwt_roles)
+    if ("guest" not in groups) and len(groups_granted) == 0:
         return abort(403)
-
 
 def authenticated(group="user"):
     def _authenticated(func):
