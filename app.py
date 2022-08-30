@@ -44,6 +44,7 @@ from api.PclusterApiHandler import (
 )
 
 ADMINS_USERS_GROUP = { "user", "admin" }
+ADMINS_GROUP = { "admin" }
 
 class RegexConverter(BaseConverter):
     def __init__(self, url_map, *items):
@@ -111,7 +112,7 @@ def run():
         return get_dcv_session()
 
     @app.route("/manager/get_identity")
-    @authenticated("guest")
+    @authenticated({"guest"})
     def get_identity_():
         return get_identity()
 
@@ -124,22 +125,22 @@ def run():
         return get_app_config()
 
     @app.route("/manager/list_users")
-    @authenticated("admin")
+    @authenticated(ADMINS_GROUP)
     def list_users_():
         return list_users()
 
     @app.route("/manager/create_user", methods=["POST"])
-    @authenticated("admin")
+    @authenticated(ADMINS_GROUP)
     def create_user_():
         return create_user()
 
     @app.route("/manager/delete_user", methods=["DELETE"])
-    @authenticated("admin")
+    @authenticated(ADMINS_GROUP)
     def delete_user_():
         return delete_user()
 
     @app.route("/manager/set_user_role", methods=["PUT"])
-    @authenticated("admin")
+    @authenticated(ADMINS_GROUP)
     def set_user_role_():
         return set_user_role()
 
