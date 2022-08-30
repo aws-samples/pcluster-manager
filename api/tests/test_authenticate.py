@@ -70,6 +70,15 @@ def test_authenticate_with_non_guest_group_not_in_user_roles_claim_returns_403(m
 
         mock_abort.assert_called_once_with(403)
 
+def test_authenticate_when_no_groups_are_given_it_should_return_403(mocker, app):
+    with app.test_request_context(headers={'Cookie': 'accessToken=access-token'}):
+        mock_abort = mocker.patch('api.PclusterApiHandler.abort')
+        mocker.patch('api.PclusterApiHandler.jwt_decode',
+                     return_value={'cognito:groups': ['other-group']})
+
+        authenticate(None)
+
+        mock_abort.assert_called_once_with(403)
 
 def test_authenticate_with_guest_group_succeeds(mocker, app):
     with app.test_request_context(headers={'Cookie': 'accessToken=access-token'}):

@@ -132,6 +132,9 @@ def authenticate(groups):
     except Exception as e:
         return abort(401)
 
+    if (not groups):
+        return abort(403)
+        
     jwt_roles = set(decoded.get(USER_ROLES_CLAIM, []))
     groups_granted = groups.intersection(jwt_roles)
     if ("guest" not in groups) and len(groups_granted) == 0:
