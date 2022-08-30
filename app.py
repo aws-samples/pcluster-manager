@@ -19,7 +19,6 @@ from werkzeug.routing import BaseConverter
 import api.utils as utils
 from api.PclusterApiHandler import (
     PclusterApiHandler,
-    authenticate,
     authenticated,
     cancel_job,
     create_user,
@@ -44,6 +43,8 @@ from api.PclusterApiHandler import (
     submit_job,
 )
 
+ADMINS_USERS_GROUP = { "user", "admin" }
+ADMINS_GROUP = { "admin" }
 
 class RegexConverter(BaseConverter):
     def __init__(self, url_map, *items):
@@ -81,37 +82,37 @@ def run():
         return utils.serve_frontend(app, path)
 
     @app.route("/manager/ec2_action", methods=["POST"])
-    @authenticated()
+    @authenticated(ADMINS_USERS_GROUP)
     def ec2_action_():
         return ec2_action()
 
     @app.route("/manager/get_cluster_configuration")
-    @authenticated()
+    @authenticated(ADMINS_USERS_GROUP)
     def get_cluster_config_():
         return get_cluster_config()
 
     @app.route("/manager/get_custom_image_configuration")
-    @authenticated()
+    @authenticated(ADMINS_USERS_GROUP)
     def get_custom_image_config_():
         return get_custom_image_config()
 
     @app.route("/manager/get_aws_configuration")
-    @authenticated()
+    @authenticated(ADMINS_USERS_GROUP)
     def get_aws_config_():
         return get_aws_config()
 
     @app.route("/manager/get_instance_types")
-    @authenticated()
+    @authenticated(ADMINS_USERS_GROUP)
     def get_instance_types_():
         return get_instance_types()
 
     @app.route("/manager/get_dcv_session")
-    @authenticated()
+    @authenticated(ADMINS_USERS_GROUP)
     def get_dcv_session_():
         return get_dcv_session()
 
     @app.route("/manager/get_identity")
-    @authenticated("guest")
+    @authenticated({"guest"})
     def get_identity_():
         return get_identity()
 
@@ -124,52 +125,52 @@ def run():
         return get_app_config()
 
     @app.route("/manager/list_users")
-    @authenticated("admin")
+    @authenticated(ADMINS_GROUP)
     def list_users_():
         return list_users()
 
     @app.route("/manager/create_user", methods=["POST"])
-    @authenticated("admin")
+    @authenticated(ADMINS_GROUP)
     def create_user_():
         return create_user()
 
     @app.route("/manager/delete_user", methods=["DELETE"])
-    @authenticated("admin")
+    @authenticated(ADMINS_GROUP)
     def delete_user_():
         return delete_user()
 
     @app.route("/manager/set_user_role", methods=["PUT"])
-    @authenticated("admin")
+    @authenticated(ADMINS_GROUP)
     def set_user_role_():
         return set_user_role()
 
     @app.route("/manager/queue_status")
-    @authenticated()
+    @authenticated(ADMINS_USERS_GROUP)
     def queue_status_():
         return queue_status()
 
     @app.route("/manager/cancel_job")
-    @authenticated()
+    @authenticated(ADMINS_USERS_GROUP)
     def cancel_job_():
         return cancel_job()
 
     @app.route("/manager/price_estimate")
-    @authenticated()
+    @authenticated(ADMINS_USERS_GROUP)
     def price_estimate_():
         return price_estimate()
 
     @app.route("/manager/submit_job", methods=["POST"])
-    @authenticated()
+    @authenticated(ADMINS_USERS_GROUP)
     def submit_job_():
         return submit_job()
 
     @app.route("/manager/sacct", methods=["POST"])
-    @authenticated()
+    @authenticated(ADMINS_USERS_GROUP)
     def sacct_():
         return sacct()
 
     @app.route("/manager/scontrol_job")
-    @authenticated()
+    @authenticated(ADMINS_USERS_GROUP)
     def scontrol_job_():
         return scontrol_job()
 
