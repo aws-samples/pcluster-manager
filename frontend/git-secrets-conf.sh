@@ -1,3 +1,5 @@
 #!/usr/bin/env bash
-git secrets --install -f
-git secrets --register-aws
+if [[ -z "$CI" || "$CI" != true ]]; then
+  git secrets --install -f
+  git secrets --register-aws
+fi
