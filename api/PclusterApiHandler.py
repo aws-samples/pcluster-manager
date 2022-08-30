@@ -137,11 +137,11 @@ def authenticate(groups):
     if ("guest" not in groups) and len(groups_granted) == 0:
         return abort(403)
 
-def authenticated(group="user"):
+def authenticated(groups={"user"}):
     def _authenticated(func):
         @functools.wraps(func)
         def _wrapper_authenticated(*args, **kwargs):
-            authenticate(group)
+            authenticate(groups)
             return func(*args, **kwargs)
 
         return _wrapper_authenticated
@@ -711,7 +711,7 @@ def _get_params(_request):
 
 
 class PclusterApiHandler(Resource):
-    method_decorators = [authenticated("user")]
+    method_decorators = [authenticated({"user", "admin"})]
 
     def get(self):
         # if re.match(r".*images.*logstreams/+", args["path"]):
@@ -721,21 +721,21 @@ class PclusterApiHandler(Resource):
         return response.json(), response.status_code
 
     def post(self):
-        auth_response = authenticate("admin")
+        auth_response = authenticate({"admin"})
         if auth_response:
             abort(401)
         resp = sigv4_request("POST", API_BASE_URL, request.args.get("path"), _get_params(request), body=request.json)
         return resp.json(), resp.status_code
 
     def put(self):
-        auth_response = authenticate("admin")
+        auth_response = authenticate({"admin"})
         if auth_response:
             abort(401)
         resp = sigv4_request("PUT", API_BASE_URL, request.args.get("path"), _get_params(request), body=request.json)
         return resp.json(), resp.status_code
 
     def delete(self):
-        auth_response = authenticate("admin")
+        auth_response = authenticate({"admin"})
         if auth_response:
             abort(401)
 
@@ -751,7 +751,7 @@ class PclusterApiHandler(Resource):
         return resp.json(), resp.status_code
 
     def patch(self):
-        auth_response = authenticate("admin")
+        auth_response = authenticate({"admin"})
         if auth_response:
             abort(401)
         resp = sigv4_request("PATCH", API_BASE_URL, request.args.get("path"), _get_params(request), body=request.json)
