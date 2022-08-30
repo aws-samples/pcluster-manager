@@ -38,7 +38,8 @@
     "dev": "next dev",
     "export": "next build && next export -o build",
     "ts-reignore": "ts-migrate reignore . --sources='src/**/*'",
-    "ts-validate": "tsc -p tsconfig.json"
+    "ts-validate": "tsc -p tsconfig.json",
+    "prepare": "bash ./git-secrets-conf.sh"
   },
   "browserslist": {
     "production": [
