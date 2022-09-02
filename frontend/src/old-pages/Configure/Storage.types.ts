@@ -4,41 +4,47 @@
  *  - specify if a storage type can be mounted as a file system or just one of its volumes
  */
 export const STORAGE_TYPE_PROPS = {
-  "FsxLustre": {
+  FsxLustre: {
     mountFilesystem: true,
     maxToCreate: 1,
-    maxExistingToAttach: 20
+    maxExistingToAttach: 20,
   },
-  "FsxOntap": {
+  FsxOntap: {
     mountFilesystem: false,
     maxToCreate: 0,
-    maxExistingToAttach: 20
+    maxExistingToAttach: 20,
   },
-  "FsxOpenZfs": {
+  FsxOpenZfs: {
     mountFilesystem: false,
     maxToCreate: 0,
-    maxExistingToAttach: 20
+    maxExistingToAttach: 20,
   },
-  "Efs": {
+  Efs: {
     mountFilesystem: true,
     maxToCreate: 1,
-    maxExistingToAttach: 20
+    maxExistingToAttach: 20,
   },
-  "Ebs": {
+  Ebs: {
     mountFilesystem: false,
     maxToCreate: 5,
-    maxExistingToAttach: 5
+    maxExistingToAttach: 5,
   },
 }
 
-export type StorageType = keyof typeof STORAGE_TYPE_PROPS;
+export type StorageType = keyof typeof STORAGE_TYPE_PROPS
 
-export type Storages = Record<string, {
-  Name: string,
-  StorageType: StorageType,
-  MountDir: string,
-}>;
+export type Storages = Record<
+  string,
+  {
+    Name: string
+    StorageType: StorageType
+    MountDir: string
+  }
+>
 
-export type UIStorageSettings = Record<string, {
-  useExisting: boolean,
-}>;
+export type UIStorageSettings = Record<
+  string,
+  {
+    useExisting: boolean
+  }
+>

@@ -8,13 +8,14 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { AxiosError } from 'axios';
-import { AppConfig } from '../app-config/types';
-import { generateRandomId } from '../util';
+import {AxiosError} from 'axios'
+import {AppConfig} from '../app-config/types'
+import {generateRandomId} from '../util'
 
-export const handleNotAuthorizedErrors = ({authUrl, clientId, scopes, redirectUri}: AppConfig) => async (requestPromise: Promise<any>) => {
-  return requestPromise.catch(
-    error => {
+export const handleNotAuthorizedErrors =
+  ({authUrl, clientId, scopes, redirectUri}: AppConfig) =>
+  async (requestPromise: Promise<any>) => {
+    return requestPromise.catch(error => {
       switch ((error as AxiosError).response?.status) {
         case 401:
         case 403:
@@ -22,11 +23,17 @@ export const handleNotAuthorizedErrors = ({authUrl, clientId, scopes, redirectUr
           return Promise.reject(error)
       }
       return Promise.reject(error)
-    }
-  )
-}
+    })
+  }
 
-function redirectToAuthServer(authUrl: string, clientId: string, scopes: string, redirectUri: string) {
-  const url = `${authUrl}?response_type=code&client_id=${clientId}&scope=${encodeURIComponent(scopes)}&redirect_uri=${redirectUri}&state=${generateRandomId()}`
+function redirectToAuthServer(
+  authUrl: string,
+  clientId: string,
+  scopes: string,
+  redirectUri: string,
+) {
+  const url = `${authUrl}?response_type=code&client_id=${clientId}&scope=${encodeURIComponent(
+    scopes,
+  )}&redirect_uri=${redirectUri}&state=${generateRandomId()}`
   window.location.replace(url)
 }

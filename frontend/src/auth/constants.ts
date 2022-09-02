@@ -1,1 +1,1 @@
-export const USER_ROLES_CLAIM = "user_roles"
+export const USER_ROLES_CLAIM = 'user_roles'

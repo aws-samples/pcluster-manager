@@ -8,8 +8,8 @@
 // or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-import * as React from 'react';
-import { BuildImage } from '../../model'
+import * as React from 'react'
+import {BuildImage} from '../../model'
 
 // UI Elements
 import {
@@ -21,80 +21,87 @@ import {
   Modal,
   SpaceBetween,
   Spinner,
-} from "@awsui/components-react";
+} from '@awsui/components-react'
 
 // Components
 import ValidationErrors from '../../components/ValidationErrors'
 import FileUploadButton from '../../components/FileChooser'
 
 // State
-import { setState, useState, getState, clearState } from '../../store'
-import ConfigView from '../../components/ConfigView';
+import {setState, useState, getState, clearState} from '../../store'
+import ConfigView from '../../components/ConfigView'
 
-const buildImageErrorsPath = ['app', 'buildImage', 'errors'];
+const buildImageErrorsPath = ['app', 'buildImage', 'errors']
 
 // Constants
-const imageBuildPath = ['app', 'customImages', 'imageBuild'];
+const imageBuildPath = ['app', 'customImages', 'imageBuild']
 
 function buildImageValidate(suppressUpload = false) {
-  let valid = true;
-  const imageId = getState([...imageBuildPath, 'imageId']);
+  let valid = true
+  const imageId = getState([...imageBuildPath, 'imageId'])
 
-  setState([...buildImageErrorsPath, 'validated'], true);
+  setState([...buildImageErrorsPath, 'validated'], true)
 
-  if(!imageId || imageId === "")
-  {
-    setState([...buildImageErrorsPath, 'imageId'], 'Image ID must not be blank.');
-    valid = false;
+  if (!imageId || imageId === '') {
+    setState(
+      [...buildImageErrorsPath, 'imageId'],
+      'Image ID must not be blank.',
+    )
+    valid = false
   } else {
-    clearState([...buildImageErrorsPath, 'imageId']);
+    clearState([...buildImageErrorsPath, 'imageId'])
   }
 
-  return valid;
+  return valid
 }
 
 export default function ImageBuildDialog(props: any) {
-  const open = useState([...imageBuildPath, 'dialog']);
-  const imageConfig = useState([...imageBuildPath, 'config']) || "";
-  const errors = useState([...imageBuildPath, 'errors']);
-  const imageId = useState([...imageBuildPath, 'imageId']);
-  const pending = useState([...imageBuildPath, 'pending']);
+  const open = useState([...imageBuildPath, 'dialog'])
+  const imageConfig = useState([...imageBuildPath, 'config']) || ''
+  const errors = useState([...imageBuildPath, 'errors'])
+  const imageId = useState([...imageBuildPath, 'imageId'])
+  const pending = useState([...imageBuildPath, 'pending'])
 
-  let validated = useState([...buildImageErrorsPath, 'validated']);
+  let validated = useState([...buildImageErrorsPath, 'validated'])
 
-  let imageIdError = useState([...buildImageErrorsPath, 'imageId']);
+  let imageIdError = useState([...buildImageErrorsPath, 'imageId'])
 
   const handleClose = () => {
-    setState([...imageBuildPath, 'dialog'], false);
-    clearState([...imageBuildPath, 'errors']);
-  };
+    setState([...imageBuildPath, 'dialog'], false)
+    clearState([...imageBuildPath, 'errors'])
+  }
 
   const handleBuild = () => {
-    var errHandler = (err: any) => {setState([...imageBuildPath, 'errors'], err); setState([...imageBuildPath, 'pending'], false);}
-    var successHandler = (_resp: any) => {setState([...imageBuildPath, 'pending'], false); handleClose();}
-    clearState([...imageBuildPath, 'errors']);
+    var errHandler = (err: any) => {
+      setState([...imageBuildPath, 'errors'], err)
+      setState([...imageBuildPath, 'pending'], false)
+    }
+    var successHandler = (_resp: any) => {
+      setState([...imageBuildPath, 'pending'], false)
+      handleClose()
+    }
+    clearState([...imageBuildPath, 'errors'])
     setState([...imageBuildPath, 'pending'], true)
-    buildImageValidate() && BuildImage(imageId, imageConfig, successHandler, errHandler);
+    buildImageValidate() &&
+      BuildImage(imageId, imageConfig, successHandler, errHandler)
   }
 
   const setImageId = (newImageId: any) => {
-    if(newImageId !== imageId)
-    {
-      setState([...imageBuildPath, 'imageId'], newImageId);
-      if(validated)
-        buildImageValidate();
+    if (newImageId !== imageId) {
+      setState([...imageBuildPath, 'imageId'], newImageId)
+      if (validated) buildImageValidate()
     }
   }
 
-  const descriptionElementRef = React.useRef(null);
+  const descriptionElementRef = React.useRef(null)
   React.useEffect(() => {
     if (open) {
-      const { current: descriptionElement } = descriptionElementRef;
+      const {current: descriptionElement} = descriptionElementRef
       if (descriptionElement !== null) {
-        (descriptionElement as any).focus();
+        ;(descriptionElement as any).focus()
       }
     }
-  }, [open]);
+  }, [open])
 
   return (
     <Modal
@@ -103,33 +110,65 @@ export default function ImageBuildDialog(props: any) {
       onDismiss={handleClose}
       closeAriaLabel="Close modal"
       size="large"
-      header={<Header variant="h2">Image Configuration: {props.imageId}</Header>}
+      header={
+        <Header variant="h2">Image Configuration: {props.imageId}</Header>
+      }
       footer={
         <Box float="right">
           <SpaceBetween direction="horizontal" size="xs">
             <Button onClick={handleClose}>Cancel</Button>
-            <Button disabled={pending} onClick={() => {buildImageValidate() && handleBuild()}}>Build Image</Button>
+            <Button
+              disabled={pending}
+              onClick={() => {
+                buildImageValidate() && handleBuild()
+              }}
+            >
+              Build Image
+            </Button>
           </SpaceBetween>
         </Box>
-      }>
+      }
+    >
       <SpaceBetween direction="vertical" size="xs">
-        <div style={{display: "flex", flexDirection: "row", alignItems: "center", gap: "16px"}}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: '16px',
+          }}
+        >
           <FileUploadButton
-            className="upload" handleData={(data: any) => {setState([...imageBuildPath, 'config'], data)}}
+            className="upload"
+            handleData={(data: any) => {
+              setState([...imageBuildPath, 'config'], data)
+            }}
           />
           <div>Image Id:</div>
           <FormField errorText={imageIdError}>
-            <Input value={imageId} onChange={({ detail }) => {setImageId(detail.value)}} />
+            <Input
+              value={imageId}
+              onChange={({detail}) => {
+                setImageId(detail.value)
+              }}
+            />
           </FormField>
         </div>
-        {<ConfigView
-          config={imageConfig}
-          onChange={({
-            detail
-          }: any) => {setState([...imageBuildPath, 'config'], detail.value)}}/>}
-        {errors && <ValidationErrors errors={errors} /> }
-        {pending && <div><Spinner size="normal" /> Image Build request pending...</div>}
+        {
+          <ConfigView
+            config={imageConfig}
+            onChange={({detail}: any) => {
+              setState([...imageBuildPath, 'config'], detail.value)
+            }}
+          />
+        }
+        {errors && <ValidationErrors errors={errors} />}
+        {pending && (
+          <div>
+            <Spinner size="normal" /> Image Build request pending...
+          </div>
+        )}
       </SpaceBetween>
     </Modal>
-  );
+  )
 }

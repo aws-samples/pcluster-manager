@@ -9,32 +9,32 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { CloudFormationStackStatus, Region, Tags, Version } from './base'
-import { EC2Instance } from './instances'
+import {CloudFormationStackStatus, Region, Tags, Version} from './base'
+import {EC2Instance} from './instances'
 
 export enum ComputeFleetStatus {
-  StartRequested = "START_REQUESTED",  // works only with Slurm
-  Starting = "STARTING",  // works only with Slurm
-  Running = "RUNNING",  // works only with Slurm
-  Protected = "PROTECTED",  // works only with Slurm
-  StopRequested = "STOP_REQUESTED",  // works only with Slurm
-  Stopping = "STOPPING",  // works only with Slurm
-  Stopped = "STOPPED",  // works only with Slurm
-  Unknown = "UNKNOWN",  // works only with Slurm
-  Enabled = "ENABLED",  // works only with AWS Batch
-  Disabled = "DISABLED",  // works only with AWS Batch
+  StartRequested = 'START_REQUESTED', // works only with Slurm
+  Starting = 'STARTING', // works only with Slurm
+  Running = 'RUNNING', // works only with Slurm
+  Protected = 'PROTECTED', // works only with Slurm
+  StopRequested = 'STOP_REQUESTED', // works only with Slurm
+  Stopping = 'STOPPING', // works only with Slurm
+  Stopped = 'STOPPED', // works only with Slurm
+  Unknown = 'UNKNOWN', // works only with Slurm
+  Enabled = 'ENABLED', // works only with AWS Batch
+  Disabled = 'DISABLED', // works only with AWS Batch
 }
 
 export enum ClusterStatus {
-  CreateInProgress = "CREATE_IN_PROGRESS",
-  CreateFailed = "CREATE_FAILED",
-  CreateComplete = "CREATE_COMPLETE",
-  DeleteInProgress = "DELETE_IN_PROGRESS",
-  DeleteFailed = "DELETE_FAILED",
-  DeleteComplete = "DELETE_COMPLETE",
-  UpdateInProgress = "UPDATE_IN_PROGRESS",
-  UpdateComplete = "UPDATE_COMPLETE",
-  UpdateFailed = "UPDATE_FAILED",
+  CreateInProgress = 'CREATE_IN_PROGRESS',
+  CreateFailed = 'CREATE_FAILED',
+  CreateComplete = 'CREATE_COMPLETE',
+  DeleteInProgress = 'DELETE_IN_PROGRESS',
+  DeleteFailed = 'DELETE_FAILED',
+  DeleteComplete = 'DELETE_COMPLETE',
+  UpdateInProgress = 'UPDATE_IN_PROGRESS',
+  UpdateComplete = 'UPDATE_COMPLETE',
+  UpdateFailed = 'UPDATE_FAILED',
 }
 
 export type ClusterName = string
@@ -45,52 +45,52 @@ export type SuppressValidatorsList = SuppressValidatorExpression[]
 
 export type ClusterInfoSummary = {
   // Name of the cluster.
-  clusterName: ClusterName,
+  clusterName: ClusterName
   // AWS region where the cluster is created.
-  region: Region,
+  region: Region
   // ParallelCluster version used to create the cluster.
-  version: Version,
+  version: Version
   // ARN of the main CloudFormation stack.
-  cloudformationStackArn: string,
+  cloudformationStackArn: string
   // Status of the CloudFormation stack provisioning the cluster infrastructure.
-  cloudformationStackStatus: CloudFormationStackStatus,
+  cloudformationStackStatus: CloudFormationStackStatus
   // Status of the cluster infrastructure.
-  clusterStatus: ClusterStatus,
+  clusterStatus: ClusterStatus
   // Scheduler of the cluster.
-  scheduler?: Scheduler,
+  scheduler?: Scheduler
 }
 
 export type ClusterDescription = {
   // Name of the cluster.
-  clusterName: ClusterName,
+  clusterName: ClusterName
   // AWS region where the cluster is created.
-  region: Region,
+  region: Region
   // ParallelCluster version used to create the cluster.
-  version: Version,
+  version: Version
   // Status of the cluster. Corresponds to the CloudFormation stack status.
-  cloudFormationStackStatus: CloudFormationStackStatus,
+  cloudFormationStackStatus: CloudFormationStackStatus
   // Status of the cluster infrastructure.
-  clusterStatus: ClusterStatus,
+  clusterStatus: ClusterStatus
   // Scheduler of the cluster.
-  scheduler: Scheduler,
+  scheduler: Scheduler
   // ARN of the main CloudFormation stack.
-  cloudformationStackArn: string,
+  cloudformationStackArn: string
   // Timestamp representing the cluster creation time.
-  creationTime: string,
+  creationTime: string
   // Timestamp representing the last cluster update time.
-  lastUpdatedTime: string,
-  clusterConfiguration: ClusterConfigurationStructure,
-  computeFleetStatus: ComputeFleetStatus,
+  lastUpdatedTime: string
+  clusterConfiguration: ClusterConfigurationStructure
+  computeFleetStatus: ComputeFleetStatus
   // Tags associated with the cluster.
-  tags: Tags,
-  headNode?: EC2Instance,
+  tags: Tags
+  headNode?: EC2Instance
   // Reason of the failure when the stack is in CREATE_FAILED, UPDATE_FAILED or DELETE_FAILED status.
   failureReason?: string
 }
 
 export type ClusterConfigurationStructure = {
   // URL of the cluster configuration file.
-  url: string,
+  url: string
 }
 
 // Cluster configuration as a YAML document
@@ -99,17 +99,17 @@ export type ClusterConfigurationData = string
 export type ChangeSet = Change[]
 
 export type Change = {
-  parameter: string,
-  currentValue: string,
-  requestedValue: string,
+  parameter: string
+  currentValue: string
+  requestedValue: string
 }
 
 export type Scheduler = {
-  type: string,
-  metadata: Metadata,
+  type: string
+  metadata: Metadata
 }
 
 export type Metadata = {
-  name: string,
-  version: string,
+  name: string
+  version: string
 }

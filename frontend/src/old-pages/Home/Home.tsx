@@ -10,15 +10,20 @@
 // limitations under the License.
 
 export default function Home() {
-  return <div>
-    <h2>Welcome to AWS ParallelCluster Manager</h2>
-    This site provides an interface for creating and managing AWS ParallelCluster instances.
-    <br /><br />
-    Please choose from one of the options on the left side-bar. If you only see
-    the 'Home' icon, then your account is in 'guest' mode and will need to be
-    upgraded by an administrator of this instance of AWS ParallelCluster
-    Manager. Please contact one of the administrators to have your account
-    upgraded.
-    <br /><br />
-  </div>
+  return (
+    <div>
+      <h2>Welcome to AWS ParallelCluster Manager</h2>
+      This site provides an interface for creating and managing AWS
+      ParallelCluster instances.
+      <br />
+      <br />
+      Please choose from one of the options on the left side-bar. If you only
+      see the &apos;Home&apos; icon, then your account is in &apos;guest&apos;
+      mode and will need to be upgraded by an administrator of this instance of
+      AWS ParallelCluster Manager. Please contact one of the administrators to
+      have your account upgraded.
+      <br />
+      <br />
+    </div>
+  )
 }
