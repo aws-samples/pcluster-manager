@@ -37,9 +37,9 @@
     "lint": "next lint",
     "dev": "next dev",
     "export": "next build && next export -o build",
+    "prepare": "bash ./scripts/git-secrets-command.sh '--register-aws > /dev/null' && cd .. && husky install frontend/.husky",
     "ts-reignore": "ts-migrate reignore . --sources='src/**/*'",
-    "ts-validate": "tsc -p tsconfig.json",
-    "prepare": "bash ./git-secrets-conf.sh"
+    "ts-validate": "tsc -p tsconfig.json"
   },
   "browserslist": {
     "production": [
@@ -62,10 +62,20 @@
     "@types/node": "^18.0.0",
     "eslint": "^8.19.0",
     "eslint-config-next": "12.2.0",
+    "eslint-config-prettier": "^8.5.0",
+    "husky": "^8.0.1",
     "jest": "^28.1.2",
     "jest-environment-jsdom": "^28.1.2",
     "jest-mock-extended": "^2.0.6",
+    "lint-staged": "^13.0.3",
+    "prettier": "^2.7.1",
     "ts-migrate": "^0.1.30",
     "typescript": "^4.7.4"
+  },
+  "lint-staged": {
+    "**/*.{js,jsx,ts,tsx}": [
+      "npx eslint --fix",
+      "npx prettier --write"
+    ]
   }
 }
