@@ -41,7 +41,7 @@ Metadata:
       SlurmDbBackupRetentionPeriod:
         default: "Database backup retention period"
       SlurmDbDeleteAutoBackup:
-        default: "Auotmatic backup deletion"
+        default: "Automatic backup deletion"
       SlurmDbDeleteProtect:
         default: "Database deletion protection"
       SlurmDbPort:
@@ -224,7 +224,7 @@ Parameters:
     Default: slurmdb
 
   SlurmDbUsername:
-    Description: "Admininstrator user name for DB instance."
+    Description: "Administrator user name for DB instance."
     Type: String
     Default: admin
 
@@ -313,5 +313,5 @@ Outputs:
     Value: !Ref SlurmDbPasswordSecret
 
   SlurmDbSecurityGroupId:
-    Description: The secrity group ID for the RDS instance
+    Description: The security group ID for the RDS instance
     Value: !Ref SlurmDbSecurityGroup
