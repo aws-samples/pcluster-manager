@@ -8,10 +8,10 @@
 // or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-import React from 'react';
+import React from 'react'
 
-import { ListOfficialImages } from '../../model'
-import { useCollection } from '@awsui/collection-hooks';
+import {ListOfficialImages} from '../../model'
+import {useCollection} from '@awsui/collection-hooks'
 
 // UI Elements
 import {
@@ -20,48 +20,55 @@ import {
   Header,
   Pagination,
   Table,
-  TextFilter
-} from "@awsui/components-react";
+  TextFilter,
+} from '@awsui/components-react'
 
 // Components
-import EmptyState from '../../components/EmptyState';
+import EmptyState from '../../components/EmptyState'
 import Loading from '../../components/Loading'
-import { useQuery } from 'react-query';
-import { useState } from '../../store';
+import {useQuery} from 'react-query'
+import {useState} from '../../store'
 
 type Image = {
-  amiId: string,
-  os: string,
-  architecture: string,
-  version: string,
+  amiId: string
+  os: string
+  architecture: string
+  version: string
 }
 
-function OfficialImagesList({ images}: { images: Image[]}) {
-  const { items, actions, filteredItemsCount, collectionProps, filterProps, paginationProps } = useCollection(
-    images,
-    {
-      filtering: {
-        empty: (
-          <EmptyState
-            title="No images"
-            subtitle="No images to display."
-            action={<></>}
-          />
-        ),
-        noMatch: (
-          <EmptyState
-            title="No matches"
-            subtitle="No images match the filters."
-            action={
-              <Button onClick={() => actions.setFiltering('')}>Clear filter</Button>}
-          />
-        ),
-      },
-      pagination: { pageSize: 10 },
-      sorting: {},
-      selection: {},
-    }
-  );
+function OfficialImagesList({images}: {images: Image[]}) {
+  const {
+    items,
+    actions,
+    filteredItemsCount,
+    collectionProps,
+    filterProps,
+    paginationProps,
+  } = useCollection(images, {
+    filtering: {
+      empty: (
+        <EmptyState
+          title="No images"
+          subtitle="No images to display."
+          action={<></>}
+        />
+      ),
+      noMatch: (
+        <EmptyState
+          title="No matches"
+          subtitle="No images match the filters."
+          action={
+            <Button onClick={() => actions.setFiltering('')}>
+              Clear filter
+            </Button>
+          }
+        />
+      ),
+    },
+    pagination: {pageSize: 10},
+    sorting: {},
+    selection: {},
+  })
 
   return (
     <Table
@@ -70,28 +77,28 @@ function OfficialImagesList({ images}: { images: Image[]}) {
       trackBy="amiId"
       columnDefinitions={[
         {
-          id: "id",
-          header: "Id",
+          id: 'id',
+          header: 'Id',
           cell: item => item.amiId,
-          sortingField: "amiId"
+          sortingField: 'amiId',
         },
         {
-          id: "os",
-          header: "OS",
-          cell: item => item.os || "-",
-          sortingField: "os"
+          id: 'os',
+          header: 'OS',
+          cell: item => item.os || '-',
+          sortingField: 'os',
         },
         {
-          id: "architecture",
-          header: "Architecture",
-          cell: item => item.architecture || "-",
-          sortingField: "architecture"
+          id: 'architecture',
+          header: 'Architecture',
+          cell: item => item.architecture || '-',
+          sortingField: 'architecture',
         },
         {
-          id: "version",
-          header: "Version",
-          cell: item => item.version || "-",
-        }
+          id: 'version',
+          header: 'Version',
+          cell: item => item.version || '-',
+        },
       ]}
       loading={images === null}
       items={items}
@@ -105,23 +112,27 @@ function OfficialImagesList({ images}: { images: Image[]}) {
         />
       }
     />
-  );
+  )
 }
 
 export default function OfficialImages() {
-  const defaultRegion = useState(['aws', 'region']);
-  const region = useState(['app', 'selectedRegion']) || defaultRegion;
-  const { data } = useQuery('OFFICIAL_IMAGES', () => ListOfficialImages(region));
+  const defaultRegion = useState(['aws', 'region'])
+  const region = useState(['app', 'selectedRegion']) || defaultRegion
+  const {data} = useQuery('OFFICIAL_IMAGES', () => ListOfficialImages(region))
 
-  return <Container
-    header={
-      <Header
-        variant="h2"
-        description=""
-        counter={ data && `(${data.length})` }>
-        Official Images
-      </Header>
-    }>
-    {data ? <OfficialImagesList images={data} /> : <Loading />}
-  </Container>
+  return (
+    <Container
+      header={
+        <Header
+          variant="h2"
+          description=""
+          counter={data && `(${data.length})`}
+        >
+          Official Images
+        </Header>
+      }
+    >
+      {data ? <OfficialImagesList images={data} /> : <Loading />}
+    </Container>
+  )
 }

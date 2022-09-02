@@ -12,8 +12,8 @@
 export type LogStreamName = string
 
 export type LogEvent = {
-  message: string,
-  timestamp: string,
+  message: string
+  timestamp: string
 }
 
 export type LogEvents = LogEvent[]
@@ -26,17 +26,17 @@ export type LogStreams = LogStream[]
 
 export type LogStream = {
   // Name of the log stream.
-  logStreamName: string,
+  logStreamName: string
   // The creation time of the stream.
-  creationTime: string,
+  creationTime: string
   // The time of the first event of the stream.
-  firstEventTimestamp: string,
+  firstEventTimestamp: string
   // The time of the last event of the stream. The lastEventTime value updates on an eventual consistency basis. It typically updates in less than an hour from ingestion, but in rare situations might take longer.
-  lastEventTimestamp: string,
+  lastEventTimestamp: string
   // The last ingestion time.
-  lastIngestionTime: string,
+  lastIngestionTime: string
   // The sequence token.
-  uploadSequenceToken: string,
+  uploadSequenceToken: string
   // The Amazon Resource Name (ARN) of the log stream.
-  logStreamArn: string,
+  logStreamArn: string
 }

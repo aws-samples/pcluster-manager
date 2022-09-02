@@ -8,14 +8,14 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { AxiosInstance } from "axios";
-import { AppConfig } from "./types";
+import {AxiosInstance} from 'axios'
+import {AppConfig} from './types'
 
 interface RawAppConfig {
-  auth_url: string;
-  client_id: string;
-  scopes: string;
-  redirect_uri: string;
+  auth_url: string
+  client_id: string
+  scopes: string
+  redirect_uri: string
 }
 
 function mapAppConfig(data: RawAppConfig): AppConfig {
@@ -27,7 +27,9 @@ function mapAppConfig(data: RawAppConfig): AppConfig {
   }
 }
 
-export async function getAppConfig(axiosInstance: AxiosInstance): Promise<AppConfig | {}> {
-  const { data } = await axiosInstance.get('manager/get_app_config');
+export async function getAppConfig(
+  axiosInstance: AxiosInstance,
+): Promise<AppConfig | {}> {
+  const {data} = await axiosInstance.get('manager/get_app_config')
   return data ? mapAppConfig(data) : {}
 }

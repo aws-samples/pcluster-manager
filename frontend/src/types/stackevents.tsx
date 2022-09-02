@@ -8,29 +8,29 @@
 // or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-import { CloudFormationResourceStatus } from './base'
+import {CloudFormationResourceStatus} from './base'
 
-export  type StackEvent = {
+export type StackEvent = {
   // The unique ID name of the instance of the stack.
-  stackId: string,
+  stackId: string
   // The unique ID of this event.
-  eventId: string,
+  eventId: string
   // The name associated with a stack.
-  stackName: string,
+  stackName: string
   // The logical name of the resource specified in the template.
-  logicalResourceId: string,
+  logicalResourceId: string
   // The name or unique identifier associated with the physical instance of the resource.
-  physicalResourceId: string,
+  physicalResourceId: string
   // Type of resource.
-  resourceType: string,
+  resourceType: string
   // Time the status was updated.
-  timestamp: string,
+  timestamp: string
   // Current status of the resource.
-  resourceStatus: CloudFormationResourceStatus,
+  resourceStatus: CloudFormationResourceStatus
   // Success/failure message associated with the resource.
-  resourceStatusReason?: string,
+  resourceStatusReason?: string
   // BLOB of the properties used to create the resource.
-  resourceProperties?: string,
+  resourceProperties?: string
   // The token passed to the operation that generated this event.
   clientRequestToken?: string
 }

@@ -10,36 +10,35 @@
 // limitations under the License.
 
 export enum InstanceState {
-  Pending = "pending",
-  Running = "running",
-  ShuttingDown = "shutting-down",
-  Terminated = "terminated",
-  Stopping = "stopping",
-  Stopped = "stopped",
+  Pending = 'pending',
+  Running = 'running',
+  ShuttingDown = 'shutting-down',
+  Terminated = 'terminated',
+  Stopping = 'stopping',
+  Stopped = 'stopped',
 }
 
-
 export enum NodeType {
-  HeadNode = "HeadNode",
-  ComputeNode = "ComputeNode",
+  HeadNode = 'HeadNode',
+  ComputeNode = 'ComputeNode',
 }
 
 export type EC2Instance = {
-    instanceId: string,
-    instanceType: string,
-    launchTime: string,
-    privateIpAddress: string, // only primary?
-    publicIpAddress: string,
-    state: InstanceState
-  }
+  instanceId: string
+  instanceType: string
+  launchTime: string
+  privateIpAddress: string // only primary?
+  publicIpAddress: string
+  state: InstanceState
+}
 
 export type Instance = {
-    instanceId: string,
-    instanceType: string,
-    launchTime: string,
-    nodeType: NodeType,
-    privateIpAddress: string, // only primary?
-    publicIpAddress?: string,
-    queueName?: string,
-    state: InstanceState
-  }
+  instanceId: string
+  instanceType: string
+  launchTime: string
+  nodeType: NodeType
+  privateIpAddress: string // only primary?
+  publicIpAddress?: string
+  queueName?: string
+  state: InstanceState
+}

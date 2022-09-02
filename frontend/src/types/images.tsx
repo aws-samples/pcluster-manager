@@ -9,78 +9,78 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { CloudFormationStackStatus, Region, Tags, Version } from './base'
+import {CloudFormationStackStatus, Region, Tags, Version} from './base'
 
 export enum ImageBuildStatus {
-  BuildInProgress = "BUILD_IN_PROGRESS",
-  BuildFailed = "BUILD_FAILED",
-  BuildComplete = "BUILD_COMPLETE",
-  DeleteInProgress = "DELETE_IN_PROGRESS",
-  DeleteFailed = "DELETE_FAILED",
-  DeleteComplete = "DELETE_COMPLETE",
+  BuildInProgress = 'BUILD_IN_PROGRESS',
+  BuildFailed = 'BUILD_FAILED',
+  BuildComplete = 'BUILD_COMPLETE',
+  DeleteInProgress = 'DELETE_IN_PROGRESS',
+  DeleteFailed = 'DELETE_FAILED',
+  DeleteComplete = 'DELETE_COMPLETE',
 }
 
 export enum ImageBuilderImageStatus {
-  Pending = "PENDING",
-  Creating = "CREATING",
-  Building = "BUILDING",
-  Testing = "TESTING",
-  Distributing = "DISTRIBUTING",
-  Integrating = "INTEGRATING",
-  Available = "AVAILABLE",
-  Cancelled = "CANCELLED",
-  Failed = "FAILED",
-  Deprecated = "DEPRECATED",
-  Deleted = "DELETED",
+  Pending = 'PENDING',
+  Creating = 'CREATING',
+  Building = 'BUILDING',
+  Testing = 'TESTING',
+  Distributing = 'DISTRIBUTING',
+  Integrating = 'INTEGRATING',
+  Available = 'AVAILABLE',
+  Cancelled = 'CANCELLED',
+  Failed = 'FAILED',
+  Deprecated = 'DEPRECATED',
+  Deleted = 'DELETED',
 }
 
 export enum Ec2AmiState {
-  Pending = "PENDING",
-  Available = "AVAILABLE",
-  Invalid = "INVALID",
-  Deregistered = "DEREGISTERED",
-  Transient = "TRANSIENT",
-  Failed = "FAILED",
-  Error = "ERROR",
+  Pending = 'PENDING',
+  Available = 'AVAILABLE',
+  Invalid = 'INVALID',
+  Deregistered = 'DEREGISTERED',
+  Transient = 'TRANSIENT',
+  Failed = 'FAILED',
+  Error = 'ERROR',
 }
 
 export type ImageId = string
 
 export type Ec2AmiInfo = {
   // EC2 AMI id
-  amiId: string,
+  amiId: string
   // EC2 AMI Tags
-  tags: Tags,
+  tags: Tags
   // EC2 AMI name
-  amiName: string,
+  amiName: string
   // EC2 AMI architecture
-  architecture: string,
+  architecture: string
   // EC2 AMI state
-  state: Ec2AmiState,
+  state: Ec2AmiState
   // EC2 AMI description
-  description: string,
+  description: string
 }
 
 export type ImageInfoSummary = {
   // Id of the image.
-  imageId: ImageId,
+  imageId: ImageId
   // Ec2 image information.
-  ec2AmiInfo: Ec2AmiInfoSummary,
+  ec2AmiInfo: Ec2AmiInfoSummary
   // AWS region where the image is built.
-  region: Region,
+  region: Region
   // ParallelCluster version used to build the image.
-  version: Version,
+  version: Version
   // ARN of the main CloudFormation stack.
-  cloudformationStackArn: string,
+  cloudformationStackArn: string
   // Status of the image build process.
-  imageBuildStatus: ImageBuildStatus,
+  imageBuildStatus: ImageBuildStatus
   // Status of the CloudFormation stack for the image build process.
-  cloudformationStackStatus: CloudFormationStackStatus,
+  cloudformationStackStatus: CloudFormationStackStatus
 }
 
 export type ImageConfigurationStructure = {
   // URL of the image configuration file.
-  url: string,
+  url: string
 }
 
 // Image configuration as a YAML document
@@ -88,5 +88,5 @@ export type ImageConfigurationData = string
 
 export type Ec2AmiInfoSummary = {
   // EC2 AMI id
-  amiId: string,
+  amiId: string
 }

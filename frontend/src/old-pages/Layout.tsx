@@ -9,38 +9,44 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { setState, useState } from '../store'
-import { Outlet } from "react-router-dom";
+import {setState, useState} from '../store'
+import {Outlet} from 'react-router-dom'
 
 // UI Elements
-import AppLayout from "@awsui/components-react/app-layout";
-import { Flashbar } from "@awsui/components-react";
+import AppLayout from '@awsui/components-react/app-layout'
+import {Flashbar} from '@awsui/components-react'
 
 // Components
-import TopBar from '../components/TopBar';
-import SideBar from '../components/SideBar';
+import TopBar from '../components/TopBar'
+import SideBar from '../components/SideBar'
 
 export default function Layout() {
-  const navigationOpen = useState(['app', 'sidebar', 'drawerOpen']);
+  const navigationOpen = useState(['app', 'sidebar', 'drawerOpen'])
 
-  const messages = useState(['app', 'messages']);
+  const messages = useState(['app', 'messages'])
 
-  return <>
-    <TopBar />
-    <AppLayout
-      className="app-layout"
-      headerSelector="#top-bar"
-      navigationWidth={220}
-      toolsHide
-      navigationOpen={navigationOpen}
-      onNavigationChange = {(e) => {setState(['app', 'sidebar', 'drawerOpen'], e.detail.open)}}
-      content={<>
-        <div style={{marginBottom: "30px"}}>
-          <Flashbar items={messages} />
-        </div>
-        <Outlet />
-      </>}
-      navigation={<SideBar />}
-    />
-  </>;
+  return (
+    <>
+      <TopBar />
+      <AppLayout
+        className="app-layout"
+        headerSelector="#top-bar"
+        navigationWidth={220}
+        toolsHide
+        navigationOpen={navigationOpen}
+        onNavigationChange={e => {
+          setState(['app', 'sidebar', 'drawerOpen'], e.detail.open)
+        }}
+        content={
+          <>
+            <div style={{marginBottom: '30px'}}>
+              <Flashbar items={messages} />
+            </div>
+            <Outlet />
+          </>
+        }
+        navigation={<SideBar />}
+      />
+    </>
+  )
 }

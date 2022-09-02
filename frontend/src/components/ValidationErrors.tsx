@@ -10,52 +10,69 @@
 // limitations under the License.
 
 // UI Elements
-import { Trans } from 'react-i18next';
-import { Icon } from "@awsui/components-react";
+import {Trans} from 'react-i18next'
+import {Icon} from '@awsui/components-react'
 
 export default function ValidationErrors({errors}: any) {
   const colorMap = (level: string) => {
     return {
-      "ERROR": 'red',
-      "WARNING": 'orange',
-      "SUCCESS": 'green'
-    }[level];
-  };
+      ERROR: 'red',
+      WARNING: 'orange',
+      SUCCESS: 'green',
+    }[level]
+  }
 
-  const colored = (text: any, success: any) => <div style={{
-    color: success ? 'green' : 'red',
-    display: 'flex',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    padding: '4px 0'
-  }}>
-    <Icon name={success ? 'status-positive' : 'status-negative'} />
-    <div style={{display: 'inline-block', paddingLeft: '10px'}}> {text}</div>
-  </div>
+  const colored = (text: any, success: any) => (
+    <div
+      style={{
+        color: success ? 'green' : 'red',
+        display: 'flex',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        padding: '4px 0',
+      }}
+    >
+      <Icon name={success ? 'status-positive' : 'status-negative'} />
+      <div style={{display: 'inline-block', paddingLeft: '10px'}}> {text}</div>
+    </div>
+  )
 
-  var success = errors.message && errors.message.includes("succeeded");
-  var configErrors = errors.configurationValidationErrors || errors.validationMessages;
-  var updateErrors = errors.updateValidationErrors;
+  var success = errors.message && errors.message.includes('succeeded')
+  var configErrors =
+    errors.configurationValidationErrors || errors.validationMessages
+  var updateErrors = errors.updateValidationErrors
   return (
     <div>
       {colored(errors.message, success)}
-      {configErrors &&
+      {configErrors && (
         <div className="validation-errors">
           <Trans i18nKey="components.ValidationErrors.validation" />
-          {errors.configurationValidationErrors ?
-            <Trans i18nKey="components.ValidationErrors.errors" /> :
+          {errors.configurationValidationErrors ? (
+            <Trans i18nKey="components.ValidationErrors.errors" />
+          ) : (
             <Trans i18nKey="components.ValidationErrors.warnings" />
-          }:
-          {configErrors.map((error: any, i: any) => <div style={{color: colorMap(error.level)}} key={i}>{`${error.type}: ${error.message}`}</div>)}
+          )}
+          :
+          {configErrors.map((error: any, i: any) => (
+            <div
+              style={{color: colorMap(error.level)}}
+              key={i}
+            >{`${error.type}: ${error.message}`}</div>
+          ))}
         </div>
-      }
-      {updateErrors &&
+      )}
+      {updateErrors && (
         <div className="validation-errors">
           <Trans i18nKey="components.ValidationErrors.update" />
           <Trans i18nKey="components.ValidationErrors.errors" />:
-          {updateErrors.map((error: any, i: any) => <div style={{color: colorMap(error.level)}} key={i}>{`${error.message}`}</div>)}
+          {updateErrors.map((error: any, i: any) => (
+            <div
+              style={{color: colorMap(error.level)}}
+              key={i}
+            >{`${error.message}`}</div>
+          ))}
         </div>
-      }
+      )}
     </div>
-  );
+  )
 }
