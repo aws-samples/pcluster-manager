@@ -10,22 +10,18 @@
 // limitations under the License.
 
 // UI Elements
-import { Box } from "@awsui/components-react";
+import {Box} from '@awsui/components-react'
 
-export default function EmptyState({
-  title,
-  subtitle,
-  action
-}: any) {
+export default function EmptyState({title, subtitle, action}: any) {
   return (
     <Box textAlign="center" color="inherit">
       <Box variant="strong" textAlign="center" color="inherit">
         {title}
       </Box>
-      <Box variant="p" padding={{ bottom: 's' }} color="inherit">
+      <Box variant="p" padding={{bottom: 's'}} color="inherit">
         {subtitle}
       </Box>
       {action}
     </Box>
-  );
+  )
 }

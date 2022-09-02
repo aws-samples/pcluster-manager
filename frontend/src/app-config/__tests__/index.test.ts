@@ -8,14 +8,14 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { AxiosInstance } from "axios"
-import { mock, MockProxy } from "jest-mock-extended"
-import { getAppConfig } from ".."
+import {AxiosInstance} from 'axios'
+import {mock, MockProxy} from 'jest-mock-extended'
+import {getAppConfig} from '..'
 
 describe('given a function to fetch the application configuration', () => {
   describe('and an axios instance', () => {
-    let mockGet: jest.Mock;
-    let mockAxiosInstance: MockProxy<AxiosInstance>;
+    let mockGet: jest.Mock
+    let mockAxiosInstance: MockProxy<AxiosInstance>
     beforeEach(() => {
       mockGet = jest.fn()
       mockAxiosInstance = mock<AxiosInstance>()
@@ -36,7 +36,7 @@ describe('given a function to fetch the application configuration', () => {
           authUrl: 'some-url',
           clientId: 'some-id',
           redirectUri: 'some-uri',
-          scopes: 'some-list'
+          scopes: 'some-list',
         })
       })
     })

@@ -8,32 +8,25 @@
 // or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-import * as React from 'react';
+import * as React from 'react'
 
 // UI Elements
-import {
-  Box,
-  Button,
-  Modal,
-  SpaceBetween,
-} from "@awsui/components-react";
+import {Box, Button, Modal, SpaceBetween} from '@awsui/components-react'
 
-import { UpdateComputeFleet } from '../../model'
-import { setState, useState } from '../../store'
+import {UpdateComputeFleet} from '../../model'
+import {setState, useState} from '../../store'
 
-function StopDialog({
-  clusterName
-}: any) {
-  const open = useState(['app', 'clusters', 'clusterStop', 'dialog']);
+function StopDialog({clusterName}: any) {
+  const open = useState(['app', 'clusters', 'clusterStop', 'dialog'])
 
   const cancel = () => {
     setState(['app', 'clusters', 'clusterStop', 'dialog'], false)
-  };
+  }
 
   const stopCluster = () => {
-    UpdateComputeFleet(clusterName, "STOP_REQUESTED")
-    cancel();
-  };
+    UpdateComputeFleet(clusterName, 'STOP_REQUESTED')
+    cancel()
+  }
 
   return (
     <Modal
@@ -51,14 +44,14 @@ function StopDialog({
       }
       header="Stop Cluster?"
     >
-      Are you sure you wish to stop cluster {clusterName}? 
-      This will terminate all jobs that are running and terminate any compute nodes running.
+      Are you sure you wish to stop cluster {clusterName}? This will terminate
+      all jobs that are running and terminate any compute nodes running.
     </Modal>
-  );
+  )
 }
 
 function stopComputeFleet() {
   setState(['app', 'clusters', 'clusterStop', 'dialog'], true)
 }
 
-export { StopDialog, stopComputeFleet }
+export {StopDialog, stopComputeFleet}

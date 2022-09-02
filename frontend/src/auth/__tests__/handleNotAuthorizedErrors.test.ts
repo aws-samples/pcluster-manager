@@ -8,11 +8,11 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { AppConfig } from '../../app-config/types';
-import { handleNotAuthorizedErrors } from "../handleNotAuthorizedErrors"
+import {AppConfig} from '../../app-config/types'
+import {handleNotAuthorizedErrors} from '../handleNotAuthorizedErrors'
 
-delete (global.window as any).location;
-global.window.location = { replace: jest.fn() } as any;
+delete (global.window as any).location
+global.window.location = {replace: jest.fn()} as any
 
 describe('given the application config', () => {
   let mockAppConfig: AppConfig
@@ -22,7 +22,7 @@ describe('given the application config', () => {
       authUrl: 'http://somepath.com',
       clientId: 'some-id',
       redirectUri: 'some-uri',
-      scopes: 'some-list'
+      scopes: 'some-list',
     }
   })
 
@@ -37,17 +37,23 @@ describe('given the application config', () => {
         })
       })
       it('should redirect to the authorization server', () => {
-        handleNotAuthorizedErrors(mockAppConfig)(mockRequestPromise).catch(() => {
+        handleNotAuthorizedErrors(mockAppConfig)(mockRequestPromise).catch(
+          () => {
             expect(global.window.location.replace).toHaveBeenCalledTimes(1)
             expect(global.window.location.replace).toHaveBeenCalledWith(
-                expect.stringContaining('http://somepath.com?response_type=code&client_id=some-id&scope=some-list&redirect_uri=some-uri')
+              expect.stringContaining(
+                'http://somepath.com?response_type=code&client_id=some-id&scope=some-list&redirect_uri=some-uri',
+              ),
             )
 
-            const urlString = `${(global.window.location.replace as any).mock.calls[0][0]}`;
+            const urlString = `${
+              (global.window.location.replace as any).mock.calls[0][0]
+            }`
             const searchParams = new URL(urlString).searchParams
             expect(searchParams.get('state')).toBeTruthy()
-          })
-        rejectPromise({ response: { status: 401 } })
+          },
+        )
+        rejectPromise({response: {status: 401}})
       })
     })
   })

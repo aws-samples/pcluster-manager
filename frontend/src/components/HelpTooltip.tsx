@@ -9,21 +9,23 @@
 // or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-import * as React from 'react';
-import HelpIcon from '@mui/icons-material/Help';
+import * as React from 'react'
+import HelpIcon from '@mui/icons-material/Help'
 
 // UI Elements
-import { Popover } from "@awsui/components-react";
+import {Popover} from '@awsui/components-react'
 
-export default function HelpTooltip({
-  children
-}: any) {
-  return <span style={{ paddingLeft: "8px", display: "inline-block" }}>
-    <Popover dismissButton={false}
-      position="right"
-      size="medium"
-      content={children}>
-      <HelpIcon sx={{ fontSize: 18 }} />
-    </Popover>
-  </span>
+export default function HelpTooltip({children}: any) {
+  return (
+    <span style={{paddingLeft: '8px', display: 'inline-block'}}>
+      <Popover
+        dismissButton={false}
+        position="right"
+        size="medium"
+        content={children}
+      >
+        <HelpIcon sx={{fontSize: 18}} />
+      </Popover>
+    </span>
+  )
 }

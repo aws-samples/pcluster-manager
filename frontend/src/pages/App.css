@@ -1,4 +1,3 @@
-
 .App {
   position: absolute;
   top: 59px;
@@ -27,15 +26,17 @@
   color: white;
 }
 
-.top-bar span.region:hover .region-name ,  .top-bar span.region:hover .region-id {
-  color: #44B9D6;
+.top-bar span.region:hover .region-name,
+.top-bar span.region:hover .region-id {
+  color: #44b9d6;
 }
 
-.top-bar span.region-selected , .top-bar span.region-selected > .region-name , .top-bar span.region-selected > .region-id {
-  color: #44B9D6;
+.top-bar span.region-selected,
+.top-bar span.region-selected > .region-name,
+.top-bar span.region-selected > .region-id {
+  color: #44b9d6;
   font-weight: bold;
 }
-
 
 .top-bar span.region .region-id {
   padding-left: 8px;
@@ -43,14 +44,13 @@
 
 a {
   text-decoration: none;
-  color: #0073BB;
+  color: #0073bb;
 }
 
 a:hover {
   text-decoration: underline;
-  color: #0073BB;
+  color: #0073bb;
 }
-
 
 .app-layout {
   margin-top: 56px;
@@ -82,10 +82,10 @@ a:hover {
   height: 32px;
 }
 
-.sidebar-icons a.selected , .sidebar a.selected {
-
+.sidebar-icons a.selected,
+.sidebar a.selected {
   background: rgba(236, 114, 17, 0.1);
-/*  background: rgba(25, 118, 210, 0.1); */
+  /*  background: rgba(25, 118, 210, 0.1); */
 }
 
 .sidebar {
@@ -112,12 +112,12 @@ a:hover {
   height: 20px;
 }
 
-
 table th {
   text-align: left;
 }
 
-table td, table th {
+table td,
+table th {
   padding-left: 16px;
   padding-right: 16px;
   padding-top: 4px;
@@ -182,7 +182,7 @@ button.action div.container {
 .cluster-properties-table {
   padding-left: 16px;
   padding-right: 16px;
-  border-top: 1px solid #FEFEFE;
+  border-top: 1px solid #fefefe;
   background: white;
   width: 1024px;
   text-align: left;
@@ -210,7 +210,6 @@ div.custom-image-details table {
   font-size: 12px;
 }
 
-
 .build-image-settings {
   margin-bottom: 10px;
 }
@@ -219,7 +218,6 @@ div.custom-image-details table {
   margin-right: 20px;
   margin-top: 15px;
 }
-
 
 /* Wizard */
 .wizard-container {
@@ -233,8 +231,7 @@ div.custom-image-details table {
   align-items: flex-end;
 }
 
-.config-side-navigation .disabled
-{
+.config-side-navigation .disabled {
   cursor: not-allowed;
   color: #aaa;
 }
