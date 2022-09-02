@@ -33,18 +33,12 @@ export const STORAGE_TYPE_PROPS = {
 
 export type StorageType = keyof typeof STORAGE_TYPE_PROPS
 
-export type Storages = Record<
-  string,
-  {
-    Name: string
-    StorageType: StorageType
-    MountDir: string
-  }
->
+export type Storages = {
+  Name: string
+  StorageType: StorageType
+  MountDir: string
+}[]
 
-export type UIStorageSettings = Record<
-  string,
-  {
-    useExisting: boolean
-  }
->
+export type UIStorageSettings = {
+  useExisting: boolean
+}[]

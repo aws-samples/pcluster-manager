@@ -109,8 +109,8 @@ function storageValidate() {
 function FsxLustreSettings({index}: any) {
   const {t} = useTranslation()
   const versionMinor = useState(['app', 'version', 'minor'])
-  const storageAppPath = ['app', 'wizard', 'storage', index]
-  const useExisting = useState([...storageAppPath, 'useExisting']) || false
+  const useExisting =
+    useState(['app', 'wizard', 'storage', 'ui', index, 'useExisting']) || false
 
   const fsxPath = [...storagePath, index, 'FsxLustreSettings']
   const storageCapacityPath = [...fsxPath, 'StorageCapacity']
@@ -793,12 +793,12 @@ function EbsSettings({index}: any) {
 
 function StorageInstance({index}: any) {
   const path = [...storagePath, index]
-  const storageAppPath = ['app', 'wizard', 'storage', index]
+  const uiSettingsForStorage = ['app', 'wizard', 'storage', 'ui', index]
   const storageType: StorageType = useState([...path, 'StorageType'])
   const storageName = useState([...path, 'Name']) || ''
   const mountPoint = useState([...path, 'MountDir'])
   const useExisting =
-    useState([...storageAppPath, 'useExisting']) ||
+    useState([...uiSettingsForStorage, 'useExisting']) ||
     !(STORAGE_TYPE_PROPS[storageType].maxToCreate > 0)
   const settingsPath = [...path, `${storageType}Settings`]
   const existingPath = STORAGE_TYPE_PROPS[storageType].mountFilesystem
@@ -806,7 +806,7 @@ function StorageInstance({index}: any) {
     : [...settingsPath, 'VolumeId']
   const existingId = useState(existingPath) || ''
   const storages = useState(storagePath)
-  const uiStorageSettings = useState(['app', 'wizard', 'storage'])
+  const uiSettings = useState(['app', 'wizard', 'storage', 'ui'])
   const {t} = useTranslation()
 
   const fsxFilesystems = useState(['aws', 'fsxFilesystems'])
@@ -815,14 +815,18 @@ function StorageInstance({index}: any) {
   const editing = useState(['app', 'wizard', 'editing'])
 
   const canToggle =
-    (useExisting &&
-      canCreateStorage(storageType, storages, uiStorageSettings)) ||
+    (useExisting && canCreateStorage(storageType, storages, uiSettings)) ||
     (!useExisting &&
-      canAttachExistingStorage(storageType, storages, uiStorageSettings))
+      canAttachExistingStorage(storageType, storages, uiSettings))
 
   const removeStorage = () => {
-    if (index === 0 && storages.length === 1) clearState(storagePath)
-    else clearState(path)
+    if (index === 0 && storages.length === 1) {
+      clearState(uiSettings)
+      clearState(storagePath)
+    } else {
+      clearState(uiSettingsForStorage)
+      clearState(path)
+    }
 
     // Rename storages to keep indices correct and names unique
     const updatedStorages = getState(storagePath)
@@ -836,7 +840,7 @@ function StorageInstance({index}: any) {
   const toggleUseExisting = () => {
     const value = !useExisting
     clearState(settingsPath)
-    setState([...storageAppPath, 'useExisting'], value)
+    setState([...uiSettingsForStorage, 'useExisting'], value)
   }
 
   const idToOption = (id: any) => {
@@ -1037,7 +1041,7 @@ function StorageInstance({index}: any) {
 function Storage() {
   const storages = useState(storagePath)
   const editing = useState(['app', 'wizard', 'editing'])
-  const uiStorageSettings = useState(['app', 'wizard', 'storage'])
+  const uiStorageSettings = useState(['app', 'wizard', 'storage', 'ui'])
   const storageType = useState(['app', 'wizard', 'storage', 'type'])
   const versionMinor = useState(['app', 'version', 'minor'])
 
@@ -1091,19 +1095,14 @@ function Storage() {
   const addStorage = () => {
     const newIndex = storages ? storages.length : 0
 
-    const useExistingPath = [
-      'app',
-      'wizard',
-      'storage',
-      newIndex,
-      'useExisting',
-    ]
-    setState(
-      useExistingPath,
-      !canCreateStorage(storageType, storages, uiStorageSettings),
+    const uiSettingsPath = ['app', 'wizard', 'storage', 'ui']
+    const useExisting = !canCreateStorage(
+      storageType,
+      storages,
+      uiStorageSettings,
     )
 
-    if (!storages)
+    if (!storages) {
       setState(storagePath, [
         {
           Name: `${storageType}${newIndex}`,
@@ -1111,12 +1110,15 @@ function Storage() {
           MountDir: '/shared',
         },
       ])
-    else
+      setState(uiSettingsPath, [{useExisting}])
+    } else {
       setState([...storagePath, newIndex], {
         Name: `${storageType}${newIndex}`,
         StorageType: storageType,
         MountDir: '/shared',
       })
+      setState([...uiSettingsPath, newIndex], {useExisting})
+    }
     clearState(['app', 'wizard', 'storage', 'type'])
   }
 
@@ -1196,10 +1198,9 @@ function canCreateStorage(
   }
 
   const maxToCreate = STORAGE_TYPE_PROPS[storageType].maxToCreate
-  const alreadyCreated = Object.keys(uiStorageSettings)
-    .filter(key => key !== 'type')
-    .filter(index => storages[index].StorageType === storageType)
-    .filter(index => !uiStorageSettings[index].useExisting).length
+  const alreadyCreated = storages
+    .filter((_, index) => !uiStorageSettings[index].useExisting)
+    .filter(storage => storage.StorageType === storageType).length
 
   return alreadyCreated < maxToCreate
 }
@@ -1219,10 +1220,9 @@ function canAttachExistingStorage(
 
   const maxExistingToAttach =
     STORAGE_TYPE_PROPS[storageType].maxExistingToAttach
-  const existingAlreadyAttached = Object.keys(uiStorageSettings)
-    .filter(key => key !== 'type')
-    .filter(index => storages[index].StorageType === storageType)
-    .filter(index => uiStorageSettings[index].useExisting).length
+  const existingAlreadyAttached = storages
+    .filter((_, index) => uiStorageSettings[index].useExisting)
+    .filter(storage => storage.StorageType === storageType).length
 
   return existingAlreadyAttached < maxExistingToAttach
 }
