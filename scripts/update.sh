@@ -5,7 +5,7 @@ REGION_SET=false
 LOCAL=false
 TAG=latest
 
-USAGE="$(basename "$0") [-h] [--region REGION] [--tag TAG] [--local]"
+USAGE="$(basename "$0") [-h] [--stack-name STACKNAME] [--region REGION] [--tag TAG] [--local]"
 
 while [[ $# -gt 0 ]]
 do
@@ -15,6 +15,11 @@ case $key in
     -h)
     echo "$USAGE" >&2
     exit 1
+    ;;
+    --stack-name)
+    STACKNAME="$2"
+    shift # past argument
+    shift # past value
     ;;
     --region)
     REGION=$2
@@ -42,13 +47,27 @@ if [ "$REGION_SET" == "false" ]; then
     echo "Warning: Using default region $REGION from your environment. Please ensure this is where pcluster manager is deployed.";
 fi
 
-LAMBDA_ARN=$(aws lambda --region ${REGION} list-functions --query "Functions[?contains(FunctionName, 'PclusterManagerFunction')] | [0].FunctionArn" | xargs echo)
+if [ -z $STACKNAME ]; then
+    echo "Error: no stack name parameter defined, exiting."
+    exit 1
+fi
+
+
+function resource_id_from_cf_output {
+  echo "$1" | grep "$2" | cut -d " " -f 2
+}
+
+CF_QUERY="StackResources[?LogicalResourceId == 'PrivateEcrRepository' || LogicalResourceId == 'PclusterManagerFunction'].{ LogicalResourceId: LogicalResourceId, PhysicalResourceId: PhysicalResourceId }"
+CF_OUTPUT=`aws cloudformation describe-stack-resources --stack-name pcluster-manager --query "$CF_QUERY" --output text | tr '\t' ' '`
+
+LAMBDA_NAME="$(resource_id_from_cf_output "$CF_OUTPUT" "PclusterManagerFunction")"
+LAMBDA_ARN=$(aws lambda --region ${REGION} list-functions --query "Functions[?contains(FunctionName, '$LAMBDA_NAME')] | [0].FunctionArn" | xargs echo)
 ECR_REPO=pcluster-manager-awslambda
 
 PUBLIC_ECR_ENDPOINT="public.ecr.aws/n0x0o5k1"
 ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
 ECR_ENDPOINT="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com"
-PRIVATE_ECR_REPO=$(aws ecr --region ${REGION} describe-repositories --query "repositories[?contains(repositoryName, 'pcluster-manager')] | [0].repositoryName" --output text)
+PRIVATE_ECR_REPO="$(resource_id_from_cf_output "$CF_OUTPUT" "PrivateEcrRepository")"
 IMAGE=${ECR_ENDPOINT}/${PRIVATE_ECR_REPO}:latest
 
 if [ "$LOCAL" == "true" ]; then
