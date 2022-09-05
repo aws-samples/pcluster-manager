@@ -2,27 +2,26 @@ import {
   canCreateStorage,
   canAttachExistingStorage,
 } from '../old-pages/Configure/Storage'
-import {UIStorageSettings} from '../old-pages/Configure/Storage.types'
 
 describe('Given a function to determine whether we can create a storage of a given type', () => {
   describe('when the storage type is not available', () => {
     it('should not allow the creation of a new storage', () => {
-      expect(canCreateStorage(null as any, {}, {})).toBeFalsy()
+      expect(canCreateStorage(null as any, [], [])).toBeFalsy()
     })
   })
   describe('when the storage type does not support creation', () => {
     it('should not allow the creation of a new storage', () => {
-      expect(canCreateStorage('FsxOntap', {}, {})).toBeFalsy()
+      expect(canCreateStorage('FsxOntap', [], [])).toBeFalsy()
     })
   })
   describe('when the attached storages are not available', () => {
     it('should allow the creation of a new storage', () => {
-      expect(canCreateStorage('Efs', {}, {})).toBeTruthy()
+      expect(canCreateStorage('Efs', [], [])).toBeTruthy()
     })
   })
   describe('when the ui storages details are not available', () => {
     it('should allow the creation of a new storage', () => {
-      expect(canCreateStorage('Efs', {}, null as any)).toBeTruthy()
+      expect(canCreateStorage('Efs', [], null as any)).toBeTruthy()
     })
   })
   describe('when we have exceeded the amount of storage of a given type we can create', () => {
@@ -30,19 +29,8 @@ describe('Given a function to determine whether we can create a storage of a giv
       expect(
         canCreateStorage(
           'FsxLustre',
-          Array(20)
-            .fill({StorageType: 'FsxLustre'})
-            .reduce((acc, current, key) => {
-              acc[key] = current
-              return acc
-            }, {}),
-          [...Array(20).keys()].reduce<UIStorageSettings>(
-            (accumulator, number) => {
-              accumulator[number] = {useExisting: false}
-              return accumulator
-            },
-            {},
-          ),
+          Array(20).fill({StorageType: 'FsxLustre'}),
+          Array(20).fill({useExisting: false}),
         ),
       ).toBeFalsy()
     })
@@ -52,8 +40,8 @@ describe('Given a function to determine whether we can create a storage of a giv
       expect(
         canCreateStorage(
           'FsxLustre',
-          {'0': {StorageType: 'FsxLustre', MountDir: '', Name: ''}},
-          {0: {useExisting: true}},
+          [{StorageType: 'FsxLustre', MountDir: '', Name: ''}],
+          [{useExisting: true}],
         ),
       ).toBeTruthy()
     })
@@ -63,22 +51,22 @@ describe('Given a function to determine whether we can create a storage of a giv
 describe('Given a function to determine whether we can attach an existing storage of a given type', () => {
   describe('when the storage type is not available', () => {
     it('should not allow the attachment of an existing storage', () => {
-      expect(canAttachExistingStorage(null as any, {}, {})).toBeFalsy()
+      expect(canAttachExistingStorage(null as any, [], [])).toBeFalsy()
     })
   })
   describe('when the storage type is not available', () => {
     it('should not allow the attachment of an existing storage', () => {
-      expect(canAttachExistingStorage(null as any, {}, {})).toBeFalsy()
+      expect(canAttachExistingStorage(null as any, [], [])).toBeFalsy()
     })
   })
   describe('when the attached storages are not available', () => {
     it('should allow the attachment of an existing storage', () => {
-      expect(canAttachExistingStorage('Efs', null as any, {})).toBeTruthy()
+      expect(canAttachExistingStorage('Efs', null as any, [])).toBeTruthy()
     })
   })
   describe('when the ui storages details are not available', () => {
     it('should allow the attachment of an existing storage', () => {
-      expect(canAttachExistingStorage('Efs', {}, null as any)).toBeTruthy()
+      expect(canAttachExistingStorage('Efs', [], null as any)).toBeTruthy()
     })
   })
   describe('when we have exceeded the amount of existing storage of a given type we can attach', () => {
@@ -86,19 +74,8 @@ describe('Given a function to determine whether we can attach an existing storag
       expect(
         canAttachExistingStorage(
           'FsxLustre',
-          Array(20)
-            .fill({StorageType: 'FsxLustre', Name: '', MountDir: ''})
-            .reduce((acc, current, key) => {
-              acc[key] = current
-              return acc
-            }, {}),
-          [...Array(20).keys()].reduce<UIStorageSettings>(
-            (accumulator, number) => {
-              accumulator[number] = {useExisting: true}
-              return accumulator
-            },
-            {},
-          ),
+          Array(20).fill({StorageType: 'FsxLustre', Name: '', MountDir: ''}),
+          Array(20).fill({useExisting: true}),
         ),
       ).toBeFalsy()
     })
@@ -108,8 +85,8 @@ describe('Given a function to determine whether we can attach an existing storag
       expect(
         canAttachExistingStorage(
           'FsxLustre',
-          {'0': {StorageType: 'FsxLustre', Name: '', MountDir: ''}},
-          {0: {useExisting: true}},
+          [{StorageType: 'FsxLustre', Name: '', MountDir: ''}],
+          [{useExisting: true}],
         ),
       ).toBeTruthy()
     })
