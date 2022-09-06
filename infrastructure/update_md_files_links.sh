@@ -22,7 +22,7 @@ for REGION in "${REGIONS[@]}"
 do
     if [ "$REGION" != "ap-southeast-3" ] && [ "$REGION" != "me-central-1" ];
     then
-      #FIXME For China and ISO partitions we should also parametrize the partition in the URL
+      #FIXME For other partitions we should also parametrize the partition in the URL
       while IFS= read -r -d '' file
       do
         if [[ "$file" != *"node_modules"* ]]; then
