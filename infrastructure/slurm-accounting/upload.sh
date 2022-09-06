@@ -14,26 +14,21 @@ source common.sh
 source bucket_configuration.sh
 trap 'error' ERR
 
-SCRIPT_DIR=$1
+ACCOUNTING_SCRIPT_DIR="$1/slurm-accounting"
 
-if [ -z "$SCRIPT_DIR" ];
+if [ ! -d "$ACCOUNTING_SCRIPT_DIR" ] || [ ! -r "$ACCOUNTING_SCRIPT_DIR" ];
 then
-  echo "SCRIPT_DIR=$SCRIPT_DIR must be initialized and not empty"
+  echo "ACCOUNTING_SCRIPT_DIR=$ACCOUNTING_SCRIPT_DIR must be a readable directory"
   exit 1;
 fi
 
-FILES=(SSMSessionProfile-cfn.yaml pcluster-manager-cognito.yaml pcluster-manager.yaml)
+FILES=(accounting-cluster-template.yaml)
 
 for INDEX in "${!BUCKETS[@]}"
 do
   echo Uploading to: "${BUCKETS[INDEX]}"
-  #FIXME For other partitions we should also parametrize the partition in the URL
-  TEMPLATE_URL="https:\/\/${BUCKETS[INDEX]}\.s3\.${REGIONS[INDEX]}\.amazonaws\.com"
-  sed -i.bak "s/PLACEHOLDER/${TEMPLATE_URL}/g" "${SCRIPT_DIR}/pcluster-manager.yaml" && rm pcluster-manager.yaml.bak
   for FILE in "${FILES[@]}"
   do
-      aws --region "${REGIONS[INDEX]}" s3 cp --acl public-read "${SCRIPT_DIR}/${FILE}" "s3://${BUCKETS[INDEX]}/${FILE}"
+    aws --region "${REGIONS[INDEX]}" s3 cp --acl public-read "${ACCOUNTING_SCRIPT_DIR}/${FILE}" "s3://${BUCKETS[INDEX]}/slurm-accounting/${FILE}"
   done
-  sed -i.bak "s/${TEMPLATE_URL}/PLACEHOLDER/g" pcluster-manager.yaml && rm pcluster-manager.yaml.bak
 done
-
