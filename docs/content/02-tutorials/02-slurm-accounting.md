@@ -14,7 +14,8 @@ your AWS account. Note that if you would like to create the database in a
 different region, change the value of the `region` parameter in the URL to the
 region of your choice and reload the page.
 
-{{% button href="https://console.aws.amazon.com/cloudformation/home?#/stacks/quickcreate?stackName=slurm-accounting&templateURL=https://pcluster-manager-us-east-1.s3.amazonaws.com/slurm-accounting/accounting-cluster-template.yaml" icon="fas fa-rocket" %}}Deploy Accounting Database{{% /button %}}
+{{% button href="https://console.aws.amazon.com/cloudformation/home?#/stacks/quickcreate?stackName=slurm-accounting&templateURL=https://stackset-parallelcluster-pclustermanagertemplates-184q2amn23kgk.s3.us-east-1.amazonaws.com/slurm-accounting/accounting-cluster-template.yaml" icon="fas fa-rocket" %}}Deploy Accounting Database{{% /button %}} {{% button href="https://console.aws.amazon.com/cloudformation/home?#/stacks/quickcreate?stackName=slurm-accounting&templateURL=https://stackset-parallelcluster-pclustermanagertemplates-mhievvad5pyj.s3.eu-central-1.amazonaws.com/slurm-accounting/accounting-cluster-template.yaml" icon="fas fa-rocket" %}}Deploy Accounting Database - alternative link{{% /button %}}
+
 
 When you're creating the stack, be sure to specify the `VPC ID` and `Subnets`
 parameters to correspond to the VPC where you are creating the stack. All other
