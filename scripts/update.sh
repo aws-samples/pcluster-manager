@@ -58,7 +58,7 @@ function resource_id_from_cf_output {
 }
 
 CF_QUERY="StackResources[?LogicalResourceId == 'PrivateEcrRepository' || LogicalResourceId == 'PclusterManagerFunction'].{ LogicalResourceId: LogicalResourceId, PhysicalResourceId: PhysicalResourceId }"
-CF_OUTPUT=`aws cloudformation describe-stack-resources --stack-name pcluster-manager --query "$CF_QUERY" --output text | tr '\t' ' '`
+CF_OUTPUT=`aws cloudformation describe-stack-resources --stack-name "$STACKNAME" --region "$REGION" --query "$CF_QUERY" --output text | tr '\t' ' '`
 
 LAMBDA_NAME="$(resource_id_from_cf_output "$CF_OUTPUT" "PclusterManagerFunction")"
 LAMBDA_ARN=$(aws lambda --region ${REGION} list-functions --query "Functions[?contains(FunctionName, '$LAMBDA_NAME')] | [0].FunctionArn" | xargs echo)
