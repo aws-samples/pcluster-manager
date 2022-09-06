@@ -98,7 +98,7 @@ Resources:
         - '${Bucket}/pcluster-manager-cognito.yaml'
         - Bucket: !If 
           - HasDefaultInfrastructure
-          - !Sub https://pcluster-manager-${AWS::Region}.s3.${AWS::Region}.amazonaws.com
+          - PLACEHOLDER
           - !Sub ${InfrastructureBucket}
 
       TimeoutInMinutes: 10
@@ -131,7 +131,7 @@ Resources:
         - '${Bucket}/SSMSessionProfile-cfn.yaml'
         - Bucket: !If 
           - HasDefaultInfrastructure
-          - !Sub https://pcluster-manager-${AWS::Region}.s3.${AWS::Region}.amazonaws.com
+          - PLACEHOLDER
           - !Sub ${InfrastructureBucket}
       TimeoutInMinutes: 30
 
