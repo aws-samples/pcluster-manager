@@ -52,9 +52,11 @@ Resources:
                 Action:
                   - lambda:UpdateFunctionCode
                   - ecr:DescribeRepositories
+                  - cloudformation:DescribeStackResources
                 Resource:
                   - !Sub arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:PclusterManagerFunction*
                   - !Sub arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/*
+                  - !Sub arn:${AWS::Partition}:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/*/*
               - Effect: Allow
                 Action:
                   - lambda:ListFunctions
