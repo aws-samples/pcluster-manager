@@ -12,7 +12,6 @@ import datetime
 
 from flask import Flask, Response, request, send_from_directory
 from flask.json import JSONEncoder
-from flask_cors import CORS  # comment this on deployment
 from flask_restful import Api
 from werkzeug.routing import BaseConverter
 
@@ -67,7 +66,6 @@ def run():
     app = utils.build_flask_app(__name__)
     app.json_encoder = PClusterJSONEncoder
     app.url_map.converters["regex"] = RegexConverter
-    CORS(app)  # comment this on deployment
     api = Api(app)
 
     @app.errorhandler(401)
