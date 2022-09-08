@@ -13,6 +13,7 @@ import os
 
 import dateutil
 from flask import Flask, Response, request, send_from_directory
+from flask_cors import CORS
 import requests
 
 
@@ -80,7 +81,9 @@ def proxy_to(to_url):
 
 def build_flask_app(name):
   if running_local():
-    return Flask(name)
+    app = Flask(name)
+    CORS(app)
+    return app
 
   return Flask(name, static_url_path="", static_folder="frontend/public")
 
