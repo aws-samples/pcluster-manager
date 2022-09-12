@@ -171,34 +171,24 @@ function UpdateCluster(
     })
 }
 
-function DescribeCluster(clusterName: any, errorCallback?: Callback) {
+async function DescribeCluster(clusterName: string, errorCallback?: Callback) {
   var url = `api?path=/v3/clusters/${clusterName}`
-  request('get', url)
-    .then((response: any) => {
-      //console.log("Describe Success", response)
-      if (response.status === 200) {
-        updateState(['clusters', 'index', clusterName], (existing: any) => {
-          return {...existing, ...response.data}
-        })
-      }
-    })
-    .catch((error: any) => {
-      if (error.response) {
-        errorCallback && errorCallback()
-        var selected = getState(['app', 'clusters', 'selected'])
-        if (selected === clusterName) {
-          clearState(['app', 'clusters', 'selected'])
-          return
-        } else {
-          console.log(error.response)
-          notify(
-            `Error (${clusterName}): ${error.response.data.message}`,
-            'error',
-          )
-        }
-      }
-      console.log(error)
-    })
+  try {
+    const response = await request('get', url)
+    if (response.status === 200) {
+      updateState(['clusters', 'index', clusterName], (existing: any) => {
+        return {...existing, ...response.data}
+      })
+    }
+    return response.data || {}
+  } catch (error: any) {
+    if (error.response) {
+      errorCallback && errorCallback()
+      notify(`Error (${clusterName}): ${error.response.data.message}`, 'error')
+    }
+    console.log(error)
+    throw error
+  }
 }
 
 function DeleteCluster(clusterName: any, callback?: Callback) {
