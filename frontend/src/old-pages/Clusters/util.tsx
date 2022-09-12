@@ -10,24 +10,28 @@
 // @ts-expect-error TS(7016) FIXME: Could not find a declaration file for module 'js-y... Remove this comment to see the full error message
 import jsyaml from 'js-yaml'
 
-import {DescribeCluster, GetConfiguration} from '../../model'
-import {clearState, getState, setState} from '../../store'
+import {getState, setState} from '../../store'
 import {getIn} from '../../util'
 
-export function selectCluster(clusterName: any, navigate: any) {
+export async function selectCluster(
+  clusterName: string,
+  DescribeCluster: (name: string, callback?: () => void) => Promise<any>,
+  GetConfiguration: (name: string, callback: (value: any) => void) => void,
+) {
   const oldClusterName = getState(['app', 'clusters', 'selected'])
-  const name = clusterName
-  let config_path = ['clusters', 'index', name, 'config']
-  clearState(['clusters', 'index', name])
-  GetConfiguration(name, (configuration: any) => {
-    setState(['clusters', 'index', name, 'configYaml'], configuration)
-    setState(config_path, jsyaml.load(configuration))
-  })
-  DescribeCluster(name, () => {
-    navigate && navigate('/clusters')
-  })
+  let config_path = ['clusters', 'index', clusterName, 'config']
+  try {
+    await DescribeCluster(clusterName)
+    GetConfiguration(clusterName, (configuration: any) => {
+      setState(['clusters', 'index', clusterName, 'configYaml'], configuration)
+      setState(config_path, jsyaml.load(configuration))
+    })
+  } catch (_) {
+    // NOOP
+  }
+
   if (oldClusterName !== clusterName)
-    setState(['app', 'clusters', 'selected'], name)
+    setState(['app', 'clusters', 'selected'], clusterName)
 }
 
 export function getScripts(customActions: Record<string, any> | null) {

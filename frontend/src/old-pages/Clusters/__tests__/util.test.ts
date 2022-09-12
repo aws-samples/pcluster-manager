@@ -1,4 +1,4 @@
-import {getScripts} from '../util'
+import {getScripts, selectCluster} from '../util'
 
 describe('Given a function to get script names of all custom actions', () => {
   describe('when a custom action to be run on node startup is provided', () => {
@@ -71,6 +71,57 @@ describe('Given a function to get script names of all custom actions', () => {
     it('should return an empty array', () => {
       const scriptNames = getScripts(null)
       expect(scriptNames).toEqual([])
+    })
+  })
+})
+
+describe('Given a function to select the current cluster and a cluster name', () => {
+  const clusterName = 'some-cluster-name'
+  let mockDescribeCluster: jest.Mock
+  let mockGetConfiguration: jest.Mock
+
+  beforeEach(() => {
+    mockDescribeCluster = jest.fn()
+    mockGetConfiguration = jest.fn()
+  })
+
+  describe('when user selects a cluster by name', () => {
+    it('should describe the cluster', async () => {
+      await selectCluster(
+        clusterName,
+        mockDescribeCluster,
+        mockGetConfiguration,
+      )
+      expect(mockDescribeCluster).toHaveBeenCalledTimes(1)
+      expect(mockDescribeCluster).toHaveBeenCalledWith(clusterName)
+    })
+
+    it('should get the cluster configuration', async () => {
+      await selectCluster(
+        clusterName,
+        mockDescribeCluster,
+        mockGetConfiguration,
+      )
+      expect(mockGetConfiguration).toHaveBeenCalledTimes(1)
+      expect(mockGetConfiguration).toHaveBeenCalledWith(
+        clusterName,
+        expect.any(Function),
+      )
+    })
+
+    describe('when describing the cluster fails', () => {
+      beforeEach(async () => {
+        mockDescribeCluster = jest.fn(() => Promise.reject('any-error'))
+        await selectCluster(
+          clusterName,
+          mockDescribeCluster,
+          mockGetConfiguration,
+        )
+      })
+
+      it('should not get the cluster configuration', () => {
+        expect(mockGetConfiguration).toHaveBeenCalledTimes(0)
+      })
     })
   })
 })
