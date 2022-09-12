@@ -14,7 +14,7 @@ import {
 } from '../../types/clusters'
 import React, {useEffect} from 'react'
 import {NavigateFunction, useNavigate, useParams} from 'react-router-dom'
-import {ListClusters} from '../../model'
+import {DescribeCluster, GetConfiguration, ListClusters} from '../../model'
 import {useState, clearState, setState, isAdmin} from '../../store'
 import {selectCluster} from './util'
 import {findFirst} from '../../util'
@@ -75,8 +75,8 @@ function ClusterList({clusters}: {clusters: ClusterInfoSummary[]}) {
 
   React.useEffect(() => {
     if (params.clusterName && selectedClusterName !== params.clusterName)
-      selectCluster(params.clusterName, navigate)
-  }, [selectedClusterName, params, navigate])
+      selectCluster(params.clusterName, DescribeCluster, GetConfiguration)
+  }, [navigate, params.clusterName, selectedClusterName])
 
   const onSelectionChangeCallback = React.useCallback(
     ({detail}) => {
