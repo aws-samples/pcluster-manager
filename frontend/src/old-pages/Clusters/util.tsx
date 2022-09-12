@@ -20,6 +20,10 @@ export async function selectCluster(
 ) {
   const oldClusterName = getState(['app', 'clusters', 'selected'])
   let config_path = ['clusters', 'index', clusterName, 'config']
+  if (oldClusterName !== clusterName) {
+    setState(['app', 'clusters', 'selected'], clusterName)
+  }
+
   try {
     await DescribeCluster(clusterName)
     GetConfiguration(clusterName, (configuration: any) => {
@@ -29,9 +33,6 @@ export async function selectCluster(
   } catch (_) {
     // NOOP
   }
-
-  if (oldClusterName !== clusterName)
-    setState(['app', 'clusters', 'selected'], clusterName)
 }
 
 export function getScripts(customActions: Record<string, any> | null) {
