@@ -40,7 +40,7 @@ Parameters:
   OICDProvider:
     Description: OICD provider to use (defaults to Amazon Cognito).
     Type: String
-    AllowedValues: [Cognito]
+    AllowedValues: [Cognito, Okta]
     Default: Cognito
 
 Metadata:
