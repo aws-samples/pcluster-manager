@@ -59,10 +59,28 @@ jobs:
       - name: Run backend tests
         run: pytest
 
-  build-and-deploy:
+  update-infrastructure:
     runs-on: ubuntu-20.04
     
     needs: [frontend-tests, backend-tests]
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: eu-west-1
+          role-to-assume: arn:aws:iam::***REMOVED***:role/pcluster-manager-github-PrivateInfrastructureUpdat-B4KQEZW53808
+      
+      - name: Update staging infrastructure
+        run: /bin/bash infrastructure/update-environment-infra.sh demo
+
+  build-and-deploy:
+    runs-on: ubuntu-20.04
+    
+    needs: [update-infrastructure]
 
     steps:
       - name: Checkout repo
