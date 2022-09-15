@@ -82,6 +82,60 @@ Resources:
       ThumbprintList:
         - 6938fd4d98bab03faadb97b34396831e3780aea1
 
+  PrivateInfrastructureUpdateRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: "Role used to update the infrastructure of a private environment (for example, demo)"
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action: sts:AssumeRoleWithWebIdentity
+            Principal:
+              Federated: !If 
+                - CreateOIDCProvider
+                - !Ref GithubOidc
+                - !Ref OIDCProviderArn
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+                token.actions.githubusercontent.com:sub: !Sub repo:${GitHubOrg}/${RepositoryName}:ref:refs/heads/main
+      Policies:
+        - PolicyName: UpdateInfrastructurePolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cloudformation:DescribeStacks
+                  - cloudformation:UpdateStack
+                  - cloudformation:CreateChangeSet
+                Resource:
+                  - !Sub arn:${AWS::Partition}:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/pcluster-manager-demo*
+                  - !Sub arn:${AWS::Partition}:cloudformation:${AWS::Region}:aws:transform/*
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:ListBucket
+                  - s3:DeleteObject
+                  - s3:GetBucketLocation
+                  - s3:GetObjectTagging
+                  - s3:GetObjectAcl
+                  - s3:PutObjectAcl
+                Resource:
+                  - !Sub arn:${AWS::Partition}:s3:::pcluster-manager-github-infrastructurebucket-7y5h202iem8l
+                  - !Sub arn:${AWS::Partition}:s3:::pcluster-manager-github-infrastructurebucket-7y5h202iem8l/*
+                  - !Sub arn:${AWS::Partition}:s3:::${AWS::Region}-aws-parallelcluster
+                  - !Sub arn:${AWS::Partition}:s3:::${AWS::Region}-aws-parallelcluster/*
+              - Effect: Allow
+                Action:
+                  - iam:GetRole
+                Resource:
+                  - !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:role/pcluster-manager-demo*
+                  - !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/pcluster-manager-demo*
+
 Outputs:
   PrivateDeployRole:
     Value: !GetAtt PrivateDeployRole.Arn
+  PrivateInfrastructureUpdateRole:
+    Value: !GetAtt PrivateInfrastructureUpdateRole.Arn
