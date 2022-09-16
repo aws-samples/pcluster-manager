@@ -572,7 +572,9 @@ Resources:
         # Required to run PclusterManager functionalities
         - !If [ UsesCognito, !Ref PclusterManagerCognitoPolicy, !Ref AWS::NoValue ]
         - !Ref PclusterManagerEC2Policy
-        - !Ref PclusterManagerExtraPolicies
+        - !Ref PclusterManagerDescribeFsxPolicy
+        - !Ref PclusterManagerDescribeEfsPolicy
+        - !Ref PclusterManagerPricingPolicy
         - !Ref PclusterManagerSsmSendPolicy
         - !Ref PclusterManagerSsmGetCommandInvocationPolicy
 
@@ -693,7 +695,7 @@ Resources:
             Effect: Allow
             Sid: EC2ManagePolicy
 
-  PclusterManagerExtraPolicies:
+  PclusterManagerDescribeFsxPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
       PolicyDocument:
@@ -703,21 +705,36 @@ Resources:
               - fsx:DescribeFileSystems
               - fsx:DescribeVolumes
             Resource:
-            - '*'
+              - !Sub arn:${AWS::Partition}:fsx:*:${AWS::AccountId}:volume/*
+              - !Sub arn:${AWS::Partition}:fsx:*:${AWS::AccountId}:file-system/*
             Effect: Allow
-            Sid: FsxLustrePolicy
+            Sid: FsxPolicy
+
+  PclusterManagerDescribeEfsPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
           - Action:
-            - elasticfilesystem:DescribeFileSystems
+              - elasticfilesystem:DescribeFileSystems
             Resource:
               - !Sub arn:${AWS::Partition}:elasticfilesystem:*:${AWS::AccountId}:file-system/*
             Effect: Allow
             Sid: EfsPolicy
+
+  PclusterManagerPricingPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
           - Action:
-            - pricing:GetProducts
+              - pricing:GetProducts
             Resource:
-            - '*'
+              - '*'
             Effect: Allow
-            Sid: PricePolicy
+            Sid: PricingPolicy
 
   PclusterManagerSsmSendPolicy:
     Type: AWS::IAM::ManagedPolicy
@@ -726,7 +743,7 @@ Resources:
         Version: '2012-10-17'
         Statement:
           - Action:
-            - ssm:SendCommand
+              - ssm:SendCommand
             Resource:
               - !Sub arn:${AWS::Partition}:ec2:*:${AWS::AccountId}:instance/*
             Effect: Allow
