@@ -130,6 +130,13 @@ Resources:
               - Effect: Allow
                 Action:
                   - iam:GetRole
+                  - iam:CreatePolicy
+                  - iam:DeletePolicy
+                  - iam:GetPolicy
+                  - iam:ListPolicyVersions
+                  - iam:DeletePolicyVersion
+                  - iam:DetachRolePolicy
+                  - iam:AttachRolePolicy
                 Resource:
                   - !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:role/pcluster-manager-demo*
                   - !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/pcluster-manager-demo*
