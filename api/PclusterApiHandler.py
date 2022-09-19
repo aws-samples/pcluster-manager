@@ -30,6 +30,7 @@ AUTH_PATH = os.getenv("AUTH_PATH")
 API_BASE_URL = os.getenv("API_BASE_URL")
 API_VERSION = os.getenv("API_VERSION", "3.1.0")
 API_USER_ROLE = os.getenv("API_USER_ROLE")
+OIDC_PROVIDER = os.getenv("OIDC_PROVIDER")
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 SECRET_ID = os.getenv("SECRET_ID")
@@ -171,6 +172,7 @@ def get_app_config():
   return {
     "auth_url": AUTH_URL,
     "client_id": CLIENT_ID,
+    "oidc_provider": OIDC_PROVIDER,
     "scopes": get_scopes_list(),
     "redirect_uri": get_redirect_uri()
   }
