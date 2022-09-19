@@ -37,7 +37,7 @@ Parameters:
     Description: S3 bucket where CloudFormation files are stored. Change this parameter only when testing changes made to the infrastructure itself.
     Type: String
     Default: ''
-  OICDProvider:
+  OIDCProvider:
     Description: OICD provider to use (defaults to Amazon Cognito).
     Type: String
     AllowedValues: [Cognito]
@@ -77,7 +77,7 @@ Conditions:
       - !Not [!Equals [!Ref ImageBuilderVpcId, ""]]
       - !Not [!Equals [!Ref ImageBuilderSubnetId, ""]]
   HasDefaultInfrastructure: !Equals [!Ref InfrastructureBucket, '']
-  UsesCognito: !Equals [!Ref OICDProvider, 'Cognito']
+  UsesCognito: !Equals [!Ref OIDCProvider, 'Cognito']
 
 Mappings:
   PclusterManager:
@@ -161,6 +161,7 @@ Resources:
           AUTH_PATH: !If [ UsesCognito, !GetAtt [ PclusterManagerCognito, Outputs.UserPoolAuthDomain ], !Ref AWS::NoValue ]
           SECRET_ID: !If [ UsesCognito, !GetAtt [ PclusterManagerCognito, Outputs.UserPoolClientSecretName ], !Ref AWS::NoValue ]
           AUDIENCE: !If [ UsesCognito, !GetAtt [ PclusterManagerCognito, Outputs.AppClientId ], !Ref AWS::NoValue ]
+          OIDC_PROVIDER: !Ref OIDCProvider
           ENABLE_AUTH: !Ref EnableAuth
           ENABLE_MFA: !Ref EnableMFA
       FunctionName: !Sub
