@@ -137,9 +137,15 @@ Resources:
                   - iam:DeletePolicyVersion
                   - iam:DetachRolePolicy
                   - iam:AttachRolePolicy
+                  - iam:PassRole
                 Resource:
                   - !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:role/pcluster-manager-demo*
                   - !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/pcluster-manager-demo*
+              - Effect: Allow
+                Action:
+                  - lambda:UpdateFunctionConfiguration
+                Resource:
+                  - !Sub arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:PclusterManagerFunction-*
 
 Outputs:
   PrivateDeployRole:
