@@ -38,32 +38,10 @@ Parameters:
     Type: String
     Default: ''
   OIDCProvider:
-    Description: OIDC provider to use (defaults to Amazon Cognito).
+    Description: OICD provider to use (defaults to Amazon Cognito).
     Type: String
-    AllowedValues: [Cognito, Okta]
+    AllowedValues: [Cognito]
     Default: Cognito
-  OktaDomain:
-    Description: The Okta domain.
-    Type: String
-    Default: ''
-  OktaResourceServerId:
-    Description: The Okta resource server ID.
-    Type: String
-    Default: ''
-  OktaClientId:
-    Description: The client ID.
-    Type: String
-    Default: ''
-  OktaClientSecret:
-    Description: The client secret.
-    Type: String
-    NoEcho: true
-    Default: ''
-  OktaScopesList:
-    Description: The Okta scopes list.
-    Type: String
-    Default: 'openid profile email groups'
-
 
 Metadata:
   AWS::CloudFormation::Interface:
@@ -83,18 +61,6 @@ Metadata:
         Parameters:
           - Version
           - PublicEcrImageUri
-      - Label:
-          default: OIDC provider
-        Parameters:
-          - OIDCProvider
-      - Label:
-          default: Okta - Compile only if Okta is selected as OIDC provider
-        Parameters:
-          - OktaDomain
-          - OktaResourceServerId
-          - OktaClientId
-          - OktaClientSecret
-          - OktaScopesList
     ParameterLabels:
       EnableMFA:
         default: Require Multi-Factor Authentication for all Users
@@ -104,18 +70,6 @@ Metadata:
         default: Initial Admin's Email 
       AdminUserPhone:
         default: Initial Admin's Phone Number
-      OIDCProvider:
-        default: OIDC provider
-      OktaDomain:
-        default: Domain
-      OktaResourceServerId:
-        default: Resource Server ID
-      OktaClientId:
-        default: Client ID
-      OktaClientSecret:
-        default: Client Secret
-      OktaScopesList:
-        default: Scopes List
 
 Conditions:
   NonDefaultVpc:
@@ -124,7 +78,6 @@ Conditions:
       - !Not [!Equals [!Ref ImageBuilderSubnetId, ""]]
   HasDefaultInfrastructure: !Equals [!Ref InfrastructureBucket, '']
   UsesCognito: !Equals [!Ref OIDCProvider, 'Cognito']
-  UsesOkta: !Equals [!Ref OIDCProvider, 'Okta']
 
 Mappings:
   PclusterManager:
@@ -211,11 +164,6 @@ Resources:
           OIDC_PROVIDER: !Ref OIDCProvider
           ENABLE_AUTH: !Ref EnableAuth
           ENABLE_MFA: !Ref EnableMFA
-          OKTA_DOMAIN: !If [ UsesOkta, !Ref OktaDomain, !Ref AWS::NoValue ]
-          OKTA_RESOURCE_SERVER_ID: !If [ UsesOkta, !Ref OktaResourceServerId, !Ref AWS::NoValue ]
-          CLIENT_ID: !If [ UsesOkta, !Ref OktaClientId, !Ref AWS::NoValue ]
-          CLIENT_SECRET: !If [ UsesOkta, !Ref OktaClientSecret, !Ref AWS::NoValue ]
-          SCOPES_LIST: !If [ UsesOkta, !Ref OktaScopesList, !Ref AWS::NoValue ]
       FunctionName: !Sub
         - PclusterManagerFunction-${StackIdSuffix}
         - { StackIdSuffix: !Select [2, !Split ['/', !Ref 'AWS::StackId']] }
