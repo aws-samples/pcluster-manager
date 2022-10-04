@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # The following script checks if git-secrets is installed on a local machine.
 # If not, it prints an error message pointing to the official awslabs git-secrets repository.

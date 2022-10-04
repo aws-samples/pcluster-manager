@@ -37,7 +37,7 @@
     "lint": "next lint",
     "dev": "next dev",
     "export": "next build && next export -o build",
-    "prepare": "/bin/bash ./scripts/git-secrets-command.sh '--register-aws > /dev/null' && cd .. && husky install frontend/.husky",
+    "prepare": "./scripts/git-secrets-command.sh '--register-aws > /dev/null' && cd .. && husky install frontend/.husky",
     "ts-reignore": "ts-migrate reignore . --sources='src/**/*'",
     "ts-validate": "tsc -p tsconfig.json"
   },
