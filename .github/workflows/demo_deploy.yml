@@ -75,7 +75,7 @@ jobs:
           role-to-assume: arn:aws:iam::***REMOVED***:role/pcluster-manager-github-PrivateInfrastructureUpdat-B4KQEZW53808
       
       - name: Update staging infrastructure
-        run: /bin/bash infrastructure/update-environment-infra.sh demo
+        run: ./infrastructure/update-environment-infra.sh demo
 
   build-and-deploy:
     runs-on: ubuntu-20.04
@@ -93,6 +93,6 @@ jobs:
           role-to-assume: arn:aws:iam::***REMOVED***:role/pcluster-manager-github-PrivateDeployRole-8D5K5C4RM02U
       
       - name: Update staging environment
-        run: /bin/bash scripts/update.sh --stack-name "pcluster-manager-demo" --region eu-west-1 --local
+        run: ./scripts/update.sh --stack-name "pcluster-manager-demo" --region eu-west-1 --local
 
 
