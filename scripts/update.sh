@@ -1,7 +1,5 @@
 #!/bin/bash -e
 
-REGION=$(aws configure get region)
-REGION_SET=false
 LOCAL=false
 TAG=latest
 
@@ -23,7 +21,6 @@ case $key in
     ;;
     --region)
     REGION=$2
-    REGION_SET=true
     shift # past argument
     shift # past value
     ;;
@@ -43,8 +40,9 @@ case $key in
 esac
 done
 
-if [ "$REGION_SET" == "false" ]; then
-    echo "Warning: Using default region $REGION from your environment. Please ensure this is where pcluster manager is deployed.";
+if [ -z $REGION ]; then
+    echo "Error: no region was specified, please provide one using --region REGION, exiting."
+    exit 1
 fi
 
 if [ -z $STACKNAME ]; then
