@@ -45,7 +45,6 @@ import {
 // Components
 import HelpTooltip from '../../components/HelpTooltip'
 import {NonCancelableEventHandler} from '@awsui/components-react/internal/events'
-import Image from 'next/image'
 
 // Helper Functions
 function strToOption(str: any) {
