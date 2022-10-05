@@ -62,7 +62,7 @@ LAMBDA_NAME="$(resource_id_from_cf_output "$CF_OUTPUT" "PclusterManagerFunction"
 LAMBDA_ARN=$(aws lambda --region ${REGION} list-functions --query "Functions[?contains(FunctionName, '$LAMBDA_NAME')] | [0].FunctionArn" | xargs echo)
 ECR_REPO=pcluster-manager-awslambda
 
-PUBLIC_ECR_ENDPOINT="public.ecr.aws/n0x0o5k1"
+PUBLIC_ECR_ENDPOINT="public.ecr.aws/pcm"
 ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
 ECR_ENDPOINT="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com"
 PRIVATE_ECR_REPO="$(resource_id_from_cf_output "$CF_OUTPUT" "PrivateEcrRepository")"

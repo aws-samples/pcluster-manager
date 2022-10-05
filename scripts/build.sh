@@ -3,7 +3,7 @@
 ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
 ECR_ENDPOINT="${ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
 ECR_REPO=pcluster-manager
-PUBLIC_REPO=public.ecr.aws/n0x0o5k1
+PUBLIC_REPO=public.ecr.aws/pcm
 
 pushd frontend
 docker build -t frontend /

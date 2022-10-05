@@ -14,4 +14,4 @@ docker run --rm=true -ti \
   -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
   -e API_BASE_URL=${API_BASE_URL} \
   -p 8080:80 \
-  public.ecr.aws/n0x0o5k1/pcluster-manager:latest
+  public.ecr.aws/pcm/pcluster-manager:latest
