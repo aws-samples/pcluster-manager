@@ -9,7 +9,6 @@
 // limitations under the License.
 
 import {AvailableFeature} from './types'
-import {greaterVersionThan} from './greaterVersionThan'
 
 const versionToFeaturesMap: Record<string, AvailableFeature[]> = {
   '3.1.0': ['multiuser_cluster'],
@@ -26,7 +25,7 @@ function composeFlagsListByVersion(currentVersion: string): AvailableFeature[] {
   let features: Set<AvailableFeature> = new Set([])
 
   for (let version in versionToFeaturesMap) {
-    if (greaterVersionThan(currentVersion, version)) {
+    if (currentVersion >= version) {
       features = new Set([...features, ...versionToFeaturesMap[version]])
     }
   }
