@@ -49,6 +49,7 @@ import {
   IamPoliciesEditor,
 } from './Components'
 import HelpTooltip from '../../components/HelpTooltip'
+import {useFeatureFlag} from '../../feature-flags/useFeatureFlag'
 
 // Constants
 const headNodePath = ['app', 'wizard', 'config', 'HeadNode']
@@ -364,7 +365,9 @@ function HeadNode() {
   const subnetErrors = useState([...errorsPath, 'subnet'])
   const subnetValue = useState(subnetPath) || ''
   const editing = useState(['app', 'wizard', 'editing'])
-  const versionMinor = useState(['app', 'version', 'minor'])
+  const isMemoryBasedSchedulingActive = useFeatureFlag(
+    'memory_based_scheduling',
+  )
 
   const toggleImdsSecured = () => {
     const setImdsSecured = !imdsSecured
@@ -456,7 +459,7 @@ function HeadNode() {
             </Trans>
           </HelpTooltip>
         </div>
-        {versionMinor && versionMinor >= 2 && (
+        {isMemoryBasedSchedulingActive && (
           <div
             key="memory-based-scheduling-enabled"
             style={{
