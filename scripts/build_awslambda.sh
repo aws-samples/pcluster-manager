@@ -45,7 +45,7 @@ popd
 docker build -f Dockerfile.awslambda -t ${ECR_REPO} .
 
 # These upload the container to the public repo
-ECR_ENDPOINT="public.ecr.aws/n0x0o5k1"
+ECR_ENDPOINT="public.ecr.aws/pcm"
 ECR_IMAGE=${ECR_ENDPOINT}/${ECR_REPO}:${TAG}
 aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin "${ECR_ENDPOINT}"
 docker tag ${ECR_REPO} ${ECR_IMAGE}
