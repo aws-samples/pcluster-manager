@@ -33,6 +33,7 @@ import {LoadAwsConfig} from '../../model'
 
 // Components
 import {LabeledIcon, CustomAMISettings} from './Components'
+import {useFeatureFlag} from '../../feature-flags/useFeatureFlag'
 
 // Constants
 const errorsPath = ['app', 'wizard', 'errors', 'cluster']
@@ -340,8 +341,7 @@ function Cluster() {
   let awsConfig = useState(['aws'])
   let defaultRegion = useState(['aws', 'region']) || ''
   const region = useState(['app', 'selectedRegion']) || defaultRegion
-
-  let versionMinor = useState(['app', 'version', 'minor'])
+  const isMultiuserClusterActive = useFeatureFlag('multiuser_cluster')
 
   React.useEffect(() => {
     const configPath = ['app', 'wizard', 'config']
@@ -403,7 +403,7 @@ function Cluster() {
         <RegionSelect />
         <OsSelect />
         <VpcSelect />
-        {versionMinor && versionMinor >= 1 && (
+        {isMultiuserClusterActive && (
           <FormField>
             <Header
               // @ts-expect-error TS(2322) FIXME: Type '"h4"' is not assignable to type 'Variant | u... Remove this comment to see the full error message
