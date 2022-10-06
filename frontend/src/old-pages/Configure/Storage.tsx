@@ -109,7 +109,7 @@ function storageValidate() {
 
 function FsxLustreSettings({index}: any) {
   const {t} = useTranslation()
-  const versionMinor = useState(['app', 'version', 'minor'])
+  const isLustrePersistent2Active = useFeatureFlag('lustre_persistent2')
   const useExisting =
     useState(['app', 'wizard', 'storage', 'ui', index, 'useExisting']) || false
 
@@ -117,10 +117,12 @@ function FsxLustreSettings({index}: any) {
   const storageCapacityPath = [...fsxPath, 'StorageCapacity']
   const lustreTypePath = [...fsxPath, 'DeploymentType']
   // support FSx Lustre PERSISTENT_2 only in >= 3.2.0
-  const lustreTypes =
-    versionMinor >= 2
-      ? ['PERSISTENT_2', 'PERSISTENT_1', 'SCRATCH_1', 'SCRATCH_2']
-      : ['PERSISTENT_1', 'SCRATCH_1', 'SCRATCH_2']
+  const lustreTypes = [
+    isLustrePersistent2Active ? 'PERSISTENT_2' : null,
+    'PERSISTENT_1',
+    'SCRATCH_1',
+    'SCRATCH_2',
+  ].filter(Boolean)
   const storageThroughputPath = [...fsxPath, 'PerUnitStorageThroughput']
   const storageThroughputsP1 = [50, 100, 200]
   const storageThroughputsP2 = [125, 250, 500, 1000]
@@ -146,7 +148,7 @@ function FsxLustreSettings({index}: any) {
     if (lustreType === null && !useExisting)
       setState(
         lustreTypePath,
-        versionMinor >= 2 ? 'PERSISTENT_2' : 'PERSISTENT_1',
+        isLustrePersistent2Active ? 'PERSISTENT_2' : 'PERSISTENT_1',
       )
   }, [
     storageCapacity,
@@ -154,7 +156,7 @@ function FsxLustreSettings({index}: any) {
     storageThroughput,
     index,
     useExisting,
-    versionMinor,
+    isLustrePersistent2Active,
   ])
 
   const toggleCompression = () => {
