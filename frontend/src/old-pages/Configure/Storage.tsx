@@ -42,6 +42,7 @@ import {
   STORAGE_TYPE_PROPS,
   UIStorageSettings,
 } from './Storage.types'
+import {useFeatureFlag} from '../../feature-flags/useFeatureFlag'
 
 // Constants
 const storagePath = ['app', 'wizard', 'config', 'SharedStorage']
@@ -108,7 +109,7 @@ function storageValidate() {
 
 function FsxLustreSettings({index}: any) {
   const {t} = useTranslation()
-  const versionMinor = useState(['app', 'version', 'minor'])
+  const isLustrePersistent2Active = useFeatureFlag('lustre_persistent2')
   const useExisting =
     useState(['app', 'wizard', 'storage', 'ui', index, 'useExisting']) || false
 
@@ -116,10 +117,12 @@ function FsxLustreSettings({index}: any) {
   const storageCapacityPath = [...fsxPath, 'StorageCapacity']
   const lustreTypePath = [...fsxPath, 'DeploymentType']
   // support FSx Lustre PERSISTENT_2 only in >= 3.2.0
-  const lustreTypes =
-    versionMinor >= 2
-      ? ['PERSISTENT_2', 'PERSISTENT_1', 'SCRATCH_1', 'SCRATCH_2']
-      : ['PERSISTENT_1', 'SCRATCH_1', 'SCRATCH_2']
+  const lustreTypes = [
+    isLustrePersistent2Active ? 'PERSISTENT_2' : null,
+    'PERSISTENT_1',
+    'SCRATCH_1',
+    'SCRATCH_2',
+  ].filter(Boolean)
   const storageThroughputPath = [...fsxPath, 'PerUnitStorageThroughput']
   const storageThroughputsP1 = [50, 100, 200]
   const storageThroughputsP2 = [125, 250, 500, 1000]
@@ -145,7 +148,7 @@ function FsxLustreSettings({index}: any) {
     if (lustreType === null && !useExisting)
       setState(
         lustreTypePath,
-        versionMinor >= 2 ? 'PERSISTENT_2' : 'PERSISTENT_1',
+        isLustrePersistent2Active ? 'PERSISTENT_2' : 'PERSISTENT_1',
       )
   }, [
     storageCapacity,
@@ -153,7 +156,7 @@ function FsxLustreSettings({index}: any) {
     storageThroughput,
     index,
     useExisting,
-    versionMinor,
+    isLustrePersistent2Active,
   ])
 
   const toggleCompression = () => {
@@ -1043,7 +1046,8 @@ function Storage() {
   const editing = useState(['app', 'wizard', 'editing'])
   const uiStorageSettings = useState(['app', 'wizard', 'storage', 'ui'])
   const storageType = useState(['app', 'wizard', 'storage', 'type'])
-  const versionMinor = useState(['app', 'version', 'minor'])
+  const isFsxOnTapActive = useFeatureFlag('fsx_ontap')
+  const isFsxOpenZsfActive = useFeatureFlag('fsx_openzsf')
 
   const storageMaxes: Record<string, number> = {
     FsxLustre: 21,
@@ -1056,20 +1060,17 @@ function Storage() {
   /*
     Activate ONTAP/OpenZFS only from ParallelCluster 3.2.0
    */
-  const storageTypesSource: StorageTypeOption[] =
-    versionMinor >= 2
-      ? [
-          ['FsxLustre', 'Amazon FSx for Lustre (FSX)', '/img/fsx.svg'],
-          ['FsxOntap', 'Amazon FSx for NetApp ONTAP (FSX)', '/img/fsx.svg'],
-          ['FsxOpenZfs', 'Amazon FSx for OpenZFS (FSX)', '/img/fsx.svg'],
-          ['Efs', 'Amazon Elastic File System (EFS)', '/img/efs.svg'],
-          ['Ebs', 'Amazon Elastic Block Store (EBS)', '/img/ebs.svg'],
-        ]
-      : [
-          ['FsxLustre', 'Amazon FSx for Lustre (FSX)', '/img/fsx.svg'],
-          ['Efs', 'Amazon Elastic File System (EFS)', '/img/efs.svg'],
-          ['Ebs', 'Amazon Elastic Block Store (EBS)', '/img/ebs.svg'],
-        ]
+  const storageTypesSource: StorageTypeOption[] = [
+    ['FsxLustre', 'Amazon FSx for Lustre (FSX)', '/img/fsx.svg'],
+    isFsxOnTapActive
+      ? ['FsxOntap', 'Amazon FSx for NetApp ONTAP (FSX)', '/img/fsx.svg']
+      : false,
+    isFsxOpenZsfActive
+      ? ['FsxOpenZfs', 'Amazon FSx for OpenZFS (FSX)', '/img/fsx.svg']
+      : false,
+    ['Efs', 'Amazon Elastic File System (EFS)', '/img/efs.svg'],
+    ['Ebs', 'Amazon Elastic Block Store (EBS)', '/img/ebs.svg'],
+  ].filter(Boolean) as StorageTypeOption[]
 
   const defaultCounts = {FsxLustre: 0, Efs: 0, Ebs: 0}
 
