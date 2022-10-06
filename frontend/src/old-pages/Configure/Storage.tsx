@@ -42,6 +42,7 @@ import {
   STORAGE_TYPE_PROPS,
   UIStorageSettings,
 } from './Storage.types'
+import {useFeatureFlag} from '../../feature-flags/useFeatureFlag'
 
 // Constants
 const storagePath = ['app', 'wizard', 'config', 'SharedStorage']
@@ -1043,7 +1044,8 @@ function Storage() {
   const editing = useState(['app', 'wizard', 'editing'])
   const uiStorageSettings = useState(['app', 'wizard', 'storage', 'ui'])
   const storageType = useState(['app', 'wizard', 'storage', 'type'])
-  const versionMinor = useState(['app', 'version', 'minor'])
+  const isFsxOnTapActive = useFeatureFlag('fsx_ontap')
+  const isFsxOpenZsfActive = useFeatureFlag('fsx_openzsf')
 
   const storageMaxes: Record<string, number> = {
     FsxLustre: 21,
@@ -1056,20 +1058,17 @@ function Storage() {
   /*
     Activate ONTAP/OpenZFS only from ParallelCluster 3.2.0
    */
-  const storageTypesSource: StorageTypeOption[] =
-    versionMinor >= 2
-      ? [
-          ['FsxLustre', 'Amazon FSx for Lustre (FSX)', '/img/fsx.svg'],
-          ['FsxOntap', 'Amazon FSx for NetApp ONTAP (FSX)', '/img/fsx.svg'],
-          ['FsxOpenZfs', 'Amazon FSx for OpenZFS (FSX)', '/img/fsx.svg'],
-          ['Efs', 'Amazon Elastic File System (EFS)', '/img/efs.svg'],
-          ['Ebs', 'Amazon Elastic Block Store (EBS)', '/img/ebs.svg'],
-        ]
-      : [
-          ['FsxLustre', 'Amazon FSx for Lustre (FSX)', '/img/fsx.svg'],
-          ['Efs', 'Amazon Elastic File System (EFS)', '/img/efs.svg'],
-          ['Ebs', 'Amazon Elastic Block Store (EBS)', '/img/ebs.svg'],
-        ]
+  const storageTypesSource: StorageTypeOption[] = [
+    ['FsxLustre', 'Amazon FSx for Lustre (FSX)', '/img/fsx.svg'],
+    isFsxOnTapActive
+      ? ['FsxOntap', 'Amazon FSx for NetApp ONTAP (FSX)', '/img/fsx.svg']
+      : false,
+    isFsxOpenZsfActive
+      ? ['FsxOpenZfs', 'Amazon FSx for OpenZFS (FSX)', '/img/fsx.svg']
+      : false,
+    ['Efs', 'Amazon Elastic File System (EFS)', '/img/efs.svg'],
+    ['Ebs', 'Amazon Elastic Block Store (EBS)', '/img/ebs.svg'],
+  ].filter(Boolean) as StorageTypeOption[]
 
   const defaultCounts = {FsxLustre: 0, Efs: 0, Ebs: 0}
 

@@ -25,6 +25,7 @@ import {
 
 // Components
 import EmptyState from '../../components/EmptyState'
+import {useFeatureFlag} from '../../feature-flags/useFeatureFlag'
 
 function StorageId({storage}: any) {
   const settingsKey = `${storage.StorageType}Settings`
@@ -36,11 +37,13 @@ function StorageId({storage}: any) {
   const id = getIn(storage, [settingsKey, idKey])
   const defaultRegion = useState(['aws', 'region'])
   const region = useState(['app', 'selectedRegion']) || defaultRegion
-  const versionMinor = useState(['app', 'version', 'minor'])
-  const fsxStorageTypes =
-    versionMinor && versionMinor >= 2
-      ? ['FsxLustre', 'FsxOntap', 'FsxOpenZfs']
-      : ['FsxLustre']
+  const isFsxOnTapActive = useFeatureFlag('fsx_ontap')
+  const isFsxOpenZsfActive = useFeatureFlag('fsx_openzsf')
+  const fsxStorageTypes = [
+    'FsxLustre',
+    isFsxOnTapActive ? 'FsxOntap' : false,
+    isFsxOpenZsfActive ? 'FsxOpenZfs' : false,
+  ].filter(Boolean)
 
   if (!id) return 'internal'
 
