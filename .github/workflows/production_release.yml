@@ -1,0 +1,81 @@
+name: Release to production
+
+on:
+  push:
+    #tags: '*'
+    branches: production-deploy
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  frontend-tests:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        name: Setup Node version
+        with:
+          node-version-file: frontend/.nvmrc
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./frontend
+
+      - name: Run linter
+        run: npm run lint
+        working-directory: ./frontend
+
+      - name: Run type checks
+        run: npm run ts-validate
+        working-directory: ./frontend
+
+      - name: Run frontend tests
+        run: npm test
+        working-directory: ./frontend
+
+  backend-tests:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Python version
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+          cache: 'pip'
+
+      - name: Install python dependencies
+        run: pip3 install -r requirements.txt
+
+      - name: Run backend tests
+        run: pytest
+
+  release:
+    runs-on: ubuntu-20.04
+    
+    needs: [frontend-tests, backend-tests]
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: eu-west-1
+          role-to-assume: arn:aws:iam::046399108653:role/pcluster-manager-github-prod-ProductionDeploy-1I1HYDA5DH7T3
+
+      - name: Build and upload Docker image
+        run: ./scripts/build_awslambda.sh --release
+      
+      - name: Upload infrastructure files to S3
+        run: ./infrastructure/release_infrastructure.sh
