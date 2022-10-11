@@ -1,0 +1,75 @@
+Parameters:
+  GitHubOrg:
+    Type: String
+    Default: aws-samples
+  RepositoryName:
+    Type: String
+    Default: pcluster-manager
+
+Resources:
+  ProductionDeploy:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: "Role used to deploy PCM to customers"
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action: sts:AssumeRoleWithWebIdentity
+            Principal:
+              Federated: !Ref GithubOidc
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+                token.actions.githubusercontent.com:sub: !Sub repo:${GitHubOrg}/${RepositoryName}:ref:refs/heads/main
+      Policies:
+        - PolicyName: PushPublicECR
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: ecr-public:DescribeRepositories
+                Resource: !Sub arn:${AWS::Partition}:ecr-public:${AWS::Region}:${AWS::AccountId}:repository/*
+              - Effect: Allow
+                Action: ecr-public:GetAuthorizationToken
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - ecr-public:CompleteLayerUpload
+                  - ecr-public:UploadLayerPart
+                  - ecr-public:InitiateLayerUpload
+                  - ecr-public:BatchCheckLayerAvailability
+                  - ecr-public:PutImage
+                  - ecr-public:TagResource
+                Resource: !Sub arn:${AWS::Partition}:ecr-public:${AWS::Region}:${AWS::AccountId}:repository/pcluster-manager-awslambda
+        - PolicyName: UploadS3Bucket
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:ListBucket
+                  - s3:DeleteObject
+                  - s3:GetBucketLocation
+                  - s3:GetObjectTagging
+                  - s3:GetObjectAcl
+                  - s3:PutObjectAcl
+                Resource:
+                  - !Sub arn:${AWS::Partition}:s3:::pcm-release-us-east-1
+                  - !Sub arn:${AWS::Partition}:s3:::pcm-release-us-east-1/*
+                  - !Sub arn:${AWS::Partition}:s3:::pcm-release-eu-west-1
+                  - !Sub arn:${AWS::Partition}:s3:::pcm-release-eu-west-1/*
+
+  GithubOidc:
+    Type: AWS::IAM::OIDCProvider
+    Properties:
+      Url: https://token.actions.githubusercontent.com
+      ClientIdList: 
+        - sts.amazonaws.com
+      ThumbprintList:
+        - 6938fd4d98bab03faadb97b34396831e3780aea1
+
+Outputs:
+  ProductionDeploy:
+    Value: !GetAtt ProductionDeploy.Arn
