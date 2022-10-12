@@ -2,8 +2,7 @@ name: Release to production
 
 on:
   push:
-    #tags: '*'
-    branches: production-deploy
+    tags: '*'
 
 permissions:
   id-token: write
