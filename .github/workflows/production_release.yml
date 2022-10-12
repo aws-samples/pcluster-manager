@@ -71,7 +71,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-region: eu-west-1
+          aws-region: us-east-1
           role-to-assume: arn:aws:iam::046399108653:role/pcluster-manager-github-prod-ProductionDeploy-1I1HYDA5DH7T3
 
       - name: Build and upload Docker image
