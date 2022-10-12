@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance
@@ -10,11 +11,12 @@
 # OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 # limitations under the License.
 
-source common.sh
-source bucket_configuration.sh
+SCRIPT_DIR=$1
+
+source ${SCRIPT_DIR}/common.sh
+source ${SCRIPT_DIR}/bucket_configuration.sh
 trap 'error' ERR
 
-SCRIPT_DIR=$1
 
 if [ -z "$SCRIPT_DIR" ];
 then
