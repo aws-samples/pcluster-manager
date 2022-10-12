@@ -31,11 +31,10 @@ do
   echo Uploading to: "${BUCKETS[INDEX]}"
   #FIXME For other partitions we should also parametrize the partition in the URL
   TEMPLATE_URL="https:\/\/${BUCKETS[INDEX]}\.s3\.${REGIONS[INDEX]}\.amazonaws\.com"
-  sed -i.bak "s/PLACEHOLDER/${TEMPLATE_URL}/g" "${SCRIPT_DIR}/pcluster-manager.yaml" && rm pcluster-manager.yaml.bak
+  sed -i "s/PLACEHOLDER/${TEMPLATE_URL}/g" "${SCRIPT_DIR}/pcluster-manager.yaml"
   for FILE in "${FILES[@]}"
   do
       aws --region "${REGIONS[INDEX]}" s3 cp --acl public-read "${SCRIPT_DIR}/${FILE}" "s3://${BUCKETS[INDEX]}/${FILE}"
   done
-  sed -i.bak "s/${TEMPLATE_URL}/PLACEHOLDER/g" pcluster-manager.yaml && rm pcluster-manager.yaml.bak
 done
 
