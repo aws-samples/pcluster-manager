@@ -28,9 +28,11 @@ Resources:
             Statement:
               - Effect: Allow
                 Action: ecr-public:DescribeRepositories
-                Resource: !Sub arn:${AWS::Partition}:ecr-public:${AWS::Region}:${AWS::AccountId}:repository/*
+                Resource: !Sub arn:${AWS::Partition}:ecr-public::${AWS::AccountId}:repository/*
               - Effect: Allow
-                Action: ecr-public:GetAuthorizationToken
+                Action: 
+                  - ecr-public:GetAuthorizationToken
+                  - sts:GetServiceBearerToken
                 Resource: "*"
               - Effect: Allow
                 Action:
@@ -40,7 +42,7 @@ Resources:
                   - ecr-public:BatchCheckLayerAvailability
                   - ecr-public:PutImage
                   - ecr-public:TagResource
-                Resource: !Sub arn:${AWS::Partition}:ecr-public:${AWS::Region}:${AWS::AccountId}:repository/pcluster-manager-awslambda
+                Resource: !Sub arn:${AWS::Partition}:ecr-public::${AWS::AccountId}:repository/pcluster-manager-awslambda
         - PolicyName: UploadS3Bucket
           PolicyDocument:
             Version: 2012-10-17
