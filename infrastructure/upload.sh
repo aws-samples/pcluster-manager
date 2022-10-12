@@ -34,7 +34,6 @@ do
   sed -i "s/PLACEHOLDER/${TEMPLATE_URL}/g" "${SCRIPT_DIR}/pcluster-manager.yaml"
   for FILE in "${FILES[@]}"
   do
-      aws --region "${REGIONS[INDEX]}" s3 cp --acl public-read "${SCRIPT_DIR}/${FILE}" "s3://${BUCKETS[INDEX]}/${FILE}"
+      aws s3 cp "${SCRIPT_DIR}/${FILE}" "s3://${BUCKETS[INDEX]}/${FILE}"
   done
 done
-

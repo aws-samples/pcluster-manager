@@ -30,6 +30,6 @@ do
   echo Uploading to: "${BUCKETS[INDEX]}"
   for FILE in "${FILES[@]}"
   do
-    aws --region "${REGIONS[INDEX]}" s3 cp --acl public-read "${ACCOUNTING_SCRIPT_DIR}/${FILE}" "s3://${BUCKETS[INDEX]}/slurm-accounting/${FILE}"
+    aws s3 cp "${ACCOUNTING_SCRIPT_DIR}/${FILE}" "s3://${BUCKETS[INDEX]}/slurm-accounting/${FILE}"
   done
 done
