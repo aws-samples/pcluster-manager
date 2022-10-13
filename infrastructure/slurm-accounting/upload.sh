@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance
@@ -10,8 +11,8 @@
 # OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 # limitations under the License.
 
-source common.sh
-source bucket_configuration.sh
+source $1/common.sh
+source $1/bucket_configuration.sh
 trap 'error' ERR
 
 ACCOUNTING_SCRIPT_DIR="$1/slurm-accounting"
@@ -29,6 +30,6 @@ do
   echo Uploading to: "${BUCKETS[INDEX]}"
   for FILE in "${FILES[@]}"
   do
-    aws --region "${REGIONS[INDEX]}" s3 cp --acl public-read "${ACCOUNTING_SCRIPT_DIR}/${FILE}" "s3://${BUCKETS[INDEX]}/slurm-accounting/${FILE}"
+    aws s3 cp "${ACCOUNTING_SCRIPT_DIR}/${FILE}" "s3://${BUCKETS[INDEX]}/slurm-accounting/${FILE}"
   done
 done

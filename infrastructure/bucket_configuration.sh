@@ -10,10 +10,10 @@
 # OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 # limitations under the License.
 
-REGULAR_BUCKET=stackset-parallelcluster-pclustermanagertemplates-184q2amn23kgk
-ALTERNATIVE_BUCKET=stackset-parallelcluster-pclustermanagertemplates-mhievvad5pyj
+REGULAR_BUCKET=pcm-release-us-east-1
+ALTERNATIVE_BUCKET=pcm-release-eu-west-1
 REGULAR_REGION_FOR_TEMPLATES="us-east-1"
-ALTERNATIVE_REGION_FOR_TEMPLATES="eu-central-1"
+ALTERNATIVE_REGION_FOR_TEMPLATES="eu-west-1"
 
 BUCKETS=("$REGULAR_BUCKET" "$ALTERNATIVE_BUCKET")
 REGIONS=("$REGULAR_REGION_FOR_TEMPLATES" "$ALTERNATIVE_REGION_FOR_TEMPLATES")
