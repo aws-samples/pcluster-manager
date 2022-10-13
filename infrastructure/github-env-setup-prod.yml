@@ -52,8 +52,6 @@ Resources:
                   - s3:PutObject
                   - s3:GetObject
                   - s3:ListBucket
-                  - s3:GetObjectAcl
-                  - s3:PutObjectAcl
                 Resource:
                   - !Sub arn:${AWS::Partition}:s3:::pcm-release-us-east-1
                   - !Sub arn:${AWS::Partition}:s3:::pcm-release-us-east-1/*
