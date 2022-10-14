@@ -19,6 +19,7 @@ const versionToFeaturesMap: Record<string, AvailableFeature[]> = {
     'memory_based_scheduling',
     'multiuser_cluster',
   ],
+  '3.3.0': ['slurm_accounting'],
 }
 
 function composeFlagsListByVersion(currentVersion: string): AvailableFeature[] {
