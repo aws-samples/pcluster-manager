@@ -257,6 +257,8 @@ Resources:
           - NonDefaultVpc
           - [!Ref InfrastructureConfigurationSecurityGroup]
           - !Ref AWS::NoValue
+      InstanceMetadataOptions:
+        HttpTokens: required
 
   EcrImageRecipe:
     Type: AWS::ImageBuilder::ContainerRecipe
