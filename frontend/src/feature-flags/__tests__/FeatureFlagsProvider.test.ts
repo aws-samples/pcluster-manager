@@ -27,7 +27,7 @@ describe('given a feature flags provider and a list of rules', () => {
     })
   })
 
-  describe('when the version is above 3.2.0', () => {
+  describe('when the version is between 3.2.0 and 3.3.0', () => {
     it('should return the list of available features', async () => {
       const features = await subject('3.2.5')
       expect(features).toEqual([
@@ -36,6 +36,20 @@ describe('given a feature flags provider and a list of rules', () => {
         'fsx_openzsf',
         'lustre_persistent2',
         'memory_based_scheduling',
+      ])
+    })
+  })
+
+  describe('when the version is above 3.3.0', () => {
+    it('should return the list of available features', async () => {
+      const features = await subject('3.3.2')
+      expect(features).toEqual([
+        'multiuser_cluster',
+        'fsx_ontap',
+        'fsx_openzsf',
+        'lustre_persistent2',
+        'memory_based_scheduling',
+        'slurm_accounting',
       ])
     })
   })
