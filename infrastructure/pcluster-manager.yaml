@@ -37,11 +37,6 @@ Parameters:
     Description: S3 bucket where CloudFormation files are stored. Change this parameter only when testing changes made to the infrastructure itself.
     Type: String
     Default: ''
-  OIDCProvider:
-    Description: OICD provider to use (defaults to Amazon Cognito).
-    Type: String
-    AllowedValues: [Cognito]
-    Default: Cognito
 
 Metadata:
   AWS::CloudFormation::Interface:
@@ -77,7 +72,6 @@ Conditions:
       - !Not [!Equals [!Ref ImageBuilderVpcId, ""]]
       - !Not [!Equals [!Ref ImageBuilderSubnetId, ""]]
   HasDefaultInfrastructure: !Equals [!Ref InfrastructureBucket, '']
-  UsesCognito: !Equals [!Ref OIDCProvider, 'Cognito']
 
 Mappings:
   PclusterManager:
@@ -88,7 +82,6 @@ Mappings:
 Resources:
 
   PclusterManagerCognito:
-    Condition: UsesCognito
     Type: AWS::CloudFormation::Stack
     DeletionPolicy: Retain
     Properties:
@@ -158,10 +151,10 @@ Resources:
           SITE_URL: !Sub
            - https://${Api}.execute-api.${AWS::Region}.${AWS::URLSuffix}
            - Api: !Ref ApiGateway
-          AUTH_PATH: !If [ UsesCognito, !GetAtt [ PclusterManagerCognito, Outputs.UserPoolAuthDomain ], !Ref AWS::NoValue ]
-          SECRET_ID: !If [ UsesCognito, !GetAtt [ PclusterManagerCognito, Outputs.UserPoolClientSecretName ], !Ref AWS::NoValue ]
-          AUDIENCE: !If [ UsesCognito, !GetAtt [ PclusterManagerCognito, Outputs.AppClientId ], !Ref AWS::NoValue ]
-          OIDC_PROVIDER: !Ref OIDCProvider
+          AUTH_PATH: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolAuthDomain ]
+          SECRET_ID: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolClientSecretName ]
+          AUDIENCE: !GetAtt [ PclusterManagerCognito, Outputs.AppClientId ]
+          OIDC_PROVIDER: 'Cognito'
           ENABLE_AUTH: !Ref EnableAuth
           ENABLE_MFA: !Ref EnableMFA
       FunctionName: !Sub
@@ -444,7 +437,6 @@ Resources:
       RetentionInDays: 90
 
   CognitoPostActions:
-    Condition: UsesCognito
     Type: Custom::CognitoPostActions
     Properties:
       ServiceToken: !GetAtt CognitoPostActionsFunction.Arn
@@ -454,7 +446,6 @@ Resources:
       UserPoolId: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]
 
   CognitoPostActionsFunction:
-    Condition: UsesCognito
     Type: AWS::Lambda::Function
     Properties:
       Handler: index.handler
@@ -523,7 +514,6 @@ Resources:
 
   # Add the Admin User after updating the validation message(s)
   CognitoAdminUser:
-    Condition: UsesCognito
     Type: AWS::Cognito::UserPoolUser
     DependsOn: [CognitoPostActions, PclusterManagerFunction]
     Properties:
@@ -538,7 +528,6 @@ Resources:
       UserPoolId: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]
 
   CognitoUserToAdminGroup:
-    Condition: UsesCognito
     Type: AWS::Cognito::UserPoolUserToGroupAttachment
     Properties:
       GroupName: !GetAtt [ PclusterManagerCognito, Outputs.CognitoAdminGroup ]
@@ -546,7 +535,6 @@ Resources:
       UserPoolId: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]
 
   CognitoUserToUserGroup:
-    Condition: UsesCognito
     Type: AWS::Cognito::UserPoolUserToGroupAttachment
     Properties:
       GroupName: !GetAtt [ PclusterManagerCognito, Outputs.CognitoUserGroup ]
@@ -571,7 +559,7 @@ Resources:
         # Access to the ParllelCluster API
         - !Ref ParallelClusterApiGatewayInvoke
         # Required to run PclusterManager functionalities
-        - !If [ UsesCognito, !Ref PclusterManagerCognitoPolicy, !Ref AWS::NoValue ]
+        - !Ref PclusterManagerCognitoPolicy
         - !Ref PclusterManagerEC2Policy
         - !Ref PclusterManagerDescribeFsxPolicy
         - !Ref PclusterManagerDescribeEfsPolicy
@@ -580,7 +568,6 @@ Resources:
         - !Ref PclusterManagerSsmGetCommandInvocationPolicy
 
   CognitoPostActionsRole:
-    Condition: UsesCognito
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -644,7 +631,6 @@ Resources:
               - { PCApiGateway: !Select [2, !Split ['/', !Select [0, !Split ['.', !GetAtt [ ParallelClusterApi, Outputs.ParallelClusterApiInvokeUrl ]]]]] }
 
   PclusterManagerCognitoPolicy:
-    Condition: UsesCognito
     Type: AWS::IAM::ManagedPolicy
     Properties:
       PolicyDocument:
