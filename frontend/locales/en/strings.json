@@ -158,11 +158,32 @@
       "memoryBasedSchedulingEnabled": {
         "label": "Slurm Memory Based Scheduling Enabled",
         "help": "If enabled, users may use <i>--mem</i> to specify the amount of memory per node required by a job. For more information, see the <0>Slurm documentation for ConstrainRAMSpace</0>"
-     },
-     "securityGroups": {
+      },
+      "securityGroups": {
        "label": "Additional Security Groups",
        "help": "Provides additional security groups for the HeadNode."
-     }
+      },
+      "slurmSettings": {
+        "validation": {
+          "databaseCannotBeEmpty": "Database cannot be empty",
+          "usernameCannotBeEmpty": "Username cannot be empty",
+          "passwordCannotBeEmpty": "Password cannot be empty"
+        },
+        "container": {
+          "title": "Slurm Settings",
+          "optional": "optional"
+        },
+        "database": {
+          "label": "Database",
+          "placeholder": "DNSName/ip:port"
+        },
+        "username": {
+          "label": "Username"
+        },
+        "password": {
+          "label": "Password"
+        }
+      }
     },
     "storage": {
       "validation": {
