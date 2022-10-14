@@ -19,6 +19,7 @@ import {findFirst, getIn} from '../../util'
 // UI Elements
 import {
   Box,
+  ColumnLayout,
   Container,
   ExpandableSection,
   FormField,
@@ -50,6 +51,10 @@ import {
 } from './Components'
 import HelpTooltip from '../../components/HelpTooltip'
 import {useFeatureFlag} from '../../feature-flags/useFeatureFlag'
+import {
+  slurmAccountingValidateAndSetErrors,
+  SlurmSettings,
+} from './SlurmSettings'
 
 // Constants
 const headNodePath = ['app', 'wizard', 'config', 'HeadNode']
@@ -147,10 +152,9 @@ function headNodeValidate() {
     clearState([...errorsPath, 'onConfigured'])
   }
 
-  setState([...errorsPath, 'validated'], true)
+  valid = slurmAccountingValidateAndSetErrors()
 
-  const config = getState(['app', 'wizard', 'config'])
-  //console.log(config);
+  setState([...errorsPath, 'validated'], true)
 
   return valid
 }
@@ -368,6 +372,7 @@ function HeadNode() {
   const isMemoryBasedSchedulingActive = useFeatureFlag(
     'memory_based_scheduling',
   )
+  let isSlurmAccountingActive = useFeatureFlag('slurm_accounting')
 
   const toggleImdsSecured = () => {
     const setImdsSecured = !imdsSecured
@@ -408,60 +413,38 @@ function HeadNode() {
   }
 
   return (
-    <Container header={<Header variant="h2">Head Node Properties</Header>}>
-      <SpaceBetween direction="vertical" size="s">
-        <Box>
+    <ColumnLayout columns={1}>
+      <Container header={<Header variant="h2">Head Node Properties</Header>}>
+        <SpaceBetween direction="vertical" size="s">
+          <Box>
+            <FormField
+              errorText={instanceTypeErrors}
+              label={t('wizard.headNode.instanceType.label')}
+            >
+              <InstanceSelect
+                disabled={editing}
+                selectId="head-node"
+                path={[...headNodePath, 'InstanceType']}
+              />
+            </FormField>
+          </Box>
           <FormField
-            errorText={instanceTypeErrors}
-            label={t('wizard.headNode.instanceType.label')}
+            label={t('wizard.headNode.subnetId.label')}
+            errorText={subnetErrors}
+            description={t('wizard.headNode.subnetId.description')}
           >
-            <InstanceSelect
+            <SubnetSelect
               disabled={editing}
-              selectId="head-node"
-              path={[...headNodePath, 'InstanceType']}
+              value={subnetValue}
+              onChange={(subnetId: any) => setState(subnetPath, subnetId)}
             />
           </FormField>
-        </Box>
-        <FormField
-          label={t('wizard.headNode.subnetId.label')}
-          errorText={subnetErrors}
-          description={t('wizard.headNode.subnetId.description')}
-        >
-          <SubnetSelect
-            disabled={editing}
-            value={subnetValue}
-            onChange={(subnetId: any) => setState(subnetPath, subnetId)}
-          />
-        </FormField>
-        <KeypairSelect />
-        <RootVolume basePath={headNodePath} errorsPath={errorsPath} />
-        <SsmSettings />
-        <DcvSettings />
-        <div
-          key="imds-secured"
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          <Toggle checked={imdsSecured || false} onChange={toggleImdsSecured}>
-            <Trans i18nKey="wizard.headNode.imdsSecured.label" />
-          </Toggle>
-          <HelpTooltip>
-            <Trans i18nKey="wizard.headNode.imdsSecured.help">
-              <a
-                rel="noreferrer"
-                target="_blank"
-                href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html#instance-metadata-v2-how-it-works"
-              ></a>
-            </Trans>
-          </HelpTooltip>
-        </div>
-        {isMemoryBasedSchedulingActive && (
+          <KeypairSelect />
+          <RootVolume basePath={headNodePath} errorsPath={errorsPath} />
+          <SsmSettings />
+          <DcvSettings />
           <div
-            key="memory-based-scheduling-enabled"
+            key="imds-secured"
             style={{
               display: 'flex',
               flexDirection: 'row',
@@ -469,47 +452,72 @@ function HeadNode() {
               justifyContent: 'space-between',
             }}
           >
-            <Toggle
-              checked={memoryBasedSchedulingEnabled || false}
-              onChange={toggleMemoryBasedSchedulingEnabled}
-            >
-              <Trans i18nKey="wizard.headNode.memoryBasedSchedulingEnabled.label" />
+            <Toggle checked={imdsSecured || false} onChange={toggleImdsSecured}>
+              <Trans i18nKey="wizard.headNode.imdsSecured.label" />
             </Toggle>
             <HelpTooltip>
-              <Trans i18nKey="wizard.headNode.memoryBasedSchedulingEnabled.help">
+              <Trans i18nKey="wizard.headNode.imdsSecured.help">
                 <a
-                  rel="noopener noreferrer"
+                  rel="noreferrer"
                   target="_blank"
-                  href="https://slurm.schedmd.com/cgroup.conf.html#OPT_ConstrainRAMSpace"
+                  href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html#instance-metadata-v2-how-it-works"
                 ></a>
               </Trans>
             </HelpTooltip>
           </div>
-        )}
-        <div
-          key="sgs"
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          <FormField label={t('wizard.headNode.securityGroups.label')}>
-            <SecurityGroups basePath={headNodePath} />
-          </FormField>
-          <HelpTooltip>
-            <Trans i18nKey="wizard.headNode.securityGroups.help" />
-          </HelpTooltip>
-        </div>
-        <ExpandableSection header="Advanced options">
-          <ActionsEditor basePath={headNodePath} errorsPath={errorsPath} />
-          <ExpandableSection header="IAM Policies">
-            <IamPoliciesEditor basePath={headNodePath} />
+          {isMemoryBasedSchedulingActive && (
+            <div
+              key="memory-based-scheduling-enabled"
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <Toggle
+                checked={memoryBasedSchedulingEnabled || false}
+                onChange={toggleMemoryBasedSchedulingEnabled}
+              >
+                <Trans i18nKey="wizard.headNode.memoryBasedSchedulingEnabled.label" />
+              </Toggle>
+              <HelpTooltip>
+                <Trans i18nKey="wizard.headNode.memoryBasedSchedulingEnabled.help">
+                  <a
+                    rel="noopener noreferrer"
+                    target="_blank"
+                    href="https://slurm.schedmd.com/cgroup.conf.html#OPT_ConstrainRAMSpace"
+                  ></a>
+                </Trans>
+              </HelpTooltip>
+            </div>
+          )}
+          <div
+            key="sgs"
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <FormField label={t('wizard.headNode.securityGroups.label')}>
+              <SecurityGroups basePath={headNodePath} />
+            </FormField>
+            <HelpTooltip>
+              <Trans i18nKey="wizard.headNode.securityGroups.help" />
+            </HelpTooltip>
+          </div>
+          <ExpandableSection header="Advanced options">
+            <ActionsEditor basePath={headNodePath} errorsPath={errorsPath} />
+            <ExpandableSection header="IAM Policies">
+              <IamPoliciesEditor basePath={headNodePath} />
+            </ExpandableSection>
           </ExpandableSection>
-        </ExpandableSection>
-      </SpaceBetween>
-    </Container>
+        </SpaceBetween>
+      </Container>
+      {isSlurmAccountingActive && <SlurmSettings />}
+    </ColumnLayout>
   )
 }
 
