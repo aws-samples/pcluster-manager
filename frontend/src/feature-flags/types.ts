@@ -14,3 +14,4 @@ export type AvailableFeature =
   | 'lustre_persistent2'
   | 'multiuser_cluster'
   | 'memory_based_scheduling'
+  | 'slurm_accounting'
