@@ -11,7 +11,7 @@
 import React from 'react'
 import {useNavigate, useParams} from 'react-router-dom'
 
-import {useState} from '../../store'
+import {getState, useState} from '../../store'
 import {getScripts} from './util'
 
 // UI Elements
@@ -39,7 +39,23 @@ export default function ClusterTabs() {
   ])
   const selectedClusterName = useState(['app', 'clusters', 'selected'])
 
-  let accountingEnabled = getScripts(customActions).includes('slurm-accounting')
+  function isMultiScriptAccountingEnabled() {
+    return getScripts(customActions).includes('slurm-accounting')
+  }
+
+  function isNativeAccountingEnabled() {
+    const accountingPath = [
+      ...clusterPath,
+      'config',
+      'Scheduling',
+      'SlurmSettings',
+      'Database',
+    ]
+    return getState(accountingPath) ? true : false
+  }
+
+  let accountingEnabled =
+    isMultiScriptAccountingEnabled() || isNativeAccountingEnabled()
   let navigate = useNavigate()
   let params = useParams()
 
