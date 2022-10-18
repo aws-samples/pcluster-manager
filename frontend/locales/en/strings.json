@@ -155,10 +155,6 @@
         "label": "Subnet ID",
         "description": "Subnet ID for HeadNode."
       },
-      "memoryBasedSchedulingEnabled": {
-        "label": "Slurm Memory Based Scheduling Enabled",
-        "help": "If enabled, users may use <i>--mem</i> to specify the amount of memory per node required by a job. For more information, see the <0>Slurm documentation for ConstrainRAMSpace</0>"
-      },
       "securityGroups": {
        "label": "Additional Security Groups",
        "help": "Provides additional security groups for the HeadNode."
@@ -276,6 +272,24 @@
         "scriptWithArgs": "You must specify a script path if you specify args.",
         "customAmiSelect": "You must select an AMI ID if you enable Custom AMI."
       },
+      "container": {
+        "title": "Queues"
+      },
+      "slurmMemorySettings": {
+        "container": {
+          "title": "Slurm Memory Settings",
+          "info": "info",
+          "help": "If enabled, users may use <i>--mem</i> to specify the amount of memory per node required by a job. For more information, see the <0>Slurm documentation for ConstrainRAMSpace</0>"
+        },
+        "toggle": {
+          "label": "Slurm Memory Based Scheduling"
+        },
+        "info": {
+          "header": "Slurm Memory Based Scheduling can be enabled if only one instance type is selected",
+          "body": "If more than one instance type is selected in any queue, Slurm Memory Based Scheduling is disabled by default.",
+          "dismissAriaLabel": "Close alert"
+        }
+      },
       "schedulableMemory": {
         "name": "Schedulable Memory (MiB)",
         "description": "Amount of memory in MiB to be made available to jobs on the compute nodes of the compute resource",
@@ -289,6 +303,9 @@
         "disableHT": "Disable Hyperthreading",
         "enableEfa": "Enable EFA",
         "enableGpuDirect": "Enable EFA GPUDirect RDMA"
+      },
+      "addQueueButton": {
+        "label": "Add queue"
       },
       "Gdr": {
         "help": "Only for p4d.24xlarge, See <0>GdrSupport</0>."
