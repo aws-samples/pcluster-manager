@@ -45,6 +45,8 @@ import {
 } from './Components'
 import HelpTooltip from '../../components/HelpTooltip'
 import {Trans, useTranslation} from 'react-i18next'
+import {SlurmMemorySettings} from './SlurmMemorySettings'
+import {useFeatureFlag} from '../../feature-flags/useFeatureFlag'
 
 // Constants
 const queuesPath = ['app', 'wizard', 'config', 'Scheduling', 'SlurmQueues']
@@ -660,7 +662,12 @@ function QueuesView() {
 }
 
 function Queues() {
+  const {t} = useTranslation()
+  const isMemoryBasedSchedulingActive = useFeatureFlag(
+    'memory_based_scheduling',
+  )
   let queues = useState(queuesPath) || []
+
   const addQueue = () => {
     setState(
       [...queuesPath],
@@ -685,20 +692,27 @@ function Queues() {
   }
 
   return (
-    <Container header={<Header variant="h2">Queues</Header>}>
-      <div>
-        <QueuesView />
-      </div>
-      <div className="wizard-compute-add">
-        <Button
-          disabled={queues.length >= 5}
-          onClick={addQueue}
-          iconName={'add-plus'}
-        >
-          Add Queue
-        </Button>
-      </div>
-    </Container>
+    <ColumnLayout>
+      {isMemoryBasedSchedulingActive && <SlurmMemorySettings />}
+      <Container
+        header={
+          <Header variant="h2">{t('wizard.queues.container.title')}</Header>
+        }
+      >
+        <div>
+          <QueuesView />
+        </div>
+        <div className="wizard-compute-add">
+          <Button
+            disabled={queues.length >= 5}
+            onClick={addQueue}
+            iconName={'add-plus'}
+          >
+            {t('wizard.queues.addQueueButton.label')}
+          </Button>
+        </div>
+      </Container>
+    </ColumnLayout>
   )
 }
 

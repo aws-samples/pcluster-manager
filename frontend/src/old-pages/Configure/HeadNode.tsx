@@ -369,9 +369,6 @@ function HeadNode() {
   const subnetErrors = useState([...errorsPath, 'subnet'])
   const subnetValue = useState(subnetPath) || ''
   const editing = useState(['app', 'wizard', 'editing'])
-  const isMemoryBasedSchedulingActive = useFeatureFlag(
-    'memory_based_scheduling',
-  )
   let isSlurmAccountingActive = useFeatureFlag('slurm_accounting')
 
   const toggleImdsSecured = () => {
@@ -381,34 +378,6 @@ function HeadNode() {
       clearState(imdsSecuredPath)
       if (Object.keys(getState([...headNodePath, 'Imds'])).length === 0)
         clearState([...headNodePath, 'Imds'])
-    }
-  }
-
-  const slurmSettingsPath = [
-    'app',
-    'wizard',
-    'config',
-    'Scheduling',
-    'SlurmSettings',
-  ]
-  const memoryBasedSchedulingEnabledPath = [
-    ...slurmSettingsPath,
-    'EnableMemoryBasedScheduling',
-  ]
-  const memoryBasedSchedulingEnabled = useState(
-    memoryBasedSchedulingEnabledPath,
-  )
-  const toggleMemoryBasedSchedulingEnabled = () => {
-    const setMemoryBasedSchedulingEnabled = !memoryBasedSchedulingEnabled
-    if (setMemoryBasedSchedulingEnabled)
-      setState(
-        memoryBasedSchedulingEnabledPath,
-        setMemoryBasedSchedulingEnabled,
-      )
-    else {
-      clearState(memoryBasedSchedulingEnabledPath)
-      if (Object.keys(getState([...slurmSettingsPath])).length === 0)
-        clearState([...slurmSettingsPath])
     }
   }
 
@@ -465,33 +434,6 @@ function HeadNode() {
               </Trans>
             </HelpTooltip>
           </div>
-          {isMemoryBasedSchedulingActive && (
-            <div
-              key="memory-based-scheduling-enabled"
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}
-            >
-              <Toggle
-                checked={memoryBasedSchedulingEnabled || false}
-                onChange={toggleMemoryBasedSchedulingEnabled}
-              >
-                <Trans i18nKey="wizard.headNode.memoryBasedSchedulingEnabled.label" />
-              </Toggle>
-              <HelpTooltip>
-                <Trans i18nKey="wizard.headNode.memoryBasedSchedulingEnabled.help">
-                  <a
-                    rel="noopener noreferrer"
-                    target="_blank"
-                    href="https://slurm.schedmd.com/cgroup.conf.html#OPT_ConstrainRAMSpace"
-                  ></a>
-                </Trans>
-              </HelpTooltip>
-            </div>
-          )}
           <div
             key="sgs"
             style={{
