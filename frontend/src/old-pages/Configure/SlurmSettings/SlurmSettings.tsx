@@ -19,7 +19,7 @@ import {
   Header,
   ColumnLayout,
 } from '@awsui/components-react'
-import {setState, getState, useState, clearState} from '../../store'
+import {setState, getState, useState, clearState} from '../../../store'
 
 const slurmSettingsPath = [
   'app',
