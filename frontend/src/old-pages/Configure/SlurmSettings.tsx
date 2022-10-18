@@ -52,7 +52,10 @@ function slurmAccountingValidateAndSetErrors(): boolean {
     i18next.t('wizard.headNode.slurmSettings.validation.passwordCannotBeEmpty'),
   ]
 
-  if (errorMask.every(e => e) || errorMask.every(e => !e)) {
+  if (errorMask.every(e => e)) {
+    return true
+  } else if (errorMask.every(e => !e)) {
+    clearState([...slurmSettingsPath, 'Database'])
     return true
   } else {
     slurmAccountingSetErrors(errorMask, errorPaths, errorValues)
