@@ -54,7 +54,7 @@ import {useFeatureFlag} from '../../feature-flags/useFeatureFlag'
 import {
   slurmAccountingValidateAndSetErrors,
   SlurmSettings,
-} from './SlurmSettings'
+} from './SlurmSettings/SlurmSettings'
 
 // Constants
 const headNodePath = ['app', 'wizard', 'config', 'HeadNode']
@@ -516,7 +516,7 @@ function HeadNode() {
           </ExpandableSection>
         </SpaceBetween>
       </Container>
-      {isSlurmAccountingActive && <SlurmSettings />}
+      {true && <SlurmSettings />}
     </ColumnLayout>
   )
 }
