@@ -12,16 +12,13 @@
 import * as React from 'react'
 import i18next from 'i18next'
 import {useTranslation} from 'react-i18next'
-import {
-  Container,
-  Input,
-  FormField,
-  Header,
-  ColumnLayout,
-} from '@awsui/components-react'
-import {setState, getState, clearState} from '../../../store'
+import {Container, Header, ColumnLayout} from '@awsui/components-react'
+import {setState, getState, clearState, useState} from '../../../store'
 import {SlurmAccountingForm} from './SlurmAccountingForm'
-import {setState, getState, useState, clearState} from '../../../store'
+import {
+  ScaledownIdleTimeForm,
+  validateScaledownIdleTime,
+} from './ScaledownIdleTimeForm'
 
 const slurmSettingsPath = [
   'app',
@@ -38,6 +35,8 @@ const passwordPath = [...slurmSettingsPath, 'Database', 'PasswordSecretArn']
 const uriErrorPath = [...errorsPath, 'database', 'uri']
 const usernameErrorPath = [...errorsPath, 'database', 'username']
 const passwordErrorPath = [...errorsPath, 'database', 'password']
+
+const scaledownIdleTimePath = [...slurmSettingsPath, 'ScaledownIdletime']
 
 function slurmAccountingValidateAndSetErrors(): boolean {
   const errorMask: Array<boolean> = [uriPath, usernamePath, passwordPath].map(
@@ -81,8 +80,31 @@ function slurmAccountingSetErrors(
   )
 }
 
+function validateSlurmSettings() {
+  const scaledownIdleTime = getState(scaledownIdleTimePath)
+
+  const validSettings = [
+    slurmAccountingValidateAndSetErrors(),
+    validateScaledownIdleTime(scaledownIdleTime),
+  ]
+
+  return validSettings.filter(Boolean).length === validSettings.length
+}
+
 function SlurmSettings() {
   const {t} = useTranslation()
+  const scaledownIdleTime = useState(scaledownIdleTimePath)
+
+  const onScaledownIdleTimeChange = React.useCallback(
+    (value: number | null) => {
+      if (!value) {
+        clearState(scaledownIdleTimePath)
+      } else {
+        setState(scaledownIdleTimePath, value)
+      }
+    },
+    [],
+  )
 
   return (
     <Container
@@ -105,12 +127,19 @@ function SlurmSettings() {
         passwordPath={passwordPath}
         passwordErrorPath={passwordErrorPath}
       />
+      <ColumnLayout columns={2}>
+        <ScaledownIdleTimeForm
+          value={scaledownIdleTime}
+          onChange={onScaledownIdleTimeChange}
+        />
+      </ColumnLayout>
     </Container>
   )
 }
 
 export {
   SlurmSettings,
+  validateSlurmSettings,
   slurmAccountingValidateAndSetErrors,
   slurmAccountingValidateField,
   slurmAccountingSetErrors,

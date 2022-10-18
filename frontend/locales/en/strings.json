@@ -167,7 +167,8 @@
         "validation": {
           "databaseCannotBeEmpty": "Database cannot be empty",
           "usernameCannotBeEmpty": "Username cannot be empty",
-          "passwordCannotBeEmpty": "Password cannot be empty"
+          "passwordCannotBeEmpty": "Password cannot be empty",
+          "scaledownIdleTimeLessThanOne": "Scaledown idle time should be at least 1 minute"
         },
         "container": {
           "title": "Slurm Settings",
@@ -182,6 +183,10 @@
         },
         "password": {
           "label": "Password"
+        },
+        "scaledownIdleTime": {
+          "label": "Scaledown Idle Time (minutes)",
+          "placeholder": "10"
         }
       }
     },
