@@ -19,6 +19,8 @@ import {
   Header,
   ColumnLayout,
 } from '@awsui/components-react'
+import {setState, getState, clearState} from '../../../store'
+import {SlurmAccountingForm} from './SlurmAccountingForm'
 import {setState, getState, useState, clearState} from '../../../store'
 
 const slurmSettingsPath = [
@@ -79,69 +81,6 @@ function slurmAccountingSetErrors(
   )
 }
 
-function DatabaseField() {
-  const {t} = useTranslation()
-  let uri = useState(uriPath) || ''
-  let uriError = useState(uriErrorPath) || ''
-
-  return (
-    <FormField
-      label={t('wizard.headNode.slurmSettings.database.label')}
-      errorText={uriError}
-    >
-      <Input
-        onChange={({detail}) => {
-          setState(uriPath, detail.value)
-        }}
-        value={uri}
-        placeholder={t('wizard.headNode.slurmSettings.database.placeholder')}
-      />
-    </FormField>
-  )
-}
-
-function UsernameField() {
-  const {t} = useTranslation()
-  let username = useState(usernamePath) || ''
-  let usernameError = useState(usernameErrorPath) || ''
-
-  return (
-    <FormField
-      label={t('wizard.headNode.slurmSettings.username.label')}
-      errorText={usernameError}
-    >
-      <Input
-        onChange={({detail}) => {
-          setState(usernamePath, detail.value)
-        }}
-        value={username}
-        type="text"
-      />
-    </FormField>
-  )
-}
-
-function PasswordField() {
-  const {t} = useTranslation()
-  let password = useState(passwordPath) || ''
-  let passwordError = useState(passwordErrorPath) || ''
-
-  return (
-    <FormField
-      label={t('wizard.headNode.slurmSettings.password.label')}
-      errorText={passwordError}
-    >
-      <Input
-        onChange={({detail}) => {
-          setState(passwordPath, detail.value)
-        }}
-        value={password}
-        type="text"
-      />
-    </FormField>
-  )
-}
-
 function SlurmSettings() {
   const {t} = useTranslation()
 
@@ -158,13 +97,14 @@ function SlurmSettings() {
         </Header>
       }
     >
-      <ColumnLayout columns={2}>
-        <DatabaseField />
-      </ColumnLayout>
-      <ColumnLayout columns={2}>
-        <UsernameField />
-        <PasswordField />
-      </ColumnLayout>
+      <SlurmAccountingForm
+        uriPath={uriPath}
+        uriErrorPath={uriErrorPath}
+        usernamePath={usernamePath}
+        usernameErrorPath={usernameErrorPath}
+        passwordPath={passwordPath}
+        passwordErrorPath={passwordErrorPath}
+      />
     </Container>
   )
 }
