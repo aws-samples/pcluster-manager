@@ -17,6 +17,8 @@ import {
   Alert,
   Toggle,
   SpaceBetween,
+  Popover,
+  Link,
 } from '@awsui/components-react'
 import {setState, getState, useState, clearState} from '../../store'
 
@@ -58,18 +60,25 @@ function SlurmMemorySettings() {
         <Header variant="h2">
           <SpaceBetween size="xs" direction="horizontal">
             {t('wizard.queues.slurmMemorySettings.container.title')}
-            <a
-              href="#"
-              onClick={() => setInfoAlertVisible(true)}
-              style={{
-                fontWeight: '700',
-                fontStyle: 'normal',
-                fontSize: '12px',
-                color: '#0073BB',
-              }}
+            <Popover
+              dismissButton={true}
+              position="right"
+              size="small"
+              triggerType="custom"
+              content={
+                <Trans i18nKey="wizard.queues.slurmMemorySettings.container.help">
+                  <a
+                    rel="noopener noreferrer"
+                    target="_blank"
+                    href="https://slurm.schedmd.com/cgroup.conf.html#OPT_ConstrainRAMSpace"
+                  ></a>
+                </Trans>
+              }
             >
-              {t('wizard.queues.slurmMemorySettings.container.info')}
-            </a>
+              <Link variant="info">
+                {t('wizard.queues.slurmMemorySettings.container.info')}
+              </Link>
+            </Popover>
           </SpaceBetween>
         </Header>
       }
