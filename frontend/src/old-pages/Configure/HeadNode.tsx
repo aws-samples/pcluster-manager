@@ -52,9 +52,9 @@ import {
 import HelpTooltip from '../../components/HelpTooltip'
 import {useFeatureFlag} from '../../feature-flags/useFeatureFlag'
 import {
-  slurmAccountingValidateAndSetErrors,
   SlurmSettings,
-} from './SlurmSettings'
+  validateSlurmSettings,
+} from './SlurmSettings/SlurmSettings'
 
 // Constants
 const headNodePath = ['app', 'wizard', 'config', 'HeadNode']
@@ -152,7 +152,7 @@ function headNodeValidate() {
     clearState([...errorsPath, 'onConfigured'])
   }
 
-  valid = slurmAccountingValidateAndSetErrors()
+  valid = validateSlurmSettings()
 
   setState([...errorsPath, 'validated'], true)
 
@@ -516,7 +516,7 @@ function HeadNode() {
           </ExpandableSection>
         </SpaceBetween>
       </Container>
-      {isSlurmAccountingActive && <SlurmSettings />}
+      <SlurmSettings />
     </ColumnLayout>
   )
 }
