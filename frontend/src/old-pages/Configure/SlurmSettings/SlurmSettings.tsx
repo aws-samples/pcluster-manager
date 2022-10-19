@@ -12,14 +12,13 @@
 import * as React from 'react'
 import i18next from 'i18next'
 import {useTranslation} from 'react-i18next'
+import {Container, Header, ColumnLayout} from '@awsui/components-react'
+import {setState, getState, clearState, useState} from '../../../store'
+import {SlurmAccountingForm} from './SlurmAccountingForm'
 import {
-  Container,
-  Input,
-  FormField,
-  Header,
-  ColumnLayout,
-} from '@awsui/components-react'
-import {setState, getState, useState, clearState} from '../../store'
+  ScaledownIdleTimeForm,
+  validateScaledownIdleTime,
+} from './ScaledownIdleTimeForm'
 
 const slurmSettingsPath = [
   'app',
@@ -36,6 +35,8 @@ const passwordPath = [...slurmSettingsPath, 'Database', 'PasswordSecretArn']
 const uriErrorPath = [...errorsPath, 'database', 'uri']
 const usernameErrorPath = [...errorsPath, 'database', 'username']
 const passwordErrorPath = [...errorsPath, 'database', 'password']
+
+const scaledownIdleTimePath = [...slurmSettingsPath, 'ScaledownIdletime']
 
 function slurmAccountingValidateAndSetErrors(): boolean {
   const errorMask: Array<boolean> = [uriPath, usernamePath, passwordPath].map(
@@ -79,71 +80,31 @@ function slurmAccountingSetErrors(
   )
 }
 
-function DatabaseField() {
-  const {t} = useTranslation()
-  let uri = useState(uriPath) || ''
-  let uriError = useState(uriErrorPath) || ''
+function validateSlurmSettings() {
+  const scaledownIdleTime = getState(scaledownIdleTimePath)
 
-  return (
-    <FormField
-      label={t('wizard.headNode.slurmSettings.database.label')}
-      errorText={uriError}
-    >
-      <Input
-        onChange={({detail}) => {
-          setState(uriPath, detail.value)
-        }}
-        value={uri}
-        placeholder={t('wizard.headNode.slurmSettings.database.placeholder')}
-      />
-    </FormField>
-  )
-}
+  const validSettings = [
+    slurmAccountingValidateAndSetErrors(),
+    validateScaledownIdleTime(scaledownIdleTime),
+  ]
 
-function UsernameField() {
-  const {t} = useTranslation()
-  let username = useState(usernamePath) || ''
-  let usernameError = useState(usernameErrorPath) || ''
-
-  return (
-    <FormField
-      label={t('wizard.headNode.slurmSettings.username.label')}
-      errorText={usernameError}
-    >
-      <Input
-        onChange={({detail}) => {
-          setState(usernamePath, detail.value)
-        }}
-        value={username}
-        type="text"
-      />
-    </FormField>
-  )
-}
-
-function PasswordField() {
-  const {t} = useTranslation()
-  let password = useState(passwordPath) || ''
-  let passwordError = useState(passwordErrorPath) || ''
-
-  return (
-    <FormField
-      label={t('wizard.headNode.slurmSettings.password.label')}
-      errorText={passwordError}
-    >
-      <Input
-        onChange={({detail}) => {
-          setState(passwordPath, detail.value)
-        }}
-        value={password}
-        type="text"
-      />
-    </FormField>
-  )
+  return validSettings.filter(Boolean).length === validSettings.length
 }
 
 function SlurmSettings() {
   const {t} = useTranslation()
+  const scaledownIdleTime = useState(scaledownIdleTimePath)
+
+  const onScaledownIdleTimeChange = React.useCallback(
+    (value: number | null) => {
+      if (!value) {
+        clearState(scaledownIdleTimePath)
+      } else {
+        setState(scaledownIdleTimePath, value)
+      }
+    },
+    [],
+  )
 
   return (
     <Container
@@ -158,12 +119,19 @@ function SlurmSettings() {
         </Header>
       }
     >
+      <SlurmAccountingForm
+        uriPath={uriPath}
+        uriErrorPath={uriErrorPath}
+        usernamePath={usernamePath}
+        usernameErrorPath={usernameErrorPath}
+        passwordPath={passwordPath}
+        passwordErrorPath={passwordErrorPath}
+      />
       <ColumnLayout columns={2}>
-        <DatabaseField />
-      </ColumnLayout>
-      <ColumnLayout columns={2}>
-        <UsernameField />
-        <PasswordField />
+        <ScaledownIdleTimeForm
+          value={scaledownIdleTime}
+          onChange={onScaledownIdleTimeChange}
+        />
       </ColumnLayout>
     </Container>
   )
@@ -171,6 +139,7 @@ function SlurmSettings() {
 
 export {
   SlurmSettings,
+  validateSlurmSettings,
   slurmAccountingValidateAndSetErrors,
   slurmAccountingValidateField,
   slurmAccountingSetErrors,

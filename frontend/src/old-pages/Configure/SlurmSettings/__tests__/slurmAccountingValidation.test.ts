@@ -18,8 +18,8 @@ import {
 const mockSetState = jest.fn()
 const mockClearState = jest.fn()
 
-jest.mock('../../../store', () => ({
-  ...(jest.requireActual('../../../store') as any),
+jest.mock('../../../../store', () => ({
+  ...(jest.requireActual('../../../../store') as any),
   setState: (...args: unknown[]) => mockSetState(...args),
   clearState: (...args: unknown[]) => mockClearState(...args),
 }))
