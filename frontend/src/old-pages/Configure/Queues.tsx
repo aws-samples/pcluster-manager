@@ -280,11 +280,12 @@ function Queue({index}: any) {
     )
   }
   const addComputeResource = () => {
+    const existingCRs = queue.ComputeResources || []
     setState([...queuesPath, index], {
       ...queue,
       ComputeResources: [
-        ...(queue.ComputeResources || []),
-        computeResourceAdapter.createComputeResource(index),
+        ...existingCRs,
+        computeResourceAdapter.createComputeResource(index, existingCRs.length),
       ],
     })
   }
@@ -445,7 +446,7 @@ function Queues() {
         ...(queues || []),
         {
           Name: `queue${queues.length}`,
-          ComputeResources: [adapter.createComputeResource(queues.length)],
+          ComputeResources: [adapter.createComputeResource(queues.length, 0)],
         },
       ],
     )

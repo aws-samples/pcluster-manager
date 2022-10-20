@@ -263,9 +263,9 @@ export function ComputeResource({index, queueIndex, computeResource}: any) {
   )
 }
 
-export function createComputeResource(index: number) {
+export function createComputeResource(queueIndex: number, crIndex: number) {
   return {
-    Name: `queue${index}-${defaultInstanceType.replace('.', '')}`,
+    Name: `queue${queueIndex}-${defaultInstanceType.replace('.', '')}`,
     InstanceType: defaultInstanceType,
     MinCount: 0,
     MaxCount: 4,
