@@ -176,20 +176,11 @@ function SubnetSelect({value, onChange, disabled}: any) {
   )
 }
 
-function InstanceSelect({path, selectId, callback, disabled}: any) {
-  const value = useState(path) || ''
+// instance type, description, image
+type InstanceGroup = [string, string, string][]
 
+export function useInstanceGroups(): Record<string, InstanceGroup> {
   const instanceTypes = useState(['aws', 'instanceTypes']) || []
-
-  let groupNames = [
-    'General Purpose',
-    'Compute',
-    'HPC',
-    'High Memory',
-    'Graviton',
-    'Mixed',
-    'GPU',
-  ]
 
   let groups: {[key: string]: [string, string, string][]} = {}
 
@@ -227,8 +218,12 @@ function InstanceSelect({path, selectId, callback, disabled}: any) {
 
     groups[group].push([instance.InstanceType, desc, img])
   }
+  return groups
+}
 
-  groupNames = groupNames.filter(name => name in groups)
+function InstanceSelect({path, selectId, callback, disabled}: any) {
+  const value = useState(path) || ''
+  const instanceGroups = useInstanceGroups()
 
   // @ts-expect-error TS(7031) FIXME: Binding element 'value' implicitly has an 'any' ty... Remove this comment to see the full error message
   const instanceToOption = ([value, label, icon]) => {
@@ -255,10 +250,10 @@ function InstanceSelect({path, selectId, callback, disabled}: any) {
       ariaLabel="Instance Selector"
       placeholder="Instance Type"
       empty="No matches found"
-      options={groupNames.map(groupName => {
+      options={Object.keys(instanceGroups).map(groupName => {
         return {
           label: groupName,
-          options: groups[groupName].map(instanceToOption),
+          options: instanceGroups[groupName].map(instanceToOption),
         }
       })}
     />

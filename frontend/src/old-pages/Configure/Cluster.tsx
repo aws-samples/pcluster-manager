@@ -34,6 +34,7 @@ import {LoadAwsConfig} from '../../model'
 // Components
 import {LabeledIcon, CustomAMISettings} from './Components'
 import {useFeatureFlag} from '../../feature-flags/useFeatureFlag'
+import {useComputeResourceAdapter} from './Queues'
 
 // Constants
 const errorsPath = ['app', 'wizard', 'errors', 'cluster']
@@ -342,6 +343,7 @@ function Cluster() {
   let defaultRegion = useState(['aws', 'region']) || ''
   const region = useState(['app', 'selectedRegion']) || defaultRegion
   const isMultiuserClusterActive = useFeatureFlag('multiuser_cluster')
+  const {createComputeResource} = useComputeResourceAdapter()
 
   React.useEffect(() => {
     const configPath = ['app', 'wizard', 'config']
@@ -366,14 +368,7 @@ function Cluster() {
           [
             {
               Name: 'queue0',
-              ComputeResources: [
-                {
-                  Name: 'queue0-t2-micro',
-                  MinCount: 0,
-                  MaxCount: 4,
-                  InstanceType: 't2.micro',
-                },
-              ],
+              ComputeResources: [createComputeResource(0)],
             },
           ],
         )

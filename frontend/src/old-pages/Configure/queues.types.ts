@@ -1,4 +1,7 @@
-export type QueueValidationErrors = Record<number, 'instance_type_unique'>
+export type QueueValidationErrors = Record<
+  number,
+  'instance_type_unique' | 'instance_types_empty'
+>
 
 export type ComputeResource = {
   Name: string
@@ -8,4 +11,11 @@ export type ComputeResource = {
 
 export type SingleInstanceComputeResource = ComputeResource & {
   InstanceType: string
+}
+
+export type CRAllocationStrategy = 'lowest-price' | 'capacity-optimized'
+
+export type MultiInstanceComputeResource = ComputeResource & {
+  InstanceTypes: string[]
+  AllocationStrategy: CRAllocationStrategy
 }

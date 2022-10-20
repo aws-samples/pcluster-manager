@@ -186,10 +186,9 @@ function queueValidate(queueIndex: any) {
     version,
     'queues_multiple_instance_types',
   )
-  // TODO: call multiple instance validator
   const {validateComputeResources} = !isMultiInstanceTypesActive
     ? SingleInstanceCR
-    : SingleInstanceCR
+    : MultiInstanceCR
   const [computeResourcesValid, computeResourcesErrors] =
     validateComputeResources(computeResources)
   if (!computeResourcesValid) {
@@ -197,10 +196,13 @@ function queueValidate(queueIndex: any) {
     computeResources.forEach((_: ComputeResource, i: number) => {
       const error = computeResourcesErrors[i]
       if (error) {
-        setState(
-          [...errorsPath, 'computeResource', i, 'type'],
-          i18next.t('wizard.queues.validation.instanceTypeUnique'),
-        )
+        let message: string
+        if (error === 'instance_type_unique') {
+          message = i18next.t('wizard.queues.validation.instanceTypeUnique')
+        } else {
+          message = i18next.t('wizard.queues.validation.instanceTypeMissing')
+        }
+        setState([...errorsPath, 'computeResource', i, 'type'], message)
       } else {
         setState([...errorsPath, 'computeResource', i, 'type'], null)
       }
@@ -474,7 +476,7 @@ function Queues() {
   )
 }
 
-const useComputeResourceAdapter = () => {
+export const useComputeResourceAdapter = () => {
   const isMultiInstanceTypesActive = useFeatureFlag(
     'queues_multiple_instance_types',
   )
@@ -487,12 +489,11 @@ const useComputeResourceAdapter = () => {
         validateComputeResources: SingleInstanceCR.validateComputeResources,
       }
     : {
-        // TODO: implement multi instance variant
-        ViewComponent: SingleInstanceCR.ComputeResource,
+        ViewComponent: MultiInstanceCR.ComputeResource,
         updateComputeResourcesNames:
-          SingleInstanceCR.updateComputeResourcesNames,
-        createComputeResource: SingleInstanceCR.createComputeResource,
-        validateComputeResources: SingleInstanceCR.validateComputeResources,
+          MultiInstanceCR.updateComputeResourcesNames,
+        createComputeResource: MultiInstanceCR.createComputeResource,
+        validateComputeResources: MultiInstanceCR.validateComputeResources,
       }
 }
 
