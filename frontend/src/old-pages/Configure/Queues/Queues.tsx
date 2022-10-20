@@ -11,7 +11,7 @@
 // limitations under the License.
 import * as React from 'react'
 import i18next from 'i18next'
-import {findFirst} from '../../util'
+import {findFirst} from '../../../util'
 
 // UI Elements
 import {
@@ -29,7 +29,7 @@ import {
 } from '@awsui/components-react'
 
 // State
-import {setState, getState, useState, clearState} from '../../store'
+import {setState, getState, useState, clearState} from '../../../store'
 
 // Components
 import {
@@ -40,13 +40,13 @@ import {
   SubnetSelect,
   SecurityGroups,
   IamPoliciesEditor,
-} from './Components'
+} from '../Components'
 import {Trans, useTranslation} from 'react-i18next'
 import {SlurmMemorySettings} from './SlurmMemorySettings'
 import {
   isFeatureEnabled,
   useFeatureFlag,
-} from '../../feature-flags/useFeatureFlag'
+} from '../../../feature-flags/useFeatureFlag'
 import * as SingleInstanceCR from './SingleInstanceComputeResource'
 import * as MultiInstanceCR from './MultiInstanceComputeResource'
 import {ComputeResource} from './queues.types'

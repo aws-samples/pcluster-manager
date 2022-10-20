@@ -34,7 +34,7 @@ import {LoadAwsConfig} from '../../model'
 // Components
 import {LabeledIcon, CustomAMISettings} from './Components'
 import {useFeatureFlag} from '../../feature-flags/useFeatureFlag'
-import {useComputeResourceAdapter} from './Queues'
+import {useComputeResourceAdapter} from './Queues/Queues'
 
 // Constants
 const errorsPath = ['app', 'wizard', 'errors', 'cluster']

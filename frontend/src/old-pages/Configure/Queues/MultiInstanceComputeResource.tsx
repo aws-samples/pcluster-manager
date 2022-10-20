@@ -4,35 +4,74 @@ import {
   ColumnLayout,
   FormField,
   Input,
+  Multiselect,
+  MultiselectProps,
+  Select,
   Toggle,
 } from '@awsui/components-react'
-import {useEffect} from 'react'
+import {NonCancelableEventHandler} from '@awsui/components-react/internal/events'
+import {useCallback, useMemo} from 'react'
 import {Trans, useTranslation} from 'react-i18next'
-import HelpTooltip from '../../components/HelpTooltip'
-import {clearState, getState, setState, useState} from '../../store'
-import {HelpTextInput, InstanceSelect} from './Components'
+import {clearState, setState, useState} from '../../../store'
+import {HelpTextInput, useInstanceGroups} from '../Components'
 import {
+  CRAllocationStrategy,
+  MultiInstanceComputeResource,
   QueueValidationErrors,
-  SingleInstanceComputeResource,
 } from './queues.types'
 
 const queuesPath = ['app', 'wizard', 'config', 'Scheduling', 'SlurmQueues']
 const queuesErrorsPath = ['app', 'wizard', 'errors', 'queues']
-const defaultInstanceType = 'c5n.large'
+
+const useAllocationStrategyOptions = () => {
+  const {t} = useTranslation()
+  const options = useMemo(
+    () => [
+      {
+        label: t('wizard.queues.allocationStrategy.lowestPrice'),
+        value: 'lowest-price',
+      },
+      {
+        label: t('wizard.queues.allocationStrategy.capacityOptimized'),
+        value: 'capacity-optimized',
+      },
+    ],
+    [t],
+  )
+  return options
+}
+
+function allInstancesSupportEFA(
+  instanceTypes: string[],
+  efaInstances: Set<string>,
+): boolean {
+  if (!instanceTypes || !instanceTypes.length) {
+    return false
+  }
+  return instanceTypes.every(instance => efaInstances.has(instance))
+}
 
 export function ComputeResource({index, queueIndex, computeResource}: any) {
-  const parentPath = [...queuesPath, queueIndex]
-  const queue = useState(parentPath)
-  const computeResources = useState([...parentPath, 'ComputeResources'])
-  const path = [...parentPath, 'ComputeResources', index]
+  const parentPath = useMemo(() => [...queuesPath, queueIndex], [queueIndex])
+  const computeResources: MultiInstanceComputeResource[] = useState([
+    ...parentPath,
+    'ComputeResources',
+  ])
+  const path = useMemo(
+    () => [...parentPath, 'ComputeResources', index],
+    [index, parentPath],
+  )
   const errorsPath = [...queuesErrorsPath, queueIndex, 'computeResource', index]
   const typeError = useState([...errorsPath, 'type'])
+  const allocationStrategyOptions = useAllocationStrategyOptions()
 
-  const tInstances = new Set<string>(['t2.micro', 't2.medium'])
-  const gravitonInstances = new Set<string>([])
+  const instanceTypePath = useMemo(() => [...path, 'InstanceTypes'], [path])
+  const instanceTypes: string[] = useState(instanceTypePath)
+  const allocationStrategy: CRAllocationStrategy = useState([
+    ...path,
+    'AllocationStrategy',
+  ])
 
-  const instanceTypePath = [...path, 'InstanceType']
-  const instanceType: string = useState(instanceTypePath)
   const memoryBasedSchedulingEnabledPath = [
     'app',
     'wizard',
@@ -48,7 +87,7 @@ export function ComputeResource({index, queueIndex, computeResource}: any) {
 
   const efaPath = [...path, 'Efa']
 
-  const efaInstances = new Set(useState(['aws', 'efa_instance_types']))
+  const efaInstances = new Set<string>(useState(['aws', 'efa_instance_types']))
   const enableEFAPath = [...path, 'Efa', 'Enabled']
   const enableEFA = useState(enableEFAPath) || false
 
@@ -59,13 +98,25 @@ export function ComputeResource({index, queueIndex, computeResource}: any) {
     'Enabled',
   ]
 
-  const enableGPUDirectPath = [...path, 'Efa', 'GdrSupport'] || false
-  const enableGPUDirect = useState(enableGPUDirectPath)
-
-  const instanceSupportsGdr = instanceType === 'p4d.24xlarge'
-
   const minCount = useState([...path, 'MinCount'])
   const maxCount = useState([...path, 'MaxCount'])
+
+  const instanceGroups = useInstanceGroups()
+  const instanceOptions = useMemo(
+    () =>
+      Object.keys(instanceGroups).map(groupName => {
+        return {
+          label: groupName,
+          options: instanceGroups[groupName].map(([value, label, icon]) => ({
+            label: value,
+            iconUrl: icon,
+            description: label,
+            value: value,
+          })),
+        }
+      }),
+    [instanceGroups],
+  )
 
   const {t} = useTranslation()
 
@@ -117,42 +168,39 @@ export function ComputeResource({index, queueIndex, computeResource}: any) {
     else clearState(disableHTPath)
   }
 
-  const setEnableEFA = (enable: any) => {
-    if (enable) {
-      setState(enableEFAPath, enable)
-      setState(enablePlacementGroupPath, enable)
-    } else {
-      clearState(efaPath)
-      clearState(enablePlacementGroupPath)
-    }
-  }
+  const setEnableEFA = useCallback(
+    (enable: any) => {
+      if (enable) {
+        setState(enableEFAPath, enable)
+        setState(enablePlacementGroupPath, enable)
+      } else {
+        clearState(efaPath)
+        clearState(enablePlacementGroupPath)
+      }
+    },
+    [efaPath, enablePlacementGroupPath, enableEFAPath],
+  )
 
-  const setEnableGPUDirect = (enable: any) => {
-    if (enable) setState(enableGPUDirectPath, enable)
-    else clearState(enableGPUDirectPath)
-  }
+  const setAllocationStrategy = useCallback(
+    ({detail}) => {
+      setState([...path, 'AllocationStrategy'], detail.selectedOption.value)
+    },
+    [path],
+  )
 
-  const setInstanceType = (instanceType: any) => {
-    // setting the instance type on the queue happens in the component
-    // this updates the name which is derived from the instance type
-    setState(
-      [...path, 'Name'],
-      `${queue.Name}-${instanceType.replace('.', '')}`,
+  const setInstanceTypes: NonCancelableEventHandler<MultiselectProps.MultiselectChangeDetail> =
+    useCallback(
+      ({detail}) => {
+        const selectedInstanceTypes = (detail.selectedOptions.map(
+          option => option.value,
+        ) || []) as string[]
+        setState(instanceTypePath, selectedInstanceTypes)
+        if (!allInstancesSupportEFA(selectedInstanceTypes, efaInstances)) {
+          setEnableEFA(false)
+        }
+      },
+      [efaInstances, instanceTypePath, setEnableEFA],
     )
-
-    if (!getState(enableEFAPath) && efaInstances.has(instanceType))
-      setEnableEFA(true)
-    else if (getState(enableEFAPath) && !efaInstances.has(instanceType))
-      setEnableEFA(false)
-  }
-
-  useEffect(() => {
-    if (!instanceType)
-      setState(
-        [...queuesPath, queueIndex, 'ComputeResources', index, 'InstanceType'],
-        defaultInstanceType,
-      )
-  }, [queueIndex, index, instanceType])
 
   return (
     <div className="compute-resource">
@@ -185,9 +233,25 @@ export function ComputeResource({index, queueIndex, computeResource}: any) {
             label={t('wizard.queues.computeResource.instanceType')}
             errorText={typeError}
           >
-            <InstanceSelect
-              path={instanceTypePath}
-              callback={setInstanceType}
+            <Multiselect
+              selectedOptions={instanceTypes.map(instance => ({
+                value: instance,
+                label: instance,
+              }))}
+              tokenLimit={3}
+              onChange={setInstanceTypes}
+              options={instanceOptions}
+            />
+          </FormField>
+          <FormField label={t('wizard.queues.allocationStrategy.title')}>
+            <Select
+              options={allocationStrategyOptions}
+              selectedOption={
+                allocationStrategyOptions.find(
+                  as => as.value === allocationStrategy,
+                )!
+              }
+              onChange={setAllocationStrategy}
             />
           </FormField>
           {enableMemoryBasedScheduling && (
@@ -211,10 +275,6 @@ export function ComputeResource({index, queueIndex, computeResource}: any) {
         </ColumnLayout>
         <div style={{display: 'flex', flexDirection: 'row', gap: '20px'}}>
           <Toggle
-            disabled={
-              tInstances.has(instanceType) ||
-              gravitonInstances.has(instanceType)
-            }
             checked={disableHT}
             onChange={_e => {
               setDisableHT(!disableHT)
@@ -223,7 +283,7 @@ export function ComputeResource({index, queueIndex, computeResource}: any) {
             <Trans i18nKey="wizard.queues.computeResource.disableHT" />
           </Toggle>
           <Toggle
-            disabled={!efaInstances.has(instanceType)}
+            disabled={!allInstancesSupportEFA(instanceTypes, efaInstances)}
             checked={enableEFA}
             onChange={_e => {
               setEnableEFA(!enableEFA)
@@ -231,71 +291,43 @@ export function ComputeResource({index, queueIndex, computeResource}: any) {
           >
             <Trans i18nKey="wizard.queues.computeResource.enableEfa" />
           </Toggle>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-            }}
-          >
-            <Toggle
-              disabled={!instanceSupportsGdr}
-              checked={enableGPUDirect}
-              onChange={_e => {
-                setEnableGPUDirect(!enableGPUDirect)
-              }}
-            >
-              <Trans i18nKey="wizard.queues.computeResource.enableGpuDirect" />
-            </Toggle>
-            <HelpTooltip>
-              <Trans i18nKey="wizard.queues.Gdr.help">
-                <a
-                  rel="noreferrer"
-                  target="_blank"
-                  href="https://docs.aws.amazon.com/parallelcluster/latest/ug/Scheduling-v3.html#yaml-Scheduling-SlurmQueues-ComputeResources-Efa-GdrSupport"
-                ></a>
-              </Trans>
-            </HelpTooltip>
-          </div>
         </div>
       </div>
     </div>
   )
 }
 
-export function createComputeResource(queueIndex: number, crIndex: number) {
+export function createComputeResource(
+  queueIndex: number,
+  crIndex: number,
+): MultiInstanceComputeResource {
   return {
-    Name: `queue${queueIndex}-${defaultInstanceType.replace('.', '')}`,
-    InstanceType: defaultInstanceType,
+    Name: `queue${queueIndex}-compute-resource-${crIndex}`,
+    InstanceTypes: [],
+    AllocationStrategy: 'lowest-price',
     MinCount: 0,
     MaxCount: 4,
   }
 }
 
 export function updateComputeResourcesNames(
-  computeResources: SingleInstanceComputeResource[],
+  computeResources: MultiInstanceComputeResource[],
   newQueueName: string,
-) {
-  return computeResources.map(cr => ({
+): MultiInstanceComputeResource[] {
+  return computeResources.map((cr, i) => ({
     ...cr,
-    Name: `${newQueueName}-${cr.InstanceType.replace('.', '')}`,
+    Name: `${newQueueName}-compute-resource-${i}`,
   }))
 }
 
 export function validateComputeResources(
-  computeResources: SingleInstanceComputeResource[],
+  computeResources: MultiInstanceComputeResource[],
 ): [boolean, QueueValidationErrors] {
-  let seenInstances = new Set()
-  let errors: QueueValidationErrors = {}
-  let valid = true
-  for (let i = 0; i < computeResources.length; i++) {
-    let computeResource = computeResources[i]
-    if (seenInstances.has(computeResource.InstanceType)) {
-      errors[i] = 'instance_type_unique'
-      valid = false
-    } else {
-      seenInstances.add(computeResource.InstanceType)
+  let errors = computeResources.reduce<QueueValidationErrors>((acc, cr, i) => {
+    if (!cr.InstanceTypes || !cr.InstanceTypes.length) {
+      acc[i] = 'instance_types_empty'
     }
-  }
-  return [valid, errors]
+    return acc
+  }, {})
+  return [Object.keys(errors).length === 0, errors]
 }
