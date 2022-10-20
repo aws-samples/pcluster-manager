@@ -42,7 +42,7 @@ const useAllocationStrategyOptions = () => {
   return options
 }
 
-function allInstancesSupportEFA(
+export function allInstancesSupportEFA(
   instanceTypes: string[],
   efaInstances: Set<string>,
 ): boolean {
