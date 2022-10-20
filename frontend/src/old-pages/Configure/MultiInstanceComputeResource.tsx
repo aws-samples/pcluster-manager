@@ -23,18 +23,19 @@ const queuesErrorsPath = ['app', 'wizard', 'errors', 'queues']
 const defaultInstanceType = 'c5n.large'
 
 const useAllocationStrategyOptions = () => {
+  const {t} = useTranslation()
   const options = useMemo(
     () => [
       {
-        label: 'Lowest price',
+        label: t('wizard.queues.allocationStrategy.lowestPrice'),
         value: 'lowest-price',
       },
       {
-        label: 'Capacity optimized',
+        label: t('wizard.queues.allocationStrategy.capacityOptimized'),
         value: 'capacity-optimized',
       },
     ],
-    [],
+    [t],
   )
   return options
 }
@@ -237,7 +238,7 @@ export function ComputeResource({index, queueIndex, computeResource}: any) {
               options={instanceOptions}
             />
           </FormField>
-          <FormField label={'Allocation strategy'}>
+          <FormField label={t('wizard.queues.allocationStrategy.title')}>
             <Select
               options={allocationStrategyOptions}
               selectedOption={

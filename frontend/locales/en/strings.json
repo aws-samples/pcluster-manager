@@ -301,6 +301,11 @@
           "dismissAriaLabel": "Close alert"
         }
       },
+      "allocationStrategy": {
+        "title": "Allocation strategy",
+        "lowestPrice": "Lowest price",
+        "capacityOptimized": "Capacity optimized"
+      },
       "schedulableMemory": {
         "name": "Schedulable Memory (MiB)",
         "description": "Amount of memory in MiB to be made available to jobs on the compute nodes of the compute resource",
