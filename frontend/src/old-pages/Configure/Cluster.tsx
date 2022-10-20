@@ -35,6 +35,8 @@ import {LoadAwsConfig} from '../../model'
 import {LabeledIcon, CustomAMISettings} from './Components'
 import {useFeatureFlag} from '../../feature-flags/useFeatureFlag'
 import {useComputeResourceAdapter} from './Queues/Queues'
+import {createComputeResource as singleCreate} from './Queues/SingleInstanceComputeResource'
+import {createComputeResource as multiCreate} from './Queues/MultiInstanceComputeResource'
 
 // Constants
 const errorsPath = ['app', 'wizard', 'errors', 'cluster']
@@ -343,7 +345,9 @@ function Cluster() {
   let defaultRegion = useState(['aws', 'region']) || ''
   const region = useState(['app', 'selectedRegion']) || defaultRegion
   const isMultiuserClusterActive = useFeatureFlag('multiuser_cluster')
-  const {createComputeResource} = useComputeResourceAdapter()
+  const isMultipleInstanceTypesActive = useFeatureFlag(
+    'queues_multiple_instance_types',
+  )
 
   React.useEffect(() => {
     const configPath = ['app', 'wizard', 'config']
@@ -368,7 +372,14 @@ function Cluster() {
           [
             {
               Name: 'queue0',
-              ComputeResources: [createComputeResource(0, 0)],
+              AllocationStrategy: isMultipleInstanceTypesActive
+                ? 'lowest-price'
+                : undefined,
+              ComputeResources: [
+                isMultipleInstanceTypesActive
+                  ? multiCreate(0, 0)
+                  : singleCreate(0, 0),
+              ],
             },
           ],
         )

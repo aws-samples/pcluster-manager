@@ -11,7 +11,7 @@
 // limitations under the License.
 import * as React from 'react'
 import i18next from 'i18next'
-import {findFirst} from '../../../util'
+import {findFirst} from '../../util'
 
 // UI Elements
 import {
@@ -29,7 +29,7 @@ import {
 } from '@awsui/components-react'
 
 // State
-import {setState, getState, useState, clearState} from '../../../store'
+import {setState, getState, useState, clearState} from '../../store'
 
 // Components
 import {
@@ -40,16 +40,16 @@ import {
   SubnetSelect,
   SecurityGroups,
   IamPoliciesEditor,
-} from '../Components'
+} from './Components'
 import {Trans, useTranslation} from 'react-i18next'
-import {SlurmMemorySettings} from './SlurmMemorySettings'
+import {SlurmMemorySettings} from './Queues/SlurmMemorySettings'
 import {
   isFeatureEnabled,
   useFeatureFlag,
-} from '../../../feature-flags/useFeatureFlag'
+} from '../../feature-flags/useFeatureFlag'
 import * as SingleInstanceCR from './SingleInstanceComputeResource'
 import * as MultiInstanceCR from './MultiInstanceComputeResource'
-import {AllocationStrategy, ComputeResource} from './queues.types'
+import {ComputeResource} from './queues.types'
 
 // Constants
 const queuesPath = ['app', 'wizard', 'config', 'Scheduling', 'SlurmQueues']
@@ -245,24 +245,6 @@ function ComputeResources({queue, index}: any) {
   )
 }
 
-const useAllocationStrategyOptions = () => {
-  const {t} = useTranslation()
-  const options = React.useMemo(
-    () => [
-      {
-        label: t('wizard.queues.allocationStrategy.lowestPrice'),
-        value: 'lowest-price',
-      },
-      {
-        label: t('wizard.queues.allocationStrategy.capacityOptimized'),
-        value: 'capacity-optimized',
-      },
-    ],
-    [t],
-  )
-  return options
-}
-
 function Queue({index}: any) {
   const {t} = useTranslation()
   const queues = useState(queuesPath)
@@ -278,16 +260,8 @@ function Queue({index}: any) {
   ]
   const enablePlacementGroup = useState(enablePlacementGroupPath)
 
-  const allocationStrategyOptions = useAllocationStrategyOptions()
-
   const errorsPath = [...queuesErrorsPath, index]
   const subnetError = useState([...errorsPath, 'subnet'])
-
-  const allocationStrategy: AllocationStrategy = useState([
-    ...queuesPath,
-    index,
-    'AllocationStrategy',
-  ])
 
   const capacityTypes: [string, string, string][] = [
     ['ONDEMAND', 'On-Demand', '/img/od.svg'],
@@ -333,16 +307,6 @@ function Queue({index}: any) {
     setState([...queuesPath, index, 'Name'], newName)
     setState([...queuesPath, index, 'ComputeResources'], updatedCRs)
   }
-
-  const setAllocationStrategy = React.useCallback(
-    ({detail}) => {
-      setState(
-        [...queuesPath, index, 'AllocationStrategy'],
-        detail.selectedOption.value,
-      )
-    },
-    [index],
-  )
 
   return (
     <div className="queue">
@@ -416,21 +380,6 @@ function Queue({index}: any) {
               options={capacityTypes.map(itemToIconOption)}
             />
           </FormField>
-          {queue.AllocationStrategy ? (
-            <FormField label={t('wizard.queues.allocationStrategy.title')}>
-              <Select
-                options={allocationStrategyOptions}
-                selectedOption={
-                  allocationStrategyOptions.find(
-                    as => as.value === allocationStrategy,
-                  )!
-                }
-                onChange={setAllocationStrategy}
-              />
-            </FormField>
-          ) : null}
-        </ColumnLayout>
-        <Box variant="div" margin={{vertical: 'xs'}}>
           <Toggle
             checked={enablePlacementGroup}
             onChange={_e => {
@@ -439,7 +388,8 @@ function Queue({index}: any) {
           >
             <Trans i18nKey="wizard.queues.placementGroup.label" />
           </Toggle>
-        </Box>
+          <div className="spacer"></div>
+        </ColumnLayout>
         <ComputeResources queue={queue} index={index} />
         <ExpandableSection header="Advanced options">
           <SpaceBetween direction="vertical" size="s">
@@ -487,9 +437,8 @@ function Queues() {
     'memory_based_scheduling',
   )
   const adapter = useComputeResourceAdapter()
-  const defaultAllocationStrategy = useDefaultAllocationStrategy()
   let queues = useState(queuesPath) || []
-  
+
   const addQueue = () => {
     setState(
       [...queuesPath],
@@ -497,7 +446,6 @@ function Queues() {
         ...(queues || []),
         {
           Name: `queue${queues.length}`,
-          ...defaultAllocationStrategy,
           ComputeResources: [adapter.createComputeResource(queues.length, 0)],
         },
       ],
@@ -527,17 +475,6 @@ function Queues() {
       </Container>
     </ColumnLayout>
   )
-}
-
-export const useDefaultAllocationStrategy = () => {
-  const isMultiInstanceTypesActive = useFeatureFlag(
-    'queues_multiple_instance_types',
-  )
-  return !isMultiInstanceTypesActive
-    ? undefined
-    : {
-        AllocationStrategy: 'lowest-price',
-      }
 }
 
 export const useComputeResourceAdapter = () => {

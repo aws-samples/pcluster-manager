@@ -13,9 +13,10 @@ export type SingleInstanceComputeResource = ComputeResource & {
   InstanceType: string
 }
 
-export type CRAllocationStrategy = 'lowest-price' | 'capacity-optimized'
+export type AllocationStrategy = 'lowest-price' | 'capacity-optimized'
+
+export type ComputeResourceInstance = {InstanceType: string}
 
 export type MultiInstanceComputeResource = ComputeResource & {
-  InstanceTypes: string[]
-  AllocationStrategy: CRAllocationStrategy
+  Instances: ComputeResourceInstance[]
 }

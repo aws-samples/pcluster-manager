@@ -16,13 +16,23 @@ describe('Given a list of instances', () => {
 
   describe('when every instance supports EFA', () => {
     it('should enable EFA', () => {
-      expect(subject(['t2.micro', 't2.medium'], efaInstances)).toBe(true)
+      expect(
+        subject(
+          [{InstanceType: 't2.micro'}, {InstanceType: 't2.medium'}],
+          efaInstances,
+        ),
+      ).toBe(true)
     })
   })
 
   describe('when not every instance supports EFA', () => {
     it('should deactivate EFA', () => {
-      expect(subject(['t2.micro', 't2.large'], efaInstances)).toBe(false)
+      expect(
+        subject(
+          [{InstanceType: 't2.micro'}, {InstanceType: 't2.large'}],
+          efaInstances,
+        ),
+      ).toBe(false)
     })
   })
 })
@@ -31,7 +41,7 @@ describe('Given a list of queues', () => {
   const subject = createComputeResource
   describe('when creating a new compute resource', () => {
     it('should create it with a default instance type', () => {
-      expect(subject(0, 0).InstanceTypes).toHaveLength(1)
+      expect(subject(0, 0).Instances).toHaveLength(1)
     })
   })
 })
@@ -45,15 +55,13 @@ describe('Given a list of compute resources', () => {
           Name: 'test1',
           MinCount: 0,
           MaxCount: 2,
-          InstanceTypes: ['t2.micro', 't2.medium'],
-          AllocationStrategy: 'lowest-price',
+          Instances: [{InstanceType: 't2.micro'}, {InstanceType: 't2.medium'}],
         },
         {
           Name: 'test2',
           MinCount: 0,
           MaxCount: 2,
-          InstanceTypes: ['t2.micro'],
-          AllocationStrategy: 'lowest-price',
+          Instances: [{InstanceType: 't2.micro'}],
         },
       ])
 
@@ -68,15 +76,13 @@ describe('Given a list of compute resources', () => {
           Name: 'test1',
           MinCount: 0,
           MaxCount: 2,
-          InstanceTypes: ['t2.micro', 't2.medium'],
-          AllocationStrategy: 'lowest-price',
+          Instances: [{InstanceType: 't2.micro'}, {InstanceType: 't2.medium'}],
         },
         {
           Name: 'test2',
           MinCount: 0,
           MaxCount: 2,
-          InstanceTypes: [],
-          AllocationStrategy: 'lowest-price',
+          Instances: [],
         },
       ])
 
