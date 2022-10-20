@@ -5,9 +5,11 @@ import {
   FormField,
   Input,
   Multiselect,
+  MultiselectProps,
   Select,
   Toggle,
 } from '@awsui/components-react'
+import {NonCancelableEventHandler} from '@awsui/components-react/internal/events'
 import {useCallback, useMemo} from 'react'
 import {Trans, useTranslation} from 'react-i18next'
 import {clearState, setState, useState} from '../../store'
@@ -167,15 +169,18 @@ export function ComputeResource({index, queueIndex, computeResource}: any) {
     else clearState(disableHTPath)
   }
 
-  const setEnableEFA = (enable: any) => {
-    if (enable) {
-      setState(enableEFAPath, enable)
-      setState(enablePlacementGroupPath, enable)
-    } else {
-      clearState(efaPath)
-      clearState(enablePlacementGroupPath)
-    }
-  }
+  const setEnableEFA = useCallback(
+    (enable: any) => {
+      if (enable) {
+        setState(enableEFAPath, enable)
+        setState(enablePlacementGroupPath, enable)
+      } else {
+        clearState(efaPath)
+        clearState(enablePlacementGroupPath)
+      }
+    },
+    [efaPath, enablePlacementGroupPath, enableEFAPath],
+  )
 
   const setAllocationStrategy = useCallback(
     ({detail}) => {
@@ -184,18 +189,19 @@ export function ComputeResource({index, queueIndex, computeResource}: any) {
     [path],
   )
 
-  const setInstanceTypes = useCallback(
-    ({detail}) => {
-      const selectedInstanceTypes = detail.selectedOptions.map(
-        option => option.value,
-      )
-      setState(instanceTypePath, selectedInstanceTypes)
-      if (!allInstancesSupportEFA(selectedInstanceTypes, efaInstances)) {
-        setEnableEFA(false)
-      }
-    },
-    [efaInstances, instanceTypePath, setEnableEFA],
-  )
+  const setInstanceTypes: NonCancelableEventHandler<MultiselectProps.MultiselectChangeDetail> =
+    useCallback(
+      ({detail}) => {
+        const selectedInstanceTypes = (detail.selectedOptions.map(
+          option => option.value,
+        ) || []) as string[]
+        setState(instanceTypePath, selectedInstanceTypes)
+        if (!allInstancesSupportEFA(selectedInstanceTypes, efaInstances)) {
+          setEnableEFA(false)
+        }
+      },
+      [efaInstances, instanceTypePath, setEnableEFA],
+    )
 
   return (
     <div className="compute-resource">
