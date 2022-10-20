@@ -22,6 +22,7 @@ import {
 
 const queuesPath = ['app', 'wizard', 'config', 'Scheduling', 'SlurmQueues']
 const queuesErrorsPath = ['app', 'wizard', 'errors', 'queues']
+const defaultInstanceType = 'c5n.large'
 
 const useAllocationStrategyOptions = () => {
   const {t} = useTranslation()
@@ -66,7 +67,7 @@ export function ComputeResource({index, queueIndex, computeResource}: any) {
   const allocationStrategyOptions = useAllocationStrategyOptions()
 
   const instanceTypePath = useMemo(() => [...path, 'InstanceTypes'], [path])
-  const instanceTypes: string[] = useState(instanceTypePath)
+  const instanceTypes: string[] = useState(instanceTypePath) || []
   const allocationStrategy: CRAllocationStrategy = useState([
     ...path,
     'AllocationStrategy',
@@ -303,7 +304,7 @@ export function createComputeResource(
 ): MultiInstanceComputeResource {
   return {
     Name: `queue${queueIndex}-compute-resource-${crIndex}`,
-    InstanceTypes: [],
+    InstanceTypes: [defaultInstanceType],
     AllocationStrategy: 'lowest-price',
     MinCount: 0,
     MaxCount: 4,

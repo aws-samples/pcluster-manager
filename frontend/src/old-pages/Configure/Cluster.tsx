@@ -368,7 +368,7 @@ function Cluster() {
           [
             {
               Name: 'queue0',
-              ComputeResources: [createComputeResource(0)],
+              ComputeResources: [createComputeResource(0, 0)],
             },
           ],
         )
