@@ -18,6 +18,7 @@ const versionToFeaturesMap: Record<string, AvailableFeature[]> = {
     'lustre_persistent2',
     'memory_based_scheduling',
     'multiuser_cluster',
+    'slurm_queue_update_strategy',
   ],
   '3.3.0': ['slurm_accounting'],
 }
