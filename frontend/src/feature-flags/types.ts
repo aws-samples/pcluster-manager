@@ -15,3 +15,4 @@ export type AvailableFeature =
   | 'multiuser_cluster'
   | 'memory_based_scheduling'
   | 'slurm_accounting'
+  | 'slurm_queue_update_strategy'
