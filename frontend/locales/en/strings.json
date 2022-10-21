@@ -193,9 +193,9 @@
           "placeholder": "Select a queue update strategy",
           "selectedAriaLabel": "Selected",
           "options": {
-            "computeFleetStop": "COMPUTE_FLEET_STOP",
-            "drain": "DRAIN",
-            "terminate": "TERMINATE"
+            "computeFleetStop": "Compute Fleet Stop",
+            "drain": "Drain",
+            "terminate": "Terminate"
           }
         }
       }
