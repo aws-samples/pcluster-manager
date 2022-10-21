@@ -19,6 +19,7 @@ import {
   ScaledownIdleTimeForm,
   validateScaledownIdleTime,
 } from './ScaledownIdleTimeForm'
+import {QueueUpdateStrategyForm} from './QueueUpdateStrategyForm'
 
 const slurmSettingsPath = [
   'app',
@@ -37,6 +38,7 @@ const usernameErrorPath = [...errorsPath, 'database', 'username']
 const passwordErrorPath = [...errorsPath, 'database', 'password']
 
 const scaledownIdleTimePath = [...slurmSettingsPath, 'ScaledownIdletime']
+const queueUpdateStrategyPath = [...slurmSettingsPath, 'QueueUpdateStrategy']
 
 function slurmAccountingValidateAndSetErrors(): boolean {
   const errorMask: Array<boolean> = [uriPath, usernamePath, passwordPath].map(
@@ -94,6 +96,7 @@ function validateSlurmSettings() {
 function SlurmSettings() {
   const {t} = useTranslation()
   const scaledownIdleTime = useState(scaledownIdleTimePath)
+  const queueUpdateStrategy = useState(queueUpdateStrategyPath)
 
   const onScaledownIdleTimeChange = React.useCallback(
     (value: number | null) => {
@@ -105,6 +108,10 @@ function SlurmSettings() {
     },
     [],
   )
+
+  const onQueueUpdateStrategyChange = React.useCallback((value: string) => {
+    setState(queueUpdateStrategyPath, value)
+  }, [])
 
   return (
     <Container
@@ -131,6 +138,10 @@ function SlurmSettings() {
         <ScaledownIdleTimeForm
           value={scaledownIdleTime}
           onChange={onScaledownIdleTimeChange}
+        />
+        <QueueUpdateStrategyForm
+          value={queueUpdateStrategy}
+          onChange={onQueueUpdateStrategyChange}
         />
       </ColumnLayout>
     </Container>

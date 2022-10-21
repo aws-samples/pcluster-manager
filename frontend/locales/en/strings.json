@@ -183,6 +183,16 @@
         "scaledownIdleTime": {
           "label": "Scaledown Idle Time (minutes)",
           "placeholder": "10"
+        },
+        "queueUpdateStrategy": {
+          "label": "Queue Update Strategy",
+          "placeholder": "Select a queue update strategy",
+          "selectedAriaLabel": "Selected",
+          "options": {
+            "computeFleetStop": "Compute Fleet Stop",
+            "drain": "Drain",
+            "terminate": "Terminate"
+          }
         }
       }
     },
