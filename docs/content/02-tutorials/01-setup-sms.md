@@ -41,7 +41,7 @@ To enable Multi-Factor Authentication (MFA) with Pcluster Manager there's two se
 
 #### 3. Test with Pcluster Manager
 
-Now that you've gotten the SMS portion setup you can go ahead and login. You'll see a screen after you enter your username/passowrd that looks like:
+Now that you've gotten the SMS portion setup you can go ahead and login. You'll see a screen after you enter your username/password that looks like:
 
 ![PCM MFA Confirmation](sms/pcm-mfa.png)
 
