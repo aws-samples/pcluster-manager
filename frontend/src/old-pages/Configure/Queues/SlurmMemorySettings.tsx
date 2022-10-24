@@ -20,7 +20,7 @@ import {
   Popover,
   Link,
 } from '@awsui/components-react'
-import {setState, getState, useState, clearState} from '../../store'
+import {setState, getState, useState, clearState} from '../../../store'
 
 function SlurmMemorySettings() {
   const {t} = useTranslation()
