@@ -2,6 +2,7 @@ FROM public.ecr.aws/lambda/python:3.8
 
 COPY --from=frontend-awslambda /app/build ${LAMBDA_TASK_ROOT}/frontend/public
 
+COPY resources/attributions/docker-attributions.txt license.txt
 COPY requirements.txt  .
 RUN  pip3 install -r requirements.txt --target "${LAMBDA_TASK_ROOT}" && \
      pip3 install aws-lambda-powertools
