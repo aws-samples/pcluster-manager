@@ -110,7 +110,8 @@ Scheduling:
           Enabled: true
       ComputeResources:
         - Name: cpu-hpc6a48xlarge
-          InstanceType: hpc6a.48xlarge
+          Instances:
+            - InstanceType: hpc6a.48xlarge
           MinCount: 0
           MaxCount: 100
           Efa:
