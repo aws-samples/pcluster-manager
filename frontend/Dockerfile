@@ -1,6 +1,7 @@
 FROM node:16-alpine
 WORKDIR /app
 COPY . .
+COPY resources/attributions/npm-python-attributions.txt public/license.txt
 # The env var is used to skip git-secrets checks, not needed for the build
 ENV CI true
 RUN npm ci
