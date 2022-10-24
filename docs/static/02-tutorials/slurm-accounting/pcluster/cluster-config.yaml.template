@@ -31,7 +31,8 @@ Scheduling:
   - Name: queue1
     ComputeResources:
     - Name: t2micro
-      InstanceType: t2.micro
+      Instances:
+        - InstanceType: t2.micro
       MinCount: 0
       MaxCount: 10
     Networking:

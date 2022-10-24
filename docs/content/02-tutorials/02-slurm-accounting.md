@@ -126,7 +126,8 @@ Scheduling:
         - Name: queue0-t2-micro
           MinCount: 0
           MaxCount: 4
-          InstanceType: t2.micro
+          Instances:
+            - InstanceType: t2.micro
       Networking:
         SubnetIds:
           - subnet-12345678910
