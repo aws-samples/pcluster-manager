@@ -276,6 +276,7 @@
     "queues": {
       "validation": {
         "instanceTypeUnique": "Instance types must be unique within a Queue.",
+        "instanceTypeMissing": "Select at least once instance type.",
         "selectSubnet": "You must select a Subnet.",
         "setRootVolumeSize": "You must set a RootVolume size.",
         "rootVolumeMinimum": "You must use an integer >= 35GB for Root Volume Size.",
@@ -299,6 +300,11 @@
           "body": "If more than one instance type is selected in any queue, Slurm Memory Based Scheduling is disabled by default.",
           "dismissAriaLabel": "Close alert"
         }
+      },
+      "allocationStrategy": {
+        "title": "Allocation strategy",
+        "lowestPrice": "Lowest price",
+        "capacityOptimized": "Capacity optimized"
       },
       "schedulableMemory": {
         "name": "Schedulable Memory (MiB)",

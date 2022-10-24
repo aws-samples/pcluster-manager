@@ -38,7 +38,7 @@ import {Cluster, clusterValidate} from './Cluster'
 import {HeadNode, headNodeValidate} from './HeadNode'
 import {MultiUser, multiUserValidate} from './MultiUser'
 import {Storage, storageValidate} from './Storage'
-import {Queues, queuesValidate} from './Queues'
+import {Queues, queuesValidate} from './Queues/Queues'
 import {
   Create,
   createValidate,

@@ -20,7 +20,7 @@ const versionToFeaturesMap: Record<string, AvailableFeature[]> = {
     'multiuser_cluster',
     'slurm_queue_update_strategy',
   ],
-  '3.3.0': ['slurm_accounting'],
+  '3.3.0': ['slurm_accounting', 'queues_multiple_instance_types'],
 }
 
 function composeFlagsListByVersion(currentVersion: string): AvailableFeature[] {

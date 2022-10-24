@@ -16,3 +16,4 @@ export type AvailableFeature =
   | 'memory_based_scheduling'
   | 'slurm_accounting'
   | 'slurm_queue_update_strategy'
+  | 'queues_multiple_instance_types'

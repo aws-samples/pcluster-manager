@@ -14,6 +14,13 @@ import {AvailableFeature} from './types'
 
 export function useFeatureFlag(feature: AvailableFeature): boolean {
   const version = useState(['app', 'version', 'full'])
+  return isFeatureEnabled(version, feature)
+}
+
+export function isFeatureEnabled(
+  version: string,
+  feature: AvailableFeature,
+): boolean {
   const features = new Set(featureFlagsProvider(version))
 
   return features.has(feature)
