@@ -32,7 +32,6 @@
   },
   "scripts": {
     "start": "next start",
-    "prebuild": "npm run copy-attributions",
     "build": "next build",
     "test": "jest",
     "lint": "next lint",
@@ -40,8 +39,7 @@
     "export": "next build && next export -o build",
     "prepare": "./scripts/git-secrets-command.sh '--register-aws > /dev/null' && cd .. && husky install frontend/.husky",
     "ts-reignore": "ts-migrate reignore . --sources='src/**/*'",
-    "ts-validate": "tsc -p tsconfig.json",
-    "copy-attributions": "cp ../resources/attributions/npm-python-attributions.txt ./public/license.txt"
+    "ts-validate": "tsc -p tsconfig.json"
   },
   "browserslist": {
     "production": [
