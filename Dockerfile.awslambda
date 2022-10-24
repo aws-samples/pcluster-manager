@@ -4,7 +4,7 @@ COPY --from=frontend-awslambda /app/build ${LAMBDA_TASK_ROOT}/frontend/public
 
 COPY requirements.txt  .
 RUN  pip3 install -r requirements.txt --target "${LAMBDA_TASK_ROOT}" && \
-     pip3 install aws-lambda-powertools
+     pip3 install aws-lambda-powertools==1.31.1
 
 COPY app.py ${LAMBDA_TASK_ROOT}
 COPY api ${LAMBDA_TASK_ROOT}/api
