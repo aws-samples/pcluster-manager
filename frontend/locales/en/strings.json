@@ -1,7 +1,13 @@
 {
   "global": {
     "menu": {
-      "home": "Home"
+      "header": "ParallelCluster Manager",
+      "home": "Home",
+      "clusters": "Clusters",
+      "customImages": "Custom Images",
+      "officialImages": "Official Images",
+      "users": "Users",
+      "viewLicense": "View License file"
     }
   },
   "cluster": {
