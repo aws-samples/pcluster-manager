@@ -1,10 +1,8 @@
-name: github pages
+name: Deploy public documentation
 
 on:
   push:
-    branches:
-      - main  # Set a branch to deploy
-  pull_request:
+    tags: '*'
 
 jobs:
   deploy:
