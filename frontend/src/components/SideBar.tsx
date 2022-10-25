@@ -61,6 +61,13 @@ export default function SideBar() {
         isAdmin()
           ? {type: 'link', text: t('global.menu.users'), href: '/users'}
           : null,
+        {type: 'divider'},
+        {
+          type: 'link',
+          text: t('global.menu.viewLicense'),
+          href: '/license.txt',
+          external: true,
+        },
       ].filter(Boolean) as ReadonlyArray<SideNavigationProps.Item>
       // we need to recompute navigationItems according to identity change
       // eslint-disable-next-line react-hooks/exhaustive-deps
