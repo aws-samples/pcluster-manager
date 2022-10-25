@@ -21,8 +21,6 @@ import TopBar from '../components/TopBar'
 import SideBar from '../components/SideBar'
 
 export default function Layout() {
-  const navigationOpen = useState(['app', 'sidebar', 'drawerOpen'])
-
   const messages = useState(['app', 'messages'])
 
   return (
@@ -33,10 +31,6 @@ export default function Layout() {
         headerSelector="#top-bar"
         navigationWidth={220}
         toolsHide
-        navigationOpen={navigationOpen}
-        onNavigationChange={e => {
-          setState(['app', 'sidebar', 'drawerOpen'], e.detail.open)
-        }}
         content={
           <>
             <div style={{marginBottom: '30px'}}>

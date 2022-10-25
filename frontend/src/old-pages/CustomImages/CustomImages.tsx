@@ -188,7 +188,6 @@ export default function CustomImages() {
 
   const imageStatus = useState(['app', 'customImages', 'selectedImageStatus'])
 
-  const navigationOpen = useState(['app', 'sidebar', 'drawerOpen'])
   const [splitOpen, setSplitOpen] = React.useState(true)
 
   const buildImage = () => {
@@ -213,10 +212,6 @@ export default function CustomImages() {
       disableContentHeaderOverlap
       navigationHide
       toolsHide
-      navigationOpen={navigationOpen}
-      onNavigationChange={e => {
-        setState(['app', 'sidebar', 'drawerOpen'], e.detail.open)
-      }}
       splitPanelOpen={splitOpen}
       onSplitPanelToggle={e => {
         setSplitOpen(e.detail.open)
