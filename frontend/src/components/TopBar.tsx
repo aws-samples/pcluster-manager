@@ -15,7 +15,6 @@ import {useState, setState} from '../store'
 import {LoadInitialState} from '../model'
 
 // UI Elements
-import {SideBarIcons} from './SideBar'
 import TopNavigation from '@awsui/components-react/top-navigation'
 import {useQueryClient} from 'react-query'
 
@@ -109,7 +108,6 @@ export default function Topbar() {
 
   return (
     <>
-      <SideBarIcons />
       <TopNavigation
         id="top-bar"
         className="top-bar"
