@@ -15,16 +15,12 @@ import {useLocation, useNavigate} from 'react-router-dom'
 import {USER_ROLES_CLAIM} from '../auth/constants'
 import {isAdmin, isGuest, isUser, useState} from '../store'
 
-const MATCH_UP_UNTIL_SECOND_FORWARD_SLASH = /\/[^\/]+/
-
 export default function SideBar() {
   const {t} = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
   const defaultPage = isGuest() ? '/home' : '/clusters'
-  const currentHref = MATCH_UP_UNTIL_SECOND_FORWARD_SLASH.exec(
-    location.pathname,
-  )?.[0]
+  const currentHref = '/' + location.pathname.split('/')?.[1]
 
   const [activeHref, setActiveHref] = React.useState(currentHref || defaultPage)
   const identity = useState(['identity', USER_ROLES_CLAIM])
