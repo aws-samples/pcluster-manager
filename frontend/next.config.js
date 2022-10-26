@@ -11,12 +11,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  experimental: {
-    images: {
-      unoptimized: true, // disables next/image for static exports, otherwise the export is going to fail
-                         // it can be enabled when the Next server is used
-    },
-  },
   async rewrites() {
     return [
       /**
