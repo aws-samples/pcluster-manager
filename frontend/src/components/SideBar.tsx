@@ -13,16 +13,14 @@ import * as React from 'react'
 import {useTranslation} from 'react-i18next'
 import {useLocation, useNavigate} from 'react-router-dom'
 import {USER_ROLES_CLAIM} from '../auth/constants'
-import {isAdmin, isGuest, isUser, useState} from '../store'
+import {isAdmin, isUser, useState} from '../store'
 
 export default function SideBar() {
   const {t} = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
-  const defaultPage = isGuest() ? '/home' : '/clusters'
-  const currentHref = '/' + location.pathname.split('/')?.[1]
 
-  const [activeHref, setActiveHref] = React.useState(currentHref || defaultPage)
+  const activeHref = '/' + location.pathname.split('/')?.[1]
   const identity = useState(['identity', USER_ROLES_CLAIM])
 
   const header = React.useMemo(
@@ -73,7 +71,6 @@ export default function SideBar() {
     event => {
       if (!event.detail.external) {
         event.preventDefault()
-        setActiveHref(event.detail.href)
         navigate(event.detail.href)
       }
     },
