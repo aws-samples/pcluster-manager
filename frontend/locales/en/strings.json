@@ -303,8 +303,7 @@
         },
         "info": {
           "header": "Slurm Memory Based Scheduling can be enabled if only one instance type is selected",
-          "body": "If more than one instance type is selected in any queue, Slurm Memory Based Scheduling is disabled by default.",
-          "dismissAriaLabel": "Close alert"
+          "body": "If more than one instance type is selected in any queue, Slurm Memory Based Scheduling is disabled by default."
         }
       },
       "allocationStrategy": {
