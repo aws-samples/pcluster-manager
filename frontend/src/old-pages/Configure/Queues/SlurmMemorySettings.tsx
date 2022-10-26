@@ -21,37 +21,62 @@ import {
   Link,
 } from '@awsui/components-react'
 import {setState, getState, useState, clearState} from '../../../store'
+import {Queue} from './queues.types'
+import {useFeatureFlag} from '../../../feature-flags/useFeatureFlag'
+
+const slurmSettingsPath = [
+  'app',
+  'wizard',
+  'config',
+  'Scheduling',
+  'SlurmSettings',
+]
+const memoryBasedSchedulingEnabledPath = [
+  ...slurmSettingsPath,
+  'EnableMemoryBasedScheduling',
+]
+const queuesPath = ['app', 'wizard', 'config', 'Scheduling', 'SlurmQueues']
+
+const hasMultipleInstanceTypes = (queues: Queue[]): boolean => {
+  return (
+    queues
+      .map(queue => queue.ComputeResources)
+      .map(computeResources =>
+        computeResources.map(computeResource => computeResource.Instances),
+      )
+      .flat()
+      .filter(instances => instances.length > 1).length > 0
+  )
+}
 
 function SlurmMemorySettings() {
   const {t} = useTranslation()
-  const [infoAlertVisible, setInfoAlertVisible] = React.useState(false)
-  const slurmSettingsPath = [
-    'app',
-    'wizard',
-    'config',
-    'Scheduling',
-    'SlurmSettings',
-  ]
-  const memoryBasedSchedulingEnabledPath = [
-    ...slurmSettingsPath,
-    'EnableMemoryBasedScheduling',
-  ]
   const memoryBasedSchedulingEnabled = useState(
     memoryBasedSchedulingEnabledPath,
   )
+  const queues = useState(queuesPath)
+  const multipleInstancesTypesSelected = useFeatureFlag(
+    'queues_multiple_instance_types',
+  )
+    ? hasMultipleInstanceTypes(queues)
+    : false
+
+  const clearSlurmSettingsState = React.useCallback(() => {
+    clearState(memoryBasedSchedulingEnabledPath)
+    if (Object.keys(getState(slurmSettingsPath)).length === 0)
+      clearState(slurmSettingsPath)
+  }, [])
+
+  React.useEffect(() => {
+    if (multipleInstancesTypesSelected) {
+      clearSlurmSettingsState()
+    }
+  }, [clearSlurmSettingsState, multipleInstancesTypesSelected])
 
   const toggleMemoryBasedSchedulingEnabled = () => {
-    const setMemoryBasedSchedulingEnabled = !memoryBasedSchedulingEnabled
-    if (setMemoryBasedSchedulingEnabled)
-      setState(
-        memoryBasedSchedulingEnabledPath,
-        setMemoryBasedSchedulingEnabled,
-      )
-    else {
-      clearState(memoryBasedSchedulingEnabledPath)
-      if (Object.keys(getState([...slurmSettingsPath])).length === 0)
-        clearState([...slurmSettingsPath])
-    }
+    !memoryBasedSchedulingEnabled
+      ? setState(memoryBasedSchedulingEnabledPath, true)
+      : clearSlurmSettingsState()
   }
 
   return (
@@ -95,18 +120,14 @@ function SlurmMemorySettings() {
         >
           <Toggle
             checked={memoryBasedSchedulingEnabled}
+            disabled={multipleInstancesTypesSelected}
             onChange={toggleMemoryBasedSchedulingEnabled}
           >
             <Trans i18nKey="wizard.queues.slurmMemorySettings.toggle.label" />
           </Toggle>
         </div>
         <Alert
-          onDismiss={() => setInfoAlertVisible(false)}
-          visible={infoAlertVisible}
-          dismissAriaLabel={t(
-            'wizard.queues.slurmMemorySettings.info.dismissAriaLabel',
-          )}
-          dismissible
+          visible={multipleInstancesTypesSelected}
           header={t('wizard.queues.slurmMemorySettings.info.header')}
         >
           {t('wizard.queues.slurmMemorySettings.info.body')}
@@ -116,4 +137,4 @@ function SlurmMemorySettings() {
   )
 }
 
-export {SlurmMemorySettings}
+export {SlurmMemorySettings, hasMultipleInstanceTypes}
