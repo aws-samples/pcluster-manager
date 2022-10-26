@@ -1,3 +1,9 @@
+export type Queue = {
+  Name: string
+  AllocationStrategy: AllocationStrategy
+  ComputeResources: MultiInstanceComputeResource[]
+}
+
 export type QueueValidationErrors = Record<
   number,
   'instance_type_unique' | 'instance_types_empty'
