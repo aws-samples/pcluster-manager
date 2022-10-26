@@ -16,6 +16,7 @@ from flask_restful import Api
 from werkzeug.routing import BaseConverter
 
 import api.utils as utils
+from api.cw_log_export import cw_log
 from api.PclusterApiHandler import (
     PclusterApiHandler,
     authenticated,
@@ -189,6 +190,7 @@ def run():
         return utils.serve_frontend(app, base)
 
     api.add_resource(PclusterApiHandler, "/api")
+    app.register_blueprint(cw_log)
     return app
 
 
