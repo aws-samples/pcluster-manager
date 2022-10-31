@@ -107,6 +107,16 @@ function storageValidate() {
   return valid
 }
 
+const LUSTRE_PERSISTENT1_DEFAULT_THROUGHPUT = 200
+const LUSTRE_PERSISTENT2_DEFAULT_THROUGHPUT = 125
+const storageThroughputsP1 = [50, 100, LUSTRE_PERSISTENT1_DEFAULT_THROUGHPUT]
+const storageThroughputsP2 = [
+  LUSTRE_PERSISTENT2_DEFAULT_THROUGHPUT,
+  250,
+  500,
+  1000,
+]
+
 function FsxLustreSettings({index}: any) {
   const {t} = useTranslation()
   const isLustrePersistent2Active = useFeatureFlag('lustre_persistent2')
@@ -124,8 +134,6 @@ function FsxLustreSettings({index}: any) {
     'SCRATCH_2',
   ].filter(Boolean)
   const storageThroughputPath = [...fsxPath, 'PerUnitStorageThroughput']
-  const storageThroughputsP1 = [50, 100, 200]
-  const storageThroughputsP2 = [125, 250, 500, 1000]
   const importPathPath = [...fsxPath, 'ImportPath']
   const exportPathPath = [...fsxPath, 'ExportPath']
   const compressionPath = [...fsxPath, 'DataCompressionType']
@@ -233,11 +241,12 @@ function FsxLustreSettings({index}: any) {
             selectedOption={strToOption(lustreType || 'PERSISTENT_1')}
             onChange={({detail}) => {
               setState(lustreTypePath, detail.selectedOption.value)
-              if (detail.selectedOption.value === 'PERSISTENT_1') {
-                setState(storageThroughputPath, 200)
-              } else {
-                clearState(storageThroughputPath)
-              }
+              setState(
+                storageThroughputPath,
+                detail.selectedOption.value === 'PERSISTENT_1'
+                  ? LUSTRE_PERSISTENT1_DEFAULT_THROUGHPUT
+                  : LUSTRE_PERSISTENT2_DEFAULT_THROUGHPUT,
+              )
             }}
             options={lustreTypes.map(strToOption)}
           />
