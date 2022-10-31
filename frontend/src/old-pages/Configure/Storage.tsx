@@ -166,9 +166,9 @@ export function FsxLustreSettings({index}: any) {
         lustreTypePath,
         isLustrePersistent2Active ? 'PERSISTENT_2' : 'PERSISTENT_1',
       )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     storageCapacity,
-    storageThroughputPath,
     lustreType,
     storageThroughput,
     index,
