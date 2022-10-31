@@ -117,7 +117,7 @@ const storageThroughputsP2 = [
   1000,
 ]
 
-function FsxLustreSettings({index}: any) {
+export function FsxLustreSettings({index}: any) {
   const {t} = useTranslation()
   const isLustrePersistent2Active = useFeatureFlag('lustre_persistent2')
   const useExisting =
@@ -342,7 +342,7 @@ function FsxLustreSettings({index}: any) {
         >
           <FormField label={t('wizard.storage.Fsx.throughput.label')}>
             <Select
-              selectedOption={strToOption(storageThroughput)}
+              selectedOption={strToOption(storageThroughput || '')}
               onChange={({detail}) => {
                 setState(storageThroughputPath, detail.selectedOption.value)
               }}
