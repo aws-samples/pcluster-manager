@@ -107,7 +107,17 @@ function storageValidate() {
   return valid
 }
 
-function FsxLustreSettings({index}: any) {
+const LUSTRE_PERSISTENT1_DEFAULT_THROUGHPUT = 200
+const LUSTRE_PERSISTENT2_DEFAULT_THROUGHPUT = 125
+const storageThroughputsP1 = [50, 100, LUSTRE_PERSISTENT1_DEFAULT_THROUGHPUT]
+const storageThroughputsP2 = [
+  LUSTRE_PERSISTENT2_DEFAULT_THROUGHPUT,
+  250,
+  500,
+  1000,
+]
+
+export function FsxLustreSettings({index}: any) {
   const {t} = useTranslation()
   const isLustrePersistent2Active = useFeatureFlag('lustre_persistent2')
   const useExisting =
@@ -124,8 +134,6 @@ function FsxLustreSettings({index}: any) {
     'SCRATCH_2',
   ].filter(Boolean)
   const storageThroughputPath = [...fsxPath, 'PerUnitStorageThroughput']
-  const storageThroughputsP1 = [50, 100, 200]
-  const storageThroughputsP2 = [125, 250, 500, 1000]
   const importPathPath = [...fsxPath, 'ImportPath']
   const exportPathPath = [...fsxPath, 'ExportPath']
   const compressionPath = [...fsxPath, 'DataCompressionType']
@@ -145,11 +153,20 @@ function FsxLustreSettings({index}: any) {
     const lustreTypePath = [...fsxPath, 'DeploymentType']
     if (storageCapacity === null && !useExisting)
       setState(storageCapacityPath, 1200)
+    if (!storageThroughput && !useExisting) {
+      setState(
+        storageThroughputPath,
+        lustreType === 'PERSISTENT_1'
+          ? LUSTRE_PERSISTENT1_DEFAULT_THROUGHPUT
+          : LUSTRE_PERSISTENT2_DEFAULT_THROUGHPUT,
+      )
+    }
     if (lustreType === null && !useExisting)
       setState(
         lustreTypePath,
         isLustrePersistent2Active ? 'PERSISTENT_2' : 'PERSISTENT_1',
       )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     storageCapacity,
     lustreType,
@@ -233,11 +250,12 @@ function FsxLustreSettings({index}: any) {
             selectedOption={strToOption(lustreType || 'PERSISTENT_1')}
             onChange={({detail}) => {
               setState(lustreTypePath, detail.selectedOption.value)
-              if (detail.selectedOption.value === 'PERSISTENT_1') {
-                setState(storageThroughputPath, 200)
-              } else {
-                clearState(storageThroughputPath)
-              }
+              setState(
+                storageThroughputPath,
+                detail.selectedOption.value === 'PERSISTENT_1'
+                  ? LUSTRE_PERSISTENT1_DEFAULT_THROUGHPUT
+                  : LUSTRE_PERSISTENT2_DEFAULT_THROUGHPUT,
+              )
             }}
             options={lustreTypes.map(strToOption)}
           />
@@ -324,7 +342,7 @@ function FsxLustreSettings({index}: any) {
         >
           <FormField label={t('wizard.storage.Fsx.throughput.label')}>
             <Select
-              selectedOption={strToOption(storageThroughput || 125)}
+              selectedOption={strToOption(storageThroughput || '')}
               onChange={({detail}) => {
                 setState(storageThroughputPath, detail.selectedOption.value)
               }}
