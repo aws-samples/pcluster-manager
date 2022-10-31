@@ -153,6 +153,14 @@ function FsxLustreSettings({index}: any) {
     const lustreTypePath = [...fsxPath, 'DeploymentType']
     if (storageCapacity === null && !useExisting)
       setState(storageCapacityPath, 1200)
+    if (!storageThroughput && !useExisting) {
+      setState(
+        storageThroughputPath,
+        lustreType === 'PERSISTENT_1'
+          ? LUSTRE_PERSISTENT1_DEFAULT_THROUGHPUT
+          : LUSTRE_PERSISTENT2_DEFAULT_THROUGHPUT,
+      )
+    }
     if (lustreType === null && !useExisting)
       setState(
         lustreTypePath,
@@ -160,6 +168,7 @@ function FsxLustreSettings({index}: any) {
       )
   }, [
     storageCapacity,
+    storageThroughputPath,
     lustreType,
     storageThroughput,
     index,
