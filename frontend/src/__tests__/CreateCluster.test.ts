@@ -85,7 +85,7 @@ describe('given a CreateCluster command and a cluster configuration', () => {
     describe('when stack rollback on failure is disabled', () => {
       const mockDisableRollback = true
 
-      it('should add set the disableRollback query parameter', async () => {
+      it('should add set the rollbackOnFailure query parameter', async () => {
         await CreateCluster(
           clusterName,
           clusterConfiguration,
@@ -95,7 +95,7 @@ describe('given a CreateCluster command and a cluster configuration', () => {
         )
         expect(mockPost).toHaveBeenCalledTimes(1)
         expect(mockPost).toHaveBeenCalledWith(
-          'api?path=/v3/clusters&disableRollback=true&region=some-region',
+          'api?path=/v3/clusters&rollbackOnFailure=false&region=some-region',
           expect.any(Object),
           expect.any(Object),
         )
