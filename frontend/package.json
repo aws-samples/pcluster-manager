@@ -4,7 +4,7 @@
   "private": true,
   "homepage": "/",
   "dependencies": {
-    "@awsui/components-react": "^3.0.534",
+    "@awsui/components-react": "^3.0.636",
     "@awsui/global-styles": "^1.0.9",
     "@emotion/react": "^11.4.1",
     "@emotion/styled": "^11.3.0",
