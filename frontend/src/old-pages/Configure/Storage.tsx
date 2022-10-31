@@ -342,7 +342,7 @@ function FsxLustreSettings({index}: any) {
         >
           <FormField label={t('wizard.storage.Fsx.throughput.label')}>
             <Select
-              selectedOption={strToOption(storageThroughput || 125)}
+              selectedOption={strToOption(storageThroughput)}
               onChange={({detail}) => {
                 setState(storageThroughputPath, detail.selectedOption.value)
               }}
