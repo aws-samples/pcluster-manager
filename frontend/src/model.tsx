@@ -97,12 +97,12 @@ function CreateCluster(
   clusterName: any,
   clusterConfig: any,
   region: string,
+  selectedRegion: string,
   disableRollback = false,
   dryrun = false,
   successCallback?: Callback,
   errorCallback?: Callback,
 ) {
-  const selectedRegion = getState(['app', 'selectedRegion'])
   var url = 'api?path=/v3/clusters'
   url += dryrun ? '&dryrun=true' : ''
   url += disableRollback ? '&disableRollback=true' : ''
