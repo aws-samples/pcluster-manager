@@ -105,7 +105,7 @@ function CreateCluster(
 ) {
   var url = 'api?path=/v3/clusters'
   url += dryrun ? '&dryrun=true' : ''
-  url += disableRollback ? '&disableRollback=true' : ''
+  url += disableRollback ? '&rollbackOnFailure=false' : ''
   url += region ? `&region=${region}` : ''
   var body = {clusterName: clusterName, clusterConfiguration: clusterConfig}
   request('post', url, body)
