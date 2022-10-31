@@ -49,6 +49,7 @@ function handleCreate(handleClose: any, navigate: any) {
   const clusterConfig = getState(configPath) || ''
   const dryRun = false
   const region = getState(['app', 'wizard', 'config', 'Region'])
+  const selectedRegion = getState(['app', 'selectedRegion'])
   var errHandler = (err: any) => {
     setState(['app', 'wizard', 'errors', 'create'], err)
     setState(['app', 'wizard', 'pending'], false)
@@ -82,6 +83,7 @@ function handleCreate(handleClose: any, navigate: any) {
       clusterName,
       clusterConfig,
       region,
+      selectedRegion,
       disableRollback,
       dryRun,
       successHandler,
@@ -96,6 +98,7 @@ function handleDryRun() {
   const forceUpdate = getState(['app', 'wizard', 'forceUpdate'])
   const clusterConfig = getState(configPath) || ''
   const region = getState(['app', 'wizard', 'config', 'Region'])
+  const selectedRegion = getState(['app', 'selectedRegion'])
   const disableRollback = false
   const dryRun = true
   var errHandler = (err: any) => {
@@ -122,6 +125,7 @@ function handleDryRun() {
       clusterName,
       clusterConfig,
       region,
+      selectedRegion,
       disableRollback,
       dryRun,
       successHandler,
