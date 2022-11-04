@@ -1,10 +1,11 @@
 #!/bin/bash -e
 
 function print_help() {
-  echo "Usage $0 --region REGION --users-export-file PATH [--user-pool-id USER_POOL_ID --temp-pwd TEMP_PASSWORD]"
+  echo "Usage $0 --region REGION --users-export-file PATH [--user-pool-id USER_POOL_ID --temp-pwd TEMP_PASSWORD --no-email]"
 }
 
 TEMP_PWD='P@ssw0rd'
+SEND_EMAIL=true
 
 while [[ $# -gt 0 ]]
 do
@@ -31,6 +32,11 @@ case $key in
     --temp-pwd)
     TEMP_PWD=$2
     shift
+    shift
+    ;;
+
+    --no-email)
+    SEND_EMAIL=false
     shift
     ;;
 
@@ -62,8 +68,14 @@ cat "$FILE" | while read LINE; do
   USER_GROUPS="$(echo "$LINE" | cut -d '|' -f 2)"
 
   echo "Creating user $EMAIL with groups $USER_GROUPS"
-  aws cognito-idp admin-create-user --region "$REGION" --user-pool-id "$USER_POOL_ID" --username "$EMAIL" --temporary-password "$TEMP_PWD" --user-attributes Name=email,Value="$EMAIL" Name=email_verified,Value=true > /dev/null
+
+  suppress_string='--message-action SUPPRESS'
+    if [ $SEND_EMAIL = true ]; then
+      suppress_string=''
+    fi
+  aws cognito-idp admin-create-user --region "$REGION" --user-pool-id "$USER_POOL_ID" --username "$EMAIL" --temporary-password "$TEMP_PWD" --user-attributes Name=email,Value="$EMAIL" Name=email_verified,Value=true $suppress_string > /dev/null
   echo $USER_GROUPS | tr ',' '\n' | while read USER_GROUP
+
   do
     aws cognito-idp admin-add-user-to-group --region "$REGION" --user-pool-id "$USER_POOL_ID" --username "$EMAIL" --group-name $USER_GROUP
   done
