@@ -4,6 +4,13 @@
 - user export with groups
 - user import with groups
 
+## Requirements
+- AWS credentials in the form of ENV vars
+  - AWS_ACCESS_KEY_ID
+  - AWS_SECRET_ACCESS_KEY
+  - AWS_SESSION_TOKEN
+  Other form of AWS credentials could be used, the underline executable is the [AWSCli](https://docs.aws.amazon.com/cli/index.html)
+- AWS Cli installed
 
 # How to
 
@@ -24,12 +31,6 @@ So you can run either this
 ./export_cognito_users.sh --region eu-west-1 --pool-id eu-west-1_X0gPxTtR8
 ```
 
-or this (if you only have one user pool in your account for that region)
-
-```bash
-./export_cognito_users.sh --region eu-west-1
-```
-
 
 ## Import users with groups
 To import users with their respective groups, you need
@@ -42,10 +43,4 @@ To import users with their respective groups, you need
 Assuming you exported the users and groups to a file called `export.txt`, you can run
 ```bash
 ./import_cognito_users.sh --region eu-west-1 --users-export-file export.txt
-```
-
-or
-
-```bash
-./import_cognito_users.sh --region eu-west-1 --user-pool-id eu-west-1_X0gPxTtR8 --users-export-file export.txt [--temp-pwd TEMP_PASSWORD --no-email]
 ```
