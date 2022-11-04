@@ -37,6 +37,7 @@ To import users with their respective groups, you need
 - the path to the export file
 - the user pool id (optional, if not specified the script will grab the first one returned by the API)
 - the temporary password to set for each user (optional, defaults to `P@ssw0rd`)
+- whether you want to send the email alerting users of the account creation or not
 
 Assuming you exported the users and groups to a file called `export.txt`, you can run
 ```bash
@@ -46,5 +47,5 @@ Assuming you exported the users and groups to a file called `export.txt`, you ca
 or
 
 ```bash
-./import_cognito_users.sh --region eu-west-1 --user-pool-id eu-west-1_X0gPxTtR8 [--temp-pwd TEMP_PASSWORD]
+./import_cognito_users.sh --region eu-west-1 --user-pool-id eu-west-1_X0gPxTtR8 --users-export-file export.txt [--temp-pwd TEMP_PASSWORD --no-email]
 ```

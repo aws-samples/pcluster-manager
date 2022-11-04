@@ -16,5 +16,6 @@ check_user_pool_id() {
   if [ -z $USER_POOL_ID ]; then
     echo -e "${RED}Cognito user pool id is NOT set, using first user pool returned by the query${NC}" 1>&2
     USER_POOL_ID=`get_user_pool_id`
+    echo -e "${RED}Chosen Cognito user pool id is ${USER_POOL_ID}${NC}" 1>&2
   fi
 }
