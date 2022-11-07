@@ -1,0 +1,16 @@
+
+changelog:
+  exclude:
+    labels:
+      - DON'T MERGE
+      - duplicate
+      - invalid
+      - question
+      - wontfix
+  categories:
+    - title: Features 🎉
+      labels:
+        - release-include
+    - title: Other Changes
+      labels:
+        - "*"
