@@ -61,6 +61,9 @@ export default function Actions() {
   let navigate = useNavigate()
   const {t} = useTranslation()
 
+  const apiVersion = useState(['app', 'version', 'full'])
+  const clusterVersion = useState([...clusterPath, 'version'])
+
   const fleetStatus = useState([...clusterPath, 'computeFleetStatus'])
   const clusterStatus = useState([...clusterPath, 'clusterStatus'])
   const dcvEnabled = useState([
@@ -153,6 +156,7 @@ export default function Actions() {
             clusterStatus === ClusterStatus.CreateInProgress ||
             clusterStatus === ClusterStatus.DeleteInProgress ||
             clusterStatus === ClusterStatus.CreateFailed ||
+            clusterVersion !== apiVersion ||
             !isAdmin()
           }
           variant="normal"
