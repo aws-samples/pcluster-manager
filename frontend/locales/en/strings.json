@@ -92,7 +92,8 @@
         },
         "cluster": {
           "label": "From Cluster",
-          "description": "Use an existing cluster as a starting point for the configuration of your new cluster."
+          "description": "Use an existing cluster as a starting point for the configuration of your new cluster. Only clusters whose version matches the version of Pcluster Manager can be selected.",
+          "empty": "No cluster available"
         },
         "file": {
           "label": "Upload a file",

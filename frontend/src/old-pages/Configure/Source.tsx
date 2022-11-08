@@ -128,9 +128,17 @@ function sourceValidate(suppressUpload = false) {
   return valid
 }
 
+function checkMinorVersion(v1: string, v2: string) {
+  return v1.split('.', 2).join('.') === v2.split('.', 2).join('.')
+}
+
 function ClusterSelect() {
   const selectedPath = ['app', 'wizard', 'source', 'selectedCluster']
+  const apiVersion = useState(['app', 'version', 'full'])
   const clusters = useState(['clusters', 'list']) || []
+  const filteredClusters = clusters.filter((cluster: ClusterInfoSummary) =>
+    checkMinorVersion(cluster.version, apiVersion),
+  )
   const selected = useState(selectedPath)
   const errors = useState([...sourceErrorsPath, 'sourceClusterName'])
   let source = useState([...sourcePath, 'type'])
@@ -139,7 +147,7 @@ function ClusterSelect() {
   const itemToOption = (item: ClusterInfoSummary) => {
     if (item && item.clusterStatus != ClusterStatus.DeleteInProgress)
       return {label: item.clusterName, value: item.clusterName}
-    else return {label: i18next.t('wizard.source.clusterSelect.placeholder')}
+    else return null
   }
 
   return (
@@ -147,7 +155,7 @@ function ClusterSelect() {
       <Select
         disabled={source !== 'cluster'}
         selectedOption={itemToOption(
-          findFirst(clusters, (x: any) => {
+          findFirst(filteredClusters, (x: any) => {
             return x.clusterName === selected
           }),
         )}
@@ -155,8 +163,10 @@ function ClusterSelect() {
           setState(selectedPath, detail.selectedOption.value)
           validated && sourceValidate(true)
         }}
+        placeholder={i18next.t('wizard.source.clusterSelect.placeholder')}
         selectedAriaLabel="Selected"
-        options={clusters.map(itemToOption)}
+        options={filteredClusters.map(itemToOption)}
+        empty={i18next.t('wizard.source.sourceOptions.cluster.empty')}
       />
     </FormField>
   )
