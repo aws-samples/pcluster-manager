@@ -136,36 +136,45 @@ function ClusterSelect() {
   const selectedPath = ['app', 'wizard', 'source', 'selectedCluster']
   const apiVersion = useState(['app', 'version', 'full'])
   const clusters = useState(['clusters', 'list']) || []
-  const filteredClusters = clusters.filter((cluster: ClusterInfoSummary) =>
-    checkMinorVersion(cluster.version, apiVersion),
-  )
+  const selectableClusters = clusters
+    .filter(
+      (cluster: ClusterInfoSummary) =>
+        cluster.clusterStatus != ClusterStatus.DeleteInProgress,
+    )
+    .filter((cluster: ClusterInfoSummary) =>
+      checkMinorVersion(cluster.version, apiVersion),
+    )
+
   const selected = useState(selectedPath)
   const errors = useState([...sourceErrorsPath, 'sourceClusterName'])
   let source = useState([...sourcePath, 'type'])
   let validated = useState([...sourceErrorsPath, 'validated'])
 
-  const itemToOption = (item: ClusterInfoSummary) => {
-    if (item && item.clusterStatus != ClusterStatus.DeleteInProgress)
-      return {label: item.clusterName, value: item.clusterName}
-    else return null
-  }
+  const itemToOption = (item: ClusterInfoSummary) => ({
+    label: item.clusterName,
+    value: item.clusterName,
+  })
 
   return (
     <FormField errorText={errors}>
       <Select
         disabled={source !== 'cluster'}
-        selectedOption={itemToOption(
-          findFirst(filteredClusters, (x: any) => {
-            return x.clusterName === selected
-          }),
-        )}
+        selectedOption={
+          selected
+            ? itemToOption(
+                findFirst(selectableClusters, (x: any) => {
+                  return x.clusterName === selected
+                }),
+              )
+            : null
+        }
         onChange={({detail}) => {
           setState(selectedPath, detail.selectedOption.value)
           validated && sourceValidate(true)
         }}
         placeholder={i18next.t('wizard.source.clusterSelect.placeholder')}
         selectedAriaLabel="Selected"
-        options={filteredClusters.map(itemToOption)}
+        options={selectableClusters.map(itemToOption)}
         empty={i18next.t('wizard.source.sourceOptions.cluster.empty')}
       />
     </FormField>
