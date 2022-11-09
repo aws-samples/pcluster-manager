@@ -18,9 +18,9 @@ Resources:
             Principal:
               Federated: !Ref GithubOidc
             Condition:
-              StringEquals:
+              StringLike:
                 token.actions.githubusercontent.com:aud: sts.amazonaws.com
-                token.actions.githubusercontent.com:sub: !Sub repo:${GitHubOrg}/${RepositoryName}:ref:refs/heads/main
+                token.actions.githubusercontent.com:sub: !Sub repo:${GitHubOrg}/${RepositoryName}:ref:refs/tags/*
       Policies:
         - PolicyName: PushPublicECR
           PolicyDocument:
