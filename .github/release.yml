@@ -7,11 +7,20 @@ changelog:
       - invalid
       - question
       - wontfix
-      - release-exclude
+
   categories:
     - title: Features 🎉
       labels:
-        - release-include
-    - title: Other Changes
+        - release:feature
+
+    - title: Changes 🏇
       labels:
-        - "*"
+        - release:improvement
+
+    - title: Bugfixes 🐛
+      labels:
+        - release:bugfix
+
+    - title: Deprecated ☢️
+      labels:
+        - release:deprecated
