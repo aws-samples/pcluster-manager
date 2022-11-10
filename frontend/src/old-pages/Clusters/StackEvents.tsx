@@ -188,7 +188,8 @@ export default function ClusterStackEvents() {
     filterProps.onChange({
       detail: {filteringText: searchParams.get('filter') || ''},
     })
-  }, [filterProps, searchParams])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
 
   return events ? (
     <Table
