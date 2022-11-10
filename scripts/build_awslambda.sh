@@ -53,9 +53,11 @@ docker push ${ECR_IMAGE}
 echo "Uploaded: " ${ECR_IMAGE}
 
 if [ "$RELEASE_SET" == "true" ]; then
-    DATE_TAG=$(date +%Y%m%d)
-    ECR_IMAGE=${ECR_ENDPOINT}/${ECR_REPO}:${DATE_TAG}
-    docker tag ${ECR_REPO} ${ECR_IMAGE}
-    docker push ${ECR_IMAGE}
-    echo "Uploaded: " ${ECR_IMAGE}
+    VERSION_TAG=`cat pcm.version`
+    ECR_IMAGE_VERSION_TAGGED=${ECR_ENDPOINT}/${ECR_REPO}:${VERSION_TAG}
+
+    docker tag ${ECR_REPO} ${ECR_IMAGE_VERSION_TAGGED}
+    docker push ${ECR_IMAGE_VERSION_TAGGED}
+
+    echo "Uploaded: " ${ECR_IMAGE_VERSION_TAGGED}
 fi
