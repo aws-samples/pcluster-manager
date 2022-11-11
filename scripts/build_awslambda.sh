@@ -1,10 +1,11 @@
 #!/bin/bash
 set -e
 
-ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
-ECR_ENDPOINT="${ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com"
-ECR_REPO=pcluster-manager-awslambda
+get_current_pcm_version() {
+  npm --prefix ./frontend pkg get version | tr -d '"'
+}
 
+ECR_REPO=pcluster-manager-awslambda
 USAGE="$(basename "$0") [-h] [--release] [--tag TAG]"
 GIT_SHA=$(git rev-parse --short HEAD)
 TAG=${GIT_SHA}
@@ -53,9 +54,11 @@ docker push ${ECR_IMAGE}
 echo "Uploaded: " ${ECR_IMAGE}
 
 if [ "$RELEASE_SET" == "true" ]; then
-    DATE_TAG=$(date +%Y%m%d)
-    ECR_IMAGE=${ECR_ENDPOINT}/${ECR_REPO}:${DATE_TAG}
-    docker tag ${ECR_REPO} ${ECR_IMAGE}
-    docker push ${ECR_IMAGE}
-    echo "Uploaded: " ${ECR_IMAGE}
+    VERSION_TAG=`get_current_pcm_version`
+    ECR_IMAGE_VERSION_TAGGED=${ECR_ENDPOINT}/${ECR_REPO}:${VERSION_TAG}
+
+    docker tag ${ECR_REPO} ${ECR_IMAGE_VERSION_TAGGED}
+    docker push ${ECR_IMAGE_VERSION_TAGGED}
+
+    echo "Uploaded: " ${ECR_IMAGE_VERSION_TAGGED}
 fi
