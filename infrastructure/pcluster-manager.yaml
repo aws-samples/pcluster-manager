@@ -6,7 +6,7 @@ Parameters:
   PublicEcrImageUri:
     Description: When specified, the URI of the Docker image for the Lambda of the PclusterManager container
     Type: String
-    Default: public.ecr.aws/pcm/pcluster-manager-awslambda:latest
+    Default: public.ecr.aws/pcm/pcluster-manager-awslambda:3.3.0
   EnableAuth:
     Description: When false this enables all users to create an account & login with Admin privileges. Only use this value for tutorials or short-lived deployments.
     Type: String
