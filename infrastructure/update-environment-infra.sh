@@ -15,8 +15,8 @@
 # and a CloudFormation request file where the stack update can be customized,
 # for example by changing the parameters provided to the previous version of the stack
 #
-# Usage: ./infrastructure/update-infrastructure.sh [ENVIRONMENT]
-# Example: ./infrastructure/update-infrastructure.sh demo
+# Usage: ./infrastructure/update-environment-infra.sh [ENVIRONMENT]
+# Example: ./infrastructure/update-environment-infra.sh demo
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 FILES=(SSMSessionProfile-cfn.yaml pcluster-manager-cognito.yaml pcluster-manager.yaml)
