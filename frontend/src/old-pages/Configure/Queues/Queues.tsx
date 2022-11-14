@@ -441,30 +441,6 @@ function Queue({index}: any) {
           </Toggle>
         </Box>
         <ComputeResources queue={queue} index={index} />
-        <ExpandableSection header="Advanced options">
-          <SpaceBetween direction="vertical" size="s">
-            <FormField label={t('wizard.queues.securityGroups.label')}>
-              <SecurityGroups basePath={[...queuesPath, index]} />
-            </FormField>
-            <ActionsEditor
-              basePath={[...queuesPath, index]}
-              errorsPath={errorsPath}
-            />
-            <CustomAMISettings
-              basePath={[...queuesPath, index]}
-              appPath={['app', 'wizard', 'queues', index]}
-              errorsPath={errorsPath}
-              validate={queuesValidate}
-            />
-            <RootVolume
-              basePath={[...queuesPath, index, 'ComputeSettings']}
-              errorsPath={errorsPath}
-            />
-            <ExpandableSection header={t('wizard.queues.IamPolicies.label')}>
-              <IamPoliciesEditor basePath={[...queuesPath, index]} />
-            </ExpandableSection>
-          </SpaceBetween>
-        </ExpandableSection>
       </div>
     </div>
   )
@@ -489,7 +465,7 @@ function Queues() {
   const adapter = useComputeResourceAdapter()
   const defaultAllocationStrategy = useDefaultAllocationStrategy()
   let queues = useState(queuesPath) || []
-  
+
   const addQueue = () => {
     setState(
       [...queuesPath],
