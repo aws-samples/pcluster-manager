@@ -16,6 +16,8 @@ from flask import Flask, Response, request, send_from_directory
 from flask_cors import CORS
 import requests
 
+from api.exception import ExceptionHandler
+
 
 def to_utc_datetime(time_in, default_timezone=datetime.timezone.utc) -> datetime.datetime:
     """
@@ -56,39 +58,47 @@ def to_iso_timestr(time_in: datetime.datetime) -> str:
         time_ = time_in.astimezone(datetime.timezone.utc)
     return to_utc_datetime(time_).isoformat(timespec="milliseconds")[:-6] + "Z"
 
+
 def running_local():
     return os.getenv("ENV") == "dev"
+
 
 def disable_auth():
     return os.getenv("ENABLE_AUTH") == "false"
 
+
 def proxy_to(to_url):
-  """
+    """
   Proxies Flask requests to the provided to_url
   """
-  resp = requests.request(
+    resp = requests.request(
         method=request.method,
         url=to_url,
         headers={key: value for (key, value) in request.headers if key != 'Host'},
         data=request.get_data(),
         cookies=request.cookies,
         allow_redirects=False)
-  excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
-  headers = [(name, value) for (name, value) in resp.raw.headers.items()
-              if name.lower() not in excluded_headers]
-  response = Response(resp.content, resp.status_code, headers)
-  return response
+    excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+    headers = [(name, value) for (name, value) in resp.raw.headers.items()
+               if name.lower() not in excluded_headers]
+    response = Response(resp.content, resp.status_code, headers)
+    return response
+
 
 def build_flask_app(name):
-  if running_local():
-    app = Flask(name)
-    CORS(app)
+    if running_local():
+        app = Flask(name)
+        CORS(app)
+    else:
+        app = Flask(name, static_url_path="", static_folder="frontend/public")
+
+    ExceptionHandler(app, running_local=running_local())
+
     return app
 
-  return Flask(name, static_url_path="", static_folder="frontend/public")
 
 def serve_frontend(app, path):
-  if running_local():
-    return proxy_to("http://localhost:3000/" + path)
+    if running_local():
+        return proxy_to("http://localhost:3000/" + path)
 
-  return send_from_directory(app.static_folder, "index.html")
+    return send_from_directory(app.static_folder, "index.html")
