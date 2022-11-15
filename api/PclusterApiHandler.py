@@ -23,7 +23,10 @@ from flask import abort, redirect, request
 from flask_restful import Resource, reqparse
 from jose import jwt
 
-from api.utils import disable_auth
+from api.utils import disable_auth, running_local
+from api.logger import DefaultLogger
+
+logger = DefaultLogger(running_local())
 
 USER_POOL_ID = os.getenv("USER_POOL_ID")
 AUTH_PATH = os.getenv("AUTH_PATH")
