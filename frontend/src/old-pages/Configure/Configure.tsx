@@ -52,6 +52,7 @@ import Loading from '../../components/Loading'
 
 // Icons
 import CancelIcon from '@mui/icons-material/Cancel'
+import {QueuesHookForm} from './Queues/QueuesHookForm'
 
 function wizardShow(navigate: any) {
   const editing = getState(['app', 'wizard', 'editing'])
@@ -315,7 +316,7 @@ function Configure() {
                     headNode: aws ? <HeadNode /> : <Loading />,
                     multiUser: aws ? <MultiUser /> : <Loading />,
                     storage: aws ? <Storage /> : <Loading />,
-                    queues: aws ? <Queues /> : <Loading />,
+                    queues: aws ? <QueuesHookForm /> : <Loading />,
                     create: aws ? <Create /> : <Loading />,
                   }[page]
                 }

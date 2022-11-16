@@ -45,6 +45,7 @@ import {
 // Components
 import HelpTooltip from '../../components/HelpTooltip'
 import {NonCancelableEventHandler} from '@awsui/components-react/internal/events'
+import {ControlledSelect} from '../../components/hook-form/Select'
 
 // Helper Functions
 function strToOption(str: any) {
@@ -170,6 +171,52 @@ function SubnetSelect({value, onChange, disabled}: any) {
       onChange={({detail}) => {
         onChange && onChange(detail.selectedOption.value)
       }}
+      selectedAriaLabel="Selected"
+      options={filteredSubnets.map(itemToOption)}
+    />
+  )
+}
+
+export function ControlledSubnetSelect({disabled, control, name}: any) {
+  const subnets = useSelector(selectAwsSubnets)
+  const vpc = useSelector(selectVpc)
+  var filteredSubnets =
+    subnets &&
+    subnets.filter((s: any) => {
+      return vpc ? s.VpcId === vpc : true
+    })
+  if (!subnets) {
+    return <div>No Subnets Found.</div>
+  }
+
+  const SubnetName = (subnet: any) => {
+    if (!subnet) return null
+    var tags = subnet.Tags
+    if (!tags) {
+      return null
+    }
+    tags = subnet.Tags.filter((t: any) => {
+      return t.Key === 'Name'
+    })
+    return tags.length > 0 ? tags[0].Value : null
+  }
+
+  const itemToOption = (item: any) => {
+    return {
+      value: item.SubnetId,
+      label: item.SubnetId,
+      description:
+        item.AvailabilityZone +
+        ` - ${item.AvailabilityZoneId}` +
+        (SubnetName(item) ? ` (${SubnetName(item)})` : ''),
+    }
+  }
+
+  return (
+    <ControlledSelect
+      control={control}
+      name={name}
+      disabled={disabled}
       selectedAriaLabel="Selected"
       options={filteredSubnets.map(itemToOption)}
     />

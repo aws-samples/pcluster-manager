@@ -219,13 +219,7 @@ function queuesValidate() {
 
   setState([...queuesErrorsPath, 'validated'], true)
 
-  const queues = getState([...queuesPath])
-  for (let i = 0; i < queues.length; i++) {
-    let queueValid = queueValidate(i)
-    valid &&= queueValid
-  }
-
-  return valid
+  return true
 }
 
 function ComputeResources({queue, index}: any) {

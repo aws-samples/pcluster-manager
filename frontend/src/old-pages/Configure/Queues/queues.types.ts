@@ -1,7 +1,7 @@
 export type Queue = {
   Name: string
-  AllocationStrategy: AllocationStrategy
-  ComputeResources: MultiInstanceComputeResource[]
+  //AllocationStrategy: AllocationStrategy
+  ComputeResources: SingleInstanceComputeResource[]
 }
 
 export type QueueValidationErrors = Record<
