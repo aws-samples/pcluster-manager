@@ -23,6 +23,7 @@ import {Provider} from 'react-redux'
 
 import i18n from '../i18n'
 import {store} from '../store'
+import { WizardProvider } from '../components/wizard/common/WizardContext'
 
 const queryClient = new QueryClient()
 
@@ -79,7 +80,9 @@ function App({Component, pageProps}: AppProps) {
         <I18nextProvider i18n={i18n}>
           <Provider store={store}>
             <ThemeProvider theme={theme}>
-              <Component {...pageProps} />
+              <WizardProvider>
+                <Component {...pageProps} />
+              </WizardProvider>
             </ThemeProvider>
           </Provider>
         </I18nextProvider>

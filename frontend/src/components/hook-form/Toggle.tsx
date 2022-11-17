@@ -1,34 +1,37 @@
 import {Toggle, ToggleProps} from '@awsui/components-react'
-import React, {FunctionComponent} from 'react'
-import {Control, Controller, FieldValues, Path} from 'react-hook-form'
+import React from 'react'
+import {
+  FieldValues,
+  useController,
+  UseControllerProps,
+} from 'react-hook-form'
 
-export interface ControlledToggleProps<T extends FieldValues>
-  extends Omit<ToggleProps, 'checked'> {
-  name: Path<T>
-  control: Control<T>
-}
+export type ControlledToggleProps<T extends FieldValues> = Omit<
+  ToggleProps,
+  'checked'
+> &
+  UseControllerProps<T>
 
-export const ControlledToggle: FunctionComponent<
-  ControlledToggleProps<FieldValues>
-> = <TFieldValues extends FieldValues>({
+export const ControlledToggle = <TFieldValues extends FieldValues>({
   name,
   control,
   ...props
 }: ControlledToggleProps<TFieldValues>) => {
+  const {
+    field: {onChange, value},
+  } = useController({
+    name,
+    control,
+  })
+
   return (
-    <Controller
+    <Toggle
       name={name}
-      control={control}
-      render={({field: {onChange, value = false}}) => (
-        <Toggle
-          name={name}
-          checked={value}
-          onChange={event => {
-            onChange(event.detail.checked)
-          }}
-          {...props}
-        />
-      )}
+      checked={value}
+      onChange={event => {
+        onChange(event.detail.checked)
+      }}
+      {...props}
     />
   )
 }

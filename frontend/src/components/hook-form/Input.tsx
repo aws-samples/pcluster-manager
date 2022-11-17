@@ -1,34 +1,33 @@
 import {Input, InputProps} from '@awsui/components-react'
-import React, {FunctionComponent} from 'react'
-import {Controller, Control, Path, FieldValues} from 'react-hook-form'
+import React from 'react'
+import {FieldValues, UseControllerProps, useController} from 'react-hook-form'
 
-export interface ControlledInputProps<T extends FieldValues>
-  extends Omit<InputProps, 'value'> {
-  name: Path<T>
-  control?: Control<T>
-}
+export type ControlledInputProps<T extends FieldValues> = Omit<
+  InputProps,
+  'value'
+> &
+  UseControllerProps<T>
 
-export const ControlledInput: FunctionComponent<
-  ControlledInputProps<FieldValues>
-> = <TFieldValues extends FieldValues>({
+export const ControlledInput = <TFieldValues extends FieldValues>({
   name,
   control,
   ...props
 }: ControlledInputProps<TFieldValues>) => {
+  const {
+    field: {onChange, onBlur, value, ref},
+  } = useController({
+    name,
+    control,
+  })
+
   return (
-    <Controller
+    <Input
+      ref={ref}
       name={name}
-      control={control}
-      render={({field: {ref, onChange, onBlur, value}}) => (
-        <Input
-          ref={ref}
-          name={name}
-          value={value}
-          onBlur={onBlur}
-          onChange={e => onChange(e.detail.value)}
-          {...props}
-        />
-      )}
+      value={value}
+      onBlur={onBlur}
+      onChange={e => onChange(e.detail.value)}
+      {...props}
     />
   )
 }

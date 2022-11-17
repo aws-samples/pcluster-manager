@@ -28,10 +28,6 @@ const nextConfig = {
       * currently being built as a static export
       * and no rewrite is going to be actually run in production
       */
-      {
-        source: "/:any*",
-        destination: "/",
-      },
     ];
   },
 }
