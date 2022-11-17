@@ -52,6 +52,7 @@ import Loading from '../../components/Loading'
 
 // Icons
 import CancelIcon from '@mui/icons-material/Cancel'
+import {useTranslation} from 'react-i18next'
 
 function wizardShow(navigate: any) {
   const editing = getState(['app', 'wizard', 'editing'])
@@ -169,6 +170,7 @@ function clearWizardState(
 }
 
 function Configure() {
+  const {t} = useTranslation()
   const open = useState(['app', 'wizard', 'dialog'])
   const loading = useState(loadingPath)
   const page: string = useState(['app', 'wizard', 'page']) || 'source'
@@ -333,7 +335,7 @@ function Configure() {
                       onClick={handleRefresh}
                       iconName={'refresh'}
                     >
-                      Refresh AWS Config
+                      {t('wizard.actions.refreshConfig')}
                     </Button>
                   )}
                   {editing &&
@@ -346,27 +348,32 @@ function Configure() {
                         onClick={stopComputeFleet}
                       >
                         {fleetStatus !== 'RUNNING' ? (
-                          <span>Stop Compute Fleet</span>
+                          <span>{t('wizard.actions.stopComputeFleet')}</span>
                         ) : (
                           <div className="container">
-                            <CancelIcon /> Stop Compute Fleet
+                            <CancelIcon />{' '}
+                            {t('wizard.actions.stopComputeFleet')}
                           </div>
                         )}
                       </Button>
                     )}
-                  <Button onClick={clearStateAndCloseWizard}>Cancel</Button>
+                  <Button onClick={clearStateAndCloseWizard}>
+                    {t('wizard.actions.cancel')}
+                  </Button>
                   <Button disabled={page === pages[0]} onClick={handlePrev}>
-                    Back
+                    {t('wizard.actions.back')}
                   </Button>
                   {page === 'create' && (
-                    <Button onClick={handleDryRun}>Dry Run</Button>
+                    <Button onClick={handleDryRun}>
+                      {t('wizard.actions.dryRun')}
+                    </Button>
                   )}
                   <Button disabled={loading} onClick={handleNext}>
                     {page === 'create'
                       ? editing
-                        ? 'Update'
-                        : 'Create'
-                      : 'Next'}
+                        ? t('wizard.actions.update')
+                        : t('wizard.actions.create')
+                      : t('wizard.actions.next')}
                   </Button>
                 </SpaceBetween>
               </Box>

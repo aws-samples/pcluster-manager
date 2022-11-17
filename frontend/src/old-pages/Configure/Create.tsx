@@ -172,7 +172,8 @@ function Create() {
       {errors && <ValidationErrors errors={errors} />}
       {pending && (
         <div>
-          <Spinner size="normal" /> {pending} request pending...
+          <Spinner size="normal" />{' '}
+          {t('wizard.create.pending', {action: pending})}
         </div>
       )}
       {editing && (
@@ -182,8 +183,7 @@ function Create() {
             setState(['app', 'wizard', 'forceUpdate'], !forceUpdate)
           }
         >
-          Force Update: Enable this to perform an update while the ComputeFleet
-          is still running.
+          {t('wizard.create.forceUpdate')}
         </Toggle>
       )}
       {!editing && (
@@ -193,8 +193,7 @@ function Create() {
             setState(['app', 'wizard', 'disableRollback'], !disableRollback)
           }
         >
-          Disable Rollback: Enable this to retain resources in the event of
-          creation failure.
+          {t('wizard.create.disableRollback')}
         </Toggle>
       )}
     </Container>
