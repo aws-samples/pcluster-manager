@@ -25,4 +25,5 @@ def global_exception_handler(err):
     descr = str(err)
 
     logger.error(descr, extra=dict(status=code, exception=type(err)))
-    return jsonify(error='Something went wrong'), code
+    response = {'Code': code, 'Message': 'Something went wrong'}
+    return jsonify(error=response), code

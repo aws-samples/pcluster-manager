@@ -31,4 +31,4 @@ def test_global_exception_handler_with_app_logic(client, monkeypatch):
     response = client.get('/manager/get_app_config')
 
     assert response.status_code == 500
-    assert response.json == {'error': 'Something went wrong'}
+    assert response.json == {'error': {'Code': 500, 'Message': 'Something went wrong'}}
