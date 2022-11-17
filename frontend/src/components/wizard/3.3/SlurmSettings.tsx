@@ -1,19 +1,20 @@
+import React from 'react'
 import {Button, Container, FormField, Header} from '@awsui/components-react'
 import {zodResolver} from '@hookform/resolvers/zod'
-import { useContext } from 'react'
+import {useContext} from 'react'
 import {get, useForm} from 'react-hook-form'
-import { z } from 'zod'
+import {z} from 'zod'
 import {ControlledInput} from '../../hook-form/Input'
-import { WizardContext } from '../common/WizardContext'
-import { pclusterSchema } from './schema'
+import {WizardContext} from '../common/WizardContext'
+import {pclusterSchema} from './schema'
 
 const slurmSettingsSchema = pclusterSchema.pick({
   SlurmSettings: true,
-});
-type SlurmSchema = z.infer<typeof slurmSettingsSchema>;
+})
+type SlurmSchema = z.infer<typeof slurmSettingsSchema>
 
 export const SlurmSettings = () => {
-  const [currentConfig, updateConfig] = useContext(WizardContext);
+  const [currentConfig, updateConfig] = useContext(WizardContext)
   const {
     control,
     formState: {errors},
@@ -21,7 +22,7 @@ export const SlurmSettings = () => {
   } = useForm<SlurmSchema>({
     resolver: zodResolver(slurmSettingsSchema),
     defaultValues: {
-      SlurmSettings: currentConfig?.SlurmSettings
+      SlurmSettings: currentConfig?.SlurmSettings,
     },
   })
   return (
