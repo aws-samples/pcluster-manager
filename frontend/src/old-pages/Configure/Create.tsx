@@ -28,6 +28,7 @@ import ConfigView from '../../components/ConfigView'
 
 // State
 import {setState, getState, useState} from '../../store'
+import {NavigateFunction} from 'react-router-dom'
 
 // Constants
 const configPath = ['app', 'wizard', 'clusterConfigYaml']
@@ -40,7 +41,10 @@ function handleWarnings(resp: any) {
   })
 }
 
-function handleCreate(handleClose: any, navigate: any) {
+function handleCreate(
+  clearWizardState: () => void,
+  navigate: NavigateFunction,
+) {
   const clusterName = getState(['app', 'wizard', 'clusterName'])
   const editing = getState(['app', 'wizard', 'editing'])
   const disableRollback =
@@ -62,7 +66,7 @@ function handleCreate(handleClose: any, navigate: any) {
     DescribeCluster(clusterName)
     setState(['app', 'clusters', 'selected'], clusterName)
     ListClusters()
-    handleClose()
+    clearWizardState()
     navigate(href)
   }
   setState(['app', 'wizard', 'errors', 'create'], null)
