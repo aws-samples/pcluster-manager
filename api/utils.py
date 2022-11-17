@@ -69,8 +69,8 @@ def disable_auth():
 
 def proxy_to(to_url):
     """
-  Proxies Flask requests to the provided to_url
-  """
+    Proxies Flask requests to the provided to_url
+    """
     resp = requests.request(
         method=request.method,
         url=to_url,
