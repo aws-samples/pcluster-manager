@@ -11,7 +11,7 @@
 
 // UI Elements
 import {Trans} from 'react-i18next'
-import {Icon} from '@awsui/components-react'
+import {Icon} from '@cloudscape-design/components'
 
 export default function ValidationErrors({errors}: any) {
   const colorMap = (level: string) => {

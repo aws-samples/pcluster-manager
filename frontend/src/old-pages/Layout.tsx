@@ -13,8 +13,8 @@ import {setState, useState} from '../store'
 import {Outlet} from 'react-router-dom'
 
 // UI Elements
-import AppLayout from '@awsui/components-react/app-layout'
-import {Flashbar} from '@awsui/components-react'
+import AppLayout from '@cloudscape-design/components/app-layout'
+import {Flashbar} from '@cloudscape-design/components'
 
 // Components
 import TopBar from '../components/TopBar'

@@ -30,7 +30,7 @@ import {
   Button,
   SideNavigation,
   SpaceBetween,
-} from '@awsui/components-react'
+} from '@cloudscape-design/components'
 
 // SubPages
 import {Source, sourceValidate} from './Source'

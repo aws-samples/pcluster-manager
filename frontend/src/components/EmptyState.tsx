@@ -10,7 +10,7 @@
 // limitations under the License.
 
 // UI Elements
-import {Box} from '@awsui/components-react'
+import {Box} from '@cloudscape-design/components'
 
 export default function EmptyState({title, subtitle, action}: any) {
   return (

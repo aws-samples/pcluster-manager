@@ -16,7 +16,7 @@ import {GetCustomImageConfiguration} from '../../model'
 
 // UI Elements
 import {Trans} from 'react-i18next'
-import Tabs from '@awsui/components-react/tabs'
+import Tabs from '@cloudscape-design/components/tabs'
 import {
   Box,
   Button,
@@ -26,7 +26,7 @@ import {
   Popover,
   SpaceBetween,
   StatusIndicator,
-} from '@awsui/components-react'
+} from '@cloudscape-design/components'
 
 // Components
 import Loading from '../../components/Loading'

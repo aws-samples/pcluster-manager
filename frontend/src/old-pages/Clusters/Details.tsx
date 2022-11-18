@@ -15,7 +15,7 @@ import {getState, useState} from '../../store'
 import {getScripts} from './util'
 
 // UI Elements
-import Tabs from '@awsui/components-react/tabs'
+import Tabs from '@cloudscape-design/components/tabs'
 
 // Components
 import Accounting from './Accounting'

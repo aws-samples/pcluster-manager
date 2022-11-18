@@ -15,7 +15,7 @@ import {useSearchParams} from 'react-router-dom'
 // Model
 import {ListClusterLogStreams, GetClusterLogEvents} from '../../model'
 import {clearState, getState, setState, useState} from '../../store'
-import {useCollection} from '@awsui/collection-hooks'
+import {useCollection} from '@cloudscape-design/collection-hooks'
 
 // UI Elements
 import Loading from '../../components/Loading'
@@ -26,7 +26,7 @@ import {
   Pagination,
   Table,
   TextFilter,
-} from '@awsui/components-react'
+} from '@cloudscape-design/components'
 
 // Components
 import EmptyState from '../../components/EmptyState'

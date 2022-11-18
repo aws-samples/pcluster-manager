@@ -30,8 +30,8 @@ import {
   SplitPanel,
   Table,
   TextFilter,
-} from '@awsui/components-react'
-import {useCollection} from '@awsui/collection-hooks'
+} from '@cloudscape-design/components'
+import {useCollection} from '@cloudscape-design/collection-hooks'
 
 import EmptyState from '../../components/EmptyState'
 import {ClusterStatusIndicator} from '../../components/Status'

@@ -7,8 +7,8 @@ import {
   Multiselect,
   MultiselectProps,
   Toggle,
-} from '@awsui/components-react'
-import {NonCancelableEventHandler} from '@awsui/components-react/internal/events'
+} from '@cloudscape-design/components'
+import {NonCancelableEventHandler} from '@cloudscape-design/components/internal/events'
 import {useCallback, useMemo} from 'react'
 import {Trans, useTranslation} from 'react-i18next'
 import {clearState, setState, useState} from '../../../store'

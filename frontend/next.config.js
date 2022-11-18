@@ -37,7 +37,7 @@ const nextConfig = {
 }
 
 const withTM = require("next-transpile-modules")([
-  "@awsui/components-react",
+  "@cloudscape-design/components",
 ]);
 
 module.exports = withTM(nextConfig);  

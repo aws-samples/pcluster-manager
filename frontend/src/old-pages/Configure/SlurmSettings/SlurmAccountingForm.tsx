@@ -9,7 +9,7 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ColumnLayout, FormField, Input} from '@awsui/components-react'
+import {ColumnLayout, FormField, Input} from '@cloudscape-design/components'
 import {useTranslation} from 'react-i18next'
 import {useFeatureFlag} from '../../../feature-flags/useFeatureFlag'
 import {setState, useState} from '../../../store'

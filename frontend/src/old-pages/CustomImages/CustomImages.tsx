@@ -16,7 +16,7 @@ import {ListCustomImages, DescribeCustomImage} from '../../model'
 
 import {setState, useState, getState, clearState, isAdmin} from '../../store'
 
-import {useCollection} from '@awsui/collection-hooks'
+import {useCollection} from '@cloudscape-design/collection-hooks'
 
 // Components
 import EmptyState from '../../components/EmptyState'
@@ -36,7 +36,7 @@ import {
   SplitPanel,
   Table,
   TextFilter,
-} from '@awsui/components-react'
+} from '@cloudscape-design/components'
 
 const imageBuildPath = ['app', 'customImages', 'imageBuild']
 

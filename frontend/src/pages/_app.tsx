@@ -12,7 +12,7 @@ import Script from 'next/script'
 import type {AppProps} from 'next/app'
 import {useCallback} from 'react'
 import dynamic from 'next/dynamic'
-import '@awsui/global-styles/index.css'
+import '@cloudscape-design/global-styles/index.css'
 import './App.css'
 import './index.css'
 

@@ -10,7 +10,7 @@
 // limitations under the License.
 import React from 'react'
 import {useSelector} from 'react-redux'
-import {useCollection} from '@awsui/collection-hooks'
+import {useCollection} from '@cloudscape-design/collection-hooks'
 import {clearState, setState, getState, useState} from '../../store'
 
 import {CreateUser, DeleteUser, ListUsers, SetUserRole} from '../../model'
@@ -27,7 +27,7 @@ import {
   SpaceBetween,
   Table,
   TextFilter,
-} from '@awsui/components-react'
+} from '@cloudscape-design/components'
 
 // Components
 import EmptyState from '../../components/EmptyState'

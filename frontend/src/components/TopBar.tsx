@@ -15,7 +15,7 @@ import {useState, setState} from '../store'
 import {LoadInitialState} from '../model'
 
 // UI Elements
-import TopNavigation from '@awsui/components-react/top-navigation'
+import TopNavigation from '@cloudscape-design/components/top-navigation'
 import {useQueryClient} from 'react-query'
 
 function regions(selected: any) {

@@ -13,7 +13,7 @@ import * as React from 'react'
 import HelpIcon from '@mui/icons-material/Help'
 
 // UI Elements
-import {Popover} from '@awsui/components-react'
+import {Popover} from '@cloudscape-design/components'
 
 export default function HelpTooltip({children}: any) {
   return (
