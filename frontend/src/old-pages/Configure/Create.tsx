@@ -28,6 +28,7 @@ import ConfigView from '../../components/ConfigView'
 
 // State
 import {setState, getState, useState} from '../../store'
+import {NavigateFunction} from 'react-router-dom'
 
 // Constants
 const configPath = ['app', 'wizard', 'clusterConfigYaml']
@@ -40,7 +41,10 @@ function handleWarnings(resp: any) {
   })
 }
 
-function handleCreate(handleClose: any, navigate: any) {
+function handleCreate(
+  clearWizardState: () => void,
+  navigate: NavigateFunction,
+) {
   const clusterName = getState(['app', 'wizard', 'clusterName'])
   const editing = getState(['app', 'wizard', 'editing'])
   const disableRollback =
@@ -62,7 +66,7 @@ function handleCreate(handleClose: any, navigate: any) {
     DescribeCluster(clusterName)
     setState(['app', 'clusters', 'selected'], clusterName)
     ListClusters()
-    handleClose()
+    clearWizardState()
     navigate(href)
   }
   setState(['app', 'wizard', 'errors', 'create'], null)
@@ -168,7 +172,8 @@ function Create() {
       {errors && <ValidationErrors errors={errors} />}
       {pending && (
         <div>
-          <Spinner size="normal" /> {pending} request pending...
+          <Spinner size="normal" />{' '}
+          {t('wizard.create.pending', {action: pending})}
         </div>
       )}
       {editing && (
@@ -178,8 +183,7 @@ function Create() {
             setState(['app', 'wizard', 'forceUpdate'], !forceUpdate)
           }
         >
-          Force Update: Enable this to perform an update while the ComputeFleet
-          is still running.
+          {t('wizard.create.forceUpdate')}
         </Toggle>
       )}
       {!editing && (
@@ -189,8 +193,7 @@ function Create() {
             setState(['app', 'wizard', 'disableRollback'], !disableRollback)
           }
         >
-          Disable Rollback: Enable this to retain resources in the event of
-          creation failure.
+          {t('wizard.create.disableRollback')}
         </Toggle>
       )}
     </Container>
