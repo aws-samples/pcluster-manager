@@ -6,40 +6,11 @@
   overflow: auto;
 }
 
-.top-bar {
-  position: fixed;
+#top-bar {
+  position: sticky;
   z-index: 999;
   top: 0;
   width: 100%;
-}
-
-.top-bar span.region {
-  display: block;
-  width: 100%;
-}
-
-.top-bar span.region .region-id {
-  color: #aab7b8;
-}
-
-.top-bar span.region .region-name {
-  color: white;
-}
-
-.top-bar span.region:hover .region-name,
-.top-bar span.region:hover .region-id {
-  color: #44b9d6;
-}
-
-.top-bar span.region-selected,
-.top-bar span.region-selected > .region-name,
-.top-bar span.region-selected > .region-id {
-  color: #44b9d6;
-  font-weight: bold;
-}
-
-.top-bar span.region .region-id {
-  padding-left: 8px;
 }
 
 a {
@@ -50,17 +21,6 @@ a {
 a:hover {
   text-decoration: underline;
   color: #0073bb;
-}
-
-.app-layout {
-  margin-top: 56px;
-}
-
-.inner-app-layout {
-  margin-left: -40px;
-  margin-top: -26px;
-  margin-bottom: -10px;
-  margin-right: -40px;
 }
 
 .sidebar-icons {

@@ -107,52 +107,51 @@ export default function Topbar() {
   const profileActions = [{type: 'button', id: 'signout', text: 'Sign out'}]
 
   return (
-    <TopNavigation
-      id="top-bar"
-      className="top-bar"
-      expandToViewport
-      // @ts-expect-error TS(2741) FIXME: Property 'href' is missing in type '{ title: strin... Remove this comment to see the full error message
-      identity={{
-        title: 'AWS ParallelCluster Manager',
-        logo: {
-          src: '/img/pcluster.svg',
-          alt: 'AWS ParallelCluster Manager Logo',
-        },
-      }}
-      utilities={[
-        ...[
-          username
-            ? {
-                type: 'menu-dropdown',
-                text: username || 'user',
-                iconName: 'user-profile',
-                onItemClick: handleLogout,
-                items: profileActions,
-              }
-            : {
-                type: 'button',
-                text: 'loading...',
-              },
-        ],
-        ...[
-          region && {
-            type: 'menu-dropdown',
-            ariaLabel: 'Region',
-            disableUtilityCollapse: true,
-            text: (
-              <span style={{fontWeight: 'normal'}}>{region || 'region'}</span>
-            ),
-            onItemClick: selectRegion,
-            items: regions(region),
+    <div id="top-bar">
+      <TopNavigation
+        identity={{
+          title: 'AWS ParallelCluster Manager',
+          href: '/',
+          logo: {
+            src: '/img/pcluster.svg',
+            alt: 'AWS ParallelCluster Manager Logo',
           },
-        ],
-      ]}
-      // @ts-expect-error TS(2741) FIXME: Property 'overflowMenuTitleText' is missing in typ... Remove this comment to see the full error message
-      i18nStrings={{
-        searchIconAriaLabel: 'Search',
-        searchDismissIconAriaLabel: 'Close search',
-        overflowMenuTriggerText: 'More',
-      }}
-    />
+        }}
+        utilities={[
+          ...[
+            username
+              ? {
+                  type: 'menu-dropdown',
+                  text: username || 'user',
+                  iconName: 'user-profile',
+                  onItemClick: handleLogout,
+                  items: profileActions,
+                }
+              : {
+                  type: 'button',
+                  text: 'loading...',
+                },
+          ],
+          ...[
+            region && {
+              type: 'menu-dropdown',
+              ariaLabel: 'Region',
+              disableUtilityCollapse: true,
+              text: (
+                <span style={{fontWeight: 'normal'}}>{region || 'region'}</span>
+              ),
+              onItemClick: selectRegion,
+              items: regions(region),
+            },
+          ],
+        ]}
+        // @ts-expect-error TS(2741) FIXME: Property 'overflowMenuTitleText' is missing in typ... Remove this comment to see the full error message
+        i18nStrings={{
+          searchIconAriaLabel: 'Search',
+          searchDismissIconAriaLabel: 'Close search',
+          overflowMenuTriggerText: 'More',
+        }}
+      />
+    </div>
   )
 }
