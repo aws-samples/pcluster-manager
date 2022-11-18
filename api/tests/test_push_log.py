@@ -1,4 +1,7 @@
 
+def trim_log(caplog):
+    return caplog.text.replace('\n', '')
+
 def test_push_log_controller_with_valid_json_no_extra(client, caplog):
     request_body = {'message': 'sample-message', 'level': 'info'}
     expected_log = "INFO     pcluster-manager:logger.py:24 {'message': 'sample-message'}"
@@ -7,7 +10,7 @@ def test_push_log_controller_with_valid_json_no_extra(client, caplog):
     response = client.post('/push-log', json=request_body)
 
     assert response.status_code == 200
-    assert caplog.text == expected_log
+    assert trim_log(caplog) == expected_log
 
 
 def test_push_log_controller_with_valid_json_with_extra(client, caplog):
@@ -19,7 +22,7 @@ def test_push_log_controller_with_valid_json_with_extra(client, caplog):
     response = client.post('/push-log', json=request_body)
 
     assert response.status_code == 200
-    assert caplog.text.replace('\n', '') == expected_log
+    assert trim_log(caplog) == expected_log
 
 
 def test_push_log_controller_with_invalid_message_key(client):
@@ -45,7 +48,7 @@ def test_push_log_controller_with_invalid_level_key(client):
     assert response.json == {
         'error': {
             'Code': 400,
-            'Message': 'request body missing on or more mandatory fields ["message", "level"]'
+            'Message': 'Request body missing on or more mandatory fields ["message", "level"]'
         }
     }
 
@@ -59,7 +62,7 @@ def test_push_log_controller_with_invalid_level_value(client):
     assert response.json == {
         'error': {
             'Code': 400,
-            'Message': 'request body missing on or more mandatory fields ["message", "level"]'
+            'Message': 'Invalid logging level requested'
         }
     }
 
@@ -73,6 +76,6 @@ def test_push_log_controller_with_invalid_extra_value(client):
     assert response.json == {
         'error': {
             'Code': 400,
-            'Message': 'request body missing on or more mandatory fields ["message", "level"]'
+            'Message': 'Extra param must be a valid json object'
         }
     }

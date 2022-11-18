@@ -187,11 +187,12 @@ def run():
         if 'level' not in request.json or 'message' not in request.json:
             raise ValueError('Request body missing on or more mandatory fields ["message", "level"]')
 
-        level, message, extra = request.json['level'], request.json['message'], request.json['extra']
+        _json = request.json.get
+        level, message, extra = _json('level'), _json('message'), _json('extra')
         if not (extra is None or type(extra) is dict):
             raise ValueError('Extra param must be a valid json object')
 
-        logging_fun = getattr(logger, level.lower())
+        logging_fun = getattr(logger, level.lower(), None)
 
         if logging_fun is None:
             raise ValueError('Invalid logging level requested')
