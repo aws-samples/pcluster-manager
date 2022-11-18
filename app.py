@@ -182,6 +182,24 @@ def run():
     def logout_():
         return logout()
 
+    @app.route('/push-log', methods=['POST'])
+    def push_log():
+        if 'level' not in request.json or 'message' not in request.json:
+            raise ValueError('Request body missing on or more mandatory fields ["message", "level"]')
+
+        level, message, extra = request.json['level'], request.json['message'], request.json['extra']
+        if not (extra is None or type(extra) is dict):
+            raise ValueError('Extra param must be a valid json object')
+
+        logging_fun = getattr(logger, level.lower())
+
+        if logging_fun is None:
+            raise ValueError('Invalid logging level requested')
+
+        logging_fun(message, extra=extra)
+        return Response(status=200)
+
+
     @app.route('/<regex("(home|clusters|users|configure|custom-images|official-images).*"):base>', defaults={"base": ""})
     def catch_all(base):
         return utils.serve_frontend(app, base)
