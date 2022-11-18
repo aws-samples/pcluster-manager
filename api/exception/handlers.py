@@ -1,9 +1,7 @@
-import logging
 
 from flask import jsonify
 
-logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
+from api.pcm_globals import logger
 
 
 def boto3_exception_handler(err):
