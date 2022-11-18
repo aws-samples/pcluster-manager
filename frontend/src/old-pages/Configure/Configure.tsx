@@ -52,6 +52,7 @@ import Loading from '../../components/Loading'
 
 // Icons
 import CancelIcon from '@mui/icons-material/Cancel'
+import {useTranslation} from 'react-i18next'
 
 function wizardShow(navigate: any) {
   const editing = getState(['app', 'wizard', 'editing'])
@@ -148,9 +149,29 @@ function SideNav() {
   )
 }
 
+const loadingPath = ['app', 'wizard', 'source', 'loading']
+
+function clearWizardState(
+  clearState: (path: any) => void,
+  clearErrorsOnly: boolean,
+) {
+  if (!clearErrorsOnly) {
+    clearState(['app', 'wizard', 'config'])
+    clearState(['app', 'wizard', 'clusterConfigYaml'])
+    clearState(['app', 'wizard', 'clusterName'])
+    clearState(['app', 'wizard', 'loaded'])
+    clearState(['app', 'wizard', 'page'])
+    clearState(['app', 'wizard', 'vpc'])
+    clearState(['app', 'wizard', 'multiUser'])
+    clearState(['app', 'wizard', 'validated'])
+    clearState(loadingPath)
+  }
+  clearState(['app', 'wizard', 'errors'])
+}
+
 function Configure() {
+  const {t} = useTranslation()
   const open = useState(['app', 'wizard', 'dialog'])
-  const loadingPath = useMemo(() => ['app', 'wizard', 'source', 'loading'], [])
   const loading = useState(loadingPath)
   const page: string = useState(['app', 'wizard', 'page']) || 'source'
   const clusterName = useState(['app', 'wizard', 'clusterName'])
@@ -166,24 +187,10 @@ function Configure() {
 
   const pages = ['source', 'cluster', 'headNode', 'storage', 'queues', 'create']
 
-  const handleClose = useCallback(
-    (clear: any) => {
-      if (clear) {
-        clearState(['app', 'wizard', 'config'])
-        clearState(['app', 'wizard', 'clusterConfigYaml'])
-        clearState(['app', 'wizard', 'clusterName'])
-        clearState(['app', 'wizard', 'loaded'])
-        clearState(['app', 'wizard', 'page'])
-        clearState(['app', 'wizard', 'vpc'])
-        clearState(['app', 'wizard', 'multiUser'])
-        clearState(['app', 'wizard', 'validated'])
-        clearState(loadingPath)
-      }
-      clearState(['app', 'wizard', 'errors'])
-      navigate('/clusters')
-    },
-    [loadingPath, navigate],
-  )
+  const clearStateAndCloseWizard = useCallback(() => {
+    clearWizardState(clearState, false)
+    navigate('/clusters')
+  }, [navigate])
 
   const validators: {[key: string]: (...args: any[]) => boolean} = {
     source: sourceValidate,
@@ -207,7 +214,7 @@ function Configure() {
     )
 
     if (currentPage === 'create') {
-      wizardHandleCreate(() => handleClose(true), navigate)
+      wizardHandleCreate(() => clearWizardState(clearState, false), navigate)
       return
     }
 
@@ -284,12 +291,12 @@ function Configure() {
   React.useEffect(() => {
     const close = (e: any) => {
       if (e.key === 'Escape') {
-        handleClose(true)
+        clearStateAndCloseWizard()
       }
     }
     window.addEventListener('keydown', close)
     return () => window.removeEventListener('keydown', close)
-  }, [handleClose])
+  }, [clearStateAndCloseWizard])
 
   return (
     <div style={{minWidth: '1200px'}}>
@@ -301,7 +308,7 @@ function Configure() {
             // @ts-expect-error TS(2741) FIXME: Property 'href' is missing in type '{ text: string... Remove this comment to see the full error message
             {text: editing ? 'Update' : 'Create'},
           ]}
-          onClick={() => handleClose(true)}
+          onClick={clearStateAndCloseWizard}
         />
         <SpaceBetween direction="horizontal" size="s">
           <SideNav />
@@ -328,7 +335,7 @@ function Configure() {
                       onClick={handleRefresh}
                       iconName={'refresh'}
                     >
-                      Refresh AWS Config
+                      {t('wizard.actions.refreshConfig')}
                     </Button>
                   )}
                   {editing &&
@@ -341,27 +348,32 @@ function Configure() {
                         onClick={stopComputeFleet}
                       >
                         {fleetStatus !== 'RUNNING' ? (
-                          <span>Stop Compute Fleet</span>
+                          <span>{t('wizard.actions.stopComputeFleet')}</span>
                         ) : (
                           <div className="container">
-                            <CancelIcon /> Stop Compute Fleet
+                            <CancelIcon />{' '}
+                            {t('wizard.actions.stopComputeFleet')}
                           </div>
                         )}
                       </Button>
                     )}
-                  <Button onClick={() => handleClose(true)}>Cancel</Button>
+                  <Button onClick={clearStateAndCloseWizard}>
+                    {t('wizard.actions.cancel')}
+                  </Button>
                   <Button disabled={page === pages[0]} onClick={handlePrev}>
-                    Back
+                    {t('wizard.actions.back')}
                   </Button>
                   {page === 'create' && (
-                    <Button onClick={handleDryRun}>Dry Run</Button>
+                    <Button onClick={handleDryRun}>
+                      {t('wizard.actions.dryRun')}
+                    </Button>
                   )}
                   <Button disabled={loading} onClick={handleNext}>
                     {page === 'create'
                       ? editing
-                        ? 'Update'
-                        : 'Create'
-                      : 'Next'}
+                        ? t('wizard.actions.update')
+                        : t('wizard.actions.create')
+                      : t('wizard.actions.next')}
                   </Button>
                 </SpaceBetween>
               </Box>
