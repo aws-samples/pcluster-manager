@@ -37,6 +37,7 @@ import {
   Table,
   TextFilter,
 } from '@cloudscape-design/components'
+import Layout from '../Layout'
 
 const imageBuildPath = ['app', 'customImages', 'imageBuild']
 
@@ -49,6 +50,8 @@ function CustomImagesList() {
 
   const [selected, setSelected] = React.useState<ImageInfoSummary[]>([])
 
+  const imageStatus = useState(['app', 'customImages', 'selectedImageStatus'])
+
   let select = (image: ImageInfoSummary) => {
     setSelected([image])
     DescribeCustomImage(image.imageId)
@@ -57,6 +60,12 @@ function CustomImagesList() {
 
   const buildImage = () => {
     setState([...imageBuildPath, 'dialog'], true)
+  }
+
+  const refreshImages = () => {
+    clearState(['customImages', 'list'])
+    clearState(['app', 'customImages', 'selected'])
+    ListCustomImages(imageStatus || 'AVAILABLE')
   }
 
   const {
@@ -101,6 +110,36 @@ function CustomImagesList() {
       {...collectionProps}
       resizableColumns
       trackBy="imageId"
+      variant="full-page"
+      header={
+        <Header
+          variant="awsui-h1-sticky"
+          description=""
+          counter={images && `(${images.length})`}
+          actions={
+            <SpaceBetween direction="horizontal" size="xs">
+              <Button
+                className="action"
+                onClick={refreshImages}
+                iconName={'refresh'}
+              >
+                Refresh
+              </Button>
+              <StatusSelect />
+              <Button
+                className="action"
+                onClick={buildImage}
+                iconName={'add-plus'}
+                disabled={!isAdmin()}
+              >
+                Build Image
+              </Button>
+            </SpaceBetween>
+          }
+        >
+          Custom Images
+        </Header>
+      }
       columnDefinitions={[
         {
           id: 'name',
@@ -186,19 +225,7 @@ export default function CustomImages() {
   const imageId = useState(['app', 'customImages', 'selected'])
   const images = useSelector(selectCustomImagesList)
 
-  const imageStatus = useState(['app', 'customImages', 'selectedImageStatus'])
-
   const [splitOpen, setSplitOpen] = React.useState(true)
-
-  const buildImage = () => {
-    setState([...imageBuildPath, 'dialog'], true)
-  }
-
-  const refreshImages = () => {
-    clearState(['customImages', 'list'])
-    clearState(['app', 'customImages', 'selected'])
-    ListCustomImages(imageStatus || 'AVAILABLE')
-  }
 
   React.useEffect(() => {
     const imageStatus = getState(['app', 'customImages', 'selectedImageStatus'])
@@ -206,12 +233,7 @@ export default function CustomImages() {
   }, [])
 
   return (
-    <AppLayout
-      className="inner-app-layout"
-      headerSelector="#top-bar"
-      disableContentHeaderOverlap
-      navigationHide
-      toolsHide
+    <Layout
       splitPanelOpen={splitOpen}
       onSplitPanelToggle={e => {
         setSplitOpen(e.detail.open)
@@ -243,44 +265,11 @@ export default function CustomImages() {
           )}
         </SplitPanel>
       }
-      content={
-        <>
-          <Container
-            header={
-              <Header
-                variant="h2"
-                description=""
-                counter={images && `(${images.length})`}
-                actions={
-                  <SpaceBetween direction="horizontal" size="xs">
-                    <Button
-                      className="action"
-                      onClick={refreshImages}
-                      iconName={'refresh'}
-                    >
-                      Refresh
-                    </Button>
-                    <StatusSelect />
-                    <Button
-                      className="action"
-                      onClick={buildImage}
-                      iconName={'add-plus'}
-                      disabled={!isAdmin()}
-                    >
-                      Build Image
-                    </Button>
-                  </SpaceBetween>
-                }
-              >
-                Custom Images
-              </Header>
-            }
-          >
-            {images ? <CustomImagesList /> : <Loading />}
-          </Container>
-          <ImageBuildDialog />
-        </>
-      }
-    />
+    >
+      <>
+        {images ? <CustomImagesList /> : <Loading />}
+        <ImageBuildDialog />
+      </>
+    </Layout>
   )
 }

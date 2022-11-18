@@ -39,6 +39,7 @@ import Actions from './Actions'
 import Details from './Details'
 import {wizardShow} from '../Configure/Configure'
 import AddIcon from '@mui/icons-material/Add'
+import Layout from '../Layout'
 
 export function onClustersUpdate(
   selectedClusterName: ClusterName,
@@ -129,11 +130,10 @@ function ClusterList({clusters}: {clusters: ClusterInfoSummary[]}) {
   return (
     <Table
       {...collectionProps}
+      variant="full-page"
       header={
         <Header
-          variant="h2"
-          description=""
-          counter={clusters && `(${clusters.length})`}
+          variant="awsui-h1-sticky"
           actions={
             <SpaceBetween direction="horizontal" size="xs">
               {selectedClusterName && <Actions />}
@@ -213,12 +213,7 @@ export default function Clusters() {
   )
 
   return (
-    <AppLayout
-      className="inner-app-layout"
-      headerSelector="#top-bar"
-      disableContentHeaderOverlap
-      navigationHide
-      toolsHide
+    <Layout
       splitPanelOpen={splitOpen}
       onSplitPanelToggle={e => {
         setSplitOpen(e.detail.open)
@@ -265,7 +260,8 @@ export default function Clusters() {
           )}
         </SplitPanel>
       }
-      content={<ClusterList clusters={clusters!} />}
-    />
+    >
+      <ClusterList clusters={clusters!} />
+    </Layout>
   )
 }

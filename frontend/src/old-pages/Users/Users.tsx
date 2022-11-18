@@ -39,6 +39,7 @@ import {
   showDialog,
   hideDialog,
 } from '../../components/DeleteDialog'
+import Layout from '../Layout'
 
 // Constants
 const errorsPath = ['app', 'wizard', 'errors', 'user']
@@ -115,7 +116,32 @@ function UserList(props: any) {
   const usernames = Object.keys(user_index).sort()
   const users = usernames.map(username => user_index[username])
   const userEmail = useState(['app', 'user', 'delete', 'Attributes', 'email'])
-  const user = useState(['app', 'user', 'delete'])
+  const deletedUser = useState(['app', 'user', 'delete'])
+
+  const error = useState([...errorsPath, 'username'])
+
+  const newUser = useState(['app', 'users', 'newUser'])
+
+  const usernamePath = ['app', 'users', 'newUser', 'Username']
+  const username = useState(usernamePath)
+
+  const userphonePath = ['app', 'users', 'newUser', 'Phonenumber']
+  const userphone = useState(userphonePath)
+
+  const enableMfa = useState(['app', 'enableMfa'])
+  const refreshUsers = () => {
+    ListUsers()
+  }
+
+  const createUser = () => {
+    userValidate()
+    const validated = getState([...errorsPath, 'validated'])
+    if (validated) {
+      CreateUser(newUser, () => {
+        clearState(['app', 'users', 'newUser'])
+      })
+    }
+  }
 
   const {
     items,
@@ -151,8 +177,8 @@ function UserList(props: any) {
   })
 
   const deleteUser = () => {
-    console.log(user)
-    DeleteUser(user, (returned_user: any) => {
+    console.log(deletedUser)
+    DeleteUser(deletedUser, (returned_user: any) => {
       clearState(['users', 'index', returned_user.Username])
     })
     hideDialog('deleteUser')
@@ -171,6 +197,51 @@ function UserList(props: any) {
         {...collectionProps}
         resizableColumns
         trackBy={item => item.Attributes && item.Attributes.email}
+        variant="full-page"
+        header={
+          <Header
+            variant="h2"
+            description=""
+            counter={users && `(${Object.keys(users).length})`}
+            actions={
+              <SpaceBetween direction="horizontal" size="xs">
+                {enableMfa && (
+                  <Input
+                    inputMode="tel"
+                    onChange={({detail}) =>
+                      setState(userphonePath, detail.value)
+                    }
+                    value={userphone}
+                    placeholder="+11234567890"
+                  ></Input>
+                )}
+                <div onKeyPress={e => e.key === 'Enter' && createUser()}>
+                  <FormField errorText={error}>
+                    <Input
+                      onChange={({detail}) =>
+                        setState(usernamePath, detail.value)
+                      }
+                      value={username}
+                      placeholder="email@domain.com"
+                    ></Input>
+                  </FormField>
+                </div>
+                <Button className="action" onClick={createUser}>
+                  Create User
+                </Button>
+                <Button
+                  className="action"
+                  onClick={refreshUsers}
+                  iconName={'refresh'}
+                >
+                  Refresh
+                </Button>
+              </SpaceBetween>
+            }
+          >
+            Users
+          </Header>
+        }
         columnDefinitions={[
           {
             id: 'username',
@@ -246,81 +317,10 @@ function userValidate() {
 
 export default function Users() {
   const users = useSelector(selectUserIndex)
-  const error = useState([...errorsPath, 'username'])
-
-  const user = useState(['app', 'users', 'newUser'])
-
-  const usernamePath = ['app', 'users', 'newUser', 'Username']
-  const username = useState(usernamePath)
-
-  const userphonePath = ['app', 'users', 'newUser', 'Phonenumber']
-  const userphone = useState(userphonePath)
-
-  const enableMfa = useState(['app', 'enableMfa'])
-  const refreshUsers = () => {
-    ListUsers()
-  }
-
-  const createUser = () => {
-    userValidate()
-    const validated = getState([...errorsPath, 'validated'])
-    if (validated) {
-      CreateUser(user, () => {
-        clearState(['app', 'users', 'newUser'])
-      })
-    }
-  }
 
   React.useEffect(() => {
     ListUsers()
   }, [])
 
-  return (
-    <Container
-      header={
-        <Header
-          variant="h2"
-          description=""
-          counter={users && `(${Object.keys(users).length})`}
-          actions={
-            <SpaceBetween direction="horizontal" size="xs">
-              {enableMfa && (
-                <Input
-                  inputMode="tel"
-                  onChange={({detail}) => setState(userphonePath, detail.value)}
-                  value={userphone}
-                  placeholder="+11234567890"
-                ></Input>
-              )}
-              <div onKeyPress={e => e.key === 'Enter' && createUser()}>
-                <FormField errorText={error}>
-                  <Input
-                    onChange={({detail}) =>
-                      setState(usernamePath, detail.value)
-                    }
-                    value={username}
-                    placeholder="email@domain.com"
-                  ></Input>
-                </FormField>
-              </div>
-              <Button className="action" onClick={createUser}>
-                Create User
-              </Button>
-              <Button
-                className="action"
-                onClick={refreshUsers}
-                iconName={'refresh'}
-              >
-                Refresh
-              </Button>
-            </SpaceBetween>
-          }
-        >
-          Users
-        </Header>
-      }
-    >
-      {users ? <UserList /> : <Loading />}
-    </Container>
-  )
+  return <Layout>{users ? <UserList /> : <Loading />}</Layout>
 }

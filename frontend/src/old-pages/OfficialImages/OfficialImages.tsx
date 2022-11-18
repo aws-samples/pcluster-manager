@@ -28,6 +28,7 @@ import EmptyState from '../../components/EmptyState'
 import Loading from '../../components/Loading'
 import {useQuery} from 'react-query'
 import {useState} from '../../store'
+import Layout from '../Layout'
 
 type Image = {
   amiId: string
@@ -75,6 +76,12 @@ function OfficialImagesList({images}: {images: Image[]}) {
       {...collectionProps}
       resizableColumns
       trackBy="amiId"
+      variant="full-page"
+      header={
+        <Header variant="awsui-h1-sticky" counter={items?.length.toString()}>
+          Official Images
+        </Header>
+      }
       columnDefinitions={[
         {
           id: 'id',
@@ -121,18 +128,6 @@ export default function OfficialImages() {
   const {data} = useQuery('OFFICIAL_IMAGES', () => ListOfficialImages(region))
 
   return (
-    <Container
-      header={
-        <Header
-          variant="h2"
-          description=""
-          counter={data && `(${data.length})`}
-        >
-          Official Images
-        </Header>
-      }
-    >
-      {data ? <OfficialImagesList images={data} /> : <Loading />}
-    </Container>
+    <Layout>{data ? <OfficialImagesList images={data} /> : <Loading />}</Layout>
   )
 }

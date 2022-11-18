@@ -16,7 +16,6 @@ import {LoadInitialState} from '../model'
 
 import {useState} from '../store'
 
-import Layout from '../old-pages/Layout'
 import Clusters from '../old-pages/Clusters/Clusters'
 import Configure from '../old-pages/Configure/Configure'
 import CustomImages from '../old-pages/CustomImages/CustomImages'
@@ -41,30 +40,28 @@ export default function App() {
       {identity ? (
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Layout />}>
-              <Route
-                path="index.html"
-                element={
-                  isGuest() ? <Home /> : <Navigate replace to="/clusters" />
-                }
-              />
-              <Route
-                index
-                element={
-                  isGuest() ? <Home /> : <Navigate replace to="/clusters" />
-                }
-              />
-              <Route path="home" element={<Home />} />
-              <Route path="clusters" element={<Clusters />}>
-                <Route path=":clusterName" element={<div></div>}>
-                  <Route path=":tab" element={<div></div>} />
-                </Route>
+            <Route
+              path="index.html"
+              element={
+                isGuest() ? <Home /> : <Navigate replace to="/clusters" />
+              }
+            />
+            <Route
+              index
+              element={
+                isGuest() ? <Home /> : <Navigate replace to="/clusters" />
+              }
+            />
+            <Route path="home" element={<Home />} />
+            <Route path="clusters" element={<Clusters />}>
+              <Route path=":clusterName" element={<div></div>}>
+                <Route path=":tab" element={<div></div>} />
               </Route>
-              <Route path="configure" element={<Configure />} />
-              <Route path="custom-images" element={<CustomImages />} />
-              <Route path="official-images" element={<OfficialImages />} />
-              <Route path="users" element={<Users />} />
             </Route>
+            <Route path="configure" element={<Configure />} />
+            <Route path="custom-images" element={<CustomImages />} />
+            <Route path="official-images" element={<OfficialImages />} />
+            <Route path="users" element={<Users />} />
           </Routes>
         </BrowserRouter>
       ) : (
