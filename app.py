@@ -40,7 +40,9 @@ from api.PclusterApiHandler import (
     scontrol_job,
     set_user_role,
     submit_job,
+    logger,
 )
+from api.pcm_globals import set_global_logger
 
 ADMINS_USERS_GROUP = { "user", "admin" }
 ADMINS_GROUP = { "admin" }
@@ -187,6 +189,10 @@ def run():
     @app.route('/<regex("(home|clusters|users|configure|custom-images|official-images).*"):base>/<path:u_path>', defaults={"base": "", "u_path": ""})
     def catch_all2(base, u_path):
         return utils.serve_frontend(app, base)
+
+    @app.before_request
+    def _set_global_logger():
+        set_global_logger(logger)
 
     api.add_resource(PclusterApiHandler, "/api")
     return app
