@@ -182,7 +182,8 @@ def run():
     def logout_():
         return logout()
 
-    @app.route('/push-log', methods=['POST'])
+    @app.route('/logs', methods=['POST'])
+    @authenticated(ADMINS_USERS_GROUP)
     def push_log():
         if 'level' not in request.json or 'message' not in request.json:
             raise ValueError('Request body missing one or more mandatory fields ["message", "level"]')

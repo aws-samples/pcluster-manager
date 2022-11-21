@@ -24,7 +24,7 @@ def test_value_error_exception_handler(client, app, monkeypatch):
         raise ValueError('Validation error')
 
     monkeypatch.setitem(app.view_functions, 'push_log', push_log_raising)
-    response = client.post('/push-log')
+    response = client.post('/logs')
 
     assert response.status_code == 400
     assert response.json == {'error': {'Code': 400, 'Message': 'Validation error'}}
