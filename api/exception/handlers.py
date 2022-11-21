@@ -15,6 +15,11 @@ def websocket_mismatch_nop_handler(err):
     """ Handles websocket error caused by HMR in local development"""
     return {}, 200
 
+def value_error_handler(err):
+    descr, code = str(err), 400
+    logger.error(descr, extra=dict(status=code, exception=type(err)))
+    return __handler_response(code, descr)
+
 def global_exception_handler(err):
     try:
         code = err.code
@@ -23,5 +28,9 @@ def global_exception_handler(err):
     descr = str(err)
 
     logger.error(descr, extra=dict(status=code, exception=type(err)))
-    response = {'Code': code, 'Message': 'Something went wrong'}
+    return __handler_response(code)
+
+
+def __handler_response(code, description='Something went wrong'):
+    response = {'Code': code, 'Message': description}
     return jsonify(error=response), code
