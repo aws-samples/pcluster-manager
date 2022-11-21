@@ -185,7 +185,7 @@ def run():
     @app.route('/push-log', methods=['POST'])
     def push_log():
         if 'level' not in request.json or 'message' not in request.json:
-            raise ValueError('Request body missing on or more mandatory fields ["message", "level"]')
+            raise ValueError('Request body missing one or more mandatory fields ["message", "level"]')
 
         _json = request.json.get
         level, message, extra = _json('level'), _json('message'), _json('extra')
