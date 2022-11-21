@@ -34,7 +34,7 @@ def test_push_log_controller_with_invalid_message_key(client):
     assert response.json == {
         'error': {
             'Code': 400,
-            'Message': 'Request body missing on or more mandatory fields ["message", "level"]'
+            'Message': 'Request body missing one or more mandatory fields ["message", "level"]'
         }
     }
 
@@ -48,7 +48,7 @@ def test_push_log_controller_with_invalid_level_key(client):
     assert response.json == {
         'error': {
             'Code': 400,
-            'Message': 'Request body missing on or more mandatory fields ["message", "level"]'
+            'Message': 'Request body missing one or more mandatory fields ["message", "level"]'
         }
     }
 
