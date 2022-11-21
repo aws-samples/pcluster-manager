@@ -197,6 +197,8 @@ def run():
         if logging_fun is None:
             raise ValueError('Invalid logging level requested')
 
+        extra = {} if extra is None else extra
+        extra['source'] = 'frontend'
         logging_fun(message, extra=extra)
         return Response(status=200)
 
