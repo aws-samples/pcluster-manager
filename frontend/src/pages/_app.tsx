@@ -18,6 +18,7 @@ import './App.css'
 import {QueryClient, QueryClientProvider} from 'react-query'
 import {I18nextProvider} from 'react-i18next'
 import {Provider} from 'react-redux'
+import ErrorBoundary from '../components/ErrorBoundary'
 
 import i18n from '../i18n'
 import {store} from '../store'
@@ -50,7 +51,9 @@ function App({Component, pageProps}: AppProps) {
         <I18nextProvider i18n={i18n}>
           <LoggerProvider>
             <Provider store={store}>
-              <Component {...pageProps} />
+              <ErrorBoundary>
+                <Component {...pageProps} />
+              </ErrorBoundary>
             </Provider>
           </LoggerProvider>
         </I18nextProvider>
