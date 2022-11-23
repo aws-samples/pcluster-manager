@@ -314,7 +314,7 @@ function Configure() {
           <SideNav />
           <div style={{minWidth: '800px', maxWidth: '1000px'}}>
             <SpaceBetween direction="vertical" size="s">
-              <Box className="wizard-container">
+              <Box>
                 {
                   {
                     source: <Source />,

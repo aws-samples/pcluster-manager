@@ -489,7 +489,7 @@ function Queues() {
   const adapter = useComputeResourceAdapter()
   const defaultAllocationStrategy = useDefaultAllocationStrategy()
   let queues = useState(queuesPath) || []
-  
+
   const addQueue = () => {
     setState(
       [...queuesPath],
@@ -512,10 +512,8 @@ function Queues() {
           <Header variant="h2">{t('wizard.queues.container.title')}</Header>
         }
       >
-        <div>
-          <QueuesView />
-        </div>
-        <div className="wizard-compute-add">
+        <QueuesView />
+        <Box float="right">
           <Button
             disabled={queues.length >= 5}
             onClick={addQueue}
@@ -523,7 +521,7 @@ function Queues() {
           >
             {t('wizard.queues.addQueueButton.label')}
           </Button>
-        </div>
+        </Box>
       </Container>
     </ColumnLayout>
   )
