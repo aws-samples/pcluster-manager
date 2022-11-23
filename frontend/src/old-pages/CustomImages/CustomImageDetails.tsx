@@ -33,7 +33,6 @@ import Loading from '../../components/Loading'
 import DateView from '../../components/DateView'
 
 import CustomImageStackEvents from './CustomImageStackEvents'
-// import CustomImageLogs from './CustomImageLogs';
 
 // Constants
 const customImagesPath = ['app', 'customImages']
@@ -202,11 +201,6 @@ export default function CustomImageDetails() {
               },
             ]
           : []),
-        // {
-        //   label: "Logs",
-        //   id: "logs",
-        //   content: <CustomImageLogs imageId={selected} />
-        // }
       ]}
     />
   )
