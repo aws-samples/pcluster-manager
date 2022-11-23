@@ -45,7 +45,7 @@ function OfficialImagesList({images}: {images: Image[]}) {
     collectionProps,
     filterProps,
     paginationProps,
-  } = useCollection(images, {
+  } = useCollection(images || [], {
     filtering: {
       empty: (
         <EmptyState
@@ -78,7 +78,10 @@ function OfficialImagesList({images}: {images: Image[]}) {
       trackBy="amiId"
       variant="full-page"
       header={
-        <Header variant="awsui-h1-sticky" counter={items?.length.toString()}>
+        <Header
+          variant="awsui-h1-sticky"
+          counter={items && `(${items.length})`}
+        >
           Official Images
         </Header>
       }
@@ -107,7 +110,7 @@ function OfficialImagesList({images}: {images: Image[]}) {
           cell: item => item.version || '-',
         },
       ]}
-      loading={images === null}
+      loading={!images}
       items={items}
       loadingText="Loading images..."
       pagination={<Pagination {...paginationProps} />}
@@ -128,6 +131,8 @@ export default function OfficialImages() {
   const {data} = useQuery('OFFICIAL_IMAGES', () => ListOfficialImages(region))
 
   return (
-    <Layout>{data ? <OfficialImagesList images={data} /> : <Loading />}</Layout>
+    <Layout>
+      <OfficialImagesList images={data} />
+    </Layout>
   )
 }

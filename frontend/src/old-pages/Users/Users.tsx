@@ -111,7 +111,8 @@ function UserActions({user}: any) {
   )
 }
 
-function UserList(props: any) {
+export default function Users(props: any) {
+  const loading = !useSelector(selectUserIndex)
   const user_index = useSelector(selectUserIndex) || {}
   const usernames = Object.keys(user_index).sort()
   const users = usernames.map(username => user_index[username])
@@ -127,6 +128,10 @@ function UserList(props: any) {
 
   const userphonePath = ['app', 'users', 'newUser', 'Phonenumber']
   const userphone = useState(userphonePath)
+
+  React.useEffect(() => {
+    ListUsers()
+  }, [])
 
   const enableMfa = useState(['app', 'enableMfa'])
   const refreshUsers = () => {
@@ -150,7 +155,7 @@ function UserList(props: any) {
     collectionProps,
     filterProps,
     paginationProps,
-  } = useCollection(users, {
+  } = useCollection(users || [], {
     filtering: {
       empty: (
         <EmptyState
@@ -185,7 +190,7 @@ function UserList(props: any) {
   }
 
   return (
-    <>
+    <Layout>
       <DeleteDialog
         id="deleteUser"
         header="Delete User?"
@@ -282,7 +287,7 @@ function UserList(props: any) {
             cell: item => <UserActions user={item} /> || '-',
           },
         ]}
-        loading={users === null}
+        loading={loading}
         items={items}
         loadingText="Loading users..."
         pagination={<Pagination {...paginationProps} />}
@@ -294,7 +299,7 @@ function UserList(props: any) {
           />
         }
       />
-    </>
+    </Layout>
   )
 }
 
@@ -313,14 +318,4 @@ function userValidate() {
   }
 
   return valid
-}
-
-export default function Users() {
-  const users = useSelector(selectUserIndex)
-
-  React.useEffect(() => {
-    ListUsers()
-  }, [])
-
-  return <Layout>{users ? <UserList /> : <Loading />}</Layout>
 }

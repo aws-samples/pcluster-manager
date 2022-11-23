@@ -133,6 +133,7 @@ function ClusterList({clusters}: {clusters: ClusterInfoSummary[]}) {
       header={
         <Header
           variant="awsui-h1-sticky"
+          counter={items && `(${items.length})`}
           actions={
             <SpaceBetween direction="horizontal" size="xs">
               {selectedClusterName && <Actions />}
@@ -171,7 +172,7 @@ function ClusterList({clusters}: {clusters: ClusterInfoSummary[]}) {
           cell: cluster => cluster.version || '-',
         },
       ]}
-      loading={clusters === null}
+      loading={!clusters}
       items={items}
       selectionType="single"
       loadingText={t('cluster.list.loadingText')}
@@ -216,7 +217,6 @@ export default function Clusters() {
       }}
       splitPanel={
         <SplitPanel
-          className="bottom-panel"
           i18nStrings={{
             preferencesTitle: t('cluster.list.splitPanel.preferencesTitle'),
             preferencesPositionLabel: t(

@@ -46,7 +46,7 @@ const selectCustomImagesList = (state: any): ImageInfoSummary[] =>
   state.customImages.list
 
 function CustomImagesList() {
-  const images = useSelector(selectCustomImagesList) || []
+  const images = useSelector(selectCustomImagesList)
 
   const [selected, setSelected] = React.useState<ImageInfoSummary[]>([])
 
@@ -75,7 +75,7 @@ function CustomImagesList() {
     collectionProps,
     filterProps,
     paginationProps,
-  } = useCollection(images, {
+  } = useCollection(images || [], {
     filtering: {
       empty: (
         <EmptyState
@@ -170,7 +170,7 @@ function CustomImagesList() {
           cell: image => image.version || '-',
         },
       ]}
-      loading={images === null}
+      loading={!images}
       items={items}
       selectionType="single"
       loadingText="Loading Images..."
@@ -240,7 +240,6 @@ export default function CustomImages() {
       }}
       splitPanel={
         <SplitPanel
-          className="bottom-panel"
           i18nStrings={{
             preferencesTitle: 'Split panel preferences',
             preferencesPositionLabel: 'Split panel position',
@@ -267,7 +266,7 @@ export default function CustomImages() {
       }
     >
       <>
-        {images ? <CustomImagesList /> : <Loading />}
+        <CustomImagesList />
         <ImageBuildDialog />
       </>
     </Layout>
