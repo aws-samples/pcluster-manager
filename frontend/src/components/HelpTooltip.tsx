@@ -16,13 +16,15 @@ import {Icon, Popover} from '@cloudscape-design/components'
 
 export default function HelpTooltip({children}: any) {
   return (
-    <Popover
-      dismissButton={false}
-      position="right"
-      size="medium"
-      content={children}
-    >
-      <Icon name="status-info" size="small" />
-    </Popover>
+    <span style={{paddingLeft: '8px', display: 'inline-block'}}>
+      <Popover
+        dismissButton={false}
+        position="right"
+        size="medium"
+        content={children}
+      >
+        <Icon name="status-info" size="small" />
+      </Popover>
+    </span>
   )
 }
