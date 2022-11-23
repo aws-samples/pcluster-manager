@@ -4,6 +4,7 @@ import {withTranslation, TFunction, Trans} from 'react-i18next'
 
 interface Props {
   t: TFunction
+  windowObject?: Window
   children?: ReactNode
 }
 
@@ -36,16 +37,21 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidMount() {
-    window.addEventListener('unhandledrejection', this.promiseRejectionHandler)
-    window.addEventListener('error', this.errorHandler)
-  }
-
-  public componentWillUnmount() {
-    window.removeEventListener(
+    const windowObject = this.props.windowObject || window
+    windowObject.addEventListener(
       'unhandledrejection',
       this.promiseRejectionHandler,
     )
-    window.removeEventListener('error', this.errorHandler)
+    windowObject.addEventListener('error', this.errorHandler)
+  }
+
+  public componentWillUnmount() {
+    const windowObject = this.props.windowObject || window
+    windowObject.removeEventListener(
+      'unhandledrejection',
+      this.promiseRejectionHandler,
+    )
+    windowObject.removeEventListener('error', this.errorHandler)
   }
 
   public render() {
