@@ -25,7 +25,7 @@ export default function Layout({
   children,
   ...props
 }: PropsWithChildren<Partial<AppLayoutProps>>) {
-  const messages = useState(['app', 'messages'])
+  const messages = useState(['app', 'messages']) || []
   return (
     <>
       <TopBar />
