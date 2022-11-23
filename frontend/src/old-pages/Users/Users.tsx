@@ -205,8 +205,7 @@ export default function Users(props: any) {
         variant="full-page"
         header={
           <Header
-            variant="h2"
-            description=""
+            variant="awsui-h1-sticky"
             counter={users && `(${Object.keys(users).length})`}
             actions={
               <SpaceBetween direction="horizontal" size="xs">
