@@ -117,24 +117,6 @@ table.stackevents td {
   font-size: 12px;
 }
 
-button.action {
-  display: flex;
-  gap: 8px;
-  flex-direction: row;
-  align-items: center;
-}
-
-button.action div.container {
-  display: flex;
-  gap: 8px;
-  flex-direction: row;
-  align-items: center;
-}
-
-.action {
-  cursor: pointer;
-}
-
 .clusters {
   width: 100%;
 }

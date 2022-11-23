@@ -38,7 +38,6 @@ import {ClusterStatusIndicator} from '../../components/Status'
 import Actions from './Actions'
 import Details from './Details'
 import {wizardShow} from '../Configure/Configure'
-import AddIcon from '@mui/icons-material/Add'
 import Layout from '../Layout'
 
 export function onClustersUpdate(
@@ -139,14 +138,11 @@ function ClusterList({clusters}: {clusters: ClusterInfoSummary[]}) {
               {selectedClusterName && <Actions />}
               {clusters && (
                 <Button
-                  className="action"
                   onClick={configure}
                   variant="primary"
                   disabled={!isAdmin()}
                 >
-                  <div className="container">
-                    <AddIcon /> {t('cluster.list.actions.create')}
-                  </div>
+                  {t('cluster.list.actions.create')}
                 </Button>
               )}
             </SpaceBetween>

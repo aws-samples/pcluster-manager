@@ -10,22 +10,19 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import * as React from 'react'
-import HelpIcon from '@mui/icons-material/Help'
 
 // UI Elements
-import {Popover} from '@cloudscape-design/components'
+import {Icon, Popover} from '@cloudscape-design/components'
 
 export default function HelpTooltip({children}: any) {
   return (
-    <span style={{paddingLeft: '8px', display: 'inline-block'}}>
-      <Popover
-        dismissButton={false}
-        position="right"
-        size="medium"
-        content={children}
-      >
-        <HelpIcon sx={{fontSize: 18}} />
-      </Popover>
-    </span>
+    <Popover
+      dismissButton={false}
+      position="right"
+      size="medium"
+      content={children}
+    >
+      <Icon name="status-info" size="small" />
+    </Popover>
   )
 }

@@ -347,14 +347,7 @@ function Configure() {
                         loading={fleetStatus === 'STOP_REQUESTED'}
                         onClick={stopComputeFleet}
                       >
-                        {fleetStatus !== 'RUNNING' ? (
-                          <span>{t('wizard.actions.stopComputeFleet')}</span>
-                        ) : (
-                          <div className="container">
-                            <CancelIcon />{' '}
-                            {t('wizard.actions.stopComputeFleet')}
-                          </div>
-                        )}
+                        <span>{t('wizard.actions.stopComputeFleet')}</span>
                       </Button>
                     )}
                   <Button onClick={clearStateAndCloseWizard}>

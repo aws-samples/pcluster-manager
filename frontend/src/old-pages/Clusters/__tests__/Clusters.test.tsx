@@ -1,5 +1,4 @@
 import {ThemeProvider} from '@emotion/react'
-import {createTheme} from '@mui/material'
 import {render, waitFor} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import {I18nextProvider} from 'react-i18next'
@@ -29,9 +28,7 @@ const MockProviders = (props: any) => (
   <QueryClientProvider client={queryClient}>
     <I18nextProvider i18n={i18n}>
       <Provider store={store}>
-        <ThemeProvider theme={createTheme()}>
-          <BrowserRouter>{props.children}</BrowserRouter>
-        </ThemeProvider>
+        <BrowserRouter>{props.children}</BrowserRouter>
       </Provider>
     </I18nextProvider>
   </QueryClientProvider>
