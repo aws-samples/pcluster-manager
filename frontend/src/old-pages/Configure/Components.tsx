@@ -40,11 +40,11 @@ import {
   TokenGroup,
   Select,
   InputProps,
-} from '@awsui/components-react'
+} from '@cloudscape-design/components'
 
 // Components
 import HelpTooltip from '../../components/HelpTooltip'
-import {NonCancelableEventHandler} from '@awsui/components-react/internal/events'
+import {NonCancelableEventHandler} from '@cloudscape-design/components/internal/events'
 
 // Helper Functions
 function strToOption(str: any) {

@@ -8,7 +8,7 @@
 // or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-import React, {useCallback, useMemo} from 'react'
+import React, {useCallback} from 'react'
 import {useNavigate} from 'react-router-dom'
 
 // @ts-expect-error TS(7016) FIXME: Could not find a declaration file for module 'js-y... Remove this comment to see the full error message
@@ -30,7 +30,7 @@ import {
   Button,
   SideNavigation,
   SpaceBetween,
-} from '@awsui/components-react'
+} from '@cloudscape-design/components'
 
 // SubPages
 import {Source, sourceValidate} from './Source'
@@ -51,8 +51,8 @@ import {stopComputeFleet, StopDialog} from '../Clusters/StopDialog'
 import Loading from '../../components/Loading'
 
 // Icons
-import CancelIcon from '@mui/icons-material/Cancel'
 import {useTranslation} from 'react-i18next'
+import Layout from '../Layout'
 
 function wizardShow(navigate: any) {
   const editing = getState(['app', 'wizard', 'editing'])
@@ -299,7 +299,7 @@ function Configure() {
   }, [clearStateAndCloseWizard])
 
   return (
-    <div style={{minWidth: '1200px'}}>
+    <Layout contentType="form">
       <StopDialog clusterName={clusterName} />
       <SpaceBetween direction="vertical" size="l">
         <BreadcrumbGroup
@@ -314,7 +314,7 @@ function Configure() {
           <SideNav />
           <div style={{minWidth: '800px', maxWidth: '1000px'}}>
             <SpaceBetween direction="vertical" size="s">
-              <Box className="wizard-container">
+              <Box>
                 {
                   {
                     source: <Source />,
@@ -347,14 +347,7 @@ function Configure() {
                         loading={fleetStatus === 'STOP_REQUESTED'}
                         onClick={stopComputeFleet}
                       >
-                        {fleetStatus !== 'RUNNING' ? (
-                          <span>{t('wizard.actions.stopComputeFleet')}</span>
-                        ) : (
-                          <div className="container">
-                            <CancelIcon />{' '}
-                            {t('wizard.actions.stopComputeFleet')}
-                          </div>
-                        )}
+                        <span>{t('wizard.actions.stopComputeFleet')}</span>
                       </Button>
                     )}
                   <Button onClick={clearStateAndCloseWizard}>
@@ -381,7 +374,7 @@ function Configure() {
           </div>
         </SpaceBetween>
       </SpaceBetween>
-    </div>
+    </Layout>
   )
 }
 

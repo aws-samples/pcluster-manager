@@ -12,7 +12,7 @@
 import * as React from 'react'
 import i18next from 'i18next'
 import {useTranslation} from 'react-i18next'
-import {Container, Header, ColumnLayout} from '@awsui/components-react'
+import {Container, Header, ColumnLayout} from '@cloudscape-design/components'
 import {setState, getState, clearState, useState} from '../../../store'
 import {SlurmAccountingForm} from './SlurmAccountingForm'
 import {

@@ -15,7 +15,7 @@ import {GetConfiguration} from '../../model'
 import {setState, useState} from '../../store'
 
 // UI Elements
-import {Box, Button, Modal, SpaceBetween} from '@awsui/components-react'
+import {Box, Button, Modal, SpaceBetween} from '@cloudscape-design/components'
 
 // Components
 import Loading from '../../components/Loading'

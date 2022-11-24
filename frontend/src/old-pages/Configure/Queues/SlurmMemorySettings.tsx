@@ -19,7 +19,7 @@ import {
   SpaceBetween,
   Popover,
   Link,
-} from '@awsui/components-react'
+} from '@cloudscape-design/components'
 import {setState, getState, useState, clearState} from '../../../store'
 import {Queue} from './queues.types'
 import {useFeatureFlag} from '../../../feature-flags/useFeatureFlag'

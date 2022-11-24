@@ -9,8 +9,8 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {FormField, Select, SelectProps} from '@awsui/components-react'
-import {NonCancelableEventHandler} from '@awsui/components-react/internal/events'
+import {FormField, Select, SelectProps} from '@cloudscape-design/components'
+import {NonCancelableEventHandler} from '@cloudscape-design/components/internal/events'
 import {useCallback} from 'react'
 import {useTranslation} from 'react-i18next'
 import {useFeatureFlag} from '../../../feature-flags/useFeatureFlag'

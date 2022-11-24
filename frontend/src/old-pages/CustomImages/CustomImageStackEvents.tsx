@@ -15,7 +15,7 @@ import {GetCustomImageStackEvents} from '../../model'
 import {getState, useState} from '../../store'
 
 // UI Elements
-import {ExpandableSection} from '@awsui/components-react'
+import {ExpandableSection} from '@cloudscape-design/components'
 
 // Components
 import DateView from '../../components/DateView'

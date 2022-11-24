@@ -8,7 +8,7 @@
 // or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-import {SideNavigation, SideNavigationProps} from '@awsui/components-react'
+import {SideNavigation, SideNavigationProps} from '@cloudscape-design/components'
 import * as React from 'react'
 import {useTranslation} from 'react-i18next'
 import {useLocation, useNavigate} from 'react-router-dom'

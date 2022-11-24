@@ -32,7 +32,7 @@ import {
   Popover,
   SpaceBetween,
   StatusIndicator,
-} from '@awsui/components-react'
+} from '@cloudscape-design/components'
 
 // Components
 import ConfigDialog from './ConfigDialog'

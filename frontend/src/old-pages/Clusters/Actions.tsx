@@ -34,15 +34,8 @@ import {findFirst, clusterDefaultUser} from '../../util'
 import {loadTemplate} from '../Configure/util'
 import {useTranslation} from 'react-i18next'
 
-import Button from '@awsui/components-react/button'
-import SpaceBetween from '@awsui/components-react/space-between'
-import CancelIcon from '@mui/icons-material/Cancel'
-import DeleteIcon from '@mui/icons-material/Delete'
-import FeaturedPlayListIcon from '@mui/icons-material/FeaturedPlayList'
-import FolderIcon from '@mui/icons-material/Folder'
-import MonitorIcon from '@mui/icons-material/Monitor'
-import PlayArrowIcon from '@mui/icons-material/PlayArrow'
-import EditIcon from '@mui/icons-material/Edit'
+import Button from '@cloudscape-design/components/button'
+import SpaceBetween from '@cloudscape-design/components/space-between'
 
 import {
   DeleteDialog,
@@ -162,30 +155,19 @@ export default function Actions() {
           variant="normal"
           onClick={editConfiguration}
         >
-          <div className="container">
-            <EditIcon /> {t('cluster.list.actions.edit')}
-          </div>
+          {t('cluster.list.actions.edit')}
         </Button>
         {fleetStatus === 'STOPPED' && (
-          <Button className="action" variant="normal" onClick={startFleet}>
-            <div className="container">
-              <PlayArrowIcon /> {t('cluster.list.actions.start')}
-            </div>
+          <Button variant="normal" onClick={startFleet}>
+            {t('cluster.list.actions.start')}
           </Button>
         )}
         {fleetStatus === 'RUNNING' && (
-          <Button
-            className="action"
-            variant="normal"
-            onClick={stopComputeFleet}
-          >
-            <div className="container">
-              <CancelIcon /> {t('cluster.list.actions.stop')}
-            </div>
+          <Button variant="normal" onClick={stopComputeFleet}>
+            {t('cluster.list.actions.stop')}
           </Button>
         )}
         <Button
-          className="action"
           disabled={
             clusterStatus === ClusterStatus.DeleteInProgress || !isAdmin()
           }
@@ -193,24 +175,19 @@ export default function Actions() {
             showDialog('deleteCluster')
           }}
         >
-          <div className="container">
-            <DeleteIcon /> {t('cluster.list.actions.delete')}
-          </div>
+          {t('cluster.list.actions.delete')}
         </Button>
         {headNode &&
           headNode.publicIpAddress &&
           headNode.publicIpAddress !== '' &&
           ssmEnabled && (
             <Button
-              className="action"
               disabled={clusterStatus === ClusterStatus.DeleteInProgress}
               onClick={() => {
                 ssmFilesystem(headNode.instanceId)
               }}
             >
-              <div className="container">
-                <FolderIcon /> {t('cluster.list.actions.filesystem')}
-              </div>
+              {t('cluster.list.actions.filesystem')}
             </Button>
           )}
         {headNode &&
@@ -218,15 +195,12 @@ export default function Actions() {
           headNode.publicIpAddress !== '' &&
           ssmEnabled && (
             <Button
-              className="action"
               disabled={clusterStatus === ClusterStatus.DeleteInProgress}
               onClick={() => {
                 shellCluster(headNode.instanceId)
               }}
             >
-              <div className="container">
-                <FeaturedPlayListIcon /> {t('cluster.list.actions.shell')}
-              </div>
+              {t('cluster.list.actions.shell')}
             </Button>
           )}
         {headNode &&
@@ -234,15 +208,12 @@ export default function Actions() {
           headNode.publicIpAddress !== '' &&
           dcvEnabled && (
             <Button
-              className="action"
               disabled={clusterStatus === ClusterStatus.DeleteInProgress}
               onClick={() => {
                 dcvConnect(headNode)
               }}
             >
-              <div className="container">
-                <MonitorIcon /> {t('cluster.list.actions.dcv')}
-              </div>
+              {t('cluster.list.actions.dcv')}
             </Button>
           )}
       </SpaceBetween>

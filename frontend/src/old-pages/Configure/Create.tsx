@@ -20,7 +20,7 @@ import {
 } from '../../model'
 
 // UI Elements
-import {Container, Header, Toggle, Spinner} from '@awsui/components-react'
+import {Container, Header, Toggle, Spinner} from '@cloudscape-design/components'
 
 // Components
 import ValidationErrors from '../../components/ValidationErrors'

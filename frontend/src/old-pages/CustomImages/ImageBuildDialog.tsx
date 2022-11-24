@@ -21,7 +21,7 @@ import {
   Modal,
   SpaceBetween,
   Spinner,
-} from '@awsui/components-react'
+} from '@cloudscape-design/components'
 
 // Components
 import ValidationErrors from '../../components/ValidationErrors'

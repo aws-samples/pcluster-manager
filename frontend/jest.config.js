@@ -1,6 +1,6 @@
 const merge = require('lodash/merge');
 const nextJest = require('next/jest')
-const awsuiPreset = require('@awsui/jest-preset/jest-preset');
+const awsuiPreset = require('@cloudscape-design/jest-preset/jest-preset');
 
 const createJestConfig = nextJest({
   // Provide the path to your Next.js app to load next.config.js and .env files in your test environment

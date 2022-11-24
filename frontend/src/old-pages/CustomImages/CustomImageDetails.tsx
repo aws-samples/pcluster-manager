@@ -16,7 +16,7 @@ import {GetCustomImageConfiguration} from '../../model'
 
 // UI Elements
 import {Trans} from 'react-i18next'
-import Tabs from '@awsui/components-react/tabs'
+import Tabs from '@cloudscape-design/components/tabs'
 import {
   Box,
   Button,
@@ -26,14 +26,13 @@ import {
   Popover,
   SpaceBetween,
   StatusIndicator,
-} from '@awsui/components-react'
+} from '@cloudscape-design/components'
 
 // Components
 import Loading from '../../components/Loading'
 import DateView from '../../components/DateView'
 
 import CustomImageStackEvents from './CustomImageStackEvents'
-// import CustomImageLogs from './CustomImageLogs';
 
 // Constants
 const customImagesPath = ['app', 'customImages']
@@ -202,11 +201,6 @@ export default function CustomImageDetails() {
               },
             ]
           : []),
-        // {
-        //   label: "Logs",
-        //   id: "logs",
-        //   content: <CustomImageLogs imageId={selected} />
-        // }
       ]}
     />
   )

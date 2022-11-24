@@ -12,7 +12,7 @@
 import * as React from 'react'
 
 // UI Elements
-import {CodeEditor} from '@awsui/components-react'
+import {CodeEditor} from '@cloudscape-design/components'
 
 export default function ConfigView({config, pending, onChange}: any) {
   const [preferences, setPreferences] = React.useState({theme: 'textmate'})

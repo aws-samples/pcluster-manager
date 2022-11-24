@@ -30,15 +30,15 @@ import {
   SplitPanel,
   Table,
   TextFilter,
-} from '@awsui/components-react'
-import {useCollection} from '@awsui/collection-hooks'
+} from '@cloudscape-design/components'
+import {useCollection} from '@cloudscape-design/collection-hooks'
 
 import EmptyState from '../../components/EmptyState'
 import {ClusterStatusIndicator} from '../../components/Status'
 import Actions from './Actions'
 import Details from './Details'
 import {wizardShow} from '../Configure/Configure'
-import AddIcon from '@mui/icons-material/Add'
+import Layout from '../Layout'
 
 export function onClustersUpdate(
   selectedClusterName: ClusterName,
@@ -129,24 +129,21 @@ function ClusterList({clusters}: {clusters: ClusterInfoSummary[]}) {
   return (
     <Table
       {...collectionProps}
+      variant="full-page"
       header={
         <Header
-          variant="h2"
-          description=""
-          counter={clusters && `(${clusters.length})`}
+          variant="awsui-h1-sticky"
+          counter={items && `(${items.length})`}
           actions={
             <SpaceBetween direction="horizontal" size="xs">
               {selectedClusterName && <Actions />}
               {clusters && (
                 <Button
-                  className="action"
                   onClick={configure}
                   variant="primary"
                   disabled={!isAdmin()}
                 >
-                  <div className="container">
-                    <AddIcon /> {t('cluster.list.actions.create')}
-                  </div>
+                  {t('cluster.list.actions.create')}
                 </Button>
               )}
             </SpaceBetween>
@@ -175,7 +172,7 @@ function ClusterList({clusters}: {clusters: ClusterInfoSummary[]}) {
           cell: cluster => cluster.version || '-',
         },
       ]}
-      loading={clusters === null}
+      loading={!clusters}
       items={items}
       selectionType="single"
       loadingText={t('cluster.list.loadingText')}
@@ -213,19 +210,13 @@ export default function Clusters() {
   )
 
   return (
-    <AppLayout
-      className="inner-app-layout"
-      headerSelector="#top-bar"
-      disableContentHeaderOverlap
-      navigationHide
-      toolsHide
+    <Layout
       splitPanelOpen={splitOpen}
       onSplitPanelToggle={e => {
         setSplitOpen(e.detail.open)
       }}
       splitPanel={
         <SplitPanel
-          className="bottom-panel"
           i18nStrings={{
             preferencesTitle: t('cluster.list.splitPanel.preferencesTitle'),
             preferencesPositionLabel: t(
@@ -265,7 +256,8 @@ export default function Clusters() {
           )}
         </SplitPanel>
       }
-      content={<ClusterList clusters={clusters!} />}
-    />
+    >
+      <ClusterList clusters={clusters!} />
+    </Layout>
   )
 }

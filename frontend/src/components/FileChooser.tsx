@@ -11,7 +11,7 @@
 import * as React from 'react'
 
 // UI Elements
-import {Button} from '@awsui/components-react'
+import {Button} from '@cloudscape-design/components'
 
 // State
 import {setState, getState} from '../store'

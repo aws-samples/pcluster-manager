@@ -16,7 +16,7 @@ import {ListCustomImages, DescribeCustomImage} from '../../model'
 
 import {setState, useState, getState, clearState, isAdmin} from '../../store'
 
-import {useCollection} from '@awsui/collection-hooks'
+import {useCollection} from '@cloudscape-design/collection-hooks'
 
 // Components
 import EmptyState from '../../components/EmptyState'
@@ -36,7 +36,8 @@ import {
   SplitPanel,
   Table,
   TextFilter,
-} from '@awsui/components-react'
+} from '@cloudscape-design/components'
+import Layout from '../Layout'
 
 const imageBuildPath = ['app', 'customImages', 'imageBuild']
 
@@ -45,9 +46,11 @@ const selectCustomImagesList = (state: any): ImageInfoSummary[] =>
   state.customImages.list
 
 function CustomImagesList() {
-  const images = useSelector(selectCustomImagesList) || []
+  const images = useSelector(selectCustomImagesList)
 
   const [selected, setSelected] = React.useState<ImageInfoSummary[]>([])
+
+  const imageStatus = useState(['app', 'customImages', 'selectedImageStatus'])
 
   let select = (image: ImageInfoSummary) => {
     setSelected([image])
@@ -59,6 +62,12 @@ function CustomImagesList() {
     setState([...imageBuildPath, 'dialog'], true)
   }
 
+  const refreshImages = () => {
+    clearState(['customImages', 'list'])
+    clearState(['app', 'customImages', 'selected'])
+    ListCustomImages(imageStatus || 'AVAILABLE')
+  }
+
   const {
     items,
     actions,
@@ -66,7 +75,7 @@ function CustomImagesList() {
     collectionProps,
     filterProps,
     paginationProps,
-  } = useCollection(images, {
+  } = useCollection(images || [], {
     filtering: {
       empty: (
         <EmptyState
@@ -101,6 +110,36 @@ function CustomImagesList() {
       {...collectionProps}
       resizableColumns
       trackBy="imageId"
+      variant="full-page"
+      header={
+        <Header
+          variant="awsui-h1-sticky"
+          description=""
+          counter={images && `(${images.length})`}
+          actions={
+            <SpaceBetween direction="horizontal" size="xs">
+              <Button
+                className="action"
+                onClick={refreshImages}
+                iconName={'refresh'}
+              >
+                Refresh
+              </Button>
+              <StatusSelect />
+              <Button
+                className="action"
+                onClick={buildImage}
+                iconName={'add-plus'}
+                disabled={!isAdmin()}
+              >
+                Build Image
+              </Button>
+            </SpaceBetween>
+          }
+        >
+          Custom Images
+        </Header>
+      }
       columnDefinitions={[
         {
           id: 'name',
@@ -131,7 +170,7 @@ function CustomImagesList() {
           cell: image => image.version || '-',
         },
       ]}
-      loading={images === null}
+      loading={!images}
       items={items}
       selectionType="single"
       loadingText="Loading Images..."
@@ -186,19 +225,7 @@ export default function CustomImages() {
   const imageId = useState(['app', 'customImages', 'selected'])
   const images = useSelector(selectCustomImagesList)
 
-  const imageStatus = useState(['app', 'customImages', 'selectedImageStatus'])
-
   const [splitOpen, setSplitOpen] = React.useState(true)
-
-  const buildImage = () => {
-    setState([...imageBuildPath, 'dialog'], true)
-  }
-
-  const refreshImages = () => {
-    clearState(['customImages', 'list'])
-    clearState(['app', 'customImages', 'selected'])
-    ListCustomImages(imageStatus || 'AVAILABLE')
-  }
 
   React.useEffect(() => {
     const imageStatus = getState(['app', 'customImages', 'selectedImageStatus'])
@@ -206,19 +233,13 @@ export default function CustomImages() {
   }, [])
 
   return (
-    <AppLayout
-      className="inner-app-layout"
-      headerSelector="#top-bar"
-      disableContentHeaderOverlap
-      navigationHide
-      toolsHide
+    <Layout
       splitPanelOpen={splitOpen}
       onSplitPanelToggle={e => {
         setSplitOpen(e.detail.open)
       }}
       splitPanel={
         <SplitPanel
-          className="bottom-panel"
           i18nStrings={{
             preferencesTitle: 'Split panel preferences',
             preferencesPositionLabel: 'Split panel position',
@@ -243,44 +264,11 @@ export default function CustomImages() {
           )}
         </SplitPanel>
       }
-      content={
-        <>
-          <Container
-            header={
-              <Header
-                variant="h2"
-                description=""
-                counter={images && `(${images.length})`}
-                actions={
-                  <SpaceBetween direction="horizontal" size="xs">
-                    <Button
-                      className="action"
-                      onClick={refreshImages}
-                      iconName={'refresh'}
-                    >
-                      Refresh
-                    </Button>
-                    <StatusSelect />
-                    <Button
-                      className="action"
-                      onClick={buildImage}
-                      iconName={'add-plus'}
-                      disabled={!isAdmin()}
-                    >
-                      Build Image
-                    </Button>
-                  </SpaceBetween>
-                }
-              >
-                Custom Images
-              </Header>
-            }
-          >
-            {images ? <CustomImagesList /> : <Loading />}
-          </Container>
-          <ImageBuildDialog />
-        </>
-      }
-    />
+    >
+      <>
+        <CustomImagesList />
+        <ImageBuildDialog />
+      </>
+    </Layout>
   )
 }

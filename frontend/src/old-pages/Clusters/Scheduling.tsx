@@ -21,7 +21,7 @@ import {
 } from '../../store'
 import {QueueStatus, CancelJob, JobInfo} from '../../model'
 import {clusterDefaultUser, findFirst} from '../../util'
-import {useCollection} from '@awsui/collection-hooks'
+import {useCollection} from '@cloudscape-design/collection-hooks'
 
 // UI Elements
 import {
@@ -35,7 +35,7 @@ import {
   SpaceBetween,
   Table,
   TextFilter,
-} from '@awsui/components-react'
+} from '@cloudscape-design/components'
 
 import JobSubmitDialog from './JobSubmitDialog'
 

@@ -28,7 +28,7 @@ import {
   Select,
   SpaceBetween,
   Toggle,
-} from '@awsui/components-react'
+} from '@cloudscape-design/components'
 
 // State
 import {getState, setState, useState, clearState} from '../../store'

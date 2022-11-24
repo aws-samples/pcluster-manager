@@ -9,9 +9,9 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {FormField, Input} from '@awsui/components-react'
-import {BaseChangeDetail} from '@awsui/components-react/input/interfaces'
-import {NonCancelableEventHandler} from '@awsui/components-react/internal/events'
+import {FormField, Input} from '@cloudscape-design/components'
+import {BaseChangeDetail} from '@cloudscape-design/components/input/interfaces'
+import {NonCancelableEventHandler} from '@cloudscape-design/components/internal/events'
 import {useCallback, useState} from 'react'
 import {useTranslation} from 'react-i18next'
 
