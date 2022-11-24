@@ -25,7 +25,7 @@ import {handleNotAuthorizedErrors} from './auth/handleNotAuthorizedErrors'
 import {AppConfig} from './app-config/types'
 import identityFn from 'lodash/identity'
 import {getAppConfig} from './app-config'
-import {PcmLogger} from './logger/pcm.logger'
+import {Logger} from './logger/logger'
 
 // Types
 type Callback = (arg?: any) => void
@@ -34,7 +34,7 @@ const axiosInstance = axios.create({
   baseURL: getHost(),
 })
 
-const logger = new PcmLogger(axiosInstance, getState(['app', 'appConfig']))
+const logger = new Logger(axiosInstance, getState(['app', 'appConfig']))
 
 function notify(text: any, type = 'info', id?: string, dismissible = true) {
   let messageId = id || generateRandomId()

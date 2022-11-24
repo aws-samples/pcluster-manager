@@ -1,5 +1,5 @@
 import {AppConfig} from '../../app-config/types'
-import {PcmLogger} from '../pcm.logger'
+import {Logger} from '../logger'
 import axios from 'axios'
 
 const mockedAxios = axios as jest.Mocked<typeof axios>
@@ -24,7 +24,7 @@ describe('given the application config', () => {
     mockedAxios.post.mockResolvedValue(response)
 
     describe('and a PCM Logger instance', () => {
-      let logger = new PcmLogger(mockedAxios, mockAppConfig)
+      let logger = new Logger(mockedAxios, mockAppConfig)
 
       const expectedPath = '/logs'
       const expectedConfig = {headers: {'Content-Type': 'application/json'}}
@@ -83,10 +83,7 @@ describe('given the application config', () => {
         })
 
         expect(response.status).toBe(400)
-        expect(logSpy).toHaveBeenCalledWith(
-          'Unable to post log entry with error: ',
-          'Error message',
-        )
+        expect(response.message).toBe('Error message')
       })
     })
   })

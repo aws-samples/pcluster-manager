@@ -11,13 +11,18 @@ enum LogLevel {
   critical = 'CRITICAL',
 }
 
-interface LogEntry {
+interface PostLogRequest {
   message: string
   level: LogLevel
-  extra?: {[key: string]: string}
+  extra?: Record<string, unknown>
 }
 
-export class PcmLogger {
+interface PostLogResponse {
+  Code?: number
+  Message?: string
+}
+
+export class Logger {
   private readonly post
   private readonly handle401and403
 
@@ -34,10 +39,10 @@ export class PcmLogger {
       this.post('/logs', logEntry, {
         headers: {'Content-Type': 'application/json'},
       }),
-    ).catch(reason => {
-      console.warn('Unable to post log entry with error: ', reason['Message'])
-      return {status: reason['Code']}
-    })
+    ).catch(({Code, Message}: PostLogResponse) => ({
+      status: Code,
+      message: Message,
+    }))
   }
 
   info(message: string, extra?: {[key: string]: string}) {
@@ -64,12 +69,7 @@ export class PcmLogger {
     level: LogLevel,
     message: string,
     extra?: {[p: string]: string},
-  ): LogEntry {
-    const entry: LogEntry = {message, level}
-    if (extra) {
-      entry['extra'] = extra
-    }
-
-    return entry
+  ): PostLogRequest {
+    return {message, level, extra}
   }
 }
