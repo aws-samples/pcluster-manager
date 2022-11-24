@@ -14,7 +14,6 @@ import {useCallback} from 'react'
 import dynamic from 'next/dynamic'
 import '@cloudscape-design/global-styles/index.css'
 import './App.css'
-import './index.css'
 
 import {QueryClient, QueryClientProvider} from 'react-query'
 import {I18nextProvider} from 'react-i18next'

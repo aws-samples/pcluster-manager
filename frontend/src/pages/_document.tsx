@@ -17,10 +17,6 @@ export default function Document() {
         <link rel="icon" href="favicon.ico" />
         <meta name="theme-color" content="#000000" />
         <meta name="description" content="AWS ParallelCluster Manager" />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
-        />
       </Head>
       <body>
         <Main />
