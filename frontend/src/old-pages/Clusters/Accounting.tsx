@@ -10,7 +10,7 @@
 // limitations under the License.
 import {AccountingJobSummary} from '../../types/jobs'
 import React from 'react'
-import {useCollection} from '@awsui/collection-hooks'
+import {useCollection} from '@cloudscape-design/collection-hooks'
 
 import {useState, getState, setState, clearState} from '../../store'
 
@@ -40,7 +40,7 @@ import {
   SpaceBetween,
   Table,
   TextFilter,
-} from '@awsui/components-react'
+} from '@cloudscape-design/components'
 
 // Key:Value pair (label / children)
 const ValueWithLabel = ({label, children}: any) => (

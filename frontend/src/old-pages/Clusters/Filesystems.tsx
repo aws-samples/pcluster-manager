@@ -12,7 +12,7 @@ import React from 'react'
 
 import {useState, consoleDomain} from '../../store'
 import {getIn} from '../../util'
-import {useCollection} from '@awsui/collection-hooks'
+import {useCollection} from '@cloudscape-design/collection-hooks'
 
 // UI Elements
 import {
@@ -21,7 +21,7 @@ import {
   Pagination,
   Table,
   TextFilter,
-} from '@awsui/components-react'
+} from '@cloudscape-design/components'
 
 // Components
 import EmptyState from '../../components/EmptyState'

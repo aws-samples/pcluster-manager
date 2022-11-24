@@ -9,7 +9,7 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-import wrapper from '@awsui/components-react/test-utils/dom'
+import wrapper from '@cloudscape-design/components/test-utils/dom'
 import {render, RenderResult} from '@testing-library/react'
 import i18n from 'i18next'
 import {I18nextProvider, initReactI18next} from 'react-i18next'

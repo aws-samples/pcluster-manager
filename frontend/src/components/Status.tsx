@@ -28,7 +28,7 @@ import {
   Link,
   StatusIndicator,
   StatusIndicatorProps,
-} from '@awsui/components-react'
+} from '@cloudscape-design/components'
 import {useState} from '../store'
 
 export type StatusMap = Record<string, StatusIndicatorProps.Type>

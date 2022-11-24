@@ -23,7 +23,7 @@ import {
   clearState,
   useState,
 } from '../../store'
-import {useCollection} from '@awsui/collection-hooks'
+import {useCollection} from '@cloudscape-design/collection-hooks'
 import {findFirst} from '../../util'
 
 // UI Elements
@@ -35,7 +35,7 @@ import {
   SpaceBetween,
   Table,
   TextFilter,
-} from '@awsui/components-react'
+} from '@cloudscape-design/components'
 
 // Components
 import {StackEventStatusIndicator} from '../../components/Status'

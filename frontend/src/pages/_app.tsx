@@ -12,12 +12,11 @@ import Script from 'next/script'
 import type {AppProps} from 'next/app'
 import {useCallback} from 'react'
 import dynamic from 'next/dynamic'
-import '@awsui/global-styles/index.css'
+import '@cloudscape-design/global-styles/index.css'
 import './App.css'
 import './index.css'
 
 import {QueryClient, QueryClientProvider} from 'react-query'
-import {createTheme, ThemeProvider} from '@mui/material/styles'
 import {I18nextProvider} from 'react-i18next'
 import {Provider} from 'react-redux'
 
@@ -25,34 +24,6 @@ import i18n from '../i18n'
 import {store} from '../store'
 
 const queryClient = new QueryClient()
-
-const theme = createTheme({
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          fontSize: '14px',
-        },
-      },
-    },
-  },
-  palette: {
-    primary: {
-      main: 'rgb(236, 114, 17)',
-    },
-  },
-  shape: {
-    borderRadius: '1px',
-  },
-  typography: {
-    fontSize: 20,
-    button: {
-      fontWeight: '700',
-      textTransform: 'none',
-    },
-  },
-})
-
 declare global {
   interface Window {
     ace: any
@@ -78,9 +49,7 @@ function App({Component, pageProps}: AppProps) {
       <QueryClientProvider client={queryClient}>
         <I18nextProvider i18n={i18n}>
           <Provider store={store}>
-            <ThemeProvider theme={theme}>
-              <Component {...pageProps} />
-            </ThemeProvider>
+            <Component {...pageProps} />
           </Provider>
         </I18nextProvider>
       </QueryClientProvider>

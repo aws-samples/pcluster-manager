@@ -23,7 +23,7 @@ import {
   Link,
   SpaceBetween,
   Toggle,
-} from '@awsui/components-react'
+} from '@cloudscape-design/components'
 
 // State
 import {setState, useState, getState, clearState} from '../../store'

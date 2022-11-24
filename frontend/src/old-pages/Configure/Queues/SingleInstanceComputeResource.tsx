@@ -5,7 +5,7 @@ import {
   FormField,
   Input,
   Toggle,
-} from '@awsui/components-react'
+} from '@cloudscape-design/components'
 import {useEffect} from 'react'
 import {Trans, useTranslation} from 'react-i18next'
 import HelpTooltip from '../../../components/HelpTooltip'

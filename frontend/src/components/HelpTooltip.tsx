@@ -10,10 +10,9 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import * as React from 'react'
-import HelpIcon from '@mui/icons-material/Help'
 
 // UI Elements
-import {Popover} from '@awsui/components-react'
+import {Icon, Popover} from '@cloudscape-design/components'
 
 export default function HelpTooltip({children}: any) {
   return (
@@ -24,7 +23,7 @@ export default function HelpTooltip({children}: any) {
         size="medium"
         content={children}
       >
-        <HelpIcon sx={{fontSize: 18}} />
+        <Icon name="status-info" size="small" />
       </Popover>
     </span>
   )

@@ -31,7 +31,7 @@ import {
   RadioGroup,
   Select,
   SpaceBetween,
-} from '@awsui/components-react'
+} from '@cloudscape-design/components'
 
 // Components
 import {HiddenUploader} from '../../components/FileChooser'

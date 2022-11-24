@@ -9,37 +9,34 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {setState, useState} from '../store'
-import {Outlet} from 'react-router-dom'
-
+import {useState} from '../store'
 // UI Elements
-import AppLayout from '@awsui/components-react/app-layout'
-import {Flashbar} from '@awsui/components-react'
+import AppLayout, {
+  AppLayoutProps,
+} from '@cloudscape-design/components/app-layout'
+import {Flashbar} from '@cloudscape-design/components'
 
 // Components
 import TopBar from '../components/TopBar'
 import SideBar from '../components/SideBar'
+import {PropsWithChildren} from 'react'
 
-export default function Layout() {
-  const messages = useState(['app', 'messages'])
-
+export default function Layout({
+  children,
+  ...props
+}: PropsWithChildren<Partial<AppLayoutProps>>) {
+  const messages = useState(['app', 'messages']) || []
   return (
     <>
       <TopBar />
       <AppLayout
-        className="app-layout"
         headerSelector="#top-bar"
-        navigationWidth={220}
         toolsHide
-        content={
-          <>
-            <div style={{marginBottom: '30px'}}>
-              <Flashbar items={messages} />
-            </div>
-            <Outlet />
-          </>
-        }
+        content={children}
+        contentType="table"
         navigation={<SideBar />}
+        notifications={<Flashbar items={messages} />}
+        {...props}
       />
     </>
   )

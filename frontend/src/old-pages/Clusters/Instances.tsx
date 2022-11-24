@@ -33,9 +33,9 @@ import {
   SpaceBetween,
   Table,
   TextFilter,
-} from '@awsui/components-react'
+} from '@cloudscape-design/components'
 
-import {useCollection} from '@awsui/collection-hooks'
+import {useCollection} from '@cloudscape-design/collection-hooks'
 
 // Components
 import {InstanceStatusIndicator} from '../../components/Status'
