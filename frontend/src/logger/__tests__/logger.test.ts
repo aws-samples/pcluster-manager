@@ -15,7 +15,7 @@ describe('given the application config', () => {
     mockedExecuteRequest.mockClear()
   })
 
-  describe('and an axios instance', () => {
+  describe('and the executeRequest function', () => {
     const response = {status: 200}
     mockedExecuteRequest.mockResolvedValue(response)
 
@@ -67,7 +67,7 @@ describe('given the application config', () => {
         expect(response.status).toBe(200)
       })
 
-      it('returns an error when incorrect data is passed', async () => {
+      it('logs a warning about the impossiblity to push the log entry', async () => {
         const logSpy = jest.spyOn(console, 'warn')
         mockedExecuteRequest.mockRejectedValueOnce({
           Code: 400,
