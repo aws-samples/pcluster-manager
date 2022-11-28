@@ -1,5 +1,4 @@
 import {AppConfig} from '../../app-config/types'
-// import axios from "axios";
 import {executeRequest} from '../executeRequest'
 
 const mockOperation = jest.fn()
