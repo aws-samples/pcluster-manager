@@ -21,7 +21,7 @@ import {Provider} from 'react-redux'
 
 import i18n from '../i18n'
 import {store} from '../store'
-import {LoggerProvider} from '../logger/logger-context'
+import {LoggerProvider} from '../logger/LoggerProvider'
 
 const queryClient = new QueryClient()
 declare global {
