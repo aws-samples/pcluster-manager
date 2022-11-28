@@ -9,32 +9,23 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import {ClusterInfoSummary} from './types/clusters'
-import axios from 'axios'
 import {
-  setState,
-  getState,
-  clearState,
-  updateState,
   clearAllState,
+  clearState,
+  getState,
+  setState,
+  updateState,
 } from './store'
 import {USER_ROLES_CLAIM} from './auth/constants'
 import {generateRandomId} from './util'
 
 // UI Elements
-import {handleNotAuthorizedErrors} from './auth/handleNotAuthorizedErrors'
 import {AppConfig} from './app-config/types'
-import identityFn from 'lodash/identity'
 import {getAppConfig} from './app-config'
-import {Logger} from './logger/logger'
+import {axiosInstance, executeRequest, HTTPMethod} from './http/executeRequest'
 
 // Types
 type Callback = (arg?: any) => void
-
-const axiosInstance = axios.create({
-  baseURL: getHost(),
-})
-
-const logger = new Logger(axiosInstance, getState(['app', 'appConfig']))
 
 function notify(text: any, type = 'info', id?: string, dismissible = true) {
   let messageId = id || generateRandomId()
@@ -63,37 +54,18 @@ function notify(text: any, type = 'info', id?: string, dismissible = true) {
   updateState(['app', 'messages'], updateFn)
 }
 
-function getHost() {
-  if (process.env.NODE_ENV !== 'production') return 'http://localhost:5001/'
-  return '/'
-}
-
-type HTTPMethod = 'get' | 'put' | 'post' | 'patch' | 'delete'
-
 function request(method: HTTPMethod, url: string, body: any = undefined) {
-  const requestFunc = {
-    put: axiosInstance.put,
-    post: axiosInstance.post,
-    get: axiosInstance.get,
-    patch: axiosInstance.patch,
-    delete: axiosInstance.delete,
-  }[method]
-
   const appConfig: AppConfig = getState(['app', 'appConfig'])
   const region = getState(['app', 'selectedRegion'])
+
   url =
     region && !url.includes('region')
       ? url.includes('?')
         ? `${url}&region=${region}`
         : `${url}?region=${region}`
       : url
-  const headers = {'Content-Type': 'application/json'}
 
-  const handle401and403 = appConfig
-    ? handleNotAuthorizedErrors(appConfig)
-    : identityFn<Promise<any>>
-
-  return handle401and403(requestFunc(url, body, {headers}))
+  return executeRequest(method, url, body, appConfig)
 }
 
 function CreateCluster(
@@ -1069,5 +1041,4 @@ export {
   notify,
   CreateUser,
   DeleteUser,
-  logger,
 }
