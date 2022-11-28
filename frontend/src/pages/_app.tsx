@@ -21,6 +21,7 @@ import {Provider} from 'react-redux'
 
 import i18n from '../i18n'
 import {store} from '../store'
+import {LoggerProvider} from '../logger/logger-context'
 
 const queryClient = new QueryClient()
 declare global {
@@ -47,9 +48,11 @@ function App({Component, pageProps}: AppProps) {
       </Head>
       <QueryClientProvider client={queryClient}>
         <I18nextProvider i18n={i18n}>
-          <Provider store={store}>
-            <Component {...pageProps} />
-          </Provider>
+          <LoggerProvider>
+            <Provider store={store}>
+              <Component {...pageProps} />
+            </Provider>
+          </LoggerProvider>
         </I18nextProvider>
       </QueryClientProvider>
       <div id="editor"></div>
