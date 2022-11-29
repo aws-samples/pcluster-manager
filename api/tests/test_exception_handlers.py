@@ -10,11 +10,11 @@ def client_error_response():
 
 
 def test_boto3_exception_handler(client, client_error_response, app, monkeypatch):
-    def set_user_role_raising_clienterror():
+    def delete_user_raising_clienterror():
         raise client_error_response
 
-    monkeypatch.setitem(app.view_functions, 'set_user_role_', set_user_role_raising_clienterror)
-    response = client.put('/manager/set_user_role', json={'username': 'some-user', 'role': 'some-role'})
+    monkeypatch.setitem(app.view_functions, 'delete_user_', delete_user_raising_clienterror)
+    response = client.delete('/manager/delete_user', json={'username': 'some-user'})
 
     assert response.status_code == 400
     assert response.json == {'error': {'Code': 400, 'Message': 'Operation failed'}}
