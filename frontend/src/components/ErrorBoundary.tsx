@@ -1,9 +1,18 @@
-import React, {Component, ErrorInfo, ReactNode} from 'react'
-import {Modal, Box, SpaceBetween, Button, Link} from '@awsui/components-react'
-import {withTranslation, TFunction, Trans} from 'react-i18next'
+import React, {Component, ReactNode} from 'react'
+import {
+  Modal,
+  Box,
+  SpaceBetween,
+  Button,
+  Link,
+} from '@cloudscape-design/components'
+import {TFunction, Trans, useTranslation} from 'react-i18next'
+import {ILogger} from '../logger/ILogger'
+import {useLogger} from '../logger/LoggerProvider'
 
-interface Props {
+interface ErrorBoundaryProps {
   t: TFunction
+  logger: ILogger<any>
   windowObject?: Window
   children?: ReactNode
 }
@@ -12,16 +21,16 @@ interface State {
   error: boolean
 }
 
-class ErrorBoundary extends Component<Props, State> {
+export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
   public state: State = {
     error: false,
   }
 
   private promiseRejectionHandler = (event: PromiseRejectionEvent) => {
-    console.error(event.reason)
+    this.props.logger.error(event.reason)
   }
   private errorHandler = (event: ErrorEvent) => {
-    console.log(event.message)
+    this.props.logger.error(event.message)
   }
 
   private redirectToHomepage = () => {
@@ -32,8 +41,8 @@ class ErrorBoundary extends Component<Props, State> {
     return {error: true}
   }
 
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error(error, errorInfo)
+  public componentDidCatch(error: Error) {
+    this.props.logger.error(error.message)
   }
 
   public componentDidMount() {
@@ -66,11 +75,7 @@ class ErrorBoundary extends Component<Props, State> {
           footer={
             <Box float="right">
               <SpaceBetween direction="horizontal" size="xs">
-                <Button
-                  variant="primary"
-                  iconName="external"
-                  onClick={this.redirectToHomepage}
-                >
+                <Button variant="primary" onClick={this.redirectToHomepage}>
                   {t('errorBoundary.modal.button')}
                 </Button>
               </SpaceBetween>
@@ -80,7 +85,10 @@ class ErrorBoundary extends Component<Props, State> {
         >
           <Trans i18nKey="errorBoundary.modal.description">
             Description
-            <Link href="https://github.com/aws-samples/pcluster-manager/issues">
+            <Link
+              external
+              href="https://github.com/aws-samples/pcluster-manager/issues"
+            >
               link
             </Link>
           </Trans>
@@ -92,4 +100,16 @@ class ErrorBoundary extends Component<Props, State> {
   }
 }
 
-export default withTranslation()(ErrorBoundary)
+interface Props {
+  windowObject?: Window
+  children?: ReactNode
+}
+
+const ComposedErrorBoundary: React.FC<Props> = props => {
+  const {t} = useTranslation()
+  const logger = useLogger()
+
+  return <ErrorBoundary logger={logger} t={t} {...props} />
+}
+
+export default ComposedErrorBoundary
