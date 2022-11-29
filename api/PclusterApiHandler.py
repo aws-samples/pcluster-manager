@@ -595,7 +595,7 @@ def get_identity():
         if "username" not in identity:
             return {"message": "No username present in access or id token."}, 400
         if "user_roles" not in identity:
-            identity["user_roles"] = ["user"]
+            return {"message": "No user_roles present in access or id token."}, 400
 
     except jwt.ExpiredSignatureError:
         return {"message": "Signature expired."}, 401
