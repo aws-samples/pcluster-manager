@@ -49,13 +49,13 @@ function App({Component, pageProps}: AppProps) {
       </Head>
       <QueryClientProvider client={queryClient}>
         <I18nextProvider i18n={i18n}>
-          <LoggerProvider>
-            <Provider store={store}>
+          <Provider store={store}>
+            <LoggerProvider>
               <ErrorBoundary>
                 <Component {...pageProps} />
               </ErrorBoundary>
-            </Provider>
-          </LoggerProvider>
+            </LoggerProvider>
+          </Provider>
         </I18nextProvider>
       </QueryClientProvider>
       <div id="editor"></div>
