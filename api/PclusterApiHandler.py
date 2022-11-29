@@ -643,30 +643,10 @@ def create_user():
         user = cognito.admin_create_user(
             UserPoolId=USER_POOL_ID, Username=username, DesiredDeliveryMediums=["EMAIL"], UserAttributes=user_attributes
         ).get("User")
+        cognito.admin_add_user_to_group(UserPoolId=USER_POOL_ID, Username=username, GroupName="admin")
         return _augment_user(cognito, user)
     except Exception as e:
         return {"message": str(e)}, 500
-
-
-def set_user_role():
-    cognito = boto3.client("cognito-idp")
-    username = request.json["username"]
-    role = request.json["role"]
-    print(f"setting {username} => {role}")
-
-    if role == "guest":
-        cognito.admin_remove_user_from_group(UserPoolId=USER_POOL_ID, Username=username, GroupName="user")
-        cognito.admin_remove_user_from_group(UserPoolId=USER_POOL_ID, Username=username, GroupName="admin")
-    elif role == "user":
-        cognito.admin_add_user_to_group(UserPoolId=USER_POOL_ID, Username=username, GroupName="user")
-        cognito.admin_remove_user_from_group(UserPoolId=USER_POOL_ID, Username=username, GroupName="admin")
-    elif role == "admin":
-        cognito.admin_remove_user_from_group(UserPoolId=USER_POOL_ID, Username=username, GroupName="user")
-        cognito.admin_add_user_to_group(UserPoolId=USER_POOL_ID, Username=username, GroupName="admin")
-
-    users = cognito.list_users(UserPoolId=USER_POOL_ID, Filter=f'username = "{username}"')["Users"]
-    user = _augment_user(cognito, users[0]) if len(users) else {}
-    return user
 
 
 def login():
@@ -719,7 +699,7 @@ def _get_params(_request):
 
 
 class PclusterApiHandler(Resource):
-    method_decorators = [authenticated({"user", "admin"})]
+    method_decorators = [authenticated({"admin"})]
 
     def get(self):
         # if re.match(r".*images.*logstreams/+", args["path"]):
