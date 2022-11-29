@@ -38,13 +38,11 @@ from api.PclusterApiHandler import (
     queue_status,
     sacct,
     scontrol_job,
-    set_user_role,
     submit_job,
     logger,
 )
 from api.pcm_globals import set_global_logger
 
-ADMINS_USERS_GROUP = { "user", "admin" }
 ADMINS_GROUP = { "admin" }
 
 class RegexConverter(BaseConverter):
@@ -82,32 +80,32 @@ def run():
         return utils.serve_frontend(app, path)
 
     @app.route("/manager/ec2_action", methods=["POST"])
-    @authenticated(ADMINS_USERS_GROUP)
+    @authenticated(ADMINS_GROUP)
     def ec2_action_():
         return ec2_action()
 
     @app.route("/manager/get_cluster_configuration")
-    @authenticated(ADMINS_USERS_GROUP)
+    @authenticated(ADMINS_GROUP)
     def get_cluster_config_():
         return get_cluster_config()
 
     @app.route("/manager/get_custom_image_configuration")
-    @authenticated(ADMINS_USERS_GROUP)
+    @authenticated(ADMINS_GROUP)
     def get_custom_image_config_():
         return get_custom_image_config()
 
     @app.route("/manager/get_aws_configuration")
-    @authenticated(ADMINS_USERS_GROUP)
+    @authenticated(ADMINS_GROUP)
     def get_aws_config_():
         return get_aws_config()
 
     @app.route("/manager/get_instance_types")
-    @authenticated(ADMINS_USERS_GROUP)
+    @authenticated(ADMINS_GROUP)
     def get_instance_types_():
         return get_instance_types()
 
     @app.route("/manager/get_dcv_session")
-    @authenticated(ADMINS_USERS_GROUP)
+    @authenticated(ADMINS_GROUP)
     def get_dcv_session_():
         return get_dcv_session()
 
@@ -139,38 +137,33 @@ def run():
     def delete_user_():
         return delete_user()
 
-    @app.route("/manager/set_user_role", methods=["PUT"])
-    @authenticated(ADMINS_GROUP)
-    def set_user_role_():
-        return set_user_role()
-
     @app.route("/manager/queue_status")
-    @authenticated(ADMINS_USERS_GROUP)
+    @authenticated(ADMINS_GROUP)
     def queue_status_():
         return queue_status()
 
     @app.route("/manager/cancel_job")
-    @authenticated(ADMINS_USERS_GROUP)
+    @authenticated(ADMINS_GROUP)
     def cancel_job_():
         return cancel_job()
 
     @app.route("/manager/price_estimate")
-    @authenticated(ADMINS_USERS_GROUP)
+    @authenticated(ADMINS_GROUP)
     def price_estimate_():
         return price_estimate()
 
     @app.route("/manager/submit_job", methods=["POST"])
-    @authenticated(ADMINS_USERS_GROUP)
+    @authenticated(ADMINS_GROUP)
     def submit_job_():
         return submit_job()
 
     @app.route("/manager/sacct", methods=["POST"])
-    @authenticated(ADMINS_USERS_GROUP)
+    @authenticated(ADMINS_GROUP)
     def sacct_():
         return sacct()
 
     @app.route("/manager/scontrol_job")
-    @authenticated(ADMINS_USERS_GROUP)
+    @authenticated(ADMINS_GROUP)
     def scontrol_job_():
         return scontrol_job()
 
@@ -183,7 +176,7 @@ def run():
         return logout()
 
     @app.route('/logs', methods=['POST'])
-    @authenticated(ADMINS_USERS_GROUP)
+    @authenticated(ADMINS_GROUP)
     def push_log():
         if 'level' not in request.json or 'message' not in request.json:
             raise ValueError('Request body missing one or more mandatory fields ["message", "level"]')
