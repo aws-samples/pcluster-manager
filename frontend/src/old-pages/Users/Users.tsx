@@ -13,7 +13,7 @@ import {useSelector} from 'react-redux'
 import {useCollection} from '@cloudscape-design/collection-hooks'
 import {clearState, setState, getState, useState} from '../../store'
 
-import {CreateUser, DeleteUser, ListUsers, SetUserRole} from '../../model'
+import {CreateUser, DeleteUser, ListUsers} from '../../model'
 
 // UI Elements
 import {
@@ -46,52 +46,6 @@ const errorsPath = ['app', 'wizard', 'errors', 'user']
 
 // selectors
 const selectUserIndex = (state: any) => state.users.index
-
-function userToRole(user: any) {
-  let user_groups = new Set(user.Groups.map((group: any) => group.GroupName))
-  for (const group of ['admin', 'user'])
-    if (user_groups.has(group)) return group
-  return 'guest'
-}
-
-function RoleSelector(props: any) {
-  const current_group = userToRole(props.user)
-  const [pending, setPending] = React.useState(false)
-
-  return (
-    <div>
-      {pending ? (
-        <Loading text="Updating..." />
-      ) : (
-        <Select
-          expandToViewport
-          placeholder="Role"
-          selectedOption={{
-            label:
-              current_group.charAt(0).toUpperCase() + current_group.slice(1),
-            value: current_group,
-          }}
-          onChange={({detail}) => {
-            setPending(true)
-            SetUserRole(
-              props.user,
-              detail.selectedOption.value,
-              (user: any) => {
-                setPending(false)
-              },
-            )
-          }}
-          options={[
-            {label: 'Guest', value: 'guest'},
-            {label: 'User', value: 'user'},
-            {label: 'Admin', value: 'admin'},
-          ]}
-          selectedAriaLabel="Selected"
-        />
-      )}
-    </div>
-  )
-}
 
 function UserActions({user}: any) {
   let email = useState(['identity', 'attributes', 'email'])
@@ -258,21 +212,6 @@ export default function Users(props: any) {
             header: 'Email',
             cell: item => item.Attributes.email || '-',
             sortingField: 'Attributes.email',
-          },
-          {
-            id: 'role',
-            header: (
-              <div className="whiteSpace">
-                Role
-                <HelpTooltip>
-                  <b>Guest</b> can login but not see any clusters.<b>User</b>{' '}
-                  can see clusters and access clusters but not create or delete.{' '}
-                  <b>Admin</b> has full access.
-                </HelpTooltip>
-              </div>
-            ),
-            cell: item => <RoleSelector user={item} />,
-            sortingField: 'Groups',
           },
           {
             id: 'created',
