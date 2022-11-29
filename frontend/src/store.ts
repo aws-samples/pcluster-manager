@@ -149,16 +149,6 @@ function isAdmin() {
   return groups && groups.includes('admin')
 }
 
-function isUser() {
-  let groups = getState(['identity', USER_ROLES_CLAIM]) || []
-  return groups && (groups.includes('admin') || groups.includes('user'))
-}
-
-function isGuest() {
-  let identity = getState(['identity'])
-  return identity && !isAdmin() && !isUser()
-}
-
 function ssmPolicy(region: any) {
   const partition = region && region.startsWith('us-gov') ? 'aws-us-gov' : 'aws'
   return `arn:${partition}:iam::aws:policy/AmazonSSMManagedInstanceCore`
@@ -181,8 +171,6 @@ export {
   useState,
   updateState,
   isAdmin,
-  isUser,
-  isGuest,
   ssmPolicy,
   consoleDomain,
 }

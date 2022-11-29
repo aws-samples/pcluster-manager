@@ -962,23 +962,12 @@ async function LoadInitialState() {
   clearAllState()
   GetVersion()
   await GetAppConfig()
-  GetIdentity((identity: any) => {
-    let groups = identity[USER_ROLES_CLAIM]
-
-    if (!groups) {
-      return
-    }
-
-    if (groups.includes('admin')) {
-      ListUsers()
-    }
-
-    if (groups.includes('admin') || groups.includes('user')) {
-      ListClusters()
-      ListCustomImages()
-      ListOfficialImages()
-      LoadAwsConfig(region)
-    }
+  GetIdentity(_ => {
+    ListUsers()
+    ListClusters()
+    ListCustomImages()
+    ListOfficialImages()
+    LoadAwsConfig(region)
   })
 }
 

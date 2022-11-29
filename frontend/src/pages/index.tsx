@@ -26,8 +26,6 @@ import Home from '../old-pages/Home/Home'
 // Components
 import Loading from '../components/Loading'
 
-import {isGuest} from '../store'
-
 export default function App() {
   const identity = useState(['identity'])
 
@@ -42,16 +40,9 @@ export default function App() {
           <Routes>
             <Route
               path="index.html"
-              element={
-                isGuest() ? <Home /> : <Navigate replace to="/clusters" />
-              }
+              element={<Navigate replace to="/clusters" />}
             />
-            <Route
-              index
-              element={
-                isGuest() ? <Home /> : <Navigate replace to="/clusters" />
-              }
-            />
+            <Route index element={<Navigate replace to="/clusters" />} />
             <Route path="home" element={<Home />} />
             <Route path="clusters" element={<Clusters />}>
               <Route path=":clusterName" element={<div></div>}>

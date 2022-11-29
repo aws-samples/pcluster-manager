@@ -8,12 +8,15 @@
 // or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-import {SideNavigation, SideNavigationProps} from '@cloudscape-design/components'
+import {
+  SideNavigation,
+  SideNavigationProps,
+} from '@cloudscape-design/components'
 import * as React from 'react'
 import {useTranslation} from 'react-i18next'
 import {useLocation, useNavigate} from 'react-router-dom'
 import {USER_ROLES_CLAIM} from '../auth/constants'
-import {isAdmin, isUser, useState} from '../store'
+import {isAdmin, useState} from '../store'
 
 export default function SideBar() {
   const {t} = useTranslation()
@@ -35,17 +38,17 @@ export default function SideBar() {
     React.useMemo(() => {
       return [
         {type: 'link', text: t('global.menu.home'), href: '/home'},
-        isUser()
+        isAdmin()
           ? {type: 'link', text: t('global.menu.clusters'), href: '/clusters'}
           : null,
-        isUser()
+        isAdmin()
           ? {
               type: 'link',
               text: t('global.menu.customImages'),
               href: '/custom-images',
             }
           : null,
-        isUser()
+        isAdmin()
           ? {
               type: 'link',
               text: t('global.menu.officialImages'),
