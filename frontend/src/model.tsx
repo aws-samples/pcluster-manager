@@ -513,30 +513,6 @@ function DeleteUser(user: any, successCallback?: Callback) {
     })
 }
 
-function SetUserRole(user: any, role: any, callback?: Callback) {
-  var url = 'manager/set_user_role'
-  let body = {username: user.Username, role: role}
-  request('put', url, body)
-    .then((response: any) => {
-      if (response.status === 200) {
-        if (response.data.Username) {
-          setState(['users', 'index', response.data.Username], response.data)
-          callback && callback(response.data)
-        } else {
-          console.log(response.data)
-          notify(`Error updatin user: ${user}`, 'error')
-        }
-      } else {
-        console.log(response)
-      }
-    })
-    .catch((error: any) => {
-      if (error.response)
-        notify(`Error: ${error.response.data.message}`, 'error')
-      console.log(error.response)
-    })
-}
-
 function GetCustomImageStackEvents(imageId: any) {
   request('get', `api?path=/v3/images/custom/${imageId}/stackevents`)
     .then((response: any) => {
@@ -1037,7 +1013,6 @@ export {
   SlurmAccounting,
   JobInfo,
   ListUsers,
-  SetUserRole,
   notify,
   CreateUser,
   DeleteUser,
