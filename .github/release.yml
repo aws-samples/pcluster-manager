@@ -24,3 +24,7 @@ changelog:
     - title: Deprecated ☢️
       labels:
         - release:deprecated
+        
+    - title: Breaking Changes ☢️
+      labels:
+        - release:breaking-change
