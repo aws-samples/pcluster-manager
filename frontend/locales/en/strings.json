@@ -10,6 +10,14 @@
       "viewLicense": "View License"
     }
   },
+  "errorBoundary": {
+    "modal": {
+      "closeAriaLabel": "Close",
+      "header": "Something went wrong",
+      "description": "The application has encountered an unknown error and it is now in an inconsistent state. If you think that this is an error on our side please help us improve your experience by sending an error report on our <1>GitHub issues page</1>. Closing this dialog will bring you back to the home page.",
+      "button": "Go to Homepage"    
+    }
+  },
   "cluster": {
     "list": {
       "dialogs": {
