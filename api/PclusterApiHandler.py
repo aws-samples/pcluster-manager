@@ -144,7 +144,7 @@ def authenticate(groups):
     if ("guest" not in groups) and len(groups_granted) == 0:
         return abort(403)
 
-def authenticated(groups={"user"}):
+def authenticated(groups={"admin"}):
     def _authenticated(func):
         @functools.wraps(func)
         def _wrapper_authenticated(*args, **kwargs):
