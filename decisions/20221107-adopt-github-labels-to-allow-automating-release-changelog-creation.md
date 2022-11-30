@@ -1,6 +1,6 @@
 # Adopt Github labels to allow automating release changelog creation
 
-- Status: accepted
+- Status: superseded by [20221129-adopt-releaselabels-to-automate-changelog-generation](20221129-adopt-releaselabels-to-automate-changelog-generation.md)
 - Deciders: Nuraghe team
 - Date: 2022-11-07
 - Tags: release, changelog, labels
