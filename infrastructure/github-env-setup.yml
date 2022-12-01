@@ -146,6 +146,12 @@ Resources:
                   - lambda:UpdateFunctionConfiguration
                 Resource:
                   - !Sub arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:PclusterManagerFunction-*
+              - Effect: Allow
+                Action:
+                  - cognito-idp:UpdateGroup
+                  - cognito-idp:DeleteGroup
+                Resource:
+                  - arn:aws:cognito-idp:eu-west-1:***REMOVED***:userpool/*
         - PolicyName: ImageBuilderPolicy
           PolicyDocument:
             Version: 2012-10-17
