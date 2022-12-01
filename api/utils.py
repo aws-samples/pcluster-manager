@@ -16,6 +16,7 @@ from flask import Flask, Response, request, send_from_directory
 from flask_cors import CORS
 import requests
 
+from api.csrf import CSRF
 from api.exception import ExceptionHandler
 
 
@@ -88,10 +89,11 @@ def proxy_to(to_url):
 def build_flask_app(name):
     if running_local():
         app = Flask(name)
-        CORS(app)
+        CORS(app, supports_credentials=True)
     else:
         app = Flask(name, static_url_path="", static_folder="frontend/public")
 
+    CSRF(app)
     ExceptionHandler(app, running_local=running_local())
 
     return app

@@ -20,6 +20,11 @@ def value_error_handler(err):
     logger.error(descr, extra=dict(status=code, exception=type(err)))
     return __handler_response(code, descr)
 
+def csrf_error_handler(err):
+    descr, code = str(err), 403
+    logger.error(descr, extra=dict(status=code, exception=type(err)))
+    return __handler_response(code, descr)
+
 def global_exception_handler(err):
     try:
         code = err.code

@@ -93,6 +93,15 @@ function request(method: HTTPMethod, url: string, body: any = undefined) {
   return handle401and403(requestFunc(url, body, {headers}))
 }
 
+async function GetCsrfToken() {
+  const response = await request('get', '/csrf_token')
+  if (response.status === 200) {
+    const csrfToken = response.data
+    axiosInstance.defaults.headers['X-CSRF-Token'] = csrfToken
+    console.log(`Setting X-CSRF-Token: ${csrfToken}`)
+  }
+}
+
 function CreateCluster(
   clusterName: any,
   clusterConfig: any,
@@ -1009,6 +1018,9 @@ async function LoadInitialState() {
   const region = getState(['app', 'selectedRegion'])
   clearState(['app', 'aws'])
   clearAllState()
+
+  await GetCsrfToken()
+
   GetVersion()
   await GetAppConfig()
   GetIdentity((identity: any) => {
@@ -1032,6 +1044,7 @@ async function LoadInitialState() {
 }
 
 export {
+  GetCsrfToken,
   CreateCluster,
   UpdateCluster,
   ListClusters,

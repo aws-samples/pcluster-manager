@@ -646,6 +646,18 @@ def create_user():
         return _augment_user(cognito, user)
     except Exception as e:
         return {"message": str(e)}, 500
+    
+def create_user_csrf():
+    try:
+        cognito = boto3.client("cognito-idp")
+        username = request.form.get("Username")
+        user_attributes = [{"Name": "email", "Value": username}]
+        user = cognito.admin_create_user(
+            UserPoolId=USER_POOL_ID, Username=username, DesiredDeliveryMediums=["EMAIL"], UserAttributes=user_attributes
+        ).get("User")
+        return _augment_user(cognito, user)
+    except Exception as e:
+        return {"message": str(e)}, 500
 
 
 def set_user_role():

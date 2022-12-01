@@ -13,6 +13,7 @@ import datetime
 from flask import Flask, Response, request, send_from_directory
 from flask.json import JSONEncoder
 from flask_restful import Api
+from flask_cors import cross_origin
 from werkzeug.routing import BaseConverter
 
 import api.utils as utils
@@ -21,6 +22,7 @@ from api.PclusterApiHandler import (
     authenticated,
     cancel_job,
     create_user,
+    create_user_csrf,
     delete_user,
     ec2_action,
     get_app_config,
@@ -43,6 +45,7 @@ from api.PclusterApiHandler import (
     logger,
 )
 from api.pcm_globals import set_global_logger
+from api.csrf import generate_csrf_token, CSRF
 
 ADMINS_USERS_GROUP = { "user", "admin" }
 ADMINS_GROUP = { "admin" }
@@ -133,6 +136,11 @@ def run():
     @authenticated(ADMINS_GROUP)
     def create_user_():
         return create_user()
+    
+    @app.route("/manager/create_user_csrf", methods=["POST"])
+    @authenticated(ADMINS_GROUP)
+    def create_user_csrf_():
+        return create_user_csrf()
 
     @app.route("/manager/delete_user", methods=["DELETE"])
     @authenticated(ADMINS_GROUP)
@@ -202,7 +210,10 @@ def run():
         extra['source'] = 'frontend'
         logging_fun(message, extra=extra)
         return Response(status=200)
-
+    
+    @app.route('/csrf_token')
+    def csrf_token_():
+        return generate_csrf_token()
 
     @app.route('/<regex("(home|clusters|users|configure|custom-images|official-images).*"):base>', defaults={"base": ""})
     def catch_all(base):
@@ -215,7 +226,6 @@ def run():
     @app.before_request
     def _set_global_logger():
         set_global_logger(logger)
-
     api.add_resource(PclusterApiHandler, "/api")
     return app
 
