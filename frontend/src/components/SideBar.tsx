@@ -15,8 +15,6 @@ import {
 import * as React from 'react'
 import {useTranslation} from 'react-i18next'
 import {useLocation, useNavigate} from 'react-router-dom'
-import {USER_ROLES_CLAIM} from '../auth/constants'
-import {isAdmin, useState} from '../store'
 
 export default function SideBar() {
   const {t} = useTranslation()
@@ -24,7 +22,6 @@ export default function SideBar() {
   const location = useLocation()
 
   const activeHref = '/' + location.pathname.split('/')?.[1]
-  const identity = useState(['identity', USER_ROLES_CLAIM])
 
   const header = React.useMemo(
     () => ({
@@ -38,26 +35,18 @@ export default function SideBar() {
     React.useMemo(() => {
       return [
         {type: 'link', text: t('global.menu.home'), href: '/home'},
-        isAdmin()
-          ? {type: 'link', text: t('global.menu.clusters'), href: '/clusters'}
-          : null,
-        isAdmin()
-          ? {
-              type: 'link',
-              text: t('global.menu.customImages'),
-              href: '/custom-images',
-            }
-          : null,
-        isAdmin()
-          ? {
-              type: 'link',
-              text: t('global.menu.officialImages'),
-              href: '/official-images',
-            }
-          : null,
-        isAdmin()
-          ? {type: 'link', text: t('global.menu.users'), href: '/users'}
-          : null,
+        {type: 'link', text: t('global.menu.clusters'), href: '/clusters'},
+        {
+          type: 'link',
+          text: t('global.menu.customImages'),
+          href: '/custom-images',
+        },
+        {
+          type: 'link',
+          text: t('global.menu.officialImages'),
+          href: '/official-images',
+        },
+        {type: 'link', text: t('global.menu.users'), href: '/users'},
         {type: 'divider'},
         {
           type: 'link',
@@ -65,10 +54,8 @@ export default function SideBar() {
           href: '/license.txt',
           external: true,
         },
-      ].filter(Boolean) as ReadonlyArray<SideNavigationProps.Item>
-      // we need to recompute navigationItems according to identity change
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [t, identity])
+      ]
+    }, [t])
 
   const onFollow = React.useCallback(
     event => {

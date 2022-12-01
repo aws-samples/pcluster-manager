@@ -15,7 +15,7 @@ import {
 import React, {useEffect} from 'react'
 import {NavigateFunction, useNavigate, useParams} from 'react-router-dom'
 import {DescribeCluster, GetConfiguration, ListClusters} from '../../model'
-import {useState, clearState, setState, isAdmin} from '../../store'
+import {useState, clearState, setState} from '../../store'
 import {selectCluster} from './util'
 import {findFirst} from '../../util'
 import {useTranslation} from 'react-i18next'
@@ -103,7 +103,7 @@ function ClusterList({clusters}: {clusters: ClusterInfoSummary[]}) {
           title={t('cluster.list.filtering.empty.title')}
           subtitle={t('cluster.list.filtering.empty.subtitle')}
           action={
-            <Button onClick={configure} disabled={!isAdmin()}>
+            <Button onClick={configure}>
               {t('cluster.list.filtering.empty.action')}
             </Button>
           }
@@ -138,11 +138,7 @@ function ClusterList({clusters}: {clusters: ClusterInfoSummary[]}) {
             <SpaceBetween direction="horizontal" size="xs">
               {selectedClusterName && <Actions />}
               {clusters && (
-                <Button
-                  onClick={configure}
-                  variant="primary"
-                  disabled={!isAdmin()}
-                >
+                <Button onClick={configure} variant="primary">
                   {t('cluster.list.actions.create')}
                 </Button>
               )}
