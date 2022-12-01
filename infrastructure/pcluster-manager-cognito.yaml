@@ -244,17 +244,9 @@ Resources:
   CognitoUserGroup:
     Type: AWS::Cognito::UserPoolGroup
     Properties:
-      Description: User group that can view and manage clusters
+      Description: User group that can manage clusters and users
       GroupName: admin
       Precedence: 1
-      UserPoolId: !Ref CognitoUserPool
-
-  CognitoAdminGroup:
-    Type: AWS::Cognito::UserPoolGroup
-    Properties:
-      Description: Administrator group that can promote users to be admins.
-      GroupName: user
-      Precedence: 2
       UserPoolId: !Ref CognitoUserPool
 
 Outputs:
@@ -280,10 +272,6 @@ Outputs:
   CognitoUserGroup:
     Description: Cognito User Group
     Value:  !Ref CognitoUserGroup
-
-  CognitoAdminGroup:
-    Description: Cognito Admin Group
-    Value:  !Ref CognitoAdminGroup
 
   UserPoolClientSecretArn:
     Description: The app client secret ARN for PclusterManager.
