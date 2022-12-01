@@ -90,7 +90,7 @@ def test_get_identity_auth_enabled_no_user_roles_provided(monkeypatch, mocker, a
     Given an handler for the /get-identity endpoint
       When authentication is enabled
       When user roles could not be retrieved
-        Then it should fallback to "user" as user role
+        Then it should return 400
     """
     monkeypatch.setenv("ENABLE_AUTH", "true")
     monkeypatch.setattr('api.PclusterApiHandler.USER_ROLES_CLAIM', 'user_roles_claim')
@@ -102,9 +102,5 @@ def test_get_identity_auth_enabled_no_user_roles_provided(monkeypatch, mocker, a
     with app.test_request_context(headers={'Cookie': 'accessToken=access-token; idToken=identity-token'}):
       mocker.patch('api.PclusterApiHandler.jwt_decode', side_effect=[accessTokenDecoded, identityTokenDecoded])
 
-      assert get_identity() == {
-        'attributes': {'email': 'id-token-email'},
-        'user_roles': ['user'],
-        'username': 'id-token-username'
-      }
+      assert get_identity() == ({"message": "No user_roles present in access or id token."}, 400)
       
