@@ -14,7 +14,7 @@ import {useSelector} from 'react-redux'
 
 import {ListCustomImages, DescribeCustomImage} from '../../model'
 
-import {setState, useState, getState, clearState, isAdmin} from '../../store'
+import {setState, useState, getState, clearState} from '../../store'
 
 import {useCollection} from '@cloudscape-design/collection-hooks'
 
@@ -22,13 +22,10 @@ import {useCollection} from '@cloudscape-design/collection-hooks'
 import EmptyState from '../../components/EmptyState'
 import ImageBuildDialog from './ImageBuildDialog'
 import CustomImageDetails from './CustomImageDetails'
-import Loading from '../../components/Loading'
 
 // UI Elements
 import {
-  AppLayout,
   Button,
-  Container,
   Header,
   Pagination,
   Select,
@@ -130,7 +127,6 @@ function CustomImagesList() {
                 className="action"
                 onClick={buildImage}
                 iconName={'add-plus'}
-                disabled={!isAdmin()}
               >
                 Build Image
               </Button>

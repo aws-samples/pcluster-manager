@@ -110,7 +110,7 @@ def run():
         return get_dcv_session()
 
     @app.route("/manager/get_identity")
-    @authenticated({"guest"})
+    @authenticated(ADMINS_GROUP)
     def get_identity_():
         return get_identity()
 
