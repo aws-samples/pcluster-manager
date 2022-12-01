@@ -529,13 +529,6 @@ Resources:
       Username: !Ref AdminUserEmail
       UserPoolId: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]
 
-  CognitoUserToAdminGroup:
-    Type: AWS::Cognito::UserPoolUserToGroupAttachment
-    Properties:
-      GroupName: !GetAtt [ PclusterManagerCognito, Outputs.CognitoAdminGroup ]
-      Username: !Ref CognitoAdminUser
-      UserPoolId: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]
-
   CognitoUserToUserGroup:
     Type: AWS::Cognito::UserPoolUserToGroupAttachment
     Properties:
