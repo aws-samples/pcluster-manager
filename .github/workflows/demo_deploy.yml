@@ -74,7 +74,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-region: eu-west-1
-          role-to-assume: arn:aws:iam::063695377715:role/pcluster-manager-github-PrivateInfrastructureUpdat-B4KQEZW53808
+          role-to-assume: arn:aws:iam::063695377715:role/pcluster-manager-github-PrivateInfrastructureUpdat-1HXHHPQ292PNI
       
       - name: Update staging infrastructure
         run: ./infrastructure/update-environment-infra.sh demo
