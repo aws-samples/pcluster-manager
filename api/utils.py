@@ -17,6 +17,7 @@ from flask_cors import CORS
 import requests
 
 from api.exception import ExceptionHandler
+from api.security import SecurityHeaders
 
 
 def to_utc_datetime(time_in, default_timezone=datetime.timezone.utc) -> datetime.datetime:
@@ -93,6 +94,7 @@ def build_flask_app(name):
         app = Flask(name, static_url_path="", static_folder="frontend/public")
 
     ExceptionHandler(app, running_local=running_local())
+    SecurityHeaders(app, running_local=running_local())
 
     return app
 
