@@ -15,13 +15,7 @@ import {useNavigate} from 'react-router-dom'
 // @ts-expect-error TS(7016) FIXME: Could not find a declaration file for module 'js-y... Remove this comment to see the full error message
 import jsyaml from 'js-yaml'
 
-import {
-  setState,
-  useState,
-  isAdmin,
-  ssmPolicy,
-  consoleDomain,
-} from '../../store'
+import {setState, useState, ssmPolicy, consoleDomain} from '../../store'
 import {
   UpdateComputeFleet,
   GetConfiguration,
@@ -149,8 +143,7 @@ export default function Actions() {
             clusterStatus === ClusterStatus.CreateInProgress ||
             clusterStatus === ClusterStatus.DeleteInProgress ||
             clusterStatus === ClusterStatus.CreateFailed ||
-            clusterVersion !== apiVersion ||
-            !isAdmin()
+            clusterVersion !== apiVersion
           }
           variant="normal"
           onClick={editConfiguration}
@@ -168,9 +161,7 @@ export default function Actions() {
           </Button>
         )}
         <Button
-          disabled={
-            clusterStatus === ClusterStatus.DeleteInProgress || !isAdmin()
-          }
+          disabled={clusterStatus === ClusterStatus.DeleteInProgress}
           onClick={() => {
             showDialog('deleteCluster')
           }}
