@@ -90,7 +90,7 @@ def build_flask_app(name):
     is_running_local = running_local()
 
     additional_args = {}
-    if is_running_local:
+    if not is_running_local:
         additional_args = dict(static_url_path="", static_folder="frontend/public")
 
     app = Flask(name, **additional_args)
