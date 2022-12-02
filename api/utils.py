@@ -17,6 +17,7 @@ from flask_cors import CORS
 import requests
 
 from api.exception import ExceptionHandler
+from api.security import SecurityHeaders
 
 
 def to_utc_datetime(time_in, default_timezone=datetime.timezone.utc) -> datetime.datetime:
@@ -86,13 +87,16 @@ def proxy_to(to_url):
 
 
 def build_flask_app(name):
-    if running_local():
-        app = Flask(name)
-        CORS(app)
-    else:
-        app = Flask(name, static_url_path="", static_folder="frontend/public")
+    is_running_local = running_local()
 
-    ExceptionHandler(app, running_local=running_local())
+    additional_args = {}
+    if not is_running_local:
+        additional_args = dict(static_url_path="", static_folder="frontend/public")
+
+    app = Flask(name, **additional_args)
+
+    SecurityHeaders(app, running_local=is_running_local)
+    ExceptionHandler(app, running_local=is_running_local)
 
     return app
 
