@@ -1,6 +1,6 @@
 from flask import Response
 
-CORS_HEADERS = [
+CORP_HEADERS = [
     {'key': 'Cross-Origin-Resource-Policy', 'default': 'same-site'},
     {'key': 'Cross-Origin-Embedder-Policy', 'default': 'require-corp'}
 ]
@@ -16,7 +16,7 @@ SECURITY_HEADERS = [
 
 
 def add_security_headers(response: Response):
-    for header in [*CORS_HEADERS, *SECURITY_HEADERS]:
+    for header in [*CORP_HEADERS, *SECURITY_HEADERS]:
         response.headers.setdefault(**header)
     return response
 
