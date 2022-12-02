@@ -1,4 +1,5 @@
 from flask.scaffold import Scaffold
+from flask_cors import CORS
 
 from api.security.headers import add_security_headers, add_security_headers_dev
 
@@ -12,6 +13,7 @@ class SecurityHeaders(object):
 
     def init_app(self, app: Scaffold):
         if self.running_local:
+            CORS(app)
             app.after_request(add_security_headers_dev)
         else:
             app.after_request(add_security_headers)
