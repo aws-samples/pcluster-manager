@@ -1,5 +1,6 @@
 from flask import Response
 
+
 CORP_HEADERS = [
     {'key': 'Cross-Origin-Resource-Policy', 'default': 'same-site'},
     {'key': 'Cross-Origin-Embedder-Policy', 'default': 'require-corp'}
@@ -14,9 +15,13 @@ SECURITY_HEADERS = [
     {'key': 'X-XSS-Protection', 'default': '1; mode=block'}
 ]
 
+CSP_HEADER = {
+    'key': 'Content-Security-Policy',
+    'default': "default-src 'self'; style-src 'self' 'unsafe-inline'; font-src data:; img-src 'self' data:; child-src blob:; object-src 'none'; frame-ancestors 'none'; base-uri 'none';"
+}
 
 def add_security_headers(response: Response):
-    for header in [*CORP_HEADERS, *SECURITY_HEADERS]:
+    for header in [*CORP_HEADERS, *SECURITY_HEADERS, CSP_HEADER]:
         response.headers.setdefault(**header)
     return response
 
