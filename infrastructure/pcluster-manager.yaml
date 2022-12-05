@@ -174,16 +174,12 @@ Resources:
       Name: PclusterManager
       Description: PclusterManager Lambda Proxy
       ProtocolType: HTTP
-      Target: !Sub
-        - arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:PclusterManagerFunction-${StackIdSuffix}/invocations
-        - { StackIdSuffix: !Select [2, !Split ['/', !Ref 'AWS::StackId']] }
 
   ApiGatewayRoute:
     Type: AWS::ApiGatewayV2::Route
     Properties:
       ApiId: !Ref ApiGateway
-      OperationName: ANY
-      RouteKey: 'ANY /'
+      RouteKey: $default
       Target: !Sub
         - 'integrations/${IntegrationId}'
         - { IntegrationId: !Ref ApiGatewayIntegration }
@@ -199,6 +195,21 @@ Resources:
         - { StackIdSuffix: !Select [2, !Split ['/', !Ref 'AWS::StackId']] }
       PayloadFormatVersion: 2.0
       TimeoutInMillis: 30000
+
+  PCMApiGatewayAccessLog:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 90
+
+  ApiGatewayStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties: 
+      AccessLogSettings: 
+        DestinationArn: !GetAtt PCMApiGatewayAccessLog.Arn
+        Format: '{ "requestId":"$context.requestId", "ip": "$context.identity.sourceIp", "requestTime":"$context.requestTime", "httpMethod":"$context.httpMethod","path":"$context.path", "status":"$context.status","protocol":"$context.protocol", "responseLength":"$context.responseLength" }'
+      ApiId: !Ref ApiGateway
+      StageName: $default
+      AutoDeploy: True
 
   PrivateEcrRepository:
     DependsOn: ParallelClusterApi
