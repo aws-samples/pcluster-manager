@@ -11,6 +11,10 @@ COMMON_SECURITY_HEADERS = {
     'X-XSS-Protection': '1; mode=block'
 }
 
+CSP_HEADER = {
+    'Content-Security-Policy': "default-src 'self'; style-src 'self' 'unsafe-inline'; font-src data:; img-src 'self' data:; child-src blob:; object-src 'none'; frame-ancestors 'none'; base-uri 'none';"
+}
+
 
 def test_response_security_headers_dev(dev_app, dev_client):
     """
@@ -37,6 +41,7 @@ def test_response_security_headers_prod(app, client):
     expected_security_headers = {
         'Cross-Origin-Resource-Policy': 'same-site',
         'Cross-Origin-Embedder-Policy': 'require-corp',
+        **CSP_HEADER,
         **COMMON_SECURITY_HEADERS
     }
 
