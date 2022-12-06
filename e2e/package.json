@@ -1,0 +1,24 @@
+{
+  "name": "pcluster-manager",
+  "version": "1.0.0",
+  "description": "ParallelCluster Manager - Make HPC Easy ================================",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aws-samples/pcluster-manager.git"
+  },
+  "keywords": [],
+  "author": "ScanNPM <oscarab@amazon.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aws-samples/pcluster-manager/issues"
+  },
+  "homepage": "https://github.com/aws-samples/pcluster-manager#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.28.1"
+  }
+}
