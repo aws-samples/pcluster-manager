@@ -13,8 +13,13 @@ to be actually useful/readable.
 Since our logger implementation provides an `extra` parameter for additional info to add to the log entry, we will:
 
 - make an effort to log clear and effective messages that are actually useful when read by a developer/technician
-- continously look for ways to improve our existing logging calls when needed
+- continuously look for ways to improve our existing logging calls when needed
 - optionally leverage the `extra` parameter that to provide contextual information about where the log entry is being logged from
 
 ## Consequences
 We get the ability to have effective logs available for inspection in case it's needed.
+
+## Useful Links
+- [Owasp Logging](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html)
+- [9 best practices for logging](https://www.atatus.com/blog/9-best-practice-for-application-logging-that-you-must-know/#9-logging-and-monitoring-best-practices)
+- [13 best practices for logging](https://www.dataset.com/blog/the-10-commandments-of-logging/)
