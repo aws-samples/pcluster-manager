@@ -90,7 +90,7 @@ export default function ClusterProperties() {
       <Container header={<Header variant="h3">Properties</Header>}>
         <ColumnLayout columns={3} variant="text-grid">
           <SpaceBetween size="l">
-            <ValueWithLabel label="cloudformationStackArn">
+            <ValueWithLabel label="SSH Command">
               <div className="custom-wrapping">
                 <Box margin={{right: 'xxs'}} display="inline-block">
                   <Popover
@@ -100,17 +100,17 @@ export default function ClusterProperties() {
                     triggerType="custom"
                     content={
                       <StatusIndicator type="success">
-                        ARN copied
+                        SSH Command copied
                       </StatusIndicator>
                     }
                   >
                     <Button
                       variant="inline-icon"
                       iconName="copy"
-                      ariaLabel="Copy ARN"
+                      ariaLabel="Copy SSH Command"
                       onClick={() => {
                         navigator.clipboard.writeText(
-                          cluster.cloudformationStackArn,
+                          `ssh ${clusterDefaultUser(cluster)}@${headNode.publicIpAddress}`
                         )
                       }}
                     >
@@ -118,18 +118,7 @@ export default function ClusterProperties() {
                     </Button>
                   </Popover>
                 </Box>
-                <Link
-                  external
-                  href={`${consoleDomain(
-                    cluster.region,
-                  )}/cloudformation/home?region=${
-                    cluster.region
-                  }#/stacks/events?filteringStatus=active&filteringText=&viewNested=true&hideStacks=false&stackId=${
-                    cluster.cloudformationStackArn
-                  }`}
-                >
-                  {cluster.cloudformationStackArn}
-                </Link>
+                ssh {clusterDefaultUser(cluster)}@{headNode.publicIpAddress}
               </div>
             </ValueWithLabel>
             <ValueWithLabel label="clusterConfiguration">
