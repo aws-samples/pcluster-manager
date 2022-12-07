@@ -138,6 +138,7 @@ export default function Actions() {
       <StopDialog clusterName={clusterName} />
       <SpaceBetween direction="horizontal" size="xs">
         <Button
+          iconName="edit"
           className="action"
           disabled={
             clusterStatus === ClusterStatus.CreateInProgress ||
@@ -151,16 +152,17 @@ export default function Actions() {
           {t('cluster.list.actions.edit')}
         </Button>
         {fleetStatus === 'STOPPED' && (
-          <Button variant="normal" onClick={startFleet}>
+          <Button iconName="status-positive" variant="normal" onClick={startFleet}>
             {t('cluster.list.actions.start')}
           </Button>
         )}
         {fleetStatus === 'RUNNING' && (
-          <Button variant="normal" onClick={stopComputeFleet}>
+          <Button iconName="status-stopped" variant="normal" onClick={stopComputeFleet}>
             {t('cluster.list.actions.stop')}
           </Button>
         )}
         <Button
+          iconName="close"
           disabled={clusterStatus === ClusterStatus.DeleteInProgress}
           onClick={() => {
             showDialog('deleteCluster')
@@ -173,6 +175,7 @@ export default function Actions() {
           headNode.publicIpAddress !== '' &&
           ssmEnabled && (
             <Button
+              iconName="folder-open"
               disabled={clusterStatus === ClusterStatus.DeleteInProgress}
               onClick={() => {
                 ssmFilesystem(headNode.instanceId)
@@ -186,6 +189,7 @@ export default function Actions() {
           headNode.publicIpAddress !== '' &&
           ssmEnabled && (
             <Button
+              iconName="caret-right-filled"
               disabled={clusterStatus === ClusterStatus.DeleteInProgress}
               onClick={() => {
                 shellCluster(headNode.instanceId)
