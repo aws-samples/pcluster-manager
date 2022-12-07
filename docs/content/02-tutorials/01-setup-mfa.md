@@ -1,5 +1,5 @@
 +++
-title = "a. Setup Multi-Factor Authentication 📱"
+title = "a. Setup MFA 📱"
 date = 2019-09-18T10:46:30-04:00
 draft = false
 weight = 21
