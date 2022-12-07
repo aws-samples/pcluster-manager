@@ -202,7 +202,7 @@ export default function ClusterStackEvents() {
           actions={
             <SpaceBetween direction="horizontal" size="s">
               <Button onClick={refreshStackEvents} iconName="refresh" />
-              <Button iconName="external" href={cfnHref}>
+              <Button iconName="external" href={cfnHref} target="_blank">
                 View in CloudFormation
               </Button>
             </SpaceBetween>

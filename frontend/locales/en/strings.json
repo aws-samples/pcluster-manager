@@ -15,14 +15,17 @@
       "closeAriaLabel": "Close",
       "header": "Something went wrong",
       "description": "The application has encountered an unknown error and it is now in an inconsistent state. If you think that this is an error on our side please help us improve your experience by sending an error report on our <1>GitHub issues page</1>. Closing this dialog will bring you back to the home page.",
-      "button": "Go to Homepage"    
+      "button": "Go to Homepage"   
     }
   },
   "cluster": {
     "properties": {
-      "sshcommandlabel": "SSH Command",
-      "sshcommandsuccess": "SSH Command copied",
-      "sshcommandhelp": "Copy SSH Command"
+      "sshcommand": {
+        "label": "SSH Command",
+        "success": "SSH Command copied",
+        "help": "Copy SSH Command",
+        "tooltiptext": "Command to SSH into the HeadNode. If the keypair you used to create the HeadNode isn't default, you'll need to specify the path to the keypair. See <0>Connect to your Linux instance using an SSH Client</0> for more info."
+      }
     },
     "list": {
       "dialogs": {
