@@ -38,10 +38,9 @@ from api.PclusterApiHandler import (
     queue_status,
     sacct,
     scontrol_job,
-    submit_job,
-    logger,
+    submit_job
 )
-from api.pcm_globals import set_global_logger
+from api.pcm_globals import logger
 
 ADMINS_GROUP = { "admin" }
 
@@ -204,10 +203,6 @@ def run():
     @app.route('/<regex("(home|clusters|users|configure|custom-images|official-images).*"):base>/<path:u_path>', defaults={"base": "", "u_path": ""})
     def catch_all2(base, u_path):
         return utils.serve_frontend(app, base)
-
-    @app.before_request
-    def _set_global_logger():
-        set_global_logger(logger)
 
     api.add_resource(PclusterApiHandler, "/api")
     return app
