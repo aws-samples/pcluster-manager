@@ -10,7 +10,7 @@
 // limitations under the License.
 import {ClusterStatus, ClusterDescription} from '../../types/clusters'
 import React from 'react'
-
+import {useTranslation} from 'react-i18next'
 import {findFirst, clusterDefaultUser} from '../../util'
 import {
   getState,
@@ -54,6 +54,7 @@ const ValueWithLabel = ({label, children}: any) => (
 )
 
 export default function ClusterProperties() {
+  const {t} = useTranslation()
   const clusterName = useState(['app', 'clusters', 'selected'])
   const clusterPath = ['clusters', 'index', clusterName]
   const cluster: ClusterDescription = useState(clusterPath)
@@ -90,7 +91,7 @@ export default function ClusterProperties() {
       <Container header={<Header variant="h3">Properties</Header>}>
         <ColumnLayout columns={3} variant="text-grid">
           <SpaceBetween size="l">
-            <ValueWithLabel label="SSH Command">
+            <ValueWithLabel label={t('cluster.properties.sshcommandlabel')}>
               <div className="custom-wrapping">
                 <Box margin={{right: 'xxs'}} display="inline-block">
                   <Popover
@@ -100,14 +101,14 @@ export default function ClusterProperties() {
                     triggerType="custom"
                     content={
                       <StatusIndicator type="success">
-                        SSH Command copied
+                        {t('cluster.properties.sshcommandsuccess')}
                       </StatusIndicator>
                     }
                   >
                     <Button
                       variant="inline-icon"
                       iconName="copy"
-                      ariaLabel="Copy SSH Command"
+                      ariaLabel={t('cluster.properties.sshcommandhelp')}
                       onClick={() => {
                         navigator.clipboard.writeText(
                           `ssh ${clusterDefaultUser(cluster)}@${headNode.publicIpAddress}`

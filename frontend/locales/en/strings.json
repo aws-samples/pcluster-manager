@@ -19,6 +19,11 @@
     }
   },
   "cluster": {
+    "properties": {
+      "sshcommandlabel": "SSH Command",
+      "sshcommandsuccess": "SSH Command copied",
+      "sshcommandhelp": "Copy SSH Command"
+    },
     "list": {
       "dialogs": {
         "delete": "Are you sure you want to delete cluster {{clusterName}}?"
