@@ -3,6 +3,7 @@ from botocore.exceptions import ClientError
 from flask import jsonify
 from werkzeug.routing import WebsocketMismatch
 
+from api.exception import CSRFError
 from api.pcm_globals import logger
 
 
@@ -22,6 +23,10 @@ def value_error_handler(err):
     logger.error(descr, extra=dict(status=code, exception=type(err)))
     return __handler_response(code, descr)
 
+def csrf_error_handler(err):
+    descr, code = str(err), 403
+    logger.error(descr, extra=dict(status=code, exception=type(err)))
+    return __handler_response(code, descr)
 def global_exception_handler(err):
     try:
         code = err.code
@@ -49,6 +54,7 @@ class ExceptionHandler(object):
         app.register_error_handler(Boto3Error, boto3_exception_handler)
         app.register_error_handler(ClientError, boto3_exception_handler)
 
+        app.register_error_handler(CSRFError, csrf_error_handler)
         app.register_error_handler(ValueError, value_error_handler)
         app.register_error_handler(Exception, global_exception_handler)
 

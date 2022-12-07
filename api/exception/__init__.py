@@ -1,2 +1,2 @@
+from .exceptions import CSRFError
 from .handlers import ExceptionHandler
-from .exceptions import *
