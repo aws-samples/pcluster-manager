@@ -10,7 +10,7 @@
 // limitations under the License.
 import {ClusterStatus, ClusterDescription} from '../../types/clusters'
 import React from 'react'
-import {useTranslation} from 'react-i18next'
+import {Trans, useTranslation} from 'react-i18next'
 import {findFirst, clusterDefaultUser} from '../../util'
 import {
   getState,
@@ -91,7 +91,7 @@ export default function ClusterProperties() {
       <Container header={<Header variant="h3">Properties</Header>}>
         <ColumnLayout columns={3} variant="text-grid">
           <SpaceBetween size="l">
-            <ValueWithLabel label={t('cluster.properties.sshcommandlabel')}>
+            <ValueWithLabel label={t('cluster.properties.sshcommand.label')}>
               <div className="custom-wrapping">
                 <Box margin={{right: 'xxs'}} display="inline-block">
                   <Popover
@@ -101,14 +101,14 @@ export default function ClusterProperties() {
                     triggerType="custom"
                     content={
                       <StatusIndicator type="success">
-                        {t('cluster.properties.sshcommandsuccess')}
+                        {t('cluster.properties.sshcommand.success')}
                       </StatusIndicator>
                     }
                   >
                     <Button
                       variant="inline-icon"
                       iconName="copy"
-                      ariaLabel={t('cluster.properties.sshcommandhelp')}
+                      ariaLabel={t('cluster.properties.sshcommand.help')}
                       onClick={() => {
                         navigator.clipboard.writeText(
                           `ssh ${clusterDefaultUser(cluster)}@${headNode.publicIpAddress}`
@@ -120,6 +120,15 @@ export default function ClusterProperties() {
                   </Popover>
                 </Box>
                 ssh {clusterDefaultUser(cluster)}@{headNode.publicIpAddress}
+                <HelpTooltip>
+                  <Trans i18nKey="cluster.properties.sshcommand.tooltiptext">
+                    <a
+                      rel="noreferrer"
+                      target="_blank"
+                      href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html#AccessingInstancesLinuxSSHClient"
+                    ></a>
+                  </Trans>
+                </HelpTooltip>
               </div>
             </ValueWithLabel>
             <ValueWithLabel label="clusterConfiguration">
