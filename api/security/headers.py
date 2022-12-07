@@ -1,5 +1,6 @@
 from flask import Response
-
+from flask.scaffold import Scaffold
+from flask_cors import CORS
 
 CORP_HEADERS = [
     {'key': 'Cross-Origin-Resource-Policy', 'default': 'same-site'},
@@ -30,3 +31,18 @@ def add_security_headers_dev(response: Response):
     for header in SECURITY_HEADERS:
         response.headers.setdefault(**header)
     return response
+
+
+class SecurityHeaders(object):
+
+    def __init__(self, app: Scaffold = None, running_local=False):
+        self.running_local = running_local
+        if app is not None:
+            self.init_app(app)
+
+    def init_app(self, app: Scaffold):
+        if self.running_local:
+            CORS(app)
+            app.after_request(add_security_headers_dev)
+        else:
+            app.after_request(add_security_headers)
