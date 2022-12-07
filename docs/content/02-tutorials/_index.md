@@ -13,3 +13,4 @@ pre: "<b>II ⁃ </b>"
 | 💾 [Memory Scheduling](02-tutorials/03-memory-scheduling.html)              | Schedule using the `--mem` slurm flag.                    |
 | 💰 [Cost Tags](02-tutorials/04-cost-tracking.html)                      | Track job costs in AWS Cost Explorer by user and project. |
 | ⇓ [Downloading](02-tutorials/06-downloading.html)                      | Download files at cluster start. |
+| ⇓ [Custom Domain Name](02-tutorials/07-custom-domain-name.html)                      | Setup custom domain name. |
