@@ -18,7 +18,7 @@ sbatch --comment ProjectA
 
 And administrators to generate reports like:
 
-![Cost Explorer Project](cost-tracking/cost-explorer-project.png)
+![Cost Explorer Project](04-cost-tracking/cost-explorer-project.png)
 
 ### Step 1 - create IAM Policy
 
@@ -62,7 +62,7 @@ In Pcluster Manager, when you create the cluster, on the **HeadNode** section dr
 4. Select the "Cost Tags" managed script
 5. Paste in the arn of the `pclusterTagsAndBudget` you created above. 
 
-![HeadNode Setup](cost-tracking/cost-tags-headnode.png)
+![HeadNode Setup](04-cost-tracking/cost-tags-headnode.png)
 
 ### Step 3 - configure ComputeFleet
 
@@ -73,7 +73,7 @@ On the **ComputeFleet** section drop down the "Advanced Options".
 4. Select the "Cost Tags" managed script
 5. Paste in the arn of the `pclusterTagsAndBudget` you created above. 
 
-![HeadNode Setup](cost-tracking/cost-tags-computefleet.png)
+![HeadNode Setup](04-cost-tracking/cost-tags-computefleet.png)
 
 ### Step 4 - review
 
@@ -175,7 +175,7 @@ Budgets allow us to track specific project cost over time and get alerted if we'
 | Tag            | `aws-parallelcluster-project`                                             |
 | Project Name   | Name of the project, corresponding to `/opt/slurm/etc/projects_list.conf` |
 
-![Create Budget](cost-tracking/create-budget.png)
+![Create Budget](04-cost-tracking/create-budget.png)
 
 5. Enter a threshold and email address to get notified when approaching the budget
 6. Modify the file `/opt/slurm/bin/sbatch` on the cluster and set `budget="yes"`. 

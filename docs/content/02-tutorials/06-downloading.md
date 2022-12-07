@@ -14,7 +14,7 @@ In order to download a file when you start your cluster,
 2. On the **HeadNode** configuration tab
     + Expand **Advanced Options** > turn on **Multi-Script Runner** > select **Downloader**
 
-![Downloader Screenshot](downloader/downloader.png)
+![Downloader Screenshot](06-downloading/downloader.png)
 
 *Note*: You can specify either an `http://`, `https://` or `s3://` endpoint, however for any s3 location it must reside in the same region as the cluster.
 
