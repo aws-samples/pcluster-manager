@@ -16,13 +16,15 @@ import {
   setState,
   updateState,
 } from './store'
-import {USER_ROLES_CLAIM} from './auth/constants'
 import {generateRandomId} from './util'
 
 // UI Elements
 import {AppConfig} from './app-config/types'
 import {getAppConfig} from './app-config'
 import {axiosInstance, executeRequest, HTTPMethod} from './http/executeRequest'
+import {getCsrfToken} from './auth/getCsrfToken'
+import {ILogger} from './logger/ILogger'
+import {setCsrfTokenHeader} from './http/setCsrfTokenHeader'
 
 // Types
 type Callback = (arg?: any) => void
@@ -956,10 +958,23 @@ async function GetAppConfig() {
   }
 }
 
-async function LoadInitialState() {
+async function LoadCsrfToken(logger: ILogger): Promise<string> {
+  try {
+    const token = await getCsrfToken(axiosInstance)
+    setCsrfTokenHeader(axiosInstance, token)
+    logger.info(`Set X-CSRF-Token header to ${token}`)
+    return token
+  } catch (error) {
+    logger.error('Could not fetch CSRF token')
+    throw error
+  }
+}
+
+async function LoadInitialState(logger: ILogger) {
   const region = getState(['app', 'selectedRegion'])
   clearState(['app', 'aws'])
   clearAllState()
+  await LoadCsrfToken(logger)
   GetVersion()
   await GetAppConfig()
   GetIdentity(_ => {

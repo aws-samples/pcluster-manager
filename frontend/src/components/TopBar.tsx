@@ -17,6 +17,7 @@ import {LoadInitialState} from '../model'
 // UI Elements
 import TopNavigation from '@cloudscape-design/components/top-navigation'
 import {useQueryClient} from 'react-query'
+import {useLogger} from '../logger/LoggerProvider'
 
 function regions(selected: any) {
   let supportedRegions = [
@@ -89,6 +90,7 @@ function regions(selected: any) {
 export default function Topbar() {
   let username = useState(['identity', 'attributes', 'email'])
   const queryClient = useQueryClient()
+  const logger = useLogger()
 
   const defaultRegion = useState(['aws', 'region']) || 'DEFAULT'
   const region = useState(['app', 'selectedRegion']) || defaultRegion
@@ -100,7 +102,7 @@ export default function Topbar() {
   const selectRegion = (region: any) => {
     let newRegion = region.detail.id
     setState(['app', 'selectedRegion'], newRegion)
-    LoadInitialState()
+    LoadInitialState(logger)
     queryClient.invalidateQueries()
   }
 
