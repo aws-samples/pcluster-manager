@@ -1,8 +1,5 @@
 name: e2e
-on:
-  push:
-    branches:
-      - e2e-credentials
+on: workflow_dispatch
 permissions:
   id-token: write
   contents: read
