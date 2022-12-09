@@ -12,7 +12,7 @@ import {useLogger} from '../logger/LoggerProvider'
 
 interface ErrorBoundaryProps {
   t: TFunction
-  logger: ILogger<any>
+  logger: ILogger
   windowObject?: Window
   children?: ReactNode
 }

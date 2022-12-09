@@ -24,7 +24,7 @@ interface PostLogError {
 
 type PostLogSuccess = {}
 
-export class Logger implements ILogger<Promise<any>> {
+export class Logger implements ILogger {
   private readonly executeRequest
   private appConfig: AppConfig | undefined
 
