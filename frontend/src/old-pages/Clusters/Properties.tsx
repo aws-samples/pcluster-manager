@@ -91,6 +91,7 @@ export default function ClusterProperties() {
       <Container header={<Header variant="h3">Properties</Header>}>
         <ColumnLayout columns={3} variant="text-grid">
           <SpaceBetween size="l">
+          { headNode && headNode.publicIpAddress && (
             <ValueWithLabel label={t('cluster.properties.sshcommand.label')}>
               <div className="custom-wrapping">
                 <Box margin={{right: 'xxs'}} display="inline-block">
@@ -131,6 +132,7 @@ export default function ClusterProperties() {
                 </HelpTooltip>
               </div>
             </ValueWithLabel>
+            )}
             <ValueWithLabel label="clusterConfiguration">
               <Button
                 disabled={cluster.clusterStatus === ClusterStatus.CreateFailed}
