@@ -200,7 +200,7 @@ Resources:
       UsernameConfiguration:
         CaseSensitive: false
       AdminCreateUserConfig:
-        AllowAdminCreateUserOnly: false
+        AllowAdminCreateUserOnly: true
         InviteMessageTemplate:
           EmailSubject: "[PclusterManager] Welcome to Pcluster Manager, please verify your account."
           EmailMessage: "Thanks for installing PclusterManager on your AWS account. The following user has been created: {username}<br /><br />Please use this temporary password to login to your account: {####}"
