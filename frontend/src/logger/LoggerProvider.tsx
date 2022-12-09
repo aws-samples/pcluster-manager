@@ -7,21 +7,21 @@ import {ConsoleLogger} from './ConsoleLogger'
 import {Logger} from './RemoteLogger'
 
 const consoleLogger = new ConsoleLogger()
-const LoggerContext = React.createContext<ILogger<any>>(consoleLogger)
+const LoggerContext = React.createContext<ILogger>(consoleLogger)
 
-export function useLogger(): ILogger<any> {
+export function useLogger(): ILogger {
   return useContext(LoggerContext)
 }
 
 const appConfigPath = ['app', 'appConfig']
 
-function makeLogger(appConfig?: AppConfig): ILogger<any> {
+function makeLogger(appConfig?: AppConfig): ILogger {
   if (process.env.NODE_ENV !== 'production') return consoleLogger
   return new Logger(executeRequest, appConfig)
 }
 
 export function LoggerProvider(props: any) {
-  const [logger, setLogger] = React.useState<ILogger<any>>(consoleLogger)
+  const [logger, setLogger] = React.useState<ILogger>(consoleLogger)
   const appConfig: AppConfig | undefined = useState(appConfigPath)
 
   React.useEffect(() => {
