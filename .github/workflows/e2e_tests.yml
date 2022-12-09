@@ -1,5 +1,8 @@
 name: e2e
-on: workflow_dispatch
+on:
+  push:
+    branches:
+      - e2e-credentials
 jobs:
   e2e-tests:
     timeout-minutes: 60
@@ -9,6 +12,19 @@ jobs:
     - uses: actions/setup-node@v3
       with:
         node-version: 16
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-region: eu-west-1
+        role-to-assume: arn:aws:iam::063695377715:role/pcluster-manager-github-E2ETestExecution-Z7IMRUIJAZAO
+
+    - name: Retrieve test user email and password
+      uses: aws-actions/aws-secretsmanager-get-secrets@v1
+      with:
+        secret-ids: |
+          e2e/test1
+        parse-json-secrets: true
+      
     - name: Install dependencies
       run: npm ci
       working-directory: e2e
