@@ -1,6 +1,6 @@
 import {ILogger} from './ILogger'
 
-export class ConsoleLogger implements ILogger<void> {
+export class ConsoleLogger implements ILogger {
   critical(message: string, extra?: Record<string, unknown>): void {
     console.error(this.formatMessage(message, extra))
   }
