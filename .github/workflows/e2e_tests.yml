@@ -3,6 +3,9 @@ on:
   push:
     branches:
       - e2e-credentials
+permissions:
+  id-token: write
+  contents: read
 jobs:
   e2e-tests:
     timeout-minutes: 60
