@@ -11,7 +11,7 @@
 
 import * as React from 'react'
 
-import {useState, setState} from '../store'
+import {useState, setState, getState} from '../store'
 import {LoadInitialState} from '../model'
 
 // UI Elements
@@ -107,6 +107,7 @@ export default function Topbar() {
   }
 
   const profileActions = [{type: 'button', id: 'signout', text: 'Sign out'}]
+  const version = getState(['app', 'version'])
 
   return (
     <div id="top-bar">
@@ -134,6 +135,13 @@ export default function Topbar() {
                   text: 'loading...',
                 },
           ],
+          {
+            type: "button",
+            text: version ? version.full : 'VERSION',
+            href: "#",
+            external: false,
+            externalIconAriaLabel: "Version of AWS ParallelCluster API"
+          },
           ...[
             region && {
               type: 'menu-dropdown',

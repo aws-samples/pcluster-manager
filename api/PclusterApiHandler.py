@@ -28,7 +28,7 @@ from api.utils import disable_auth
 USER_POOL_ID = os.getenv("USER_POOL_ID")
 AUTH_PATH = os.getenv("AUTH_PATH")
 API_BASE_URL = os.getenv("API_BASE_URL")
-API_VERSION = os.getenv("API_VERSION", "3.1.0")
+API_VERSION = os.getenv("API_VERSION", "3.3.0")
 API_USER_ROLE = os.getenv("API_USER_ROLE")
 OIDC_PROVIDER = os.getenv("OIDC_PROVIDER")
 CLIENT_ID = os.getenv("CLIENT_ID")
