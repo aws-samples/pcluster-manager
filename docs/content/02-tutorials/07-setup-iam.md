@@ -29,13 +29,13 @@ To fix this, you can add additional IAM permissions to PCM like so:
 1. Go to the [Lambda Console (deeplink)](https://console.aws.amazon.com/lambda/home?#/functions?f0=true&fo=and&k0=functionName&n0=false&o0=%3A&op=and&v0=ParallelClusterFunction) and search for `ParallelClusterFunction`
 2. Select the function then `Configuration` > `Permissions` > Click on the role under `Role name`.
 
-![Attach Policies](accounting/lambda-permissions.jpeg)
+![Attach Policies](07-setup-iam/lambda-permissions.jpeg)
 
 3. Select the `AWSXRayDaemonWriteAccess` policy and remove it
 4. Select `Add permissions` > `Attach policies`
 
-![Attach Policies](accounting/attach-policies.jpeg)
+![Attach Policies](07-setup-iam/attach-policies.jpeg)
 
 5. Search for `AdministratorAccess` > click `Attach policies`
 
-![Attach Policies](accounting/attach-admin.png)
+![Attach Policies](07-setup-iam/attach-admin.png)
