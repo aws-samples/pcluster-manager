@@ -569,7 +569,7 @@ function EbsSettings({index}: any) {
   const {t} = useTranslation()
   const ebsPath = [...storagePath, index, 'EbsSettings']
   const volumeTypePath = [...ebsPath, 'VolumeType']
-  const volumeTypes = ['gp3', 'gp2', 'io1', 'io2', 'sc1', 'stl', 'standard']
+  const volumeTypes = ['gp3', 'gp2', 'io1', 'io2', 'sc1', 'st1', 'standard']
   const defaultVolumeType = 'gp3'
   const volumeSizePath = [...ebsPath, 'Size']
   const encryptedPath = [...ebsPath, 'Encrypted']
