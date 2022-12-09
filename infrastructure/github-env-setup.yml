@@ -205,5 +205,5 @@ Outputs:
     Value: !GetAtt PrivateDeployRole.Arn
   PrivateInfrastructureUpdateRole:
     Value: !GetAtt PrivateInfrastructureUpdateRole.Arn
-  E2ETestExecution:
+  E2ETestExecutionRole:
     Value: !GetAtt E2ETestExecution.Arn
