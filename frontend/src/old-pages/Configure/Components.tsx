@@ -759,7 +759,7 @@ function RootVolume({basePath, errorsPath}: any) {
   )
   const rootVolumeType = useState(rootVolumeTypePath)
   const defaultRootVolumeType = 'gp3'
-  const volumeTypes = ['gp3', 'gp2', 'io1', 'io2', 'sc1', 'stl', 'standard']
+  const volumeTypes = ['gp3', 'gp2', 'io1', 'io2', 'sc1', 'st1', 'standard']
 
   const rootVolumeErrors = useState([...errorsPath, 'rootVolume'])
   const editing = useState(['app', 'wizard', 'editing'])
