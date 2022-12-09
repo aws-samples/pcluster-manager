@@ -22,10 +22,10 @@ const MockProviders = (props: any) => (
 )
 
 describe('Given an ErrorBoundary component', () => {
-  let mockLogger: MockProxy<ILogger<any>>
+  let mockLogger: MockProxy<ILogger>
 
   beforeEach(() => {
-    mockLogger = mock<ILogger<any>>()
+    mockLogger = mock<ILogger>()
   })
 
   describe('when there is an error in a Child component', () => {
