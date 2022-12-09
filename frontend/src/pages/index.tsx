@@ -25,13 +25,15 @@ import Home from '../old-pages/Home/Home'
 
 // Components
 import Loading from '../components/Loading'
+import {useLogger} from '../logger/LoggerProvider'
 
 export default function App() {
   const identity = useState(['identity'])
+  const logger = useLogger()
 
   React.useEffect(() => {
-    LoadInitialState()
-  }, [])
+    LoadInitialState(logger)
+  }, [logger])
 
   return (
     <>
