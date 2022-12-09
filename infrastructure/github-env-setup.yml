@@ -171,8 +171,39 @@ Resources:
                 Resource:
                   - !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:role/executionServiceEC2Role/pcluster-manager-demo-ImageBuilderInstanceRole*
 
+  E2ETestExecution:
+    Type: AWS::IAM::Role
+    Properties:
+      Description: "Role used to run PCM E2E test suite"
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Action: sts:AssumeRoleWithWebIdentity
+            Principal:
+              Federated: !If 
+                - CreateOIDCProvider
+                - !Ref GithubOidc
+                - !Ref OIDCProviderArn
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+                token.actions.githubusercontent.com:sub: !Sub repo:${GitHubOrg}/${RepositoryName}:ref:refs/heads/main
+      Policies:
+        - PolicyName: SecretsManagerRead
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: secretsmanager:ListSecrets
+                Resource: "*"
+              - Effect: Allow
+                Action: secretsmanager:GetSecretValue
+                Resource: arn:aws:secretsmanager:eu-west-1:063695377715:secret:e2e/test1-AUsDgk
+
 Outputs:
   PrivateDeployRole:
     Value: !GetAtt PrivateDeployRole.Arn
   PrivateInfrastructureUpdateRole:
     Value: !GetAtt PrivateInfrastructureUpdateRole.Arn
+  E2ETestExecutionRole:
+    Value: !GetAtt E2ETestExecution.Arn
