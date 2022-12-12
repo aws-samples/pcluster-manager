@@ -43,6 +43,7 @@ function App({Component, pageProps}: AppProps) {
     window.ace.config.set('loadWorkerFromBlob', false)
     window.ace.config.set('showFoldWidgets', false)
     window.ace.config.set('showPrintMargin', false)
+    window.ace.config.set('useStrictCSP', true)
   }, [])
 
   return (
