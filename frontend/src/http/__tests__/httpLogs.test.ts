@@ -17,9 +17,30 @@ describe('Given a logger and an axios instance', () => {
     it('it should not be logged', () => {
       const requestHandler = (axiosInstance as any).interceptors.request
         .handlers[0].fulfilled
+      const responseHandler = (axiosInstance as any).interceptors.response
+        .handlers[0].fulfilled
+      const responseHandlerRejected = (axiosInstance as any).interceptors
+        .response.handlers[0].rejected
+
       requestHandler({
         url: '/logs',
       })
+      responseHandler({
+        config: {
+          url: '/logs',
+        },
+        status: 200,
+      })
+      try {
+        responseHandlerRejected({
+          config: {
+            url: '/logs',
+          },
+          response: {
+            status: 401,
+          },
+        })
+      } catch {}
 
       expect(logger.info).not.toHaveBeenCalled()
     })
