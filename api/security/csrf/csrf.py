@@ -31,6 +31,8 @@ def validate_csrf(secret_key, csrf_cookie, csrf_header):
 
     return csrf_cookie == csrf_header
 
+def is_csrf_enabled():
+    return os.getenv("ENABLE_CSRF") != 'false'
 
 def set_csrf_cookie(resp, csrf_token):
     resp.set_cookie(CSRF_COOKIE_NAME, value=csrf_token)
@@ -39,6 +41,9 @@ def set_csrf_cookie(resp, csrf_token):
 def csrf_needed(func):
     @functools.wraps(func)
     def csrf_cookie_protect(*args, **kwargs):
+        if not is_csrf_enabled():
+            return func(*args, **kwargs)
+
         csrf_cookie = request.cookies.get(CSRF_COOKIE_NAME)
         csrf_header = request.headers.get(CSRF_TOKEN_HEADER)
         secret_key = current_app.config[CSRF_SECRET_KEY]
