@@ -3,7 +3,7 @@ import hashlib
 import os
 
 from flask import request, current_app
-from itsdangerous import URLSafeSerializer
+from itsdangerous import URLSafeSerializer, BadSignature
 
 from api.exception import CSRFError
 from api.security.csrf import CSRF_SECRET_KEY
@@ -19,15 +19,15 @@ def generate_csrf_token(secret_key, salt):
 
 def parse_csrf_token(secret_key, salt, token):
     serializer = URLSafeSerializer(secret_key, salt)
-    try:
-        return serializer.loads(token)
-    except Exception as ex:
-        raise CSRFError(str(ex))
+    return serializer.loads(token)
 
 
 def validate_csrf(secret_key, csrf_cookie, csrf_header):
-    csrf_cookie = parse_csrf_token(secret_key, SALT, csrf_cookie)
-    csrf_header = parse_csrf_token(secret_key, SALT, csrf_header)
+    try:
+        csrf_cookie = parse_csrf_token(secret_key, SALT, csrf_cookie)
+        csrf_header = parse_csrf_token(secret_key, SALT, csrf_header)
+    except BadSignature:
+        return False
 
     return csrf_cookie == csrf_header
 
@@ -52,6 +52,6 @@ def csrf_needed(func):
         if validate_csrf(secret_key, csrf_cookie, csrf_header):
             return func(*args, **kwargs)
         else:
-            raise CSRFError("provided CSRF value does not match")
+            raise CSRFError("provided CSRF are not valid or values do not match")
 
     return csrf_cookie_protect
