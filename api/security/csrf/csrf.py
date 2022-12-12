@@ -35,7 +35,7 @@ def is_csrf_enabled():
     return os.getenv("ENABLE_CSRF") != 'false'
 
 def set_csrf_cookie(resp, csrf_token):
-    resp.set_cookie(CSRF_COOKIE_NAME, value=csrf_token)
+    resp.set_cookie(CSRF_COOKIE_NAME, value=csrf_token, httponly=True, secure=True, samesite="Lax")
 
 
 def csrf_needed(func):
