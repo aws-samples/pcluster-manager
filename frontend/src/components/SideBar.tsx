@@ -25,7 +25,7 @@ export default function SideBar() {
 
   const header = React.useMemo(
     () => ({
-      href: '/home',
+      href: '/clusters',
       text: t('global.menu.header'),
     }),
     [t],
@@ -34,7 +34,6 @@ export default function SideBar() {
   const navigationItems: ReadonlyArray<SideNavigationProps.Item> =
     React.useMemo(() => {
       return [
-        {type: 'link', text: t('global.menu.home'), href: '/home'},
         {type: 'link', text: t('global.menu.clusters'), href: '/clusters'},
         {
           type: 'link',

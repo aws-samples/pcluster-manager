@@ -2,7 +2,6 @@
   "global": {
     "menu": {
       "header": "ParallelCluster Manager",
-      "home": "Home",
       "clusters": "Clusters",
       "customImages": "Custom Images",
       "officialImages": "Official Images",

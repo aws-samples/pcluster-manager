@@ -21,7 +21,6 @@ import Configure from '../old-pages/Configure/Configure'
 import CustomImages from '../old-pages/CustomImages/CustomImages'
 import OfficialImages from '../old-pages/OfficialImages/OfficialImages'
 import Users from '../old-pages/Users/Users'
-import Home from '../old-pages/Home/Home'
 
 // Components
 import Loading from '../components/Loading'
@@ -43,7 +42,6 @@ export default function App() {
               element={<Navigate replace to="/clusters" />}
             />
             <Route index element={<Navigate replace to="/clusters" />} />
-            <Route path="home" element={<Home />} />
             <Route path="clusters" element={<Clusters />}>
               <Route path=":clusterName" element={<div></div>}>
                 <Route path=":tab" element={<div></div>} />
