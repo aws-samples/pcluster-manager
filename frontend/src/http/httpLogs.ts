@@ -25,12 +25,12 @@ export const enableHttpLogs = (
     },
     (error: AxiosError) => {
       if (!isLogEndpoint(error.config?.url)) {
-        logger.info('HTTP response received', {
+        logger.error('HTTP response received', {
           url: error.config?.url,
           statusCode: error.response?.status,
         })
       }
-      return Promise.reject(error)
+      throw error
     },
   )
   return () => {
