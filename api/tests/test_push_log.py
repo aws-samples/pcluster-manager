@@ -9,6 +9,7 @@ def trim_log(caplog):
 @pytest.fixture(scope='function')
 def disable_auth(monkeypatch):
     monkeypatch.setitem(environ, 'ENABLE_AUTH', 'false')
+    monkeypatch.setitem(environ, 'ENABLE_CSRF', 'false')
 
 
 def test_push_log_controller_with_valid_json_no_extra(client, caplog, disable_auth):
