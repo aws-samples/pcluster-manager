@@ -13,6 +13,6 @@ import {AxiosInstance} from 'axios'
 export async function getCsrfToken(
   axiosInstance: AxiosInstance,
 ): Promise<string> {
-  const {data} = await axiosInstance.get('/csrf_token')
-  return data.token
+  const {data} = await axiosInstance.get('/csrf')
+  return data.csrf_token
 }
