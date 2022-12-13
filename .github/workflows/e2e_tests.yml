@@ -1,8 +1,14 @@
 name: e2e
-on: workflow_dispatch
+
+on:
+  push:
+    branches:
+      - main
+
 permissions:
   id-token: write
   contents: read
+
 jobs:
   e2e-tests:
     timeout-minutes: 60
