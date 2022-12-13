@@ -1,16 +1,8 @@
-import {AppConfig} from '../../app-config/types'
 import {Logger} from '../RemoteLogger'
 
 const mockedExecuteRequest = jest.fn()
 
 describe('given the application config', () => {
-  let mockAppConfig: AppConfig = {
-    authUrl: 'http://somepath.com',
-    clientId: 'some-id',
-    redirectUri: 'some-uri',
-    scopes: 'some-list',
-  }
-
   beforeEach(() => {
     mockedExecuteRequest.mockClear()
   })
@@ -20,7 +12,7 @@ describe('given the application config', () => {
     mockedExecuteRequest.mockResolvedValue(response)
 
     describe('and a PCM Logger instance', () => {
-      let logger = new Logger(mockedExecuteRequest, mockAppConfig)
+      let logger = new Logger(mockedExecuteRequest)
 
       const expectedMethod = 'post'
       const expectedPath = '/logs'
@@ -37,7 +29,6 @@ describe('given the application config', () => {
           expectedMethod,
           expectedPath,
           expectedLogEntry,
-          mockAppConfig,
         )
         expect(response.status).toBe(200)
       })
@@ -62,7 +53,6 @@ describe('given the application config', () => {
           expectedMethod,
           expectedPath,
           expectedLogEntry,
-          mockAppConfig,
         )
         expect(response.status).toBe(200)
       })

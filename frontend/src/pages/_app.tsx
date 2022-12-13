@@ -22,7 +22,9 @@ import ErrorBoundary from '../components/ErrorBoundary'
 
 import i18n from '../i18n'
 import {store} from '../store'
-import {LoggerProvider} from '../logger/LoggerProvider'
+import {logger, LoggerProvider} from '../logger/LoggerProvider'
+import {enableHttpLogs} from '../http/httpLogs'
+import {axiosInstance} from '../http/executeRequest'
 
 const queryClient = new QueryClient()
 declare global {
@@ -31,6 +33,8 @@ declare global {
     editor: any
   }
 }
+
+enableHttpLogs(axiosInstance, logger)
 
 function App({Component, pageProps}: AppProps) {
   const onAceLoad = useCallback(() => {
