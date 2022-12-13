@@ -1,4 +1,3 @@
-import {AppConfig} from '../app-config/types'
 import {HTTPMethod} from '../http/executeRequest'
 import {AxiosError} from 'axios'
 import {ILogger} from './ILogger'
@@ -26,19 +25,15 @@ type PostLogSuccess = {}
 
 export class Logger implements ILogger {
   private readonly executeRequest
-  private appConfig: AppConfig | undefined
 
   constructor(
     executeRequest: (
       method: HTTPMethod,
       url: string,
       body?: any,
-      _appConfig?: AppConfig,
     ) => Promise<any>,
-    appConfig?: AppConfig,
   ) {
     this.executeRequest = executeRequest
-    this.appConfig = appConfig
   }
 
   private log(
@@ -47,7 +42,7 @@ export class Logger implements ILogger {
     extra?: Record<string, unknown>,
   ): Promise<PostLogSuccess> {
     const logEntry = this.buildMessage(logLevel, message, extra)
-    return this.executeRequest('post', '/logs', logEntry, this.appConfig).catch(
+    return this.executeRequest('post', '/logs', logEntry).catch(
       (err: AxiosError<PostLogError>) =>
         console.warn('Unable to push log entry'),
     )
