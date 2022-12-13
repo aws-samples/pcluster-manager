@@ -17,18 +17,14 @@ describe('given a function to set the X-CSRF-Token header ', () => {
     let mockAxiosInstance: MockProxy<AxiosInstance>
     beforeEach(() => {
       mockAxiosInstance = mock<AxiosInstance>()
+      mockAxiosInstance.defaults.headers = {}
     })
 
-    describe('when the token is retrieved successfully', () => {
-      beforeEach(() => {
-        mockAxiosInstance.defaults.headers = {}
-      })
-      it('should map the received configuration to the known AppConfig', async () => {
-        setCsrfTokenHeader(mockAxiosInstance, 'some-token')
-        expect(mockAxiosInstance.defaults.headers['X-CSRF-Token']).toBe(
-          'some-token',
-        )
-      })
+    it('should set the X-CSRF-Token header', async () => {
+      setCsrfTokenHeader(mockAxiosInstance, 'some-token')
+      expect(mockAxiosInstance.defaults.headers['X-CSRF-Token']).toBe(
+        'some-token',
+      )
     })
   })
 })
