@@ -1,6 +1,7 @@
 name: Deploy public documentation
 
 on:
+  workflow_dispatch:
   push:
     tags: '*'
 
