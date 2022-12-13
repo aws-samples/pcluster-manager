@@ -31,8 +31,10 @@ def validate_csrf(secret_key, csrf_cookie, csrf_header):
 
     return csrf_cookie == csrf_header
 
+# needed to only allow tests to disable csrf
 def is_csrf_enabled():
-    return os.getenv("ENABLE_CSRF") != 'false'
+    return True
+
 
 def set_csrf_cookie(resp, csrf_token):
     resp.set_cookie(CSRF_COOKIE_NAME, value=csrf_token, httponly=True, secure=True, samesite="Lax")
