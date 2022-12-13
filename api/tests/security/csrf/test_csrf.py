@@ -33,6 +33,7 @@ def test_crsf_extension(app):
     assert resp.status_code != 405
     assert 'csrf_token' in resp.json
     assert len(csrf_cookies) > 0
+    assert 'Secure; HttpOnly; Path=/; SameSite=Lax' in csrf_cookies[0]
 
 
 def test_csrf_needed_decorator(mocker, capsys, mock_csrf_token_string, app, mock_parse_csrf):
