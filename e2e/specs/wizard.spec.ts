@@ -12,7 +12,7 @@ test.describe('Given an endpoint where ParallelCluster Manager is deployed', () 
     await page.getByRole('textbox', { name: 'Password' }).fill(process.env.E2E_TEST1_PASSWORD!);
     await page.getByRole('button', { name: 'submit' }).click();
   
-    await page.getByRole('button', { name: 'Create Cluster' }).click();
+    await page.getByRole('button', { name: 'Create Cluster' }).first().click();
     await expect(page.getByRole('heading', { name: 'Cluster Name' })).toBeVisible()
     await page.getByRole('textbox', { name: 'Enter your cluster name' }).fill("testcluster");
     await page.getByRole('button', { name: 'Next' }).click();
