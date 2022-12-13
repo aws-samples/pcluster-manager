@@ -13,12 +13,8 @@ from os import environ
 from typing import Any, Dict
 
 import app
-from aws_lambda_powertools import Logger, Tracer
-from aws_lambda_powertools.utilities.typing import LambdaContext
+import logging
 from awslambda.serverless_wsgi import handle_request
-
-logger = Logger(service="pcluster_manager", location="%(filename)s:%(lineno)s:%(funcName)s()")
-tracer = Tracer(service="pcluster_manager")
 
 # Initialize as a global to re-use across Lambda invocations
 pcluster_manager_api = None  # pylint: disable=invalid-name
@@ -27,27 +23,22 @@ profile = environ.get("PROFILE", "prod")
 is_dev_profile = profile == "dev"
 
 if is_dev_profile:
-    logger.info("Running with dev profile")
     environ["FLASK_ENV"] = "development"
     environ["FLASK_DEBUG"] = "1"
 
 
-@tracer.capture_method
 def _init_flask_app():
     return app.run()
 
-
-@logger.inject_lambda_context(log_event=is_dev_profile)
-@tracer.capture_lambda_handler
-def lambda_handler(event: Dict[str, Any], context: LambdaContext) -> Dict[str, Any]:
+def lambda_handler(event: Dict[str, Any], context) -> Dict[str, Any]:
     try:
         global pcluster_manager_api  # pylint: disable=global-statement,invalid-name
         if not pcluster_manager_api:
-            logger.info("Initializing Flask Application")
+            logging.info("Initializing Flask Application")
             pcluster_manager_api = _init_flask_app()
         # Setting default region to region where lambda function is executed
         os.environ["AWS_DEFAULT_REGION"] = os.environ["AWS_REGION"]
         return handle_request(pcluster_manager_api, event, context)
     except Exception as e:
-        logger.critical("Unexpected exception: %s", e, exc_info=True)
+        logging.critical("Unexpected exception: %s", e, exc_info=True)
         raise Exception("Unexpected fatal exception. Please look at API logs for details on the encountered failure.")
