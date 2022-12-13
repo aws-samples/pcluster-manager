@@ -24,11 +24,11 @@ describe('given a function to fetch the CSRF token', () => {
     describe('when the token is retrieved successfully', () => {
       beforeEach(() => {
         const mockResponse = {
-          token: 'some-token',
+          csrf_token: 'some-token',
         }
         mockAxiosInstance.get.mockResolvedValueOnce({data: mockResponse})
       })
-      it('should map the received configuration to the known AppConfig', async () => {
+      it('should return the token', async () => {
         const token = await getCsrfToken(mockAxiosInstance)
         expect(token).toBe('some-token')
       })
