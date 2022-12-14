@@ -53,6 +53,7 @@ import Loading from '../../components/Loading'
 // Icons
 import {useTranslation} from 'react-i18next'
 import Layout from '../Layout'
+import {useWizardSectionChangeLog} from '../../navigation/useWizardSectionChangeLog'
 
 function wizardShow(navigate: any) {
   const editing = getState(['app', 'wizard', 'editing'])
@@ -64,7 +65,6 @@ function wizardShow(navigate: any) {
     setState(['app', 'wizard', 'editing'], false)
     setState(['app', 'wizard', 'page'], 'source')
   }
-  console.log('page: ', page)
   if (!page) setState(['app', 'wizard', 'page'], 'source')
   navigate('/configure')
 }
@@ -297,6 +297,8 @@ function Configure() {
     window.addEventListener('keydown', close)
     return () => window.removeEventListener('keydown', close)
   }, [clearStateAndCloseWizard])
+
+  useWizardSectionChangeLog()
 
   return (
     <Layout contentType="form">
