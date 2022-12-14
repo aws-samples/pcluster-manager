@@ -91,7 +91,6 @@ def run():
 
     @app.route("/manager/get_cluster_configuration")
     @authenticated(ADMINS_GROUP)
-    @csrf_needed
     def get_cluster_config_():
         return get_cluster_config()
 
@@ -112,6 +111,7 @@ def run():
 
     @app.route("/manager/get_dcv_session")
     @authenticated(ADMINS_GROUP)
+    @csrf_needed
     def get_dcv_session_():
         return get_dcv_session()
 
@@ -152,6 +152,7 @@ def run():
 
     @app.route("/manager/cancel_job")
     @authenticated(ADMINS_GROUP)
+    @csrf_needed
     def cancel_job_():
         return cancel_job()
 
@@ -174,7 +175,6 @@ def run():
 
     @app.route("/manager/scontrol_job")
     @authenticated(ADMINS_GROUP)
-    @csrf_needed
     def scontrol_job_():
         return scontrol_job()
 
