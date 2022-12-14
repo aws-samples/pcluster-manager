@@ -25,6 +25,7 @@ import {axiosInstance, executeRequest, HTTPMethod} from './http/executeRequest'
 import {getCsrfToken} from './auth/getCsrfToken'
 import {ILogger} from './logger/ILogger'
 import {setCsrfTokenHeader} from './http/setCsrfTokenHeader'
+import i18n from './i18n'
 
 // Types
 type Callback = (arg?: any) => void
@@ -958,7 +959,7 @@ async function GetAppConfig() {
   }
 }
 
-async function LoadCsrfToken(logger: ILogger): Promise<string> {
+async function LoadCsrfToken(logger: ILogger): Promise<string | null> {
   try {
     const token = await getCsrfToken(axiosInstance)
     setCsrfTokenHeader(axiosInstance, token)
@@ -966,7 +967,8 @@ async function LoadCsrfToken(logger: ILogger): Promise<string> {
     return token
   } catch (error) {
     logger.error('Could not fetch CSRF token')
-    throw error
+    notify(i18n.t('global.errors.csrfError'), 'error')
+    return null
   }
 }
 
