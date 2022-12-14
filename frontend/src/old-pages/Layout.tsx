@@ -20,12 +20,15 @@ import {Flashbar} from '@cloudscape-design/components'
 import TopBar from '../components/TopBar'
 import SideBar from '../components/SideBar'
 import {PropsWithChildren} from 'react'
+import {useLocationChangeLog} from '../navigation/useLocationChangeLog'
 
 export default function Layout({
   children,
   ...props
 }: PropsWithChildren<Partial<AppLayoutProps>>) {
   const messages = useState(['app', 'messages']) || []
+  useLocationChangeLog()
+
   return (
     <>
       <TopBar />
