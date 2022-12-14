@@ -9,10 +9,11 @@ from api.pcm_globals import logger
 
 def boto3_exception_handler(err):
     response = err.response
-    descr, status = response['Error'], response['ResponseMetadata']['HTTPStatusCode']
-    logger.error(descr, extra=dict(status=status, exception=type(err)))
+    error, status = response['Error'], response['ResponseMetadata']['HTTPStatusCode']
+    description = error['Message']
 
-    return jsonify(error=descr), status
+    logger.error(description, extra=dict(status=status, exception=type(err)))
+    return __handler_response(status, description)
 
 def websocket_mismatch_nop_handler(err):
     """ Handles websocket error caused by HMR in local development"""
@@ -39,8 +40,8 @@ def global_exception_handler(err):
 
 
 def __handler_response(code, description='Something went wrong'):
-    response = {'Code': code, 'Message': description}
-    return jsonify(error=response), code
+    response = {'code': code, 'message': description}
+    return jsonify(response), code
 
 
 class ExceptionHandler(object):
