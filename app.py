@@ -19,7 +19,6 @@ import api.utils as utils
 from api.PclusterApiHandler import (
     PclusterApiHandler,
     authenticated,
-    cancel_job,
     create_user,
     delete_user,
     ec2_action,
@@ -34,12 +33,7 @@ from api.PclusterApiHandler import (
     list_users,
     login,
     logout,
-    price_estimate,
-    queue_status,
-    sacct,
-    scontrol_job,
-    submit_job,
-    CLIENT_ID, CLIENT_SECRET, USER_POOL_ID
+    CLIENT_ID, CLIENT_SECRET, USER_POOL_ID,
 )
 from api.pcm_globals import logger
 from api.security.csrf import CSRF
@@ -144,39 +138,6 @@ def run():
     @csrf_needed
     def delete_user_():
         return delete_user()
-
-    @app.route("/manager/queue_status")
-    @authenticated(ADMINS_GROUP)
-    def queue_status_():
-        return queue_status()
-
-    @app.route("/manager/cancel_job")
-    @authenticated(ADMINS_GROUP)
-    @csrf_needed
-    def cancel_job_():
-        return cancel_job()
-
-    @app.route("/manager/price_estimate")
-    @authenticated(ADMINS_GROUP)
-    def price_estimate_():
-        return price_estimate()
-
-    @app.route("/manager/submit_job", methods=["POST"])
-    @authenticated(ADMINS_GROUP)
-    @csrf_needed
-    def submit_job_():
-        return submit_job()
-
-    @app.route("/manager/sacct", methods=["POST"])
-    @authenticated(ADMINS_GROUP)
-    @csrf_needed
-    def sacct_():
-        return sacct()
-
-    @app.route("/manager/scontrol_job")
-    @authenticated(ADMINS_GROUP)
-    def scontrol_job_():
-        return scontrol_job()
 
     @app.route("/login")
     def login_():
