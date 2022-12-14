@@ -11,18 +11,15 @@
 import React from 'react'
 import {useNavigate, useParams} from 'react-router-dom'
 
-import {getState, useState} from '../../store'
-import {getScripts} from './util'
+import {useState} from '../../store'
 
 // UI Elements
 import Tabs from '@cloudscape-design/components/tabs'
 
 // Components
-import Accounting from './Accounting'
 import StackEvents from './StackEvents'
 import Instances from './Instances'
 import Filesystems from './Filesystems'
-import Scheduling from './Scheduling'
 import Properties from './Properties'
 import Logs from './Logs'
 import Loading from '../../components/Loading'
@@ -31,31 +28,8 @@ export default function ClusterTabs() {
   const clusterName = useState(['app', 'clusters', 'selected'])
   const clusterPath = ['clusters', 'index', clusterName]
   const cluster = useState(clusterPath)
-  const customActions = useState([
-    ...clusterPath,
-    'config',
-    'HeadNode',
-    'CustomActions',
-  ])
   const selectedClusterName = useState(['app', 'clusters', 'selected'])
 
-  function isMultiScriptAccountingEnabled() {
-    return getScripts(customActions).includes('slurm-accounting')
-  }
-
-  function isNativeAccountingEnabled() {
-    const accountingPath = [
-      ...clusterPath,
-      'config',
-      'Scheduling',
-      'SlurmSettings',
-      'Database',
-    ]
-    return getState(accountingPath) ? true : false
-  }
-
-  let accountingEnabled =
-    isMultiScriptAccountingEnabled() || isNativeAccountingEnabled()
   let navigate = useNavigate()
   let params = useParams()
 
@@ -65,10 +39,6 @@ export default function ClusterTabs() {
         {label: 'Details', id: 'details', content: <Properties />},
         {label: 'Instances', id: 'instances', content: <Instances />},
         {label: 'Storage', id: 'storage', content: <Filesystems />},
-        {label: 'Job Scheduling', id: 'scheduling', content: <Scheduling />},
-        ...(accountingEnabled
-          ? [{label: 'Accounting', id: 'accounting', content: <Accounting />}]
-          : []),
         {label: 'Stack Events', id: 'stack-events', content: <StackEvents />},
         {label: 'Logs', id: 'logs', content: <Logs />},
       ]}
