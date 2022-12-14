@@ -17,7 +17,6 @@ import {
 } from '../types/clusters'
 import {InstanceState, Instance, EC2Instance} from '../types/instances'
 import {StackEvent} from '../types/stackevents'
-import {JobStateCode} from '../types/jobs'
 import React, {useCallback} from 'react'
 import {Trans} from 'react-i18next'
 import {Link as InternalLink} from 'react-router-dom'
@@ -95,41 +94,6 @@ function ClusterStatusIndicator({
       {failedStatuses.has(clusterStatus) && (
         <ClusterFailedHelp cluster={cluster} />
       )}
-    </StatusIndicator>
-  )
-}
-
-function JobStatusIndicator({status}: {status: JobStateCode}) {
-  const statusMap: Record<JobStateCode, StatusIndicatorProps.Type> = {
-    BOOT_FAIL: 'error',
-    CANCELLED: 'error',
-    COMPLETED: 'success',
-    COMPLETING: 'in-progress',
-    CONFIGURING: 'loading',
-    DEADLINE: 'info',
-    FAILED: 'error',
-    NODE_FAIL: 'error',
-    OUT_OF_MEMORY: 'error',
-    PENDING: 'pending',
-    PREEMPTED: 'info',
-    REQUEUED: 'info',
-    REQUEUE_FED: 'info',
-    REQUEUE_HOLD: 'info',
-    RESIZING: 'info',
-    RESV_DEL_HOLD: 'info',
-    REVOKED: 'info',
-    RUNNING: 'success',
-    SIGNALING: 'info',
-    SPECIAL_EXIT: 'info',
-    STAGE_OUT: 'info',
-    STOPPED: 'stopped',
-    SUSPENDED: 'stopped',
-    TIMEOUT: 'error',
-  }
-
-  return (
-    <StatusIndicator type={statusMap[status]}>
-      {status.replaceAll('_', ' ')}
     </StatusIndicator>
   )
 }
@@ -216,6 +180,5 @@ export {
   ClusterStatusIndicator,
   ComputeFleetStatusIndicator,
   InstanceStatusIndicator,
-  JobStatusIndicator,
   StackEventStatusIndicator,
 }
