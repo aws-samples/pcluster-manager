@@ -19,5 +19,3 @@ trap 'error' ERR
 
 echo "Uploading the main templates"
 "${SCRIPT_DIR}"/upload.sh "$SCRIPT_DIR"
-echo "Uploading accounting template"
-"${SCRIPT_DIR}"/slurm-accounting/upload.sh "$SCRIPT_DIR"
