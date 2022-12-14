@@ -1,9 +1,10 @@
 name: e2e
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["Deploy to Demo"]
+    types:
+      - completed
 
 permissions:
   id-token: write
@@ -13,6 +14,7 @@ jobs:
   e2e-tests:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-node@v3
