@@ -1,15 +1,19 @@
-
+from boto3.exceptions import Boto3Error
+from botocore.exceptions import ClientError
 from flask import jsonify
+from werkzeug.routing import WebsocketMismatch
 
+from api.exception import CSRFError
 from api.pcm_globals import logger
 
 
 def boto3_exception_handler(err):
     response = err.response
-    descr, status = response['Error'], response['ResponseMetadata']['HTTPStatusCode']
-    logger.error(descr, extra=dict(status=status, exception=type(err)))
+    error, status = response['Error'], response['ResponseMetadata']['HTTPStatusCode']
+    description = error['Message']
 
-    return jsonify(error=descr), status
+    logger.error(description, extra=dict(status=status, exception=type(err)))
+    return __handler_response(status, description)
 
 def websocket_mismatch_nop_handler(err):
     """ Handles websocket error caused by HMR in local development"""
@@ -20,6 +24,10 @@ def value_error_handler(err):
     logger.error(descr, extra=dict(status=code, exception=type(err)))
     return __handler_response(code, descr)
 
+def csrf_error_handler(err):
+    descr, code = str(err), 403
+    logger.error(descr, extra=dict(status=code, exception=type(err)))
+    return __handler_response(code, descr)
 def global_exception_handler(err):
     try:
         code = err.code
@@ -32,5 +40,25 @@ def global_exception_handler(err):
 
 
 def __handler_response(code, description='Something went wrong'):
-    response = {'Code': code, 'Message': description}
-    return jsonify(error=response), code
+    response = {'code': code, 'message': description}
+    return jsonify(response), code
+
+
+class ExceptionHandler(object):
+
+    def __init__(self, app=None, running_local=False):
+        self.running_local = running_local
+        if app is not None:
+            self.init_app(app)
+
+    def init_app(self, app):
+        app.register_error_handler(Boto3Error, boto3_exception_handler)
+        app.register_error_handler(ClientError, boto3_exception_handler)
+
+        app.register_error_handler(CSRFError, csrf_error_handler)
+        app.register_error_handler(ValueError, value_error_handler)
+        app.register_error_handler(Exception, global_exception_handler)
+
+        # in local dev, handle specific Exception caused by HMR requests from FE
+        if self.running_local:
+            app.register_error_handler(WebsocketMismatch, websocket_mismatch_nop_handler)

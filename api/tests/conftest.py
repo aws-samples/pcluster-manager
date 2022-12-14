@@ -1,4 +1,6 @@
 import pytest
+
+import api.security
 from app import run
 
 
@@ -9,11 +11,8 @@ def app():
         "TESTING": True,
     })
 
-    # other setup can go here
-
     yield app
 
-    # clean up / reset resources here
 
 
 @pytest.fixture()
@@ -39,3 +38,9 @@ def dev_app(monkeypatch):
 @pytest.fixture()
 def dev_client(dev_app):
     return dev_app.test_client()
+
+
+@pytest.fixture(scope='function')
+def mock_csrf_needed(mocker, app):
+    mock_csrf_enabled = mocker.patch.object(api.security.csrf.csrf, 'is_csrf_enabled')
+    mock_csrf_enabled.return_value = False

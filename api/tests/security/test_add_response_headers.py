@@ -1,6 +1,6 @@
 from flask import Response
 
-from api.security import add_security_headers, add_security_headers_dev
+from api.security.headers import add_security_headers, add_security_headers_dev
 
 COMMON_SECURITY_HEADERS = {
     'X-Frame-Options': 'DENY',

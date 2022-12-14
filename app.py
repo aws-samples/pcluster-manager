@@ -10,7 +10,7 @@
 # limitations under the License.
 import datetime
 
-from flask import Flask, Response, request, send_from_directory
+from flask import Response, request
 from flask.json import JSONEncoder
 from flask_restful import Api
 from werkzeug.routing import BaseConverter
@@ -39,9 +39,12 @@ from api.PclusterApiHandler import (
     sacct,
     scontrol_job,
     submit_job,
-    logger,
+    CLIENT_ID, CLIENT_SECRET, USER_POOL_ID
 )
-from api.pcm_globals import set_global_logger
+from api.pcm_globals import logger
+from api.security.csrf import CSRF
+from api.security.csrf.csrf import csrf_needed
+from api.security.fingerprint import CognitoFingerprintGenerator
 
 ADMINS_GROUP = { "admin" }
 
@@ -66,6 +69,7 @@ def run():
     app = utils.build_flask_app(__name__)
     app.json_encoder = PClusterJSONEncoder
     app.url_map.converters["regex"] = RegexConverter
+    CSRF(app, CognitoFingerprintGenerator(CLIENT_ID, CLIENT_SECRET, USER_POOL_ID))
     api = Api(app)
 
     @app.errorhandler(401)
@@ -81,6 +85,7 @@ def run():
 
     @app.route("/manager/ec2_action", methods=["POST"])
     @authenticated(ADMINS_GROUP)
+    @csrf_needed
     def ec2_action_():
         return ec2_action()
 
@@ -106,6 +111,7 @@ def run():
 
     @app.route("/manager/get_dcv_session")
     @authenticated(ADMINS_GROUP)
+    @csrf_needed
     def get_dcv_session_():
         return get_dcv_session()
 
@@ -129,11 +135,13 @@ def run():
 
     @app.route("/manager/create_user", methods=["POST"])
     @authenticated(ADMINS_GROUP)
+    @csrf_needed
     def create_user_():
         return create_user()
 
     @app.route("/manager/delete_user", methods=["DELETE"])
     @authenticated(ADMINS_GROUP)
+    @csrf_needed
     def delete_user_():
         return delete_user()
 
@@ -144,6 +152,7 @@ def run():
 
     @app.route("/manager/cancel_job")
     @authenticated(ADMINS_GROUP)
+    @csrf_needed
     def cancel_job_():
         return cancel_job()
 
@@ -154,11 +163,13 @@ def run():
 
     @app.route("/manager/submit_job", methods=["POST"])
     @authenticated(ADMINS_GROUP)
+    @csrf_needed
     def submit_job_():
         return submit_job()
 
     @app.route("/manager/sacct", methods=["POST"])
     @authenticated(ADMINS_GROUP)
+    @csrf_needed
     def sacct_():
         return sacct()
 
@@ -177,6 +188,7 @@ def run():
 
     @app.route('/logs', methods=['POST'])
     @authenticated(ADMINS_GROUP)
+    @csrf_needed
     def push_log():
         if 'level' not in request.json or 'message' not in request.json:
             raise ValueError('Request body missing one or more mandatory fields ["message", "level"]')
@@ -204,10 +216,6 @@ def run():
     @app.route('/<regex("(home|clusters|users|configure|custom-images|official-images).*"):base>/<path:u_path>', defaults={"base": "", "u_path": ""})
     def catch_all2(base, u_path):
         return utils.serve_frontend(app, base)
-
-    @app.before_request
-    def _set_global_logger():
-        set_global_logger(logger)
 
     api.add_resource(PclusterApiHandler, "/api")
     return app

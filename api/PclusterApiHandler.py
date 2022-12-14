@@ -16,17 +16,14 @@ import time
 
 import boto3
 import botocore
-import jose
 import requests
 import yaml
 from flask import abort, redirect, request
 from flask_restful import Resource, reqparse
 from jose import jwt
 
-from api.utils import disable_auth, running_local
-from api.logger import DefaultLogger
-
-logger = DefaultLogger(running_local())
+from api.security.csrf.csrf import csrf_needed
+from api.utils import disable_auth
 
 USER_POOL_ID = os.getenv("USER_POOL_ID")
 AUTH_PATH = os.getenv("AUTH_PATH")
@@ -699,34 +696,30 @@ def _get_params(_request):
 
 
 class PclusterApiHandler(Resource):
-    method_decorators = [authenticated({"admin"})]
+    __read_decorators = [authenticated({'admin'})]
+    __write_decorators = [authenticated({'admin'}), csrf_needed]
+
+    method_decorators = {
+        'get': __read_decorators,
+        'post': __write_decorators,
+        'put': __write_decorators,
+        'delete': __write_decorators,
+        'patch': __write_decorators
+    }
 
     def get(self):
-        # if re.match(r".*images.*logstreams/+", args["path"]):
-        #    left, right = args["path"].split("logstreams")
-        #    args["path"] = "{}logstreams/{}".format(left, right[1:].replace("/", "%2F"))
         response = sigv4_request("GET", API_BASE_URL, request.args.get("path"), _get_params(request))
         return response.json(), response.status_code
 
     def post(self):
-        auth_response = authenticate({"admin"})
-        if auth_response:
-            abort(401)
         resp = sigv4_request("POST", API_BASE_URL, request.args.get("path"), _get_params(request), body=request.json)
         return resp.json(), resp.status_code
 
     def put(self):
-        auth_response = authenticate({"admin"})
-        if auth_response:
-            abort(401)
         resp = sigv4_request("PUT", API_BASE_URL, request.args.get("path"), _get_params(request), body=request.json)
         return resp.json(), resp.status_code
 
     def delete(self):
-        auth_response = authenticate({"admin"})
-        if auth_response:
-            abort(401)
-
         body = None
         try:
             if "Content-Type" in request.headers and request.headers.get("ContentType") == "application/json":
@@ -739,8 +732,5 @@ class PclusterApiHandler(Resource):
         return resp.json(), resp.status_code
 
     def patch(self):
-        auth_response = authenticate({"admin"})
-        if auth_response:
-            abort(401)
         resp = sigv4_request("PATCH", API_BASE_URL, request.args.get("path"), _get_params(request), body=request.json)
         return resp.json(), resp.status_code
