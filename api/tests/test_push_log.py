@@ -41,11 +41,9 @@ def test_push_log_controller_with_invalid_message_key(client, disable_auth, mock
 
     assert response.status_code == 400
     assert response.json == {
-        'error': {
-            'Code': 400,
-            'Message': 'Request body missing one or more mandatory fields ["message", "level"]'
+            'code': 400,
+            'message': 'Request body missing one or more mandatory fields ["message", "level"]'
         }
-    }
 
 
 def test_push_log_controller_with_invalid_level_key(client, disable_auth, mock_csrf_needed):
@@ -55,11 +53,9 @@ def test_push_log_controller_with_invalid_level_key(client, disable_auth, mock_c
 
     assert response.status_code == 400
     assert response.json == {
-        'error': {
-            'Code': 400,
-            'Message': 'Request body missing one or more mandatory fields ["message", "level"]'
+            'code': 400,
+            'message': 'Request body missing one or more mandatory fields ["message", "level"]'
         }
-    }
 
 
 def test_push_log_controller_with_invalid_level_value(client, disable_auth, mock_csrf_needed):
@@ -69,12 +65,9 @@ def test_push_log_controller_with_invalid_level_value(client, disable_auth, mock
 
     assert response.status_code == 400
     assert response.json == {
-        'error': {
-            'Code': 400,
-            'Message': 'Invalid logging level requested'
+            'code': 400,
+            'message': 'Invalid logging level requested'
         }
-    }
-
 
 def test_push_log_controller_with_invalid_extra_value(client, disable_auth, mock_csrf_needed):
     request_body = {'message': 'sample-message', 'level': 'info', 'extra': 'wrong-value'}
@@ -83,8 +76,6 @@ def test_push_log_controller_with_invalid_extra_value(client, disable_auth, mock
 
     assert response.status_code == 400
     assert response.json == {
-        'error': {
-            'Code': 400,
-            'Message': 'Extra param must be a valid json object'
+            'code': 400,
+            'message': 'Extra param must be a valid json object'
         }
-    }
