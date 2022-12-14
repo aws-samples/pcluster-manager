@@ -13,10 +13,10 @@ import os
 
 import dateutil
 from flask import Flask, Response, request, send_from_directory
-from flask_cors import CORS
 import requests
 
 from api.exception import ExceptionHandler
+from api.pcm_globals import PCMGlobals
 from api.security import SecurityHeaders
 
 
@@ -94,6 +94,8 @@ def build_flask_app(name):
         additional_args = dict(static_url_path="", static_folder="frontend/public")
 
     app = Flask(name, **additional_args)
+    # Pcm globals setter functions before any other before_func
+    PCMGlobals(app, running_local=is_running_local)
 
     SecurityHeaders(app, running_local=is_running_local)
     ExceptionHandler(app, running_local=is_running_local)

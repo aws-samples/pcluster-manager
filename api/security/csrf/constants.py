@@ -1,0 +1,4 @@
+CSRF_SECRET_KEY = 'CSRF_SECRET_KEY'
+CSRF_TOKEN_HEADER = 'X-CSRF-Token'
+CSRF_COOKIE_NAME = 'csrf'
+SALT = 'pcm-csrf-salt'
