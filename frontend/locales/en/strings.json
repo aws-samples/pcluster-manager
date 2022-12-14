@@ -7,6 +7,9 @@
       "officialImages": "Official Images",
       "users": "Users",
       "viewLicense": "View License"
+    },
+    "errors": {
+      "csrfError": "An unexpected error occurred. Please reload the page and try again"
     }
   },
   "errorBoundary": {

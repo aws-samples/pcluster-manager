@@ -24,13 +24,15 @@ import Users from '../old-pages/Users/Users'
 
 // Components
 import Loading from '../components/Loading'
+import {useLogger} from '../logger/LoggerProvider'
 
 export default function App() {
   const identity = useState(['identity'])
+  const logger = useLogger()
 
   React.useEffect(() => {
-    LoadInitialState()
-  }, [])
+    LoadInitialState(logger)
+  }, [logger])
 
   return (
     <>
