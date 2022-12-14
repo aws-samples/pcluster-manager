@@ -217,45 +217,6 @@ def get_cluster_config_text(cluster_name, region=None):
 def get_cluster_config():
     return get_cluster_config_text(request.args.get("cluster_name"), request.args.get("region"))
 
-
-def ssm_command(region, instance_id, user, run_command):
-    # working_directory |= f"/home/{user}"
-    start = time.time()
-
-    if region:
-        config = botocore.config.Config(region_name=region)
-        ssm = boto3.client("ssm", config=config)
-    else:
-        ssm = boto3.client("ssm")
-
-    command = f"runuser -l {user} -c '{run_command}'"
-
-    ssm_resp = ssm.send_command(
-        InstanceIds=[instance_id],
-        DocumentName="AWS-RunShellScript",
-        Comment=f"Run ssm command.",
-        Parameters={"commands": [command]},
-    )
-
-    command_id = ssm_resp["Command"]["CommandId"]
-
-    # Wait for command to complete
-    time.sleep(0.75)
-    while time.time() - start < 60:
-        status = ssm.get_command_invocation(CommandId=command_id, InstanceId=instance_id)
-        if status["Status"] != "InProgress":
-            break
-        time.sleep(0.75)
-
-    if time.time() - start > 60:
-        return {"message": "Timed out waiting for command to complete."}, 500
-
-    if status["Status"] != "Success":
-        return {"message": status["StandardErrorContent"]}, 500
-
-    output = status["StandardOutputContent"]
-    return output
-
 def get_dcv_session():
     start = time.time()
     user = request.args.get("user", "ec2-user")
