@@ -17,8 +17,9 @@ import time
 import boto3
 import botocore
 import requests
+import yaml
 from flask import abort, redirect, request
-from flask_restful import Resource
+from flask_restful import Resource, reqparse
 from jose import jwt
 
 from api.security.csrf.csrf import csrf_needed
@@ -216,6 +217,196 @@ def get_cluster_config_text(cluster_name, region=None):
 
 def get_cluster_config():
     return get_cluster_config_text(request.args.get("cluster_name"), request.args.get("region"))
+
+
+def ssm_command(region, instance_id, user, run_command):
+    # working_directory |= f"/home/{user}"
+    start = time.time()
+
+    if region:
+        config = botocore.config.Config(region_name=region)
+        ssm = boto3.client("ssm", config=config)
+    else:
+        ssm = boto3.client("ssm")
+
+    command = f"runuser -l {user} -c '{run_command}'"
+
+    ssm_resp = ssm.send_command(
+        InstanceIds=[instance_id],
+        DocumentName="AWS-RunShellScript",
+        Comment=f"Run ssm command.",
+        Parameters={"commands": [command]},
+    )
+
+    command_id = ssm_resp["Command"]["CommandId"]
+
+    # Wait for command to complete
+    time.sleep(0.75)
+    while time.time() - start < 60:
+        status = ssm.get_command_invocation(CommandId=command_id, InstanceId=instance_id)
+        if status["Status"] != "InProgress":
+            break
+        time.sleep(0.75)
+
+    if time.time() - start > 60:
+        return {"message": "Timed out waiting for command to complete."}, 500
+
+    if status["Status"] != "Success":
+        return {"message": status["StandardErrorContent"]}, 500
+
+    output = status["StandardOutputContent"]
+    return output
+
+
+def submit_job():
+    user = request.args.get("user", "ec2-user")
+    instance_id = request.args.get("instance_id")
+    body = request.json
+
+    wrap = body.pop("wrap", False)
+    command = body.pop("command")
+
+    job_cmd = " ".join(f"--{k} {v}" for k, v in body.items())
+    job_cmd += f' --wrap "{command}"' if wrap else f" {command}"
+
+    print(job_cmd)
+
+    resp = ssm_command(request.args.get("region"), instance_id, user, f"sbatch {job_cmd}")
+    print(resp)
+
+    return resp if type(resp) == tuple else {"success": "true"}
+
+
+def _price_estimate(cluster_name, region, queue_name):
+    config_text = get_cluster_config_text(cluster_name, region)
+    config_data = yaml.safe_load(config_text)
+    queues = {q["Name"]: q for q in config_data["Scheduling"]["SlurmQueues"]}
+    queue = queues[queue_name]
+
+    if len(queue["ComputeResources"]) == 1:
+        instance_type = queue["ComputeResources"][0]["InstanceType"]
+        print("****************************************************")
+        print("instance type", instance_type)
+        pricing_filters = [
+            {"Field": "tenancy", "Value": "shared", "Type": "TERM_MATCH"},
+            {"Field": "instanceType", "Value": instance_type, "Type": "TERM_MATCH"},
+            {"Field": "operatingSystem", "Value": "Linux", "Type": "TERM_MATCH"},
+            {"Field": "regionCode", "Value": region, "Type": "TERM_MATCH"},
+            {"Field": "preInstalledSw", "Value": "NA", "Type": "TERM_MATCH"},
+            {"Field": "capacityStatus", "Value": "Used", "Type": "TERM_MATCH"},
+        ]
+
+        # Pricing endpoint only available from "us-east-1" region
+        pricing = boto3.client("pricing", region_name="us-east-1")
+        prices = pricing.get_products(ServiceCode="AmazonEC2", Filters=pricing_filters)["PriceList"]
+        prices = list(map(json.loads, prices))
+        on_demand_prices = list(prices[0]["terms"]["OnDemand"].values())
+        price_guess = float(list(on_demand_prices[0]["priceDimensions"].values())[0]["pricePerUnit"]["USD"])
+        price_guess = None if price_guess != price_guess else price_guess  # check for NaN
+        return price_guess
+    else:
+        return {"message": "Cost estimate not available for queues with multiple resource types."}, 400
+
+
+def price_estimate():
+    price_guess = _price_estimate(
+        request.args.get("cluster_name"), request.args.get("region"), request.args.get("queue_name")
+    )
+    return price_guess if isinstance(price_guess, tuple) else {"estimate": price_guess}
+
+
+def sacct():
+    parser = reqparse.RequestParser()
+    parser.add_argument("instance_id", type=str)
+    parser.add_argument("user", type=str, location="args")
+    parser.add_argument("region", type=str)
+    parser.add_argument("cluster_name", type=str)
+    args = parser.parse_args()
+    user = args.get("user", "ec2-user")
+    instance_id = args.get("instance_id")
+    cluster_name = args.get("cluster_name")
+    region = args.get("region")
+    body = request.json
+
+    price_guess = None
+    sacct_args = " ".join(f"--{k} {v}" for k, v in body.items())
+    sacct_args += " --allusers" if "user" not in body else ""
+    print(f"sacct {sacct_args} --json " + "| jq -c .jobs\\|\\map\\({name,nodes,partition,state,job_id,exit_code\\}\\)")
+    if "jobs" not in body:
+        accounting = ssm_command(
+            region,
+            instance_id,
+            user,
+            f"sacct {sacct_args} --json "
+            + "| jq -c .jobs[0:120]\\|\\map\\({name,user,partition,state,job_id,exit_code\\}\\)",
+        )
+        if type(accounting) is tuple:
+            return accounting
+    else:
+
+        accounting = ssm_command(region, instance_id, user, f"sacct {sacct_args} --json | jq -c .jobs")
+        if isinstance(accounting, tuple):
+            return accounting
+        # Try to retrieve relevant cost information
+        try:
+            queue_name = json.loads(accounting)[0]["partition"]
+            _price_guess = _price_estimate(cluster_name, region, queue_name)
+            if not isinstance(_price_guess, tuple):
+                price_guess = _price_guess
+        except Exception as e:
+            print(e)
+    try:
+        if accounting == "":
+            return {"jobs": []}
+        accounting_ret = {"jobs": json.loads(accounting)}
+        if "jobs" in sacct_args and price_guess:
+            accounting_ret["jobs"][0]["price_estimate"] = price_guess
+        return accounting_ret
+    except Exception as e:
+        print(accounting)
+        raise e
+
+
+def scontrol_job():
+    user = request.args.get("user", "ec2-user")
+    instance_id = request.args.get("instance_id")
+    job_id = request.args.get("job_id")
+
+    if not job_id:
+        return {"message": "You must specify a job id."}, 400
+
+    job_data = (
+        ssm_command(request.args.get("region"), instance_id, user, f"scontrol show job {job_id} -o").strip().split(" ")
+    )
+    if isinstance(job_data, tuple):
+        return job_data
+
+    kvs = [jd.split("=", 1) for jd in job_data]
+    job_info = {k: v for k, v in kvs}
+    return job_info
+
+
+def queue_status():
+    user = request.args.get("user", "ec2-user")
+    instance_id = request.args.get("instance_id")
+
+    jobs = ssm_command(
+        request.args.get("region"),
+        instance_id,
+        user,
+        "squeue --json | jq .jobs\\|\\map\\({name,nodes,partition,job_state,job_id,time\\}\\)",
+    )
+
+    return {"jobs": []} if jobs == "" else {"jobs": json.loads(jobs)}
+
+
+def cancel_job():
+    user = request.args.get("user", "ec2-user")
+    instance_id = request.args.get("instance_id")
+    job_id = request.args.get("job_id")
+    ssm_command(request.args.get("region"), instance_id, user, f"scancel {job_id}")
+    return {"status": "success"}
+
 
 def get_dcv_session():
     start = time.time()

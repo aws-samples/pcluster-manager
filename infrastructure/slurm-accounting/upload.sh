@@ -11,13 +11,25 @@ set -e
 # OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 # limitations under the License.
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-
-source ${SCRIPT_DIR}/common.sh
-source ${SCRIPT_DIR}/bucket_configuration.sh
+source $1/common.sh
+source $1/bucket_configuration.sh
 trap 'error' ERR
 
-echo "Uploading the main templates"
-"${SCRIPT_DIR}"/upload.sh "$SCRIPT_DIR"
-echo "Uploading accounting template"
-"${SCRIPT_DIR}"/slurm-accounting/upload.sh "$SCRIPT_DIR"
+ACCOUNTING_SCRIPT_DIR="$1/slurm-accounting"
+
+if [ ! -d "$ACCOUNTING_SCRIPT_DIR" ] || [ ! -r "$ACCOUNTING_SCRIPT_DIR" ];
+then
+  echo "ACCOUNTING_SCRIPT_DIR=$ACCOUNTING_SCRIPT_DIR must be a readable directory"
+  exit 1;
+fi
+
+FILES=(accounting-cluster-template.yaml)
+
+for INDEX in "${!BUCKETS[@]}"
+do
+  echo Uploading to: "${BUCKETS[INDEX]}"
+  for FILE in "${FILES[@]}"
+  do
+    aws s3 cp "${ACCOUNTING_SCRIPT_DIR}/${FILE}" "s3://${BUCKETS[INDEX]}/slurm-accounting/${FILE}"
+  done
+done
