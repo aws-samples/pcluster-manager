@@ -757,6 +757,177 @@ function GetDcvSession(instanceId: any, user: any, callback?: Callback) {
     })
 }
 
+// Queue Operations
+function QueueStatus(
+  clusterName: any,
+  instanceId: any,
+  user: any,
+  successCallback?: Callback,
+) {
+  const region =
+    getState(['app', 'selectedRegion']) || getState(['aws', 'region'])
+  let url = `manager/queue_status?instance_id=${instanceId}&user=${
+    user || 'ec2-user'
+  }&region=${region}`
+  request('get', url)
+    .then((response: any) => {
+      if (response.status === 200) {
+        console.log(response.data)
+        setState(['clusters', 'index', clusterName, 'jobs'], response.data.jobs)
+        successCallback && successCallback(response.data)
+      }
+    })
+    .catch((error: any) => {
+      if (error.response) {
+        console.log(error.response)
+        notify(`Error: ${error.response.data.message}`, 'error')
+      }
+      console.log(error)
+    })
+}
+
+function CancelJob(
+  instanceId: any,
+  user: any,
+  jobId: any,
+  callback?: Callback,
+) {
+  const region =
+    getState(['app', 'selectedRegion']) || getState(['aws', 'region'])
+  let url = `manager/cancel_job?instance_id=${instanceId}&user=${
+    user || 'ec2-user'
+  }&region=${region}&job_id=${jobId}`
+  request('get', url)
+    .then((response: any) => {
+      if (response.status === 200) {
+        console.log(response.data)
+        callback && callback(response.data)
+      }
+    })
+    .catch((error: any) => {
+      if (error.response) {
+        console.log(error.response)
+        notify(`Error: ${error.response.data.message}`, 'error')
+      }
+      console.log(error)
+    })
+}
+
+function SubmitJob(
+  instanceId: any,
+  user: any,
+  job: any,
+  successCallback?: Callback,
+  failureCallback?: Callback,
+) {
+  const region =
+    getState(['app', 'selectedRegion']) || getState(['aws', 'region'])
+  let url = `manager/submit_job?instance_id=${instanceId}&user=${
+    user || 'ec2-user'
+  }&region=${region}`
+  request('post', url, job)
+    .then((response: any) => {
+      if (response.status === 200) {
+        console.log(response.data)
+        successCallback && successCallback(response.data)
+      }
+    })
+    .catch((error: any) => {
+      if (error.response) {
+        failureCallback && failureCallback(error.response.data.message)
+        console.log(error.response)
+        notify(`Error: ${error.response.data.message}`, 'error')
+      }
+      console.log(error)
+    })
+}
+
+function JobInfo(
+  instanceId: any,
+  user: any,
+  jobId: any,
+  successCallback?: Callback,
+  failureCallback?: Callback,
+) {
+  const region =
+    getState(['app', 'selectedRegion']) || getState(['aws', 'region'])
+  let url = `manager/scontrol_job?instance_id=${instanceId}&user=${
+    user || 'ec2-user'
+  }&region=${region}&job_id=${jobId}`
+  request('get', url)
+    .then((response: any) => {
+      if (response.status === 200) {
+        console.log(response.data)
+        successCallback && successCallback(response.data)
+      }
+    })
+    .catch((error: any) => {
+      console.log('jif', error)
+      if (error.response) {
+        failureCallback && failureCallback(error.response)
+        console.log(error.response)
+        notify(`Error: ${error.response.data.message}`, 'error')
+      }
+      console.log(error)
+    })
+}
+
+function PriceEstimate(
+  clusterName: any,
+  queueName: any,
+  successCallback?: Callback,
+  failureCallback?: Callback,
+) {
+  const region =
+    getState(['app', 'selectedRegion']) || getState(['aws', 'region'])
+  let url = `manager/price_estimate?cluster_name=${clusterName}&queue_name=${queueName}&region=${region}`
+  request('get', url)
+    .then((response: any) => {
+      if (response.status === 200) {
+        console.log(response.data)
+        successCallback && successCallback(response.data)
+      }
+    })
+    .catch((error: any) => {
+      if (error.response) {
+        failureCallback && failureCallback(error.response)
+        console.log(error.response)
+        notify(`Error: ${error.response.data.message}`, 'error')
+      }
+      console.log(error)
+    })
+}
+
+function SlurmAccounting(
+  clusterName: any,
+  instanceId: any,
+  user: any,
+  args: any,
+  successCallback?: Callback,
+  failureCallback?: Callback,
+) {
+  const region =
+    getState(['app', 'selectedRegion']) || getState(['aws', 'region'])
+  let url = `manager/sacct?instance_id=${instanceId}&cluster_name=${clusterName}&user=${
+    user || 'ec2-user'
+  }&region=${region}`
+  request('post', url, args)
+    .then((response: any) => {
+      if (response.status === 200) {
+        console.log(response.data)
+        successCallback && successCallback(response.data)
+      }
+    })
+    .catch((error: any) => {
+      if (error.response) {
+        failureCallback && failureCallback(error.response)
+        console.log(error.response)
+        notify(`Error: ${error.response.data.message}`, 'error')
+      }
+      console.log(error)
+    })
+}
+
 function GetIdentity(successCallback?: Callback) {
   const url = 'manager/get_identity'
   request('get', url)
@@ -841,6 +1012,12 @@ export {
   Ec2Action,
   LoadAwsConfig,
   GetDcvSession,
+  QueueStatus,
+  CancelJob,
+  SubmitJob,
+  PriceEstimate,
+  SlurmAccounting,
+  JobInfo,
   ListUsers,
   notify,
   CreateUser,

@@ -69,6 +69,16 @@ const knownExtensions: Extension[] = [
     args: [{name: 'Destination', default: '/tmp'}, {name: 'Source'}],
   },
   {
+    name: 'Slurm Accounting',
+    path: 'slurm-accounting.sh',
+    description: 'Slurm Accounting',
+    args: [
+      {name: 'Secret ARN'},
+      {name: 'RDS Endpoint'},
+      {name: 'RDS Port', default: '3306'},
+    ],
+  },
+  {
     name: 'Spack',
     path: 'spack.sh',
     description: 'Install Spack package manager.',
