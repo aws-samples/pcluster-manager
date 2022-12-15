@@ -569,6 +569,7 @@ Resources:
         - !Ref PclusterManagerEC2Policy
         - !Ref PclusterManagerDescribeFsxPolicy
         - !Ref PclusterManagerDescribeEfsPolicy
+        - !Ref PclusterManagerPricingPolicy
         - !Ref PclusterManagerSsmSendPolicy
         - !Ref PclusterManagerSsmGetCommandInvocationPolicy
 
@@ -714,6 +715,19 @@ Resources:
               - !Sub arn:${AWS::Partition}:elasticfilesystem:*:${AWS::AccountId}:file-system/*
             Effect: Allow
             Sid: EfsPolicy
+
+  PclusterManagerPricingPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Action:
+              - pricing:GetProducts
+            Resource:
+              - '*'
+            Effect: Allow
+            Sid: PricingPolicy
 
   PclusterManagerSsmSendPolicy:
     Type: AWS::IAM::ManagedPolicy

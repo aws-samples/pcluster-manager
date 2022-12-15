@@ -11,6 +11,7 @@
 import jsyaml from 'js-yaml'
 
 import {getState, setState} from '../../store'
+import {getIn} from '../../util'
 
 export async function selectCluster(
   clusterName: string,
@@ -32,4 +33,21 @@ export async function selectCluster(
   } catch (_) {
     // NOOP
   }
+}
+
+export function getScripts(customActions: Record<string, any> | null) {
+  const scriptName = (script: string) => {
+    let suffix = script.slice(script.lastIndexOf('/') + 1)
+    return suffix.slice(0, suffix.lastIndexOf('.'))
+  }
+
+  let allScripts = []
+  for (let actionName of ['OnNodeStart', 'OnNodeConfigured']) {
+    if (getIn(customActions, [actionName, 'Script']))
+      allScripts.push(scriptName(getIn(customActions, [actionName, 'Script'])))
+    for (let arg of getIn(customActions, [actionName, 'Args']) || []) {
+      if (arg.length > 0 && arg[0] !== '-') allScripts.push(scriptName(arg))
+    }
+  }
+  return allScripts
 }
