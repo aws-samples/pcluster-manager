@@ -813,35 +813,6 @@ function CancelJob(
     })
 }
 
-function SubmitJob(
-  instanceId: any,
-  user: any,
-  job: any,
-  successCallback?: Callback,
-  failureCallback?: Callback,
-) {
-  const region =
-    getState(['app', 'selectedRegion']) || getState(['aws', 'region'])
-  let url = `manager/submit_job?instance_id=${instanceId}&user=${
-    user || 'ec2-user'
-  }&region=${region}`
-  request('post', url, job)
-    .then((response: any) => {
-      if (response.status === 200) {
-        console.log(response.data)
-        successCallback && successCallback(response.data)
-      }
-    })
-    .catch((error: any) => {
-      if (error.response) {
-        failureCallback && failureCallback(error.response.data.message)
-        console.log(error.response)
-        notify(`Error: ${error.response.data.message}`, 'error')
-      }
-      console.log(error)
-    })
-}
-
 function JobInfo(
   instanceId: any,
   user: any,
@@ -863,32 +834,6 @@ function JobInfo(
     })
     .catch((error: any) => {
       console.log('jif', error)
-      if (error.response) {
-        failureCallback && failureCallback(error.response)
-        console.log(error.response)
-        notify(`Error: ${error.response.data.message}`, 'error')
-      }
-      console.log(error)
-    })
-}
-
-function PriceEstimate(
-  clusterName: any,
-  queueName: any,
-  successCallback?: Callback,
-  failureCallback?: Callback,
-) {
-  const region =
-    getState(['app', 'selectedRegion']) || getState(['aws', 'region'])
-  let url = `manager/price_estimate?cluster_name=${clusterName}&queue_name=${queueName}&region=${region}`
-  request('get', url)
-    .then((response: any) => {
-      if (response.status === 200) {
-        console.log(response.data)
-        successCallback && successCallback(response.data)
-      }
-    })
-    .catch((error: any) => {
       if (error.response) {
         failureCallback && failureCallback(error.response)
         console.log(error.response)
@@ -1014,8 +959,6 @@ export {
   GetDcvSession,
   QueueStatus,
   CancelJob,
-  SubmitJob,
-  PriceEstimate,
   SlurmAccounting,
   JobInfo,
   ListUsers,
