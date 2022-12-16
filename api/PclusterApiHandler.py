@@ -257,26 +257,6 @@ def ssm_command(region, instance_id, user, run_command):
     output = status["StandardOutputContent"]
     return output
 
-
-def submit_job():
-    user = request.args.get("user", "ec2-user")
-    instance_id = request.args.get("instance_id")
-    body = request.json
-
-    wrap = body.pop("wrap", False)
-    command = body.pop("command")
-
-    job_cmd = " ".join(f"--{k} {v}" for k, v in body.items())
-    job_cmd += f' --wrap "{command}"' if wrap else f" {command}"
-
-    print(job_cmd)
-
-    resp = ssm_command(request.args.get("region"), instance_id, user, f"sbatch {job_cmd}")
-    print(resp)
-
-    return resp if type(resp) == tuple else {"success": "true"}
-
-
 def _price_estimate(cluster_name, region, queue_name):
     config_text = get_cluster_config_text(cluster_name, region)
     config_data = yaml.safe_load(config_text)
