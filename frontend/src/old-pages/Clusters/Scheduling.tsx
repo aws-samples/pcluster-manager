@@ -37,8 +37,6 @@ import {
   TextFilter,
 } from '@cloudscape-design/components'
 
-import JobSubmitDialog from './JobSubmitDialog'
-
 // Components
 import {JobStatusIndicator} from '../../components/Status'
 import EmptyState from '../../components/EmptyState'
@@ -339,18 +337,6 @@ export default function ClusterScheduling() {
   return (
     <SpaceBetween direction="vertical" size="s">
       <JobModal />
-      <JobSubmitDialog submitCallback={refreshQueues} />
-      {ssmEnabled && (
-        <Button
-          variant="primary"
-          disabled={fleetStatus !== 'RUNNING'}
-          onClick={() =>
-            setState(['app', 'clusters', 'jobSubmit', 'dialog'], true)
-          }
-        >
-          Submit Job
-        </Button>
-      )}
       {clusterMinor > 0 &&
         ssmEnabled &&
         (jobs ? (

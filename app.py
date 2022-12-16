@@ -38,7 +38,6 @@ from api.PclusterApiHandler import (
     queue_status,
     sacct,
     scontrol_job,
-    submit_job,
     CLIENT_ID, CLIENT_SECRET, USER_POOL_ID
 )
 from api.pcm_globals import logger
@@ -160,12 +159,6 @@ def run():
     @authenticated(ADMINS_GROUP)
     def price_estimate_():
         return price_estimate()
-
-    @app.route("/manager/submit_job", methods=["POST"])
-    @authenticated(ADMINS_GROUP)
-    @csrf_needed
-    def submit_job_():
-        return submit_job()
 
     @app.route("/manager/sacct", methods=["POST"])
     @authenticated(ADMINS_GROUP)
