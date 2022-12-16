@@ -28,6 +28,8 @@ import {
   Box,
   BreadcrumbGroup,
   Button,
+  Container,
+  ContentLayout,
   SideNavigation,
   SpaceBetween,
 } from '@cloudscape-design/components'
@@ -54,6 +56,11 @@ import Loading from '../../components/Loading'
 import {useTranslation} from 'react-i18next'
 import Layout from '../Layout'
 import {useWizardSectionChangeLog} from '../../navigation/useWizardSectionChangeLog'
+import {
+  Breadcrumbs,
+  breadcrumbItem,
+  breadcrumbItemFromSlug,
+} from '../../pages/breadcrumbs'
 
 function wizardShow(navigate: any) {
   const editing = getState(['app', 'wizard', 'editing'])
@@ -301,22 +308,26 @@ function Configure() {
   useWizardSectionChangeLog()
 
   return (
-    <Layout contentType="form">
+    <Layout
+      contentType="form"
+      breadcrumbs={
+        <Breadcrumbs
+          onClick={clearStateAndCloseWizard}
+          pages={[
+            breadcrumbItemFromSlug('clusters'),
+            breadcrumbItem(editing ? 'Update' : 'Create'),
+          ]}
+        />
+      }
+    >
+      {/*<Container >*/}
       <StopDialog clusterName={clusterName} />
       <SpaceBetween direction="vertical" size="l">
-        <BreadcrumbGroup
-          items={[
-            {text: 'Clusters', href: '#clusters'},
-            // @ts-expect-error TS(2741) FIXME: Property 'href' is missing in type '{ text: string... Remove this comment to see the full error message
-            {text: editing ? 'Update' : 'Create'},
-          ]}
-          onClick={clearStateAndCloseWizard}
-        />
         <SpaceBetween direction="horizontal" size="s">
           <SideNav />
           <div style={{minWidth: '800px', maxWidth: '1000px'}}>
             <SpaceBetween direction="vertical" size="s">
-              <Box>
+              <Box margin={{top: 'l'}}>
                 {
                   {
                     source: <Source />,
@@ -376,6 +387,7 @@ function Configure() {
           </div>
         </SpaceBetween>
       </SpaceBetween>
+      {/*</Container>*/}
     </Layout>
   )
 }

@@ -26,6 +26,7 @@ import {NonCancelableEventHandler} from '@cloudscape-design/components/internal/
 
 export default function Layout({
   children,
+  breadcrumbs,
   ...props
 }: PropsWithChildren<Partial<AppLayoutProps>>) {
   const messages = useState(['app', 'messages']) || []
@@ -43,6 +44,7 @@ export default function Layout({
         content={children}
         contentType="table"
         navigation={<SideBar />}
+        breadcrumbs={breadcrumbs}
         notifications={<Flashbar items={messages} />}
         {...props}
         tools={element}
