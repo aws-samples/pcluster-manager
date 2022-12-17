@@ -3,7 +3,7 @@ title = "g. Setup IAM Permissions 🔑"
 weight = 27
 +++
 
-Be default AWS ParallelCluster limits the policies you're allowed to attach with `AdditionalIAMPolicies` to a cluster to the following managed policies:
+Be default AWS ParallelCluster API limits the policies you're allowed to attach with `AdditionalIAMPolicies` to the following [managed policies](https://docs.aws.amazon.com/parallelcluster/latest/ug/api-reference-v3.html#api-reference-invoke-v3):
 
 * arn:aws:iam::1234567890:policy/parallelcluster*
 * arn:aws:iam::1234567890:policy/parallelcluster/*
@@ -32,10 +32,26 @@ To fix this, you can add additional IAM permissions to PCM like so:
 ![Attach Policies](07-setup-iam/lambda-permissions.jpeg)
 
 3. Select the `AWSXRayDaemonWriteAccess` policy and remove it
-4. Select `Add permissions` > `Attach policies`
+4. Select `Add permissions` > `Create inline Policy`
 
-![Attach Policies](07-setup-iam/attach-policies.jpeg)
+![Attach Policies](07-setup-iam/attach-policies.png)
 
-5. Search for `AdministratorAccess` > click `Attach policies`
+5. Click on the **JSON** tab and paste in the following policy. Make sure to change `<account-id>` to your aws account id.
 
-![Attach Policies](07-setup-iam/attach-admin.png)
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Action": [
+               "iam:AttachRolePolicy",
+               "iam:DetachRolePolicy"
+            ],
+            "Effect": "Allow",
+            "Resource": "arn:aws:iam::<account-id>:role/parallelcluster/*"
+        }
+    ]
+}
+```
+
+6. Click **Review Policy**, give it a name like `pcluster-attach-detach-policies` and click **Save**.
