@@ -21,6 +21,7 @@ function loadTemplateLazy(config: any, callback?: () => void) {
   const keypairs = getState(['aws', 'keypairs']) || []
   const keypairNames = new Set(keypairs.map((kp: any) => kp.KeyName))
   const keypairPath = ['HeadNode', 'Ssh', 'KeyName']
+  const version = getState(['app', 'version', 'full'])
   if (getIn(config, ['Image', 'CustomAmi']))
     setState(['app', 'wizard', 'customAMI', 'enabled'], true)
 
@@ -68,7 +69,7 @@ function loadTemplateLazy(config: any, callback?: () => void) {
         i,
         'ComputeResources',
       ])
-      computeResources = mapComputeResources(computeResources)
+      computeResources = mapComputeResources(version, computeResources)
       config = setIn(
         config,
         ['Scheduling', 'SlurmQueues', i, 'ComputeResources'],

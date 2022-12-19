@@ -8,6 +8,7 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {isFeatureEnabled} from '../../../feature-flags/useFeatureFlag'
 import {
   SingleInstanceComputeResource,
   MultiInstanceComputeResource,
@@ -33,9 +34,14 @@ function mapComputeResource(
 }
 
 export function mapComputeResources(
+  version: string,
   computeResourcesConfig:
     | SingleInstanceComputeResource[]
     | MultiInstanceComputeResource[],
-): MultiInstanceComputeResource[] {
+) {
+  if (!isFeatureEnabled(version, 'queues_multiple_instance_types')) {
+    return computeResourcesConfig
+  }
+
   return computeResourcesConfig.map(mapComputeResource)
 }
