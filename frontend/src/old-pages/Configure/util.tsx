@@ -13,6 +13,7 @@
 import {setState, getState, clearState} from '../../store'
 import {LoadAwsConfig} from '../../model'
 import {getIn, setIn} from '../../util'
+import {mapComputeResources} from './Queues/queues.mapper'
 
 function loadTemplateLazy(config: any, callback?: () => void) {
   const loadingPath = ['app', 'wizard', 'source', 'loading']
@@ -67,6 +68,12 @@ function loadTemplateLazy(config: any, callback?: () => void) {
         i,
         'ComputeResources',
       ])
+      computeResources = mapComputeResources(computeResources)
+      config = setIn(
+        config,
+        ['Scheduling', 'SlurmQueues', i, 'ComputeResources'],
+        computeResources,
+      )
       for (let j = 0; j < computeResources.length; j++) {
         if (
           getIn(config, [
