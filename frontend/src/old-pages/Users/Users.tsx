@@ -18,12 +18,10 @@ import {CreateUser, DeleteUser, ListUsers} from '../../model'
 // UI Elements
 import {
   Button,
-  Container,
   FormField,
   Header,
   Input,
   Pagination,
-  Select,
   SpaceBetween,
   Table,
   TextFilter,
@@ -31,15 +29,15 @@ import {
 
 // Components
 import EmptyState from '../../components/EmptyState'
-import Loading from '../../components/Loading'
 import DateView from '../../components/DateView'
-import HelpTooltip from '../../components/HelpTooltip'
 import {
   DeleteDialog,
   showDialog,
   hideDialog,
 } from '../../components/DeleteDialog'
 import Layout from '../Layout'
+import {DefaultHelpPanel} from '../../components/help-panel/DefaultHelpPanel'
+import {useHelpPanel} from '../../components/help-panel/HelpPanel'
 
 // Constants
 const errorsPath = ['app', 'wizard', 'errors', 'user']
@@ -82,6 +80,8 @@ export default function Users(props: any) {
 
   const userphonePath = ['app', 'users', 'newUser', 'Phonenumber']
   const userphone = useState(userphonePath)
+
+  useHelpPanel(<DefaultHelpPanel />)
 
   React.useEffect(() => {
     ListUsers()

@@ -35,6 +35,8 @@ import {
   TextFilter,
 } from '@cloudscape-design/components'
 import Layout from '../Layout'
+import {DefaultHelpPanel} from '../../components/help-panel/DefaultHelpPanel'
+import {useHelpPanel} from '../../components/help-panel/HelpPanel'
 
 const imageBuildPath = ['app', 'customImages', 'imageBuild']
 
@@ -222,6 +224,8 @@ export default function CustomImages() {
   const images = useSelector(selectCustomImagesList)
 
   const [splitOpen, setSplitOpen] = React.useState(true)
+
+  useHelpPanel(<DefaultHelpPanel />)
 
   React.useEffect(() => {
     const imageStatus = getState(['app', 'customImages', 'selectedImageStatus'])

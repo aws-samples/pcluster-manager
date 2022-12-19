@@ -22,7 +22,6 @@ import {useTranslation} from 'react-i18next'
 
 import {useQuery} from 'react-query'
 import {
-  AppLayout,
   Button,
   Header,
   Pagination,
@@ -39,6 +38,8 @@ import Actions from './Actions'
 import Details from './Details'
 import {wizardShow} from '../Configure/Configure'
 import Layout from '../Layout'
+import {useHelpPanel} from '../../components/help-panel/HelpPanel'
+import {DefaultHelpPanel} from '../../components/help-panel/DefaultHelpPanel'
 
 export function onClustersUpdate(
   selectedClusterName: ClusterName,
@@ -199,6 +200,8 @@ export default function Clusters() {
   const selectedClusterName = useState(['app', 'clusters', 'selected'])
   const oldStatus = useState(['app', 'clusters', 'selectedStatus'])
   let navigate = useNavigate()
+
+  useHelpPanel(<DefaultHelpPanel />)
 
   useEffect(
     () => onClustersUpdate(selectedClusterName, clusters!, oldStatus, navigate),
