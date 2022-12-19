@@ -61,6 +61,7 @@ import {
   breadcrumbItem,
   breadcrumbItemFromSlug,
 } from '../../pages/breadcrumbs'
+import {BoxProps} from '@cloudscape-design/components/box/interfaces'
 
 function wizardShow(navigate: any) {
   const editing = getState(['app', 'wizard', 'editing'])
@@ -175,6 +176,8 @@ function clearWizardState(
   }
   clearState(['app', 'wizard', 'errors'])
 }
+
+const MARGIN_TOP_L: BoxProps.Spacing = {top: 'l'}
 
 function Configure() {
   const {t} = useTranslation()
@@ -320,14 +323,13 @@ function Configure() {
         />
       }
     >
-      {/*<Container >*/}
       <StopDialog clusterName={clusterName} />
       <SpaceBetween direction="vertical" size="l">
         <SpaceBetween direction="horizontal" size="s">
           <SideNav />
           <div style={{minWidth: '800px', maxWidth: '1000px'}}>
             <SpaceBetween direction="vertical" size="s">
-              <Box margin={{top: 'l'}}>
+              <Box margin={MARGIN_TOP_L}>
                 {
                   {
                     source: <Source />,
@@ -387,7 +389,6 @@ function Configure() {
           </div>
         </SpaceBetween>
       </SpaceBetween>
-      {/*</Container>*/}
     </Layout>
   )
 }
