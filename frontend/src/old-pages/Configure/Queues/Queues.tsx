@@ -278,6 +278,9 @@ function Queue({index}: any) {
   ]
   const enablePlacementGroup = useState(enablePlacementGroupPath)
 
+  const isMultiInstanceTypesActive = useFeatureFlag(
+    'queues_multiple_instance_types',
+  )
   const allocationStrategyOptions = useAllocationStrategyOptions()
 
   const errorsPath = [...queuesErrorsPath, index]
@@ -416,7 +419,7 @@ function Queue({index}: any) {
               options={capacityTypes.map(itemToIconOption)}
             />
           </FormField>
-          {queue.AllocationStrategy ? (
+          {isMultiInstanceTypesActive ? (
             <FormField label={t('wizard.queues.allocationStrategy.title')}>
               <Select
                 options={allocationStrategyOptions}
