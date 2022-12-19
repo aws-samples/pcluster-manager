@@ -1,4 +1,3 @@
-import {HelpPanel} from '@cloudscape-design/components'
 import {
   createContext,
   Dispatch,
@@ -35,6 +34,25 @@ export const HelpPanelProvider: FunctionComponent = ({children}) => {
   )
 }
 
+/*
+ * Components used to update and show Cloudscape help system
+ * https://cloudscape.design/patterns/general/help-system/
+ *
+ * Examples:
+ *
+ * Show the help panel when loading a page
+ * ```
+ * useHelpPanel(<HelpPanel .../>)
+ * ```
+ *
+ * Update and show the help panel when tapping on an Info link
+ * ```
+ * const { setContent, setVisible } = useHelpPanel()
+ * setContent(<HelpPanel .../>)
+ * setVisible(true)
+ * ```
+ */
+
 export const useHelpPanel = (panelElement?: PanelElement) => {
   const [helpPanel, setHelpPanel] = useContext(HelpPanelContext)
 
@@ -52,6 +70,9 @@ export const useHelpPanel = (panelElement?: PanelElement) => {
     [helpPanel, setHelpPanel],
   )
 
+  // This useEffect simplify the usage of the component
+  // when displaying the help panel at page load
+  // and avoid placing effects in the main page component
   useEffect(() => {
     if (panelElement) {
       setContent(panelElement)
