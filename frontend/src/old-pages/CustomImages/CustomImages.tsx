@@ -219,6 +219,8 @@ function StatusSelect() {
   )
 }
 
+const customImageSlugs = ['customImages']
+
 export default function CustomImages() {
   const imageId = useState(['app', 'customImages', 'selected'])
   const images = useSelector(selectCustomImagesList)

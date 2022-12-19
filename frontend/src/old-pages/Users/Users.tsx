@@ -63,6 +63,7 @@ function UserActions({user}: any) {
   )
 }
 
+const usersSlugs = ['users']
 export default function Users(props: any) {
   const loading = !useSelector(selectUserIndex)
   const user_index = useSelector(selectUserIndex) || {}
@@ -144,7 +145,7 @@ export default function Users(props: any) {
   }
 
   return (
-    <Layout>
+    <Layout breadcrumbs={<Breadcrumbs slugs={usersSlugs} />}>
       <DeleteDialog
         id="deleteUser"
         header="Delete User?"

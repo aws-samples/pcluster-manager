@@ -8,7 +8,7 @@
 // or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-import React, {useCallback} from 'react'
+import React, {useCallback, useMemo} from 'react'
 import {useNavigate} from 'react-router-dom'
 
 // @ts-expect-error TS(7016) FIXME: Could not find a declaration file for module 'js-y... Remove this comment to see the full error message
@@ -26,10 +26,7 @@ import {LoadAwsConfig} from '../../model'
 // UI Elements
 import {
   Box,
-  BreadcrumbGroup,
   Button,
-  Container,
-  ContentLayout,
   SideNavigation,
   SpaceBetween,
 } from '@cloudscape-design/components'
@@ -54,13 +51,8 @@ import Loading from '../../components/Loading'
 
 // Icons
 import {useTranslation} from 'react-i18next'
-import Layout from '../Layout'
+import Layout, {Breadcrumbs} from '../Layout'
 import {useWizardSectionChangeLog} from '../../navigation/useWizardSectionChangeLog'
-import {
-  Breadcrumbs,
-  breadcrumbItem,
-  breadcrumbItemFromSlug,
-} from '../../pages/breadcrumbs'
 import {BoxProps} from '@cloudscape-design/components/box/interfaces'
 
 function wizardShow(navigate: any) {
@@ -179,6 +171,12 @@ function clearWizardState(
 
 const MARGIN_TOP_L: BoxProps.Spacing = {top: 'l'}
 
+const CLUSTER_UPDATE_TRANS_KEY = 'wizard.actions.update'
+
+const CLUSTER_CREATE_TRANS_KEY = 'wizard.actions.create'
+
+const CLUSTERS = 'clusters'
+
 function Configure() {
   const {t} = useTranslation()
   const open = useState(['app', 'wizard', 'dialog'])
@@ -190,7 +188,7 @@ function Configure() {
   let multiUserEnabled = useState(['app', 'wizard', 'multiUser'])
   let navigate = useNavigate()
 
-  const clusterPath = ['clusters', 'index', clusterName]
+  const clusterPath = [CLUSTERS, 'index', clusterName]
   const fleetStatus = useState([...clusterPath, 'computeFleetStatus'])
 
   const editing = useState(['app', 'wizard', 'editing'])
@@ -309,18 +307,19 @@ function Configure() {
   }, [clearStateAndCloseWizard])
 
   useWizardSectionChangeLog()
+  const slugs = useMemo(
+    () => [
+      CLUSTERS,
+      editing ? CLUSTER_UPDATE_TRANS_KEY : CLUSTER_CREATE_TRANS_KEY,
+    ],
+    [editing],
+  )
 
   return (
     <Layout
       contentType="form"
       breadcrumbs={
-        <Breadcrumbs
-          onClick={clearStateAndCloseWizard}
-          pages={[
-            breadcrumbItemFromSlug('clusters'),
-            breadcrumbItem(editing ? 'Update' : 'Create'),
-          ]}
-        />
+        <Breadcrumbs onClick={clearStateAndCloseWizard} slugs={slugs} />
       }
     >
       <StopDialog clusterName={clusterName} />
@@ -379,8 +378,8 @@ function Configure() {
                   <Button disabled={loading} onClick={handleNext}>
                     {page === 'create'
                       ? editing
-                        ? t('wizard.actions.update')
-                        : t('wizard.actions.create')
+                        ? t(CLUSTER_UPDATE_TRANS_KEY)
+                        : t(CLUSTER_CREATE_TRANS_KEY)
                       : t('wizard.actions.next')}
                   </Button>
                 </SpaceBetween>

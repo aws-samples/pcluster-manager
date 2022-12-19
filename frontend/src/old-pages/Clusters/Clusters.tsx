@@ -189,6 +189,7 @@ function ClusterList({clusters}: {clusters: ClusterInfoSummary[]}) {
   )
 }
 
+const clustersSlugs = ['clusters']
 export default function Clusters() {
   const clusterName = useState(['app', 'clusters', 'selected'])
   const [splitOpen, setSplitOpen] = React.useState(true)
@@ -210,6 +211,7 @@ export default function Clusters() {
 
   return (
     <Layout
+      breadcrumbs={<Breadcrumbs slugs={clustersSlugs} />}
       splitPanelOpen={splitOpen}
       onSplitPanelToggle={e => {
         setSplitOpen(e.detail.open)
