@@ -30,11 +30,13 @@ function TitleDescriptionHelpPanel({
       footer={
         <div>
           <h3>
-            {t('helpPanel.learnMore')} <Icon name="external" />
+            {t('helpPanel.footer.learnMore')} <Icon name="external" />
           </h3>
           <ul>
             <li>
-              <a href="https://pcluster.cloud/">{t('helpPanel.docs')}</a>
+              <a href={t('helpPanel.footer.docs.link')}>
+                {t('helpPanel.footer.docs.title')}
+              </a>
             </li>
           </ul>
         </div>

@@ -20,6 +20,15 @@
       "button": "Go to Homepage"   
     }
   },
+  "helpPanel": {
+    "footer": {
+      "learnMore": "Learn more",
+      "docs": {
+        "title": "AWS ParallelCluster Manager documentation",
+        "link": "https://pcluster.cloud/"
+      }
+    }
+  },
   "cluster": {
     "properties": {
       "sshcommand": {
