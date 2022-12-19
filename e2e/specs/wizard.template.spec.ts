@@ -9,19 +9,14 @@
 // limitations under the License.
 
 import { expect, FileChooser, test } from '@playwright/test';
+import { visitAndLogin } from '../test-utils/login';
 
-const E2E_URL = 'https://080pcqu70j.execute-api.eu-west-1.amazonaws.com'
 const TEMPLATE_PATH = './fixtures/wizard.template.yaml'
 
 test.describe('given a cluster configuration template created with single instance type', () => {
   test.describe('when the file is imported as a template', () => {
     test('user can perform a dry-run successfully', async ({ page }) => {
-      await page.goto(E2E_URL);
-      await page.getByRole('textbox', { name: 'name@host.com' }).click();
-      await page.getByRole('textbox', { name: 'name@host.com' }).fill(process.env.E2E_TEST1_EMAIL!);
-      await page.getByRole('textbox', { name: 'name@host.com' }).press('Tab');
-      await page.getByRole('textbox', { name: 'Password' }).fill(process.env.E2E_TEST1_PASSWORD!);
-      await page.getByRole('button', { name: 'submit' }).click();
+      await visitAndLogin(page)
 
       await page.getByRole('button', { name: 'Create Cluster' }).first().click();
       await page.getByPlaceholder('Enter your cluster name').fill('sdasdasd');
