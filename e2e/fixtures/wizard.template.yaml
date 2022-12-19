@@ -9,7 +9,6 @@ Scheduling:
   Scheduler: slurm
   SlurmQueues:
     - Name: queue0
-      AllocationStrategy: lowest-price
       ComputeResources:
         - Name: queue0-compute-resource-0
           InstanceType: c5n.large
@@ -22,7 +21,6 @@ Scheduling:
         LocalStorage:
           RootVolume:
             VolumeType: gp3
-  SlurmSettings: {}
 Region: ca-central-1
 Image:
   Os: alinux2
