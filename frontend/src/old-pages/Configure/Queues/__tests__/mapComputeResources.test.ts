@@ -16,10 +16,74 @@ import {
 } from '../queues.types'
 
 describe('given a mapper to import the ComputeResources section of the Scheduling config', () => {
-  describe('when the configuration was created with the single instance type format', () => {
+  let mockVersion: string
+
+  describe('when the application supports multiple instance types', () => {
+    beforeEach(() => {
+      mockVersion = '3.3.0'
+    })
+
+    describe('when the configuration was created with the single instance type format', () => {
+      let mockComputeResources: MockProxy<SingleInstanceComputeResource[]>
+
+      beforeEach(() => {
+        mockComputeResources = [
+          {
+            Name: 'some-name',
+            MinCount: 0,
+            MaxCount: 1,
+            InstanceType: 'some-instance',
+          },
+        ]
+      })
+      it('should convert the configuration into the flexible instance typs format', () => {
+        const expected = [
+          {
+            Name: 'some-name',
+            MinCount: 0,
+            MaxCount: 1,
+            Instances: [
+              {
+                InstanceType: 'some-instance',
+              },
+            ],
+          },
+        ]
+        expect(mapComputeResources(mockVersion, mockComputeResources)).toEqual(
+          expected,
+        )
+      })
+    })
+    describe('when the configuration was created with the flexible instance types format', () => {
+      let mockComputeResources: MockProxy<MultiInstanceComputeResource[]>
+
+      beforeEach(() => {
+        mockComputeResources = [
+          {
+            Name: 'some-name',
+            MinCount: 0,
+            MaxCount: 1,
+            Instances: [
+              {
+                InstanceType: 'some-instance',
+              },
+            ],
+          },
+        ]
+      })
+      it('should leave the configuration as is', () => {
+        expect(mapComputeResources(mockVersion, mockComputeResources)).toEqual(
+          mockComputeResources,
+        )
+      })
+    })
+  })
+
+  describe('when the application does not support multiple instance types', () => {
     let mockComputeResources: MockProxy<SingleInstanceComputeResource[]>
 
     beforeEach(() => {
+      mockVersion = '3.2.0'
       mockComputeResources = [
         {
           Name: 'some-name',
@@ -29,41 +93,9 @@ describe('given a mapper to import the ComputeResources section of the Schedulin
         },
       ]
     })
-    it('should convert the configuration into the flexible instance typs format', () => {
-      const expected = [
-        {
-          Name: 'some-name',
-          MinCount: 0,
-          MaxCount: 1,
-          Instances: [
-            {
-              InstanceType: 'some-instance',
-            },
-          ],
-        },
-      ]
-      expect(mapComputeResources(mockComputeResources)).toEqual(expected)
-    })
-  })
-  describe('when the configuration was created with the flexible instance types format', () => {
-    let mockComputeResources: MockProxy<MultiInstanceComputeResource[]>
 
-    beforeEach(() => {
-      mockComputeResources = [
-        {
-          Name: 'some-name',
-          MinCount: 0,
-          MaxCount: 1,
-          Instances: [
-            {
-              InstanceType: 'some-instance',
-            },
-          ],
-        },
-      ]
-    })
     it('should leave the configuration as is', () => {
-      expect(mapComputeResources(mockComputeResources)).toEqual(
+      expect(mapComputeResources(mockVersion, mockComputeResources)).toEqual(
         mockComputeResources,
       )
     })
