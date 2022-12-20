@@ -13,6 +13,7 @@
 import {setState, getState, clearState} from '../../store'
 import {LoadAwsConfig} from '../../model'
 import {getIn, setIn} from '../../util'
+import {mapComputeResources} from './Queues/queues.mapper'
 
 function loadTemplateLazy(config: any, callback?: () => void) {
   const loadingPath = ['app', 'wizard', 'source', 'loading']
@@ -20,6 +21,7 @@ function loadTemplateLazy(config: any, callback?: () => void) {
   const keypairs = getState(['aws', 'keypairs']) || []
   const keypairNames = new Set(keypairs.map((kp: any) => kp.KeyName))
   const keypairPath = ['HeadNode', 'Ssh', 'KeyName']
+  const version = getState(['app', 'version', 'full'])
   if (getIn(config, ['Image', 'CustomAmi']))
     setState(['app', 'wizard', 'customAMI', 'enabled'], true)
 
@@ -67,6 +69,12 @@ function loadTemplateLazy(config: any, callback?: () => void) {
         i,
         'ComputeResources',
       ])
+      computeResources = mapComputeResources(version, computeResources)
+      config = setIn(
+        config,
+        ['Scheduling', 'SlurmQueues', i, 'ComputeResources'],
+        computeResources,
+      )
       for (let j = 0; j < computeResources.length; j++) {
         if (
           getIn(config, [
