@@ -25,10 +25,11 @@ import {
 
 // Components
 import EmptyState from '../../components/EmptyState'
-import Loading from '../../components/Loading'
 import {useQuery} from 'react-query'
 import {useState} from '../../store'
 import Layout from '../Layout'
+import {DefaultHelpPanel} from '../../components/help-panel/DefaultHelpPanel'
+import {useHelpPanel} from '../../components/help-panel/HelpPanel'
 
 type Image = {
   amiId: string
@@ -129,6 +130,8 @@ export default function OfficialImages() {
   const defaultRegion = useState(['aws', 'region'])
   const region = useState(['app', 'selectedRegion']) || defaultRegion
   const {data} = useQuery('OFFICIAL_IMAGES', () => ListOfficialImages(region))
+
+  useHelpPanel(<DefaultHelpPanel />)
 
   return (
     <Layout>
