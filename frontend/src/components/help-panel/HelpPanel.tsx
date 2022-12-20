@@ -10,9 +10,8 @@ import {
   useState,
 } from 'react'
 
-type PanelElement = string | ReactElement
 type PanelContext = {
-  element: string | ReactElement
+  element: ReactElement
   open: boolean
 }
 
@@ -53,11 +52,11 @@ export const HelpPanelProvider: FunctionComponent = ({children}) => {
  * ```
  */
 
-export const useHelpPanel = (panelElement?: PanelElement) => {
+export const useHelpPanel = (panelElement?: ReactElement) => {
   const [helpPanel, setHelpPanel] = useContext(HelpPanelContext)
 
   const setContent = useCallback(
-    (panel: PanelElement) => {
+    (panel: ReactElement) => {
       setHelpPanel({...helpPanel, element: panel})
     },
     [helpPanel, setHelpPanel],
