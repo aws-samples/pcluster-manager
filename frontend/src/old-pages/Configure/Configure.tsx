@@ -51,7 +51,7 @@ import Loading from '../../components/Loading'
 
 // Icons
 import {useTranslation} from 'react-i18next'
-import Layout, {Breadcrumbs} from '../Layout'
+import Layout from '../Layout'
 import {useWizardSectionChangeLog} from '../../navigation/useWizardSectionChangeLog'
 import {BoxProps} from '@cloudscape-design/components/box/interfaces'
 
@@ -171,12 +171,6 @@ function clearWizardState(
 
 const MARGIN_TOP_L: BoxProps.Spacing = {top: 'l'}
 
-const CLUSTER_UPDATE_TRANS_KEY = 'wizard.actions.update'
-
-const CLUSTER_CREATE_TRANS_KEY = 'wizard.actions.create'
-
-const CLUSTERS = 'clusters'
-
 function Configure() {
   const {t} = useTranslation()
   const open = useState(['app', 'wizard', 'dialog'])
@@ -188,7 +182,7 @@ function Configure() {
   let multiUserEnabled = useState(['app', 'wizard', 'multiUser'])
   let navigate = useNavigate()
 
-  const clusterPath = [CLUSTERS, 'index', clusterName]
+  const clusterPath = ['clusters', 'index', clusterName]
   const fleetStatus = useState([...clusterPath, 'computeFleetStatus'])
 
   const editing = useState(['app', 'wizard', 'editing'])
@@ -307,20 +301,16 @@ function Configure() {
   }, [clearStateAndCloseWizard])
 
   useWizardSectionChangeLog()
-  const slugs = useMemo(
-    () => [
-      CLUSTERS,
-      editing ? CLUSTER_UPDATE_TRANS_KEY : CLUSTER_CREATE_TRANS_KEY,
-    ],
+  const slug = useMemo(
+    () => (editing ? 'clusterUpdate' : 'clusterCreate'),
     [editing],
   )
 
   return (
     <Layout
       contentType="form"
-      breadcrumbs={
-        <Breadcrumbs onClick={clearStateAndCloseWizard} slugs={slugs} />
-      }
+      pageSlug={slug}
+      slugOnClick={clearStateAndCloseWizard}
     >
       <StopDialog clusterName={clusterName} />
       <SpaceBetween direction="vertical" size="l">
@@ -378,8 +368,8 @@ function Configure() {
                   <Button disabled={loading} onClick={handleNext}>
                     {page === 'create'
                       ? editing
-                        ? t(CLUSTER_UPDATE_TRANS_KEY)
-                        : t(CLUSTER_CREATE_TRANS_KEY)
+                        ? t('wizard.actions.update')
+                        : t('wizard.actions.create')
                       : t('wizard.actions.next')}
                   </Button>
                 </SpaceBetween>
