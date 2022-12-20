@@ -9,13 +9,13 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {HelpPanel, Icon} from '@cloudscape-design/components'
-import * as React from 'react'
+import {HelpPanel, Icon, Link} from '@cloudscape-design/components'
+import {ReactElement} from 'react'
 import {useTranslation} from 'react-i18next'
 
 interface TitleDescriptionHelpPanelProps {
-  title: string
-  description: string
+  title: string | ReactElement
+  description: string | ReactElement
 }
 
 function TitleDescriptionHelpPanel({
@@ -34,9 +34,15 @@ function TitleDescriptionHelpPanel({
           </h3>
           <ul>
             <li>
-              <a href={t('helpPanel.footer.docs.link')}>
+              <Link
+                external
+                externalIconAriaLabel={t(
+                  'helpPanel.footer.docs.externalIconAriaLabel',
+                )}
+                href={t('helpPanel.footer.docs.link')}
+              >
                 {t('helpPanel.footer.docs.title')}
-              </a>
+              </Link>
             </li>
           </ul>
         </div>
