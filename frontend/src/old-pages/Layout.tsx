@@ -114,7 +114,7 @@ export default function Layout({
         content={children}
         contentType="table"
         navigation={<SideBar />}
-        breadcrumbs={<Breadcrumbs slug={pageSlug} {...slugOnClick} />}
+        breadcrumbs={<Breadcrumbs slug={pageSlug} onClick={slugOnClick} />}
         notifications={<Flashbar items={messages} />}
         {...props}
         tools={element}
