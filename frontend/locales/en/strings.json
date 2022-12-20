@@ -25,6 +25,7 @@
       "learnMore": "Learn more",
       "docs": {
         "title": "AWS ParallelCluster Manager documentation",
+        "externalIconAriaLabel": "Open in a new tab",
         "link": "https://pcluster.cloud/"
       }
     },
@@ -32,6 +33,9 @@
       "title": "ParallelCluster Manager",
       "description": "Quickly and easily create HPC cluster in AWS using ParallelCluster Manager. This UI uses the AWS ParallelCluster API to Create, Update and Delete Clusters as well as access, view logs, and build Amazon Machine Images (AMI's)."
     }
+  },
+  "infoLink": {
+    "label": "Info"
   },
   "cluster": {
     "properties": {
@@ -440,8 +444,13 @@
     },
     "components": {
       "customAmi": {
+        "ariaLabel": "Use Custom AMI?",
         "label": "Use Custom AMI?",
-        "help": "Custom AMI's provide a way to customize the cluster. See the <0>Image section</0> of the documentation for more information.",
+        "helpPanel": {
+          "title": "Custom AMI",
+          "description": "Custom AMI's provide a way to customize the cluster. See the <0>Image section</0> of the documentation for more information.",
+          "link": "https://docs.aws.amazon.com/parallelcluster/latest/ug/pcluster.build-image-v3.html"
+        },
         "suggestLabel": "Custom AMI ID"
       },
       "rootVolume": {
