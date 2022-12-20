@@ -301,15 +301,11 @@ function Configure() {
   }, [clearStateAndCloseWizard])
 
   useWizardSectionChangeLog()
-  const slug = useMemo(
-    () => (editing ? 'clusterUpdate' : 'clusterCreate'),
-    [editing],
-  )
 
   return (
     <Layout
       contentType="form"
-      pageSlug={slug}
+      pageSlug={editing ? 'clusterUpdate' : 'clusterCreate'}
       slugOnClick={clearStateAndCloseWizard}
     >
       <StopDialog clusterName={clusterName} />
