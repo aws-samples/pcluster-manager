@@ -7,6 +7,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from 'react'
 
@@ -34,7 +35,7 @@ export const HelpPanelProvider: FunctionComponent = ({children}) => {
 }
 
 /*
- * Components used to update and show Cloudscape help system
+ * Hook used to update and show Cloudscape help system
  * https://cloudscape.design/patterns/general/help-system/
  *
  * Examples:
@@ -52,29 +53,36 @@ export const HelpPanelProvider: FunctionComponent = ({children}) => {
  * ```
  */
 
-export const useHelpPanel = (panelElement?: ReactElement) => {
+export const useHelpPanel = (initialPanel?: ReactElement) => {
   const [helpPanel, setHelpPanel] = useContext(HelpPanelContext)
+  // The ref is used to keep track of local changes made to the help panel properties,
+  // otherwise triggering both a content and a visibility change will result in a partial object update,
+  // meaning that if you call setContent() and setVisible(true) sequentially you can end up
+  // with a visible help panel, but with the old panel content
+  const panelRef = useRef(helpPanel)
 
   const setContent = useCallback(
     (panel: ReactElement) => {
-      setHelpPanel({...helpPanel, element: panel})
+      panelRef.current.element = panel
+      setHelpPanel({...panelRef.current})
     },
-    [helpPanel, setHelpPanel],
+    [setHelpPanel],
   )
 
   const setVisible = useCallback(
     (visible: boolean) => {
-      setHelpPanel({...helpPanel, open: visible})
+      panelRef.current.open = visible
+      setHelpPanel({...panelRef.current})
     },
-    [helpPanel, setHelpPanel],
+    [setHelpPanel],
   )
 
   // This useEffect simplify the usage of the component
   // when displaying the help panel at page load
   // and avoid placing effects in the main page component
   useEffect(() => {
-    if (panelElement) {
-      setContent(panelElement)
+    if (initialPanel) {
+      setContent(initialPanel)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
