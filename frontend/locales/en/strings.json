@@ -1,5 +1,10 @@
 {
   "global": {
+    "topbar": {
+      "version": {
+        "ariaLabel": "Version of AWS ParallelCluster API"
+      }
+    },
     "menu": {
       "header": "ParallelCluster Manager",
       "clusters": "Clusters",

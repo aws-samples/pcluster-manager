@@ -18,6 +18,7 @@ import {LoadInitialState} from '../model'
 import TopNavigation from '@cloudscape-design/components/top-navigation'
 import {useQueryClient} from 'react-query'
 import {useLogger} from '../logger/LoggerProvider'
+import { t } from 'i18next'
 
 function regions(selected: any) {
   let supportedRegions = [
@@ -140,7 +141,7 @@ export default function Topbar() {
             text: version ? version.full : 'VERSION',
             href: "#",
             external: false,
-            externalIconAriaLabel: "Version of AWS ParallelCluster API"
+            ariaLabel: t('global.topbar.version.arialabel')
           },
           ...[
             region && {
