@@ -25,6 +25,7 @@ import {store} from '../store'
 import {logger, LoggerProvider} from '../logger/LoggerProvider'
 import {enableHttpLogs} from '../http/httpLogs'
 import {axiosInstance} from '../http/executeRequest'
+import {HelpPanelProvider} from '../components/help-panel/HelpPanel'
 
 const queryClient = new QueryClient()
 declare global {
@@ -57,7 +58,9 @@ function App({Component, pageProps}: AppProps) {
           <Provider store={store}>
             <LoggerProvider>
               <ErrorBoundary>
-                <Component {...pageProps} />
+                <HelpPanelProvider>
+                  <Component {...pageProps} />
+                </HelpPanelProvider>
               </ErrorBoundary>
             </LoggerProvider>
           </Provider>

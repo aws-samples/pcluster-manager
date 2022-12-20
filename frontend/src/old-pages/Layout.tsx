@@ -19,8 +19,10 @@ import {Flashbar} from '@cloudscape-design/components'
 // Components
 import TopBar from '../components/TopBar'
 import SideBar from '../components/SideBar'
-import {PropsWithChildren} from 'react'
+import {PropsWithChildren, useCallback} from 'react'
 import {useLocationChangeLog} from '../navigation/useLocationChangeLog'
+import {useHelpPanel} from '../components/help-panel/HelpPanel'
+import {NonCancelableEventHandler} from '@cloudscape-design/components/internal/events'
 
 export default function Layout({
   children,
@@ -29,17 +31,23 @@ export default function Layout({
   const messages = useState(['app', 'messages']) || []
   useLocationChangeLog()
 
+  const {element, open, setVisible} = useHelpPanel()
+  const updateHelpPanelVisibility: NonCancelableEventHandler<AppLayoutProps.ChangeDetail> =
+    useCallback(({detail}) => setVisible(detail.open), [setVisible])
+
   return (
     <>
       <TopBar />
       <AppLayout
         headerSelector="#top-bar"
-        toolsHide
         content={children}
         contentType="table"
         navigation={<SideBar />}
         notifications={<Flashbar items={messages} />}
         {...props}
+        tools={element}
+        toolsOpen={open}
+        onToolsChange={updateHelpPanelVisibility}
       />
     </>
   )
