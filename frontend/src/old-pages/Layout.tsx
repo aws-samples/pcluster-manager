@@ -19,15 +19,98 @@ import {Flashbar} from '@cloudscape-design/components'
 // Components
 import TopBar from '../components/TopBar'
 import SideBar from '../components/SideBar'
-import {PropsWithChildren, useCallback} from 'react'
+import {PropsWithChildren, useCallback, useMemo} from 'react'
 import {useLocationChangeLog} from '../navigation/useLocationChangeLog'
 import {useHelpPanel} from '../components/help-panel/HelpPanel'
-import {NonCancelableEventHandler} from '@cloudscape-design/components/internal/events'
+import {
+  CancelableEventHandler,
+  NonCancelableEventHandler,
+} from '@cloudscape-design/components/internal/events'
+import {BreadcrumbGroupProps} from '@cloudscape-design/components/breadcrumb-group/interfaces'
+import BreadcrumbGroup from '@cloudscape-design/components/breadcrumb-group'
+import {useTranslation} from 'react-i18next'
+import map from 'lodash/map'
+
+type Slug =
+  | 'clusters'
+  | 'customImages'
+  | 'officialImages'
+  | 'users'
+  | 'clusterCreate'
+  | 'clusterUpdate'
+type BreadcrumbsProps = {
+  pageSlug: Slug
+  slugOnClick?: CancelableEventHandler<BreadcrumbGroupProps.ClickDetail>
+}
+
+const pageBreadcrumbItems = {
+  clusters: [{transKey: 'global.menu.clusters', href: '/clusters'}],
+  customImages: [
+    {
+      transKey: 'global.menu.customImages',
+      href: '/custom-images',
+    },
+  ],
+  officialImages: [
+    {
+      transKey: 'global.menu.officialImages',
+      href: '/official-images',
+    },
+  ],
+  users: [{transKey: 'global.menu.users', href: '/users'}],
+  clusterCreate: [
+    {transKey: 'global.menu.clusters', href: '/clusters'},
+    {transKey: 'wizard.actions.create', href: '#'},
+  ],
+  clusterUpdate: [
+    {transKey: 'global.menu.clusters', href: '/clusters'},
+    {transKey: 'wizard.actions.update', href: '#'},
+  ],
+}
+
+export function breadcrumbItemsFromSlug(
+  slug: Slug,
+  t: (key: string) => string,
+): BreadcrumbGroupProps.Item[] {
+  const items = pageBreadcrumbItems[slug]
+  return map(items, ({transKey, href}) => ({text: t(transKey), href}))
+}
+
+function mainBreadcrumbItem(
+  t: (key: string) => string,
+): BreadcrumbGroupProps.Item {
+  return {text: t('global.menu.header'), href: '/'}
+}
+
+export function Breadcrumbs({
+  slug,
+  onClick,
+}: {
+  slug: Slug
+  onClick?: CancelableEventHandler<BreadcrumbGroupProps.ClickDetail>
+}) {
+  const {t} = useTranslation()
+
+  const items = useMemo(
+    () => [mainBreadcrumbItem(t), ...breadcrumbItemsFromSlug(slug, t)],
+    [slug, t],
+  )
+
+  return (
+    <BreadcrumbGroup
+      items={items}
+      ariaLabel={t('global.menu.header')}
+      onClick={onClick}
+    />
+  )
+}
 
 export default function Layout({
   children,
+  pageSlug,
+  slugOnClick,
   ...props
-}: PropsWithChildren<Partial<AppLayoutProps>>) {
+}: BreadcrumbsProps & PropsWithChildren<Partial<AppLayoutProps>>) {
   const messages = useState(['app', 'messages']) || []
   useLocationChangeLog()
 
@@ -43,6 +126,7 @@ export default function Layout({
         content={children}
         contentType="table"
         navigation={<SideBar />}
+        breadcrumbs={<Breadcrumbs slug={pageSlug} onClick={slugOnClick} />}
         notifications={<Flashbar items={messages} />}
         {...props}
         tools={element}

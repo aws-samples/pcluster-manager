@@ -219,6 +219,8 @@ function StatusSelect() {
   )
 }
 
+const customImageSlug = 'customImages'
+
 export default function CustomImages() {
   const imageId = useState(['app', 'customImages', 'selected'])
   const images = useSelector(selectCustomImagesList)
@@ -234,6 +236,7 @@ export default function CustomImages() {
 
   return (
     <Layout
+      pageSlug={customImageSlug}
       splitPanelOpen={splitOpen}
       onSplitPanelToggle={e => {
         setSplitOpen(e.detail.open)

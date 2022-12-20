@@ -8,7 +8,7 @@
 // or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-import React, {useCallback} from 'react'
+import React, {useCallback, useMemo} from 'react'
 import {useNavigate} from 'react-router-dom'
 
 // @ts-expect-error TS(7016) FIXME: Could not find a declaration file for module 'js-y... Remove this comment to see the full error message
@@ -26,7 +26,6 @@ import {LoadAwsConfig} from '../../model'
 // UI Elements
 import {
   Box,
-  BreadcrumbGroup,
   Button,
   SideNavigation,
   SpaceBetween,
@@ -54,6 +53,7 @@ import Loading from '../../components/Loading'
 import {useTranslation} from 'react-i18next'
 import Layout from '../Layout'
 import {useWizardSectionChangeLog} from '../../navigation/useWizardSectionChangeLog'
+import {BoxProps} from '@cloudscape-design/components/box/interfaces'
 
 function wizardShow(navigate: any) {
   const editing = getState(['app', 'wizard', 'editing'])
@@ -168,6 +168,8 @@ function clearWizardState(
   }
   clearState(['app', 'wizard', 'errors'])
 }
+
+const MARGIN_TOP_L: BoxProps.Spacing = {top: 'l'}
 
 function Configure() {
   const {t} = useTranslation()
@@ -301,22 +303,18 @@ function Configure() {
   useWizardSectionChangeLog()
 
   return (
-    <Layout contentType="form">
+    <Layout
+      contentType="form"
+      pageSlug={editing ? 'clusterUpdate' : 'clusterCreate'}
+      slugOnClick={clearStateAndCloseWizard}
+    >
       <StopDialog clusterName={clusterName} />
       <SpaceBetween direction="vertical" size="l">
-        <BreadcrumbGroup
-          items={[
-            {text: 'Clusters', href: '#clusters'},
-            // @ts-expect-error TS(2741) FIXME: Property 'href' is missing in type '{ text: string... Remove this comment to see the full error message
-            {text: editing ? 'Update' : 'Create'},
-          ]}
-          onClick={clearStateAndCloseWizard}
-        />
         <SpaceBetween direction="horizontal" size="s">
           <SideNav />
           <div style={{minWidth: '800px', maxWidth: '1000px'}}>
             <SpaceBetween direction="vertical" size="s">
-              <Box>
+              <Box margin={MARGIN_TOP_L}>
                 {
                   {
                     source: <Source />,
