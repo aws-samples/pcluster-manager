@@ -26,7 +26,7 @@ import {NonCancelableEventHandler} from '@cloudscape-design/components/internal/
 import {BreadcrumbGroupProps} from '@cloudscape-design/components/breadcrumb-group/interfaces'
 import BreadcrumbGroup from '@cloudscape-design/components/breadcrumb-group'
 import {useTranslation} from 'react-i18next'
-import _ from 'lodash'
+import map from 'lodash/map'
 
 type Slug =
   | 'clusters'
@@ -67,7 +67,7 @@ export function breadcrumbItemsFromSlug(
   t: (key: string) => string,
 ): BreadcrumbGroupProps.Item[] {
   const items = pageBreadcrumbItems[slug]
-  return _.map(items, ({transKey, href}) => ({text: t(transKey), href}))
+  return map(items, ({transKey, href}) => ({text: t(transKey), href}))
 }
 
 function mainBreadcrumbItem(
