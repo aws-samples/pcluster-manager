@@ -28,92 +28,77 @@ import BreadcrumbGroup from '@cloudscape-design/components/breadcrumb-group'
 import {useTranslation} from 'react-i18next'
 import _ from 'lodash'
 
-type Slug = 'clusters' | 'customImages' | 'officialImages' | 'users'
-type TransBreadcrumbItem = {transKey: string; href: string}
+type Slug =
+  | 'clusters'
+  | 'customImages'
+  | 'officialImages'
+  | 'users'
+  | 'clusterCreate'
+  | 'clusterUpdate'
+type BreadcrumbsProps = {pageSlug: Slug; slugOnClick?: any}
 
-const transKeyPrefix = 'global.menu'
-
-const pageBreadcrumbItems: Record<Slug, TransBreadcrumbItem> = {
-  clusters: {transKey: `${transKeyPrefix}.clusters`, href: '#clusters'},
-  customImages: {
-    transKey: `${transKeyPrefix}.customImages`,
-    href: '#custom-images',
-  },
-  officialImages: {
-    transKey: `${transKeyPrefix}.officialImages`,
-    href: '#official-images',
-  },
-  users: {transKey: `${transKeyPrefix}.users`, href: '#users'},
+const pageBreadcrumbItems = {
+  clusters: [{transKey: 'global.menu.clusters', href: '/clusters'}],
+  customImages: [
+    {
+      transKey: 'global.menu.customImages',
+      href: '/custom-images',
+    },
+  ],
+  officialImages: [
+    {
+      transKey: 'global.menu.officialImages',
+      href: '/official-images',
+    },
+  ],
+  users: [{transKey: 'global.menu.users', href: '/users'}],
+  clusterCreate: [
+    {transKey: 'global.menu.clusters', href: '/clusters'},
+    {transKey: 'wizard.actions.create', href: '#'},
+  ],
+  clusterUpdate: [
+    {transKey: 'global.menu.clusters', href: '/clusters'},
+    {transKey: 'wizard.actions.update', href: '#'},
+  ],
 }
 
-export function breadcrumbItemFromSlug(
+export function breadcrumbItemsFromSlug(
   slug: Slug,
   t: (key: string) => string,
-): BreadcrumbGroupProps.Item {
-  const {transKey, href} = pageBreadcrumbItems[slug]
-  console.log('TRANS KEY', transKey)
-  return {text: t(transKey), href}
-}
-
-export function breadcrumbItem(
-  transKey: string,
-  t: (key: string) => string,
-): BreadcrumbGroupProps.Item {
-  return {text: t(transKey), href: '#'}
-}
-
-const mainBreadcrumbTransItem: TransBreadcrumbItem = {
-  transKey: `${transKeyPrefix}.header`,
-  href: '/',
+): BreadcrumbGroupProps.Item[] {
+  const items = pageBreadcrumbItems[slug]
+  return _.map(items, ({transKey, href}) => ({text: t(transKey), href}))
 }
 
 function mainBreadcrumbItem(
   t: (key: string) => string,
 ): BreadcrumbGroupProps.Item {
-  const {transKey, href} = mainBreadcrumbTransItem
-  return {text: t(transKey), href}
+  return {text: t('global.menu.header'), href: '/'}
 }
 
-function processBreadcrumbSlugs(slugs: string[], t: (key: string) => string) {
-  if (!slugs || slugs.length < 1) {
-    return []
-  }
-
-  return _.map<string, BreadcrumbGroupProps.Item>(slugs, slug => {
-    if (pageBreadcrumbItems.hasOwnProperty(slug)) {
-      return breadcrumbItemFromSlug(slug as Slug, t)
-    }
-
-    return breadcrumbItem(slug, t)
-  })
-}
-
-export function Breadcrumbs({
-  slugs,
-  onClick,
-}: {
-  slugs: string[]
-  onClick?: any
-}) {
+export function Breadcrumbs({slug, onClick}: {slug: Slug; onClick?: any}) {
   const {t} = useTranslation()
 
   const items = useMemo(
-    () => [mainBreadcrumbItem(t), ...processBreadcrumbSlugs(slugs, t)],
-    [slugs, t],
+    () => [mainBreadcrumbItem(t), ...breadcrumbItemsFromSlug(slug, t)],
+    [slug, t],
   )
 
-  const ariaLabel = useMemo(() => t(`${transKeyPrefix}.header`), [t])
-
   return (
-    <BreadcrumbGroup items={items} ariaLabel={ariaLabel} onClick={onClick} />
+    <BreadcrumbGroup
+      items={items}
+      ariaLabel={t('global.menu.header')}
+      onClick={onClick}
+    />
   )
 }
 
 export default function Layout({
   children,
-  breadcrumbs,
+  pageSlug,
+  slugOnClick,
   ...props
-}: PropsWithChildren<Partial<AppLayoutProps>>) {
+}: BreadcrumbsProps & PropsWithChildren<Partial<AppLayoutProps>>) {
   const messages = useState(['app', 'messages']) || []
   useLocationChangeLog()
 
@@ -129,7 +114,7 @@ export default function Layout({
         content={children}
         contentType="table"
         navigation={<SideBar />}
-        breadcrumbs={breadcrumbs}
+        breadcrumbs={<Breadcrumbs slug={pageSlug} {...slugOnClick} />}
         notifications={<Flashbar items={messages} />}
         {...props}
         tools={element}
