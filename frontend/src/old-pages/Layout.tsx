@@ -22,7 +22,10 @@ import SideBar from '../components/SideBar'
 import {PropsWithChildren, useCallback, useMemo} from 'react'
 import {useLocationChangeLog} from '../navigation/useLocationChangeLog'
 import {useHelpPanel} from '../components/help-panel/HelpPanel'
-import {NonCancelableEventHandler} from '@cloudscape-design/components/internal/events'
+import {
+  CancelableEventHandler,
+  NonCancelableEventHandler,
+} from '@cloudscape-design/components/internal/events'
 import {BreadcrumbGroupProps} from '@cloudscape-design/components/breadcrumb-group/interfaces'
 import BreadcrumbGroup from '@cloudscape-design/components/breadcrumb-group'
 import {useTranslation} from 'react-i18next'
@@ -35,7 +38,10 @@ type Slug =
   | 'users'
   | 'clusterCreate'
   | 'clusterUpdate'
-type BreadcrumbsProps = {pageSlug: Slug; slugOnClick?: any}
+type BreadcrumbsProps = {
+  pageSlug: Slug
+  slugOnClick?: CancelableEventHandler<BreadcrumbGroupProps.ClickDetail>
+}
 
 const pageBreadcrumbItems = {
   clusters: [{transKey: 'global.menu.clusters', href: '/clusters'}],
@@ -76,7 +82,13 @@ function mainBreadcrumbItem(
   return {text: t('global.menu.header'), href: '/'}
 }
 
-export function Breadcrumbs({slug, onClick}: {slug: Slug; onClick?: any}) {
+export function Breadcrumbs({
+  slug,
+  onClick,
+}: {
+  slug: Slug
+  onClick?: CancelableEventHandler<BreadcrumbGroupProps.ClickDetail>
+}) {
   const {t} = useTranslation()
 
   const items = useMemo(
