@@ -45,6 +45,9 @@ import {
 // Components
 import HelpTooltip from '../../components/HelpTooltip'
 import {NonCancelableEventHandler} from '@cloudscape-design/components/internal/events'
+import {useHelpPanel} from '../../components/help-panel/HelpPanel'
+import TitleDescriptionHelpPanel from '../../components/help-panel/TitleDescriptionHelpPanel'
+import InfoLink from '../../components/InfoLink'
 
 // Helper Functions
 function strToOption(str: any) {
@@ -317,14 +320,7 @@ function CustomAMISettings({basePath, appPath, errorsPath, validate}: any) {
 
   return (
     <>
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
+      <SpaceBetween direction="horizontal" size={'xxs'}>
         <Toggle
           disabled={editing}
           checked={customAmiEnabled}
@@ -332,16 +328,24 @@ function CustomAMISettings({basePath, appPath, errorsPath, validate}: any) {
         >
           <Trans i18nKey="wizard.components.customAmi.label" />
         </Toggle>
-        <HelpTooltip>
-          <Trans i18nKey="wizard.components.customAmi.help">
-            <a
-              rel="noreferrer"
-              target="_blank"
-              href="https://docs.aws.amazon.com/parallelcluster/latest/ug/pcluster.build-image-v3.html"
-            ></a>
-          </Trans>
-        </HelpTooltip>
-      </div>
+        <InfoLink
+          ariaLabel={t('wizard.components.customAmi.ariaLabel')}
+          helpPanel={
+            <TitleDescriptionHelpPanel
+              title={t('wizard.components.customAmi.helpPanel.title')}
+              description={
+                <Trans i18nKey="wizard.components.customAmi.helpPanel.description">
+                  <a
+                    rel="noreferrer"
+                    target="_blank"
+                    href={t('wizard.components.customAmi.helpPanel.link')}
+                  />
+                </Trans>
+              }
+            />
+          }
+        />
+      </SpaceBetween>
       {customAmiEnabled && (
         <FormField
           label={t('wizard.components.customAmi.suggestLabel')}
