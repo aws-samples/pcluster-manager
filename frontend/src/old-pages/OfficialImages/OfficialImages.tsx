@@ -125,7 +125,7 @@ function OfficialImagesList({images}: {images: Image[]}) {
   )
 }
 
-const officialImagesSlugs = ['officialImages']
+const officialImagesSlug = 'officialImages'
 export default function OfficialImages() {
   const defaultRegion = useState(['aws', 'region'])
   const region = useState(['app', 'selectedRegion']) || defaultRegion
@@ -134,7 +134,7 @@ export default function OfficialImages() {
   useHelpPanel(<DefaultHelpPanel />)
 
   return (
-    <Layout breadcrumbs={<Breadcrumbs slugs={officialImagesSlugs} />}>
+    <Layout pageSlug={officialImagesSlug}>
       <OfficialImagesList images={data} />
     </Layout>
   )
