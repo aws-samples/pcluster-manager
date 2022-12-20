@@ -16,7 +16,6 @@ import {useCollection} from '@cloudscape-design/collection-hooks'
 // UI Elements
 import {
   Button,
-  Container,
   Header,
   Pagination,
   Table,
@@ -126,6 +125,7 @@ function OfficialImagesList({images}: {images: Image[]}) {
   )
 }
 
+const officialImagesSlug = 'officialImages'
 export default function OfficialImages() {
   const defaultRegion = useState(['aws', 'region'])
   const region = useState(['app', 'selectedRegion']) || defaultRegion
@@ -134,7 +134,7 @@ export default function OfficialImages() {
   useHelpPanel(<DefaultHelpPanel />)
 
   return (
-    <Layout>
+    <Layout pageSlug={officialImagesSlug}>
       <OfficialImagesList images={data} />
     </Layout>
   )
