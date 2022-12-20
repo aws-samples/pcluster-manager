@@ -13,36 +13,38 @@ import { visitAndLogin } from '../test-utils/login';
 
 const TEMPLATE_PATH = './fixtures/wizard.template.yaml'
 
-test.describe('given a cluster configuration template created with single instance type', () => {
-  test.describe('when the file is imported as a template', () => {
-    test('user can perform a dry-run successfully', async ({ page }) => {
-      await visitAndLogin(page)
+test.describe('environment: @demo', () => {
+  test.describe('given a cluster configuration template created with single instance type', () => {
+    test.describe('when the file is imported as a template', () => {
+      test('user can perform a dry-run successfully', async ({ page }) => {
+        await visitAndLogin(page)
 
-      await page.getByRole('button', { name: 'Create Cluster' }).first().click();
-      await page.getByPlaceholder('Enter your cluster name').fill('sdasdasd');
+        await page.getByRole('button', { name: 'Create Cluster' }).first().click();
+        await page.getByPlaceholder('Enter your cluster name').fill('sdasdasd');
 
-      page.on("filechooser", (fileChooser: FileChooser) => {
-        fileChooser.setFiles([TEMPLATE_PATH]);
-      })
-      await page.getByRole('radio', { name: 'Template' }).click();
-      await page.getByRole('button', { name: 'Next' }).click();
+        page.on("filechooser", (fileChooser: FileChooser) => {
+          fileChooser.setFiles([TEMPLATE_PATH]);
+        })
+        await page.getByRole('radio', { name: 'Template' }).click();
+        await page.getByRole('button', { name: 'Next' }).click();
 
-      await expect(page.getByRole('heading', { name: 'Cluster Properties' })).toBeVisible()
-      await page.getByRole('button', { name: 'Next' }).click();
-      
-      await expect(page.getByRole('heading', { name: 'Head Node Properties' })).toBeVisible()
-      await page.getByRole('button', { name: 'Next' }).click();
-      
-      await expect(page.getByRole('heading', { name: 'Storage Properties' })).toBeVisible()
-      await page.getByRole('button', { name: 'Next' }).click();
-      
-      await expect(page.getByRole('heading', { name: 'Queues' })).toBeVisible()
-      await page.getByRole('button', { name: 'Next' }).click();
-      
-      await expect(page.getByRole('heading', { name: 'Cluster Configuration' })).toBeVisible()
-      await page.getByRole('button', { name: 'Dry Run' }).click();
-      
-      await expect(page.getByText('Request would have succeeded, but DryRun flag is set.')).toBeVisible()
+        await expect(page.getByRole('heading', { name: 'Cluster Properties' })).toBeVisible()
+        await page.getByRole('button', { name: 'Next' }).click();
+
+        await expect(page.getByRole('heading', { name: 'Head Node Properties' })).toBeVisible()
+        await page.getByRole('button', { name: 'Next' }).click();
+
+        await expect(page.getByRole('heading', { name: 'Storage Properties' })).toBeVisible()
+        await page.getByRole('button', { name: 'Next' }).click();
+
+        await expect(page.getByRole('heading', { name: 'Queues' })).toBeVisible()
+        await page.getByRole('button', { name: 'Next' }).click();
+
+        await expect(page.getByRole('heading', { name: 'Cluster Configuration' })).toBeVisible()
+        await page.getByRole('button', { name: 'Dry Run' }).click();
+
+        await expect(page.getByText('Request would have succeeded, but DryRun flag is set.')).toBeVisible()
+      });
     });
   });
 });
