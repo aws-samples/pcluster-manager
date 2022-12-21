@@ -35,7 +35,8 @@
     }
   },
   "infoLink": {
-    "label": "Info"
+    "label": "Info",
+    "ariaLabel": "Info"
   },
   "cluster": {
     "properties": {
@@ -174,6 +175,7 @@
       }
     },
     "headNode": {
+      "title": "HeadNode",
       "validation": {
         "selectSubnet": "You must select a Subnet.",
         "selectInstanceType": "You must select an instance type.",
