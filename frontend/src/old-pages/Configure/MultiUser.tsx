@@ -29,9 +29,10 @@ import {
 import {setState, useState, getState, clearState} from '../../store'
 
 // Components
-import HelpTooltip from '../../components/HelpTooltip'
 import {HelpTextInput} from './Components'
 import {useTranslation} from 'react-i18next'
+import TitleDescriptionHelpPanel from '../../components/help-panel/TitleDescriptionHelpPanel'
+import InfoLink from '../../components/InfoLink'
 
 // Constants
 const errorsPath = ['app', 'wizard', 'errors', 'multiUser']
@@ -59,19 +60,24 @@ function multiUserValidate() {
   return valid
 }
 
-function HelpToggle({
-  name,
-  configKey,
-  description,
-  help,
-  placeholder,
-  defaultValue,
-}: any) {
+function HelpToggle({name, configKey, description, help, defaultValue}: any) {
   let value = useState([...dsPath, configKey])
   let error = useState([...errorsPath, configKey])
 
   return (
-    <FormField label={name} errorText={error} description={description}>
+    <FormField
+      label={name}
+      errorText={error}
+      description={description}
+      info={
+        <InfoLink
+          ariaLabel={name}
+          helpPanel={
+            <TitleDescriptionHelpPanel title={name} description={help} />
+          }
+        />
+      }
+    >
       <div
         style={{
           display: 'flex',
@@ -86,7 +92,6 @@ function HelpToggle({
             onChange={({detail}) => setState([...dsPath, configKey], !value)}
           />
         </div>
-        <HelpTooltip>{help}</HelpTooltip>
       </div>
     </FormField>
   )
