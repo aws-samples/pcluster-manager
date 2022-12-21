@@ -36,9 +36,7 @@ function TitleDescriptionHelpPanel({
             <li>
               <Link
                 external
-                externalIconAriaLabel={t(
-                  'helpPanel.footer.docs.externalIconAriaLabel',
-                )}
+                externalIconAriaLabel={t('global.openNewTab')}
                 href={t('helpPanel.footer.docs.link')}
               >
                 {t('helpPanel.footer.docs.title')}

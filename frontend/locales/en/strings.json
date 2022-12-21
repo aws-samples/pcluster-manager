@@ -10,7 +10,8 @@
     },
     "errors": {
       "csrfError": "An unexpected error occurred. Please reload the page and try again"
-    }
+    },
+    "openNewTab": "Open in a new tab"
   },
   "errorBoundary": {
     "modal": {
@@ -25,7 +26,6 @@
       "learnMore": "Learn more",
       "docs": {
         "title": "AWS ParallelCluster Manager documentation",
-        "externalIconAriaLabel": "Open in a new tab",
         "link": "https://pcluster.cloud/"
       }
     },
