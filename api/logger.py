@@ -1,5 +1,5 @@
 import logging
-
+from sys import exc_info
 
 class DefaultLogger(object):
   def __init__(self, is_running_local):
@@ -27,7 +27,10 @@ class DefaultLogger(object):
     self.logger.warning(self._log_output(msg, extra))   
     
   def error(self, msg, extra=None):
-    self.logger.error(self._log_output(msg, extra), exc_info=True)
+    self.logger.error(self._log_output(msg, extra), exc_info=self.__is_exception_caught())
+    
+  def __is_exception_caught(self):
+    return exc_info() != (None, None, None)
 
   def critical(self, msg, extra=None):
     self.logger.critical(self._log_output(msg, extra), exc_info=True)
