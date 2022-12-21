@@ -18,52 +18,13 @@ import {
 import {InstanceState, Instance, EC2Instance} from '../types/instances'
 import {StackEvent} from '../types/stackevents'
 import {JobStateCode} from '../types/jobs'
-import React, {useCallback} from 'react'
-import {Trans} from 'react-i18next'
-import {Link as InternalLink} from 'react-router-dom'
-import {useNavigate} from 'react-router-dom'
-
-import HelpTooltip from '../components/HelpTooltip'
+import React from 'react'
 import {
-  Link,
   StatusIndicator,
   StatusIndicatorProps,
 } from '@cloudscape-design/components'
-import {useState} from '../store'
 
 export type StatusMap = Record<string, StatusIndicatorProps.Type>
-
-function ClusterFailedHelp({
-  cluster,
-}: {
-  cluster: ClusterInfoSummary | ClusterDescription
-}) {
-  const {clusterName} = cluster
-  let navigate = useNavigate()
-
-  const clusterPath = ['clusters', 'index', clusterName]
-  const headNode = useState([...clusterPath, 'headNode'])
-  let href = `/clusters/${clusterName}/logs`
-  let cfnHref = `/clusters/${clusterName}/stack-events?filter=_FAILED`
-  if (headNode) href += `?instance=${headNode.instanceId}`
-
-  const navigateLogs = useCallback(
-    e => {
-      navigate(href)
-      e.preventDefault()
-    },
-    [href, navigate],
-  )
-
-  return (
-    <HelpTooltip>
-      <Trans i18nKey="components.ClusterFailedHelp.errorMessage">
-        <InternalLink to={cfnHref}></InternalLink>
-        <Link onFollow={navigateLogs}></Link>
-      </Trans>
-    </HelpTooltip>
-  )
-}
 
 function ClusterStatusIndicator({
   cluster,
@@ -71,11 +32,6 @@ function ClusterStatusIndicator({
   cluster: ClusterInfoSummary | ClusterDescription
 }) {
   const {clusterStatus}: {clusterStatus: ClusterStatus} = cluster
-  const failedStatuses = new Set<ClusterStatus>([
-    ClusterStatus.CreateFailed,
-    ClusterStatus.DeleteFailed,
-    ClusterStatus.UpdateFailed,
-  ])
 
   const statusMap: Record<ClusterStatus, StatusIndicatorProps.Type> = {
     CREATE_COMPLETE: 'success',
@@ -92,9 +48,6 @@ function ClusterStatusIndicator({
   return (
     <StatusIndicator type={statusMap[clusterStatus]}>
       {clusterStatus.replaceAll('_', ' ')}
-      {failedStatuses.has(clusterStatus) && (
-        <ClusterFailedHelp cluster={cluster} />
-      )}
     </StatusIndicator>
   )
 }
