@@ -4,8 +4,8 @@ import {useTranslation} from 'react-i18next'
 import {useHelpPanel} from './help-panel/HelpPanel'
 
 type InfoLinkProps = {
-  ariaLabel: string
   helpPanel: ReactElement
+  ariaLabel?: string
 }
 
 function InfoLink({ariaLabel, helpPanel}: InfoLinkProps) {
@@ -18,7 +18,11 @@ function InfoLink({ariaLabel, helpPanel}: InfoLinkProps) {
   }
 
   return (
-    <Link variant="info" onFollow={setHelpPanel} ariaLabel={ariaLabel}>
+    <Link
+      variant="info"
+      onFollow={setHelpPanel}
+      ariaLabel={ariaLabel || t('infoLink.ariaLabel')}
+    >
       {t('infoLink.label')}
     </Link>
   )
