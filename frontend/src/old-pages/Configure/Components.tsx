@@ -924,7 +924,19 @@ function HelpTextInput({
   let error = useState([...errorsPath, configKey])
 
   return (
-    <FormField label={name} errorText={error} description={description}>
+    <FormField
+      label={name}
+      errorText={error}
+      description={description}
+      info={
+        <InfoLink
+          ariaLabel={name}
+          helpPanel={
+            <TitleDescriptionHelpPanel title={name} description={help} />
+          }
+        />
+      }
+    >
       <div
         style={{
           display: 'flex',
@@ -941,7 +953,6 @@ function HelpTextInput({
             onChange={onChange}
           />
         </div>
-        <HelpTooltip>{help}</HelpTooltip>
       </div>
     </FormField>
   )
