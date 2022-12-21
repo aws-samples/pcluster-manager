@@ -49,12 +49,13 @@ import {
   SubnetSelect,
   IamPoliciesEditor,
 } from './Components'
-import HelpTooltip from '../../components/HelpTooltip'
 import {useFeatureFlag} from '../../feature-flags/useFeatureFlag'
 import {
   SlurmSettings,
   validateSlurmSettings,
 } from './SlurmSettings/SlurmSettings'
+import InfoLink from '../../components/InfoLink'
+import TitleDescriptionHelpPanel from '../../components/help-panel/TitleDescriptionHelpPanel'
 
 // Constants
 const headNodePath = ['app', 'wizard', 'config', 'HeadNode']
@@ -266,6 +267,16 @@ function SsmSettings() {
       <FormField
         label={t('wizard.headNode.Ssm.title')}
         description={t('wizard.headNode.Ssm.description')}
+        info={
+          <InfoLink
+            helpPanel={
+              <TitleDescriptionHelpPanel
+                title={t('wizard.headNode.title')}
+                description={t('wizard.headNode.Ssm.help')}
+              />
+            }
+          />
+        }
       >
         <Toggle
           checked={ssmEnabled}
@@ -275,9 +286,6 @@ function SsmSettings() {
           <Trans i18nKey="wizard.headNode.Ssm.label" />
         </Toggle>
       </FormField>
-      <HelpTooltip>
-        <Trans i18nKey="wizard.headNode.Ssm.help" />
-      </HelpTooltip>
     </div>
   )
 }
@@ -316,6 +324,16 @@ function DcvSettings() {
       <FormField
         label={t('wizard.headNode.Dcv.label')}
         description={t('wizard.headNode.Dcv.description')}
+        info={
+          <InfoLink
+            helpPanel={
+              <TitleDescriptionHelpPanel
+                title={t('wizard.headNode.title')}
+                description={t('wizard.headNode.Dcv.help')}
+              />
+            }
+          />
+        }
       >
         <SpaceBetween direction="vertical" size="xxxs">
           <Toggle disabled={editing} checked={dcvEnabled} onChange={toggleDcv}>
@@ -352,9 +370,6 @@ function DcvSettings() {
           </SpaceBetween>
         </SpaceBetween>
       </FormField>
-      <HelpTooltip>
-        <Trans i18nKey="wizard.headNode.Dcv.help" />
-      </HelpTooltip>
     </div>
   )
 }
@@ -412,44 +427,42 @@ function HeadNode() {
           <RootVolume basePath={headNodePath} errorsPath={errorsPath} />
           <SsmSettings />
           <DcvSettings />
-          <div
-            key="imds-secured"
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-          >
+          <SpaceBetween size="xs" direction="horizontal">
             <Toggle checked={imdsSecured || false} onChange={toggleImdsSecured}>
               <Trans i18nKey="wizard.headNode.imdsSecured.label" />
             </Toggle>
-            <HelpTooltip>
-              <Trans i18nKey="wizard.headNode.imdsSecured.help">
-                <a
-                  rel="noreferrer"
-                  target="_blank"
-                  href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html#instance-metadata-v2-how-it-works"
-                ></a>
-              </Trans>
-            </HelpTooltip>
-          </div>
-          <div
-            key="sgs"
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
+            <InfoLink
+              helpPanel={
+                <TitleDescriptionHelpPanel
+                  title={t('wizard.headNode.title')}
+                  description={
+                    <Trans i18nKey="wizard.headNode.imdsSecured.help">
+                      <a
+                        rel="noreferrer"
+                        target="_blank"
+                        href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html#instance-metadata-v2-how-it-works"
+                      ></a>
+                    </Trans>
+                  }
+                />
+              }
+            />
+          </SpaceBetween>
+          <FormField
+            label={t('wizard.headNode.securityGroups.label')}
+            info={
+              <InfoLink
+                helpPanel={
+                  <TitleDescriptionHelpPanel
+                    title={t('wizard.headNode.title')}
+                    description={t('wizard.headNode.securityGroups.help')}
+                  />
+                }
+              />
+            }
           >
-            <FormField label={t('wizard.headNode.securityGroups.label')}>
-              <SecurityGroups basePath={headNodePath} />
-            </FormField>
-            <HelpTooltip>
-              <Trans i18nKey="wizard.headNode.securityGroups.help" />
-            </HelpTooltip>
-          </div>
+            <SecurityGroups basePath={headNodePath} />
+          </FormField>
           <ExpandableSection header="Advanced options">
             <ActionsEditor basePath={headNodePath} errorsPath={errorsPath} />
             <ExpandableSection header="IAM Policies">
