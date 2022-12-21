@@ -3,7 +3,7 @@ import {ReactElement} from 'react'
 import {useTranslation} from 'react-i18next'
 import {useHelpPanel} from './help-panel/HelpPanel'
 
-interface InfoLinkProps {
+type InfoLinkProps = {
   ariaLabel: string
   helpPanel: ReactElement
 }
