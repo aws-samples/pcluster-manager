@@ -27,9 +27,7 @@ class DefaultLogger(object):
     self.logger.warning(self._log_output(msg, extra))   
     
   def error(self, msg, extra=None):
-    self.logger.error(self._log_output(msg, extra))
+    self.logger.error(self._log_output(msg, extra), exc_info=True)
 
   def critical(self, msg, extra=None):
-    self.logger.critical(self._log_output(msg, extra))
-
-
+    self.logger.critical(self._log_output(msg, extra), exc_info=True)
