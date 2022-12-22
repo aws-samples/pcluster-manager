@@ -251,6 +251,7 @@
       }
     },
     "storage": {
+      "title": "Storage",
       "validation": {
         "volumeSize": "You must specify a valid Volume Size."
       },
@@ -259,7 +260,7 @@
           "label": "Storage Capacity: {{storageCapacity}} GB"
         },
         "lustreType": {
-          "label": "FSx Lustre Type:",
+          "label": "FSx Lustre Type",
           "help": "Choose SCRATCH_1 and SCRATCH_2 deployment types when you need temporary storage and shorter-term processing of data. The SCRATCH_2 deployment type provides in-transit encryption of data and higher burst throughput capacity than SCRATCH_1. Choose PERSISTENT_2 deployment type for longer-term storage and workloads and encryption of data in transit, choose PERSISTENT_1 only for backwards compatibility. See <0>DeploymentType</0>."
         },
         "import": {
@@ -284,7 +285,9 @@
       "Efs": {
         "encrypted": {
           "label": "Encrypted",
-          "help": "Specifies a custom AWS KMS key to use for encryption. See <0>EFS Encryption.</0>"
+          "title": "Encryption",
+          "help": "Specifies a custom AWS KMS key to use for encryption. See <0>EFS Encryption.</0>",
+          "kmsId": "KMS ID"
         },
         "performanceMode": {
           "label": "Performance Mode:"
@@ -301,7 +304,9 @@
         },
         "encrypted": {
           "label": "Encrypted",
-          "help": "Specifies a custom AWS KMS key to use for encryption. See <0>EBS Encryption.</o>"
+          "title": "Encryption",
+          "help": "Specifies a custom AWS KMS key to use for encryption. See <0>EBS Encryption.</o>",
+          "kmsId": "KMS ID"
         },
         "snapshotId": {
           "label": "Snapshot ID",

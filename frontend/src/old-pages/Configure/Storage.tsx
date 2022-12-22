@@ -34,7 +34,6 @@ import {
 import {getState, setState, useState, clearState} from '../../store'
 
 // Components
-import HelpTooltip from '../../components/HelpTooltip'
 import {LabeledIcon} from './Components'
 import {
   Storages,
@@ -43,6 +42,8 @@ import {
   UIStorageSettings,
 } from './Storage.types'
 import {useFeatureFlag} from '../../feature-flags/useFeatureFlag'
+import InfoLink from '../../components/InfoLink'
+import TitleDescriptionHelpPanel from '../../components/help-panel/TitleDescriptionHelpPanel'
 
 // Constants
 const storagePath = ['app', 'wizard', 'config', 'SharedStorage']
@@ -224,168 +225,166 @@ export function FsxLustreSettings({index}: any) {
           disabled={editing}
         />
       </div>
-      <div
-        key="lustre-type"
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: '16px',
-          }}
-        >
+      <FormField
+        label={
           <Trans
             i18nKey="wizard.storage.Fsx.lustreType.label"
             values={{storageCapacity: storageCapacity}}
           />
-          <Select
-            disabled={editing}
-            selectedOption={strToOption(lustreType || 'PERSISTENT_1')}
-            onChange={({detail}) => {
-              setState(lustreTypePath, detail.selectedOption.value)
-              setState(
-                storageThroughputPath,
-                detail.selectedOption.value === 'PERSISTENT_1'
-                  ? LUSTRE_PERSISTENT1_DEFAULT_THROUGHPUT
-                  : LUSTRE_PERSISTENT2_DEFAULT_THROUGHPUT,
-              )
-            }}
-            options={lustreTypes.map(strToOption)}
+        }
+        info={
+          <InfoLink
+            helpPanel={
+              <TitleDescriptionHelpPanel
+                title={t('wizard.storage.title')}
+                description={
+                  <Trans i18nKey="wizard.storage.Fsx.lustreType.help">
+                    <a
+                      rel="noreferrer"
+                      target="_blank"
+                      href="https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-DeploymentType"
+                    ></a>
+                  </Trans>
+                }
+              />
+            }
           />
-        </div>
-        <HelpTooltip>
-          <Trans i18nKey="wizard.storage.Fsx.lustreType.help">
-            <a
-              rel="noreferrer"
-              target="_blank"
-              href="https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-DeploymentType"
-            ></a>
-          </Trans>
-        </HelpTooltip>
-      </div>
-
+        }
+      >
+        <Select
+          disabled={editing}
+          selectedOption={strToOption(lustreType || 'PERSISTENT_1')}
+          onChange={({detail}) => {
+            setState(lustreTypePath, detail.selectedOption.value)
+            setState(
+              storageThroughputPath,
+              detail.selectedOption.value === 'PERSISTENT_1'
+                ? LUSTRE_PERSISTENT1_DEFAULT_THROUGHPUT
+                : LUSTRE_PERSISTENT2_DEFAULT_THROUGHPUT,
+            )
+          }}
+          options={lustreTypes.map(strToOption)}
+        />
+      </FormField>
       {lustreType === 'PERSISTENT_1' && (
         <>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-          >
-            <FormField label={t('wizard.storage.Fsx.import.label')}>
-              <Input
-                disabled={editing}
-                placeholder={t('wizard.storage.Fsx.import.placeholder')}
-                value={importPath}
-                onChange={({detail}) => setImportPath(detail.value)}
+          <FormField
+            label={t('wizard.storage.Fsx.import.label')}
+            info={
+              <InfoLink
+                helpPanel={
+                  <TitleDescriptionHelpPanel
+                    title={t('wizard.storage.title')}
+                    description={
+                      <Trans i18nKey="wizard.storage.Fsx.import.help">
+                        <a
+                          rel="noreferrer"
+                          target="_blank"
+                          href="https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-ImportPath"
+                        ></a>
+                      </Trans>
+                    }
+                  />
+                }
               />
-            </FormField>
-            <HelpTooltip>
-              <Trans i18nKey="wizard.storage.Fsx.import.help">
-                <a
-                  rel="noreferrer"
-                  target="_blank"
-                  href="https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-ImportPath"
-                ></a>
-              </Trans>
-            </HelpTooltip>
-          </div>
-
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
+            }
           >
-            <FormField label={t('wizard.storage.Fsx.export.label')}>
-              <Input
-                disabled={editing}
-                placeholder={t('wizard.storage.Fsx.export.placeholder')}
-                value={exportPath}
-                onChange={({detail}) => {
-                  setExportPath(detail.value)
-                }}
+            <Input
+              disabled={editing}
+              placeholder={t('wizard.storage.Fsx.import.placeholder')}
+              value={importPath}
+              onChange={({detail}) => setImportPath(detail.value)}
+            />
+          </FormField>
+          <FormField
+            label={t('wizard.storage.Fsx.export.label')}
+            info={
+              <InfoLink
+                helpPanel={
+                  <TitleDescriptionHelpPanel
+                    title={t('wizard.storage.title')}
+                    description={
+                      <Trans i18nKey="wizard.storage.Fsx.export.help">
+                        <a
+                          rel="noreferrer"
+                          target="_blank"
+                          href="https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-ExportPath"
+                        ></a>
+                      </Trans>
+                    }
+                  />
+                }
               />
-            </FormField>
-            <HelpTooltip>
-              <Trans i18nKey="wizard.storage.Fsx.export.help">
-                <a
-                  rel="noreferrer"
-                  target="_blank"
-                  href="https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-ExportPath"
-                ></a>
-              </Trans>
-            </HelpTooltip>
-          </div>
+            }
+          >
+            <Input
+              disabled={editing}
+              placeholder={t('wizard.storage.Fsx.export.placeholder')}
+              value={exportPath}
+              onChange={({detail}) => {
+                setExportPath(detail.value)
+              }}
+            />
+          </FormField>
         </>
       )}
 
       {['PERSISTENT_1', 'PERSISTENT_2'].includes(lustreType) && (
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          <FormField label={t('wizard.storage.Fsx.throughput.label')}>
-            <Select
-              selectedOption={strToOption(storageThroughput || '')}
-              onChange={({detail}) => {
-                setState(storageThroughputPath, detail.selectedOption.value)
-              }}
-              options={
-                lustreType == 'PERSISTENT_1'
-                  ? storageThroughputsP1.map(strToOption)
-                  : storageThroughputsP2.map(strToOption)
+        <FormField
+          label={t('wizard.storage.Fsx.throughput.label')}
+          info={
+            <InfoLink
+              helpPanel={
+                <TitleDescriptionHelpPanel
+                  title={t('wizard.storage.title')}
+                  description={
+                    <Trans i18nKey="wizard.storage.Fsx.throughput.help">
+                      <a
+                        rel="noreferrer"
+                        target="_blank"
+                        href="https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-PerUnitStorageThroughput"
+                      ></a>
+                    </Trans>
+                  }
+                />
               }
             />
-          </FormField>
-          <HelpTooltip>
-            <Trans i18nKey="wizard.storage.Fsx.throughput.help">
-              <a
-                rel="noreferrer"
-                target="_blank"
-                href="https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-PerUnitStorageThroughput"
-              ></a>
-            </Trans>
-          </HelpTooltip>
-        </div>
+          }
+        >
+          <Select
+            selectedOption={strToOption(storageThroughput || '')}
+            onChange={({detail}) => {
+              setState(storageThroughputPath, detail.selectedOption.value)
+            }}
+            options={
+              lustreType == 'PERSISTENT_1'
+                ? storageThroughputsP1.map(strToOption)
+                : storageThroughputsP2.map(strToOption)
+            }
+          />
+        </FormField>
       )}
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-          marginTop: '10px',
-          justifyContent: 'space-between',
-        }}
-      >
+      <SpaceBetween direction="horizontal" size="xs">
         <Toggle checked={compression !== null} onChange={toggleCompression}>
           <Trans i18nKey="wizard.storage.Fsx.compression.label" />
         </Toggle>
-        <HelpTooltip>
-          <Trans i18nKey="wizard.storage.Fsx.compression.help">
-            <a
-              rel="noreferrer"
-              target="_blank"
-              href="https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-DataCompressionType"
-            ></a>
-          </Trans>
-        </HelpTooltip>
-      </div>
+        <InfoLink
+          helpPanel={
+            <TitleDescriptionHelpPanel
+              title={t('wizard.storage.title')}
+              description={
+                <Trans i18nKey="wizard.storage.Fsx.compression.help">
+                  <a
+                    rel="noreferrer"
+                    target="_blank"
+                    href="https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-DataCompressionType"
+                  ></a>
+                </Trans>
+              }
+            />
+          }
+        />
+      </SpaceBetween>
     </ColumnLayout>
   )
 }
@@ -396,6 +395,7 @@ function EfsSettings({index}: any) {
   const kmsPath = [...efsPath, 'KmsKeyId']
   const performancePath = [...efsPath, 'PerformanceMode']
   const performanceModes = ['generalPurpose', 'maxIO']
+  const {t} = useTranslation()
 
   const throughputModePath = [...efsPath, 'ThroughputMode']
   const provisionedThroughputPath = [...efsPath, 'ProvisionedThroughput']
@@ -424,60 +424,42 @@ function EfsSettings({index}: any) {
   return (
     <SpaceBetween direction="vertical" size="s">
       <ColumnLayout columns={2} borders="vertical">
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
+        <FormField
+          label={t('wizard.storage.Efs.encrypted.title')}
+          info={
+            <InfoLink
+              helpPanel={
+                <TitleDescriptionHelpPanel
+                  title={t('wizard.storage.title')}
+                  description={
+                    <Trans i18nKey="wizard.storage.Efs.encrypted.help">
+                      <a
+                        rel="noreferrer"
+                        target="_blank"
+                        href="https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EfsSettings-Encrypted"
+                      ></a>
+                    </Trans>
+                  }
+                />
+              }
+            />
+          }
         >
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: '16px',
-            }}
-          >
-            <div style={{display: 'flex', flexGrow: 1, flexShrink: 0}}>
-              <Toggle checked={encrypted} onChange={toggleEncrypted}>
-                <Trans i18nKey="wizard.storage.Efs.encrypted.label" />
-              </Toggle>
-            </div>
-            {encrypted && (
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: '16px',
+          <Toggle checked={encrypted} onChange={toggleEncrypted}>
+            {t('wizard.storage.Efs.encrypted.label')}
+          </Toggle>
+
+          {encrypted ? (
+            <FormField label={t('wizard.storage.Efs.encrypted.kmsId')}>
+              <Input
+                value={kmsId}
+                onChange={({detail}) => {
+                  setState(kmsPath, detail.value)
                 }}
-              >
-                <div style={{display: 'flex', flexGrow: 1, flexShrink: 0}}>
-                  KMS ID:
-                </div>
-                <div style={{display: 'flex', flexShrink: 1}}>
-                  <Input
-                    value={kmsId}
-                    onChange={({detail}) => {
-                      setState(kmsPath, detail.value)
-                    }}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-          <HelpTooltip>
-            <Trans i18nKey="wizard.storage.Efs.encrypted.help">
-              <a
-                rel="noreferrer"
-                target="_blank"
-                href="https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EfsSettings-Encrypted"
-              ></a>
-            </Trans>
-          </HelpTooltip>
-        </div>
+              />
+            </FormField>
+          ) : null}
+        </FormField>
 
         <div
           style={{
@@ -497,14 +479,7 @@ function EfsSettings({index}: any) {
           />
         </div>
         <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-          >
+          <SpaceBetween direction="horizontal" size="xs">
             <Toggle
               checked={throughputMode !== 'bursting'}
               onChange={_event => {
@@ -518,16 +493,24 @@ function EfsSettings({index}: any) {
             >
               <Trans i18nKey="wizard.storage.Efs.provisioned.label" />
             </Toggle>
-            <HelpTooltip>
-              <Trans i18nKey="wizard.storage.Efs.provisioned.help">
-                <a
-                  rel="noreferrer"
-                  target="_blank"
-                  href="https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EfsSettings-ThroughputMode"
-                ></a>
-              </Trans>
-            </HelpTooltip>
-          </div>
+
+            <InfoLink
+              helpPanel={
+                <TitleDescriptionHelpPanel
+                  title={t('wizard.storage.title')}
+                  description={
+                    <Trans i18nKey="wizard.storage.Efs.provisioned.help">
+                      <a
+                        rel="noreferrer"
+                        target="_blank"
+                        href="https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EfsSettings-ThroughputMode"
+                      ></a>
+                    </Trans>
+                  }
+                />
+              }
+            />
+          </SpaceBetween>
           {throughputMode === 'provisioned' && (
             <div
               style={{
@@ -657,139 +640,101 @@ function EbsSettings({index}: any) {
             </FormField>
           </div>
         </div>
-
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: '16px',
-            }}
-          >
-            <div style={{display: 'flex', flexGrow: 1, flexShrink: 0}}>
-              <Toggle
-                disabled={editing}
-                checked={encrypted}
-                onChange={toggleEncrypted}
-              >
-                <Trans i18nKey="wizard.storage.Ebs.encrypted.label" />
-              </Toggle>
-            </div>
-            {encrypted && (
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: '16px',
-                }}
-              >
-                <div style={{display: 'flex', flexGrow: 1, flexShrink: 0}}>
-                  KMS ID:
-                </div>
-                <div style={{display: 'flex', flexShrink: 1}}>
-                  <Input
-                    disabled={editing}
-                    value={kmsId}
-                    onChange={({detail}) => {
-                      setState(kmsPath, detail.value)
-                    }}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-          <HelpTooltip>
-            <Trans i18nKey="wizard.storage.Ebs.encrypted.help">
-              <a
-                rel="noreferrer"
-                target="_blank"
-                href="https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EbsSettings-Encrypted"
-              ></a>
-            </Trans>
-          </HelpTooltip>
-        </div>
-
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: '16px',
-            }}
-          >
-            <Toggle
-              checked={snapshotId !== null}
-              onChange={_event => {
-                setState(snapshotIdPath, snapshotId === null ? '' : null)
-              }}
-            >
-              <Trans i18nKey="wizard.storage.Ebs.snapshotId.label" />
-            </Toggle>
-            {snapshotId !== null && (
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: '16px',
-                }}
-              >
-                :
-                <Input
-                  value={snapshotId}
-                  onChange={({detail}) => {
-                    setState(snapshotIdPath, detail.value)
-                  }}
+        <FormField
+          label={t('wizard.storage.Ebs.encrypted.title')}
+          info={
+            <InfoLink
+              helpPanel={
+                <TitleDescriptionHelpPanel
+                  title={t('wizard.storage.title')}
+                  description={
+                    <Trans i18nKey="wizard.storage.Ebs.encrypted.help">
+                      <a
+                        rel="noreferrer"
+                        target="_blank"
+                        href="https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EbsSettings-Encrypted"
+                      ></a>
+                    </Trans>
+                  }
                 />
-              </div>
-            )}
-          </div>
-          <HelpTooltip>
-            <Trans i18nKey="wizard.storage.Ebs.snapshotId.help">
-              <a
-                rel="noreferrer"
-                target="_blank"
-                href="https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EbsSettings-SnapshotId"
-              ></a>
-            </Trans>
-          </HelpTooltip>
-        </div>
-      </ColumnLayout>
-
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: '16px',
-          }}
+              }
+            />
+          }
         >
-          <Trans i18nKey="wizard.storage.Ebs.deletionPolicy.label" />:
+          <Toggle checked={encrypted} onChange={toggleEncrypted}>
+            {t('wizard.storage.Ebs.encrypted.label')}
+          </Toggle>
+
+          {encrypted ? (
+            <FormField label={t('wizard.storage.Ebs.encrypted.kmsId')}>
+              <Input
+                value={kmsId}
+                onChange={({detail}) => {
+                  setState(kmsPath, detail.value)
+                }}
+              />
+            </FormField>
+          ) : null}
+        </FormField>
+        <FormField
+          label={t('wizard.storage.Ebs.snapshotId.label')}
+          info={
+            <InfoLink
+              helpPanel={
+                <TitleDescriptionHelpPanel
+                  title={t('wizard.storage.title')}
+                  description={
+                    <Trans i18nKey="wizard.storage.Ebs.snapshotId.help">
+                      <a
+                        rel="noreferrer"
+                        target="_blank"
+                        href="https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EbsSettings-SnapshotId"
+                      ></a>
+                    </Trans>
+                  }
+                />
+              }
+            />
+          }
+        >
+          <Toggle
+            checked={snapshotId !== null}
+            onChange={_event => {
+              setState(snapshotIdPath, snapshotId === null ? '' : null)
+            }}
+          >
+            {t('wizard.storage.Ebs.snapshotId.label')}
+          </Toggle>
+          {snapshotId !== null && (
+            <Input
+              value={snapshotId}
+              onChange={({detail}) => {
+                setState(snapshotIdPath, detail.value)
+              }}
+            />
+          )}
+        </FormField>
+        <FormField
+          label={t('wizard.storage.Ebs.deletionPolicy.label')}
+          info={
+            <InfoLink
+              helpPanel={
+                <TitleDescriptionHelpPanel
+                  title={t('wizard.storage.title')}
+                  description={
+                    <Trans i18nKey="wizard.storage.Ebs.deletionPolicy.help">
+                      <a
+                        rel="noreferrer"
+                        target="_blank"
+                        href="https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EbsSettings-DeletionPolicy"
+                      ></a>
+                    </Trans>
+                  }
+                />
+              }
+            />
+          }
+        >
           <Select
             selectedOption={strToOption(deletionPolicy || 'Delete')}
             onChange={({detail}) => {
@@ -797,17 +742,8 @@ function EbsSettings({index}: any) {
             }}
             options={deletionPolicies.map(strToOption)}
           />
-        </div>
-        <HelpTooltip>
-          <Trans i18nKey="wizard.storage.Ebs.deletionPolicy.help">
-            <a
-              rel="noreferrer"
-              target="_blank"
-              href="https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EbsSettings-DeletionPolicy"
-            ></a>
-          </Trans>
-        </HelpTooltip>
-      </div>
+        </FormField>
+      </ColumnLayout>
     </SpaceBetween>
   )
 }
@@ -888,47 +824,30 @@ function StorageInstance({index}: any) {
     >
       <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
         <ColumnLayout columns={2} borders="vertical">
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginTop: '10px',
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: '16px',
-              }}
-            >
-              <Trans i18nKey="wizard.storage.instance.mountPoint.label" />:
-              <Input
-                disabled={editing}
-                value={mountPoint}
-                onChange={({detail}) => {
-                  setState([...storagePath, index, 'MountDir'], detail.value)
-                }}
+          <FormField
+            label={t('wizard.storage.instance.mountPoint.label')}
+            info={
+              <InfoLink
+                helpPanel={
+                  <TitleDescriptionHelpPanel
+                    title={t('wizard.storage.title')}
+                    description={t('wizard.storage.instance.mountPoint.help')}
+                  />
+                }
               />
-            </div>
-            <HelpTooltip>
-              <Trans i18nKey="wizard.storage.instance.mountPoint.help" />
-            </HelpTooltip>
-          </div>
+            }
+          >
+            <Input
+              disabled={editing}
+              value={mountPoint}
+              onChange={({detail}) => {
+                setState([...storagePath, index, 'MountDir'], detail.value)
+              }}
+            />
+          </FormField>
           <div style={{display: 'flex', flexDirection: 'column'}}>
             {STORAGE_TYPE_PROPS[storageType].maxToCreate > 0 ? (
-              <div
-                style={{
-                  marginTop: '10px',
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}
-              >
+              <SpaceBetween direction="horizontal" size="xs">
                 <Toggle
                   disabled={!canToggle}
                   checked={useExisting}
@@ -936,26 +855,33 @@ function StorageInstance({index}: any) {
                 >
                   <Trans i18nKey="wizard.storage.instance.useExisting.label" />
                 </Toggle>
-                <HelpTooltip>
-                  <Trans i18nKey="wizard.storage.instance.useExisting.help">
-                    <a
-                      rel="noreferrer"
-                      target="_blank"
-                      href="https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-FileSystemId"
-                    ></a>
-                    <a
-                      rel="noreferrer"
-                      target="_blank"
-                      href="https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EfsSettings-FileSystemId"
-                    ></a>
-                    <a
-                      rel="noreferrer"
-                      target="_blank"
-                      href="https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EbsSettings-VolumeId"
-                    ></a>
-                  </Trans>
-                </HelpTooltip>
-              </div>
+                <InfoLink
+                  helpPanel={
+                    <TitleDescriptionHelpPanel
+                      title={t('wizard.storage.title')}
+                      description={
+                        <Trans i18nKey="wizard.storage.instance.useExisting.help">
+                          <a
+                            rel="noreferrer"
+                            target="_blank"
+                            href="https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-FsxLustreSettings-FileSystemId"
+                          ></a>
+                          <a
+                            rel="noreferrer"
+                            target="_blank"
+                            href="https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EfsSettings-FileSystemId"
+                          ></a>
+                          <a
+                            rel="noreferrer"
+                            target="_blank"
+                            href="https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html#yaml-SharedStorage-EbsSettings-VolumeId"
+                          ></a>
+                        </Trans>
+                      }
+                    />
+                  }
+                />
+              </SpaceBetween>
             ) : null}
             {useExisting &&
               {
