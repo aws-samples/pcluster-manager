@@ -39,7 +39,7 @@ cpio
 GPLv3+
 
 curl
-7.79.1-4.amzn2.0.1
+7.79.1-6.amzn2.0.1
 MIT
 
 cyrus-sasl-lib
@@ -63,7 +63,7 @@ elfutils-libelf
 GPLv2+ or LGPLv3+
 
 expat
-2.1.0-14.amzn2.0.1
+2.1.0-15.amzn2.0.1
 MIT
 
 file-libs
@@ -103,19 +103,19 @@ glib2
 LGPLv2+
 
 glibc
-2.26-60.amzn2
+2.26-62.amzn2
 LGPLv2+ and LGPLv2+ with exceptions and GPLv2+
 
 glibc-all-langpacks
-2.26-60.amzn2
+2.26-62.amzn2
 LGPLv2+ and LGPLv2+ with exceptions and GPLv2+
 
 glibc-common
-2.26-60.amzn2
+2.26-62.amzn2
 LGPLv2+ and LGPLv2+ with exceptions and GPLv2+
 
 glibc-minimal-langpack
-2.26-60.amzn2
+2.26-62.amzn2
 LGPLv2+ and LGPLv2+ with exceptions and GPLv2+
 
 gmp
@@ -171,7 +171,7 @@ libattr
 LGPLv2+
 
 libblkid
-2.30.2-2.amzn2.0.7
+2.30.2-2.amzn2.0.9
 LGPLv2+
 
 libcap
@@ -183,11 +183,11 @@ libcom_err
 MIT
 
 libcrypt
-2.26-60.amzn2
+2.26-62.amzn2
 LGPLv2+ and LGPLv2+ with exceptions and GPLv2+
 
 libcurl
-7.79.1-4.amzn2.0.1
+7.79.1-6.amzn2.0.1
 MIT
 
 libdb
@@ -223,7 +223,7 @@ libidn2
 (GPLv2+ or LGPLv3+) and GPLv3+
 
 libmount
-2.30.2-2.amzn2.0.7
+2.30.2-2.amzn2.0.9
 LGPLv2+
 
 libnghttp2
@@ -259,7 +259,7 @@ libunistring
 LGPLv3+
 
 libuuid
-2.30.2-2.amzn2.0.7
+2.30.2-2.amzn2.0.9
 BSD
 
 libverto
@@ -267,7 +267,7 @@ libverto
 MIT
 
 libxml2
-2.9.1-6.amzn2.5.5
+2.9.1-6.amzn2.5.6
 MIT
 
 lua
@@ -459,7 +459,7 @@ system-release
 GPLv2
 
 tzdata
-2022a-1.amzn2
+2022e-1.amzn2.0.1
 Public Domain
 
 urlgrabber
@@ -495,5 +495,5 @@ yum-plugin-ovl
 GPLv2+
 
 zlib
-1.2.7-19.amzn2.0.1
+1.2.7-19.amzn2.0.2
 zlib and Boost
