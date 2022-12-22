@@ -375,14 +375,10 @@
         "dynamicNodes": "DynamicNodes",
         "instanceType": "Instance Type",
         "disableHT": "Disable Hyperthreading",
-        "enableEfa": "Enable EFA",
-        "enableGpuDirect": "Enable EFA GPUDirect RDMA"
+        "enableEfa": "Enable EFA"
       },
       "addQueueButton": {
         "label": "Add queue"
-      },
-      "Gdr": {
-        "help": "Only for p4d.24xlarge, See <0>GdrSupport</0>."
       },
       "placementGroup": {
         "label": "Enable Placement Group"
