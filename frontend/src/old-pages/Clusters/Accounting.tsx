@@ -21,7 +21,6 @@ import {clusterDefaultUser, getIn, findFirst} from '../../util'
 import {JobStatusIndicator} from '../../components/Status'
 import EmptyState from '../../components/EmptyState'
 import Loading from '../../components/Loading'
-import HelpTooltip from '../../components/HelpTooltip'
 
 // UI Elements
 import {
@@ -41,6 +40,9 @@ import {
   Table,
   TextFilter,
 } from '@cloudscape-design/components'
+import InfoLink from '../../components/InfoLink'
+import TitleDescriptionHelpPanel from '../../components/help-panel/TitleDescriptionHelpPanel'
+import {useTranslation} from 'react-i18next'
 
 // Key:Value pair (label / children)
 const ValueWithLabel = ({label, children}: any) => (
@@ -229,6 +231,8 @@ function JobSteps({job}: any) {
 }
 
 function CostEstimate({job}: any) {
+  const {t} = useTranslation()
+
   return (
     <>
       <div
@@ -247,11 +251,14 @@ function CostEstimate({job}: any) {
             (getIn(job, ['time', 'elapsed']) / 3600.0)
           ).toFixed(5)}
         </span>
-        <HelpTooltip>
-          <b>Warning</b>This cost estimate is based on the time the job took,
-          the number of nodes and an estimate of the node cost. It could be
-          inaccurate and is just meant to be an overall estimate.
-        </HelpTooltip>
+        <InfoLink
+          helpPanel={
+            <TitleDescriptionHelpPanel
+              title={t('cluster.accounting.costEstimate.title')}
+              description={t('cluster.accounting.costEstimate.help')}
+            />
+          }
+        />
       </div>
     </>
   )
