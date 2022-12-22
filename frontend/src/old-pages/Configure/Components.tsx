@@ -43,9 +43,7 @@ import {
 } from '@cloudscape-design/components'
 
 // Components
-import HelpTooltip from '../../components/HelpTooltip'
 import {NonCancelableEventHandler} from '@cloudscape-design/components/internal/events'
-import {useHelpPanel} from '../../components/help-panel/HelpPanel'
 import TitleDescriptionHelpPanel from '../../components/help-panel/TitleDescriptionHelpPanel'
 import InfoLink from '../../components/InfoLink'
 
