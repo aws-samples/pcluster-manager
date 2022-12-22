@@ -9,16 +9,10 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import {ClusterStatus, ClusterDescription} from '../../types/clusters'
-import React from 'react'
+import React, {PropsWithChildren, ReactElement} from 'react'
 import {Trans, useTranslation} from 'react-i18next'
 import {findFirst, clusterDefaultUser} from '../../util'
-import {
-  getState,
-  useState,
-  setState,
-  ssmPolicy,
-  consoleDomain,
-} from '../../store'
+import {getState, useState, setState, ssmPolicy} from '../../store'
 import {DescribeCluster} from '../../model'
 
 // UI Elements
@@ -28,7 +22,6 @@ import {
   ColumnLayout,
   Container,
   Header,
-  Link,
   Popover,
   SpaceBetween,
   StatusIndicator,
@@ -41,14 +34,26 @@ import {
   ClusterStatusIndicator,
   ComputeFleetStatusIndicator,
 } from '../../components/Status'
-import HelpTooltip from '../../components/HelpTooltip'
+import TitleDescriptionHelpPanel from '../../components/help-panel/TitleDescriptionHelpPanel'
+import InfoLink from '../../components/InfoLink'
 
 // Key:Value pair (label / children)
-const ValueWithLabel = ({label, children}: any) => (
+const ValueWithLabel = ({
+  label,
+  children,
+  info,
+}: PropsWithChildren<{label: string; info?: ReactElement}>) => (
   <div>
-    <Box margin={{bottom: 'xxxs'}} color="text-label">
-      {label}
-    </Box>
+    <SpaceBetween direction="horizontal" size="s">
+      <Box
+        variant="awsui-key-label"
+        margin={{bottom: 'xxxs'}}
+        color="text-label"
+      >
+        {label}
+      </Box>
+      {info}
+    </SpaceBetween>
     <div>{children}</div>
   </div>
 )
@@ -91,47 +96,60 @@ export default function ClusterProperties() {
       <Container header={<Header variant="h3">Properties</Header>}>
         <ColumnLayout columns={3} variant="text-grid">
           <SpaceBetween size="l">
-          { headNode && headNode.publicIpAddress && (
-            <ValueWithLabel label={t('cluster.properties.sshcommand.label')}>
-              <div className="custom-wrapping">
-                <Box margin={{right: 'xxs'}} display="inline-block">
-                  <Popover
-                    size="small"
-                    position="top"
-                    dismissButton={false}
-                    triggerType="custom"
-                    content={
-                      <StatusIndicator type="success">
-                        {t('cluster.properties.sshcommand.success')}
-                      </StatusIndicator>
+            {headNode && headNode.publicIpAddress && (
+              <ValueWithLabel
+                label={t('cluster.properties.sshcommand.label')}
+                info={
+                  <InfoLink
+                    helpPanel={
+                      <TitleDescriptionHelpPanel
+                        title={t('cluster.properties.sshcommand.label')}
+                        description={
+                          <Trans i18nKey="cluster.properties.sshcommand.tooltiptext">
+                            <a
+                              rel="noreferrer"
+                              target="_blank"
+                              href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html#AccessingInstancesLinuxSSHClient"
+                            ></a>
+                          </Trans>
+                        }
+                      />
                     }
-                  >
-                    <Button
-                      variant="inline-icon"
-                      iconName="copy"
-                      ariaLabel={t('cluster.properties.sshcommand.help')}
-                      onClick={() => {
-                        navigator.clipboard.writeText(
-                          `ssh ${clusterDefaultUser(cluster)}@${headNode.publicIpAddress}`
-                        )
-                      }}
+                  />
+                }
+              >
+                <div className="custom-wrapping">
+                  <Box margin={{right: 'xxs'}} display="inline-block">
+                    <Popover
+                      size="small"
+                      position="top"
+                      dismissButton={false}
+                      triggerType="custom"
+                      content={
+                        <StatusIndicator type="success">
+                          {t('cluster.properties.sshcommand.success')}
+                        </StatusIndicator>
+                      }
                     >
-                      copy
-                    </Button>
-                  </Popover>
-                </Box>
-                ssh {clusterDefaultUser(cluster)}@{headNode.publicIpAddress}
-                <HelpTooltip>
-                  <Trans i18nKey="cluster.properties.sshcommand.tooltiptext">
-                    <a
-                      rel="noreferrer"
-                      target="_blank"
-                      href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html#AccessingInstancesLinuxSSHClient"
-                    ></a>
-                  </Trans>
-                </HelpTooltip>
-              </div>
-            </ValueWithLabel>
+                      <Button
+                        variant="inline-icon"
+                        iconName="copy"
+                        ariaLabel={t('cluster.properties.sshcommand.help')}
+                        onClick={() => {
+                          navigator.clipboard.writeText(
+                            `ssh ${clusterDefaultUser(cluster)}@${
+                              headNode.publicIpAddress
+                            }`,
+                          )
+                        }}
+                      >
+                        copy
+                      </Button>
+                    </Popover>
+                  </Box>
+                  ssh {clusterDefaultUser(cluster)}@{headNode.publicIpAddress}
+                </div>
+              </ValueWithLabel>
             )}
             <ValueWithLabel label="clusterConfiguration">
               <Button
@@ -168,7 +186,34 @@ export default function ClusterProperties() {
               headNode.publicIpAddress &&
               headNode.publicIpAddress !== '' &&
               ssmEnabled && (
-                <ValueWithLabel label="EC2 Instance Connect">
+                <ValueWithLabel
+                  label={t('cluster.properties.ec2InstanceConnect.label')}
+                  info={
+                    <InfoLink
+                      helpPanel={
+                        <TitleDescriptionHelpPanel
+                          title={t(
+                            'cluster.properties.ec2InstanceConnect.label',
+                          )}
+                          description={
+                            <Trans i18nKey="cluster.properties.ec2InstanceConnect.help">
+                              <a
+                                rel="noreferrer"
+                                target="_blank"
+                                href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-connect-set-up.html"
+                              />
+                              <a
+                                rel="noreferrer"
+                                target="_blank"
+                                href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-connect-set-up.html"
+                              />
+                            </Trans>
+                          }
+                        />
+                      }
+                    />
+                  }
+                >
                   <Box margin={{right: 'xxs'}} display="inline-block">
                     <Popover
                       size="small"
@@ -199,25 +244,6 @@ export default function ClusterProperties() {
                         copy
                       </Button>
                     </Popover>
-                    <HelpTooltip>
-                      This copies the command to connect to the HeadNode using{' '}
-                      <a
-                        rel="noreferrer"
-                        target="_blank"
-                        href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-connect-set-up.html"
-                      >
-                        EC2 Instance Connect
-                      </a>
-                      . You will need to{' '}
-                      <a
-                        rel="noreferrer"
-                        target="_blank"
-                        href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-connect-set-up.html"
-                      >
-                        install mSSH helper
-                      </a>{' '}
-                      locally before running this command.
-                    </HelpTooltip>
                   </Box>
                 </ValueWithLabel>
               )}
