@@ -45,6 +45,10 @@
         "success": "SSH Command copied",
         "help": "Copy SSH Command",
         "tooltiptext": "Command to SSH into the HeadNode. If the keypair you used to create the HeadNode isn't default, you'll need to specify the path to the keypair. See <0>Connect to your Linux instance using an SSH Client</0> for more info."
+      },
+      "ec2InstanceConnect": {
+        "label": "EC2 Instance Connect",
+        "help": "This copies the command to connect to the HeadNode using <0>EC2 Instance Connect</0>. You will need to <1>install mSSH helper</1> locally before running this command."
       }
     },
     "list": {
