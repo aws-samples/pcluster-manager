@@ -600,14 +600,10 @@ def list_users():
 
 
 def delete_user():
-    try:
-        cognito = boto3.client("cognito-idp")
-        username = request.args.get("username")
-        cognito.admin_delete_user(UserPoolId=USER_POOL_ID, Username=username)
-        return {"Username": username}
-    except Exception as e:
-        return {"message": str(e)}, 500
-
+    cognito = boto3.client("cognito-idp")
+    username = request.args.get("username")
+    cognito.admin_delete_user(UserPoolId=USER_POOL_ID, Username=username)
+    return {"Username": username}
 
 def create_user():
     try:
