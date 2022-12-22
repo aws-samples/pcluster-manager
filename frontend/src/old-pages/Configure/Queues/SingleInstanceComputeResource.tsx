@@ -8,7 +8,6 @@ import {
 } from '@cloudscape-design/components'
 import {useEffect} from 'react'
 import {Trans, useTranslation} from 'react-i18next'
-import HelpTooltip from '../../../components/HelpTooltip'
 import {clearState, getState, setState, useState} from '../../../store'
 import {HelpTextInput, InstanceSelect} from '../Components'
 import {
@@ -58,11 +57,6 @@ export function ComputeResource({index, queueIndex, computeResource}: any) {
     'PlacementGroup',
     'Enabled',
   ]
-
-  const enableGPUDirectPath = [...path, 'Efa', 'GdrSupport'] || false
-  const enableGPUDirect = useState(enableGPUDirectPath)
-
-  const instanceSupportsGdr = instanceType === 'p4d.24xlarge'
 
   const minCount = useState([...path, 'MinCount'])
   const maxCount = useState([...path, 'MaxCount'])
@@ -125,11 +119,6 @@ export function ComputeResource({index, queueIndex, computeResource}: any) {
       clearState(efaPath)
       clearState(enablePlacementGroupPath)
     }
-  }
-
-  const setEnableGPUDirect = (enable: any) => {
-    if (enable) setState(enableGPUDirectPath, enable)
-    else clearState(enableGPUDirectPath)
   }
 
   const setInstanceType = (instanceType: any) => {
@@ -231,32 +220,6 @@ export function ComputeResource({index, queueIndex, computeResource}: any) {
           >
             <Trans i18nKey="wizard.queues.computeResource.enableEfa" />
           </Toggle>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-            }}
-          >
-            <Toggle
-              disabled={!instanceSupportsGdr}
-              checked={enableGPUDirect}
-              onChange={_e => {
-                setEnableGPUDirect(!enableGPUDirect)
-              }}
-            >
-              <Trans i18nKey="wizard.queues.computeResource.enableGpuDirect" />
-            </Toggle>
-            <HelpTooltip>
-              <Trans i18nKey="wizard.queues.Gdr.help">
-                <a
-                  rel="noreferrer"
-                  target="_blank"
-                  href="https://docs.aws.amazon.com/parallelcluster/latest/ug/Scheduling-v3.html#yaml-Scheduling-SlurmQueues-ComputeResources-Efa-GdrSupport"
-                ></a>
-              </Trans>
-            </HelpTooltip>
-          </div>
         </div>
       </div>
     </div>
