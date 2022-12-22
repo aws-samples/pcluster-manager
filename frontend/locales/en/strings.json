@@ -95,6 +95,12 @@
         "noClusterSelectedText": "No cluster selected",
         "selectClusterText": "Select a cluster to see its details"
       }
+    },
+    "accounting": {
+      "costEstimate": {
+        "title": "Cost Estimate",
+        "help": "This cost estimate is based on the time the job took, the number of nodes and an estimate of the node cost. It could be inaccurate and is just meant to be an overall estimate."
+      }
     }
   },
   "wizard": {
