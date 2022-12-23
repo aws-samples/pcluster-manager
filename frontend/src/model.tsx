@@ -103,7 +103,6 @@ function CreateCluster(
     })
     .catch((error: any) => {
       if (error.response) {
-        //notify(`Error (${clusterName}): ${error.response.data.message}`, 'error');
         errorCallback && errorCallback(error.response.data)
         console.log(error.response.data)
       }
@@ -139,10 +138,6 @@ function UpdateCluster(
     })
     .catch((error: any) => {
       if (error.response) {
-        notify(
-          `Error (${clusterName}): ${error.response.data.message}`,
-          'error',
-        )
         errorCallback && errorCallback(error.response.data)
         console.log(error.response.data)
       }
