@@ -17,12 +17,12 @@ import {
   Alert,
   Toggle,
   SpaceBetween,
-  Popover,
-  Link,
 } from '@cloudscape-design/components'
 import {setState, getState, useState, clearState} from '../../../store'
 import {Queue} from './queues.types'
 import {useFeatureFlag} from '../../../feature-flags/useFeatureFlag'
+import TitleDescriptionHelpPanel from '../../../components/help-panel/TitleDescriptionHelpPanel'
+import InfoLink from '../../../components/InfoLink'
 
 const slurmSettingsPath = [
   'app',
@@ -82,29 +82,28 @@ function SlurmMemorySettings() {
   return (
     <Container
       header={
-        <Header variant="h2">
-          <SpaceBetween size="xs" direction="horizontal">
-            {t('wizard.queues.slurmMemorySettings.container.title')}
-            <Popover
-              dismissButton={true}
-              position="right"
-              size="small"
-              triggerType="custom"
-              content={
-                <Trans i18nKey="wizard.queues.slurmMemorySettings.container.help">
-                  <a
-                    rel="noopener noreferrer"
-                    target="_blank"
-                    href="https://slurm.schedmd.com/cgroup.conf.html#OPT_ConstrainRAMSpace"
-                  ></a>
-                </Trans>
+        <Header
+          variant="h2"
+          info={
+            <InfoLink
+              helpPanel={
+                <TitleDescriptionHelpPanel
+                  title={t('wizard.queues.slurmMemorySettings.container.title')}
+                  description={
+                    <Trans i18nKey="wizard.queues.slurmMemorySettings.container.help">
+                      <a
+                        rel="noopener noreferrer"
+                        target="_blank"
+                        href="https://slurm.schedmd.com/cgroup.conf.html#OPT_ConstrainRAMSpace"
+                      ></a>
+                    </Trans>
+                  }
+                />
               }
-            >
-              <Link variant="info">
-                {t('wizard.queues.slurmMemorySettings.container.info')}
-              </Link>
-            </Popover>
-          </SpaceBetween>
+            />
+          }
+        >
+          {t('wizard.queues.slurmMemorySettings.container.title')}
         </Header>
       }
     >
