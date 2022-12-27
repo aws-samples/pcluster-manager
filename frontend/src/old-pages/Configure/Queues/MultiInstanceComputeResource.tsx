@@ -9,7 +9,7 @@ import {
   Toggle,
 } from '@cloudscape-design/components'
 import {NonCancelableEventHandler} from '@cloudscape-design/components/internal/events'
-import {useCallback, useMemo} from 'react'
+import {useCallback, useEffect, useMemo} from 'react'
 import {Trans, useTranslation} from 'react-i18next'
 import {clearState, setState, useState} from '../../../store'
 import {HelpTextInput, useInstanceGroups} from '../Components'
@@ -33,7 +33,12 @@ export function allInstancesSupportEFA(
   return instances.every(instance => efaInstances.has(instance.InstanceType))
 }
 
-export function ComputeResource({index, queueIndex, computeResource}: any) {
+export function ComputeResource({
+  index,
+  queueIndex,
+  computeResource,
+  canUseEFA,
+}: any) {
   const parentPath = useMemo(() => [...queuesPath, queueIndex], [queueIndex])
   const computeResources: MultiInstanceComputeResource[] = useState([
     ...parentPath,
@@ -62,18 +67,13 @@ export function ComputeResource({index, queueIndex, computeResource}: any) {
   const disableHTPath = [...path, 'DisableSimultaneousMultithreading']
   const disableHT = useState(disableHTPath)
 
-  const efaPath = [...path, 'Efa']
-
   const efaInstances = new Set<string>(useState(['aws', 'efa_instance_types']))
-  const enableEFAPath = [...path, 'Efa', 'Enabled']
-  const enableEFA = useState(enableEFAPath) || false
+  const enableEFA = useState([...path, 'Efa', 'Enabled']) || false
 
-  const enablePlacementGroupPath = [
-    ...parentPath,
-    'Networking',
-    'PlacementGroup',
-    'Enabled',
-  ]
+  const enablePlacementGroupPath = useMemo(
+    () => [...parentPath, 'Networking', 'PlacementGroup', 'Enabled'],
+    [parentPath],
+  )
 
   const minCount = useState([...path, 'MinCount'])
   const maxCount = useState([...path, 'MaxCount'])
@@ -148,15 +148,21 @@ export function ComputeResource({index, queueIndex, computeResource}: any) {
   const setEnableEFA = useCallback(
     (enable: any) => {
       if (enable) {
-        setState(enableEFAPath, enable)
+        setState([...path, 'Efa', 'Enabled'], enable)
         setState(enablePlacementGroupPath, enable)
       } else {
-        clearState(efaPath)
+        clearState([...path, 'Efa'])
         clearState(enablePlacementGroupPath)
       }
     },
-    [efaPath, enablePlacementGroupPath, enableEFAPath],
+    [enablePlacementGroupPath, path],
   )
+
+  useEffect(() => {
+    if (!canUseEFA) {
+      setEnableEFA(false)
+    }
+  }, [canUseEFA, setEnableEFA])
 
   const setInstances: NonCancelableEventHandler<MultiselectProps.MultiselectChangeDetail> =
     useCallback(
@@ -242,7 +248,9 @@ export function ComputeResource({index, queueIndex, computeResource}: any) {
             <Trans i18nKey="wizard.queues.computeResource.disableHT" />
           </Toggle>
           <Toggle
-            disabled={!allInstancesSupportEFA(instances, efaInstances)}
+            disabled={
+              !allInstancesSupportEFA(instances, efaInstances) || !canUseEFA
+            }
             checked={enableEFA}
             onChange={_e => {
               setEnableEFA(!enableEFA)
