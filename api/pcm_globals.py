@@ -3,7 +3,7 @@ from contextvars import ContextVar
 from flask.scaffold import Scaffold
 from werkzeug.local import LocalProxy
 
-from api.logger import DefaultLogger
+from api.logging.logger import DefaultLogger
 
 _logger_ctxvar = ContextVar('pcm_logger')
 

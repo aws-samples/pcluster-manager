@@ -1,4 +1,4 @@
-from api.logger import DefaultLogger
+from api.logging.logger import DefaultLogger
 import logging
 
 
