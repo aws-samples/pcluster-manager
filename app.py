@@ -184,24 +184,14 @@ def run():
     @authenticated(ADMINS_GROUP)
     @csrf_needed
     def push_log():
-        if 'level' not in request.json or 'message' not in request.json:
-            raise ValueError('Request body missing one or more mandatory fields ["message", "level"]')
+        if type(request.json) != list:
+            raise ValueError('Body must be a list of log entries')
 
-        _json = request.json.get
-        level, message, extra = _json('level'), _json('message'), _json('extra')
-        if not (extra is None or type(extra) is dict):
-            raise ValueError('Extra param must be a valid json object')
+        for entry in request.json:
+            level, message, extra = parse_log_entry(logger, entry)
+            log_from_frontend(logger, level, message, extra)
 
-        logging_fun = getattr(logger, level.lower(), None)
-
-        if logging_fun is None:
-            raise ValueError('Invalid logging level requested')
-
-        extra = {} if extra is None else extra
-        extra['source'] = 'frontend'
-        logging_fun(message, extra=extra)
-        return Response(status=200)
-
+        return {}, 200
 
     @app.route('/<regex("(home|clusters|users|configure|custom-images|official-images).*"):base>', defaults={"base": ""})
     def catch_all(base):
