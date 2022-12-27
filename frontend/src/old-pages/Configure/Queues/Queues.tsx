@@ -228,7 +228,7 @@ function queuesValidate() {
   return valid
 }
 
-function ComputeResources({queue, index}: any) {
+function ComputeResources({queue, index, canUseEFA}: any) {
   const {ViewComponent} = useComputeResourceAdapter()
   return (
     <Container>
@@ -239,6 +239,7 @@ function ComputeResources({queue, index}: any) {
           index={i}
           queueIndex={index}
           key={i}
+          canUseEFA={canUseEFA}
         />
       ))}
     </Container>
@@ -269,13 +270,10 @@ function Queue({index}: any) {
   const [editingName, setEditingName] = React.useState(false)
   const computeResourceAdapter = useComputeResourceAdapter()
   const queue = useState([...queuesPath, index])
-  const enablePlacementGroupPath = [
-    ...queuesPath,
-    index,
-    'Networking',
-    'PlacementGroup',
-    'Enabled',
-  ]
+  const enablePlacementGroupPath = React.useMemo(
+    () => [...queuesPath, index, 'Networking', 'PlacementGroup', 'Enabled'],
+    [index],
+  )
   const enablePlacementGroup = useState(enablePlacementGroupPath)
 
   const isMultiInstanceTypesActive = useFeatureFlag(
@@ -300,6 +298,7 @@ function Queue({index}: any) {
   const capacityType: string = useState(capacityTypePath) || 'ONDEMAND'
 
   const subnetPath = [...queuesPath, index, 'Networking', 'SubnetIds']
+  const subnetsList = useState(subnetPath) || []
   const subnetValue = useState([...subnetPath, 0]) || ''
 
   const remove = () => {
@@ -319,9 +318,19 @@ function Queue({index}: any) {
     })
   }
 
-  const setEnablePG = (enable: any) => {
-    setState(enablePlacementGroupPath, enable)
-  }
+  const setEnablePG = React.useCallback(
+    (enable: any) => {
+      setState(enablePlacementGroupPath, enable)
+    },
+    [enablePlacementGroupPath],
+  )
+
+  const {canUseEFA, canUsePlacementGroup} = areMultiAZSelected(subnetsList)
+  React.useEffect(() => {
+    if (!canUsePlacementGroup) {
+      setEnablePG(false)
+    }
+  }, [canUsePlacementGroup, setEnablePG])
 
   const renameQueue = (newName: any) => {
     const computeResources = getState([
@@ -436,6 +445,7 @@ function Queue({index}: any) {
         <Box variant="div" margin={{vertical: 'xs'}}>
           <Toggle
             checked={enablePlacementGroup}
+            disabled={!canUsePlacementGroup}
             onChange={_e => {
               setEnablePG(!enablePlacementGroup)
             }}
@@ -443,7 +453,7 @@ function Queue({index}: any) {
             <Trans i18nKey="wizard.queues.placementGroup.label" />
           </Toggle>
         </Box>
-        <ComputeResources queue={queue} index={index} />
+        <ComputeResources queue={queue} index={index} canUseEFA={canUseEFA} />
         <ExpandableSection header="Advanced options">
           <SpaceBetween direction="vertical" size="s">
             <FormField label={t('wizard.queues.securityGroups.label')}>
@@ -560,6 +570,21 @@ export const useComputeResourceAdapter = () => {
         createComputeResource: MultiInstanceCR.createComputeResource,
         validateComputeResources: MultiInstanceCR.validateComputeResources,
       }
+}
+
+export const areMultiAZSelected = (subnets: string[]) => {
+  if (subnets.length <= 1) {
+    return {
+      multiAZ: false,
+      canUseEFA: true,
+      canUsePlacementGroup: true,
+    }
+  }
+  return {
+    multiAZ: true,
+    canUseEFA: false,
+    canUsePlacementGroup: false,
+  }
 }
 
 export {Queues, queuesValidate}
