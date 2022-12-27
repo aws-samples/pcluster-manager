@@ -1,7 +1,7 @@
 TemplateURL: https://pcluster-manager-github-infrastructurebucket-7y5h202iem8l.s3.eu-west-1.amazonaws.com/pcluster-manager.yaml
 Parameters:
   - ParameterKey: Version
-    ParameterValue: 3.3.0
+    ParameterValue: 3.4.0
   - ParameterKey: InfrastructureBucket
     ParameterValue: https://pcluster-manager-github-infrastructurebucket-7y5h202iem8l.s3.eu-west-1.amazonaws.com
   - ParameterKey: AdminUserEmail
