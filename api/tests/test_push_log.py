@@ -13,7 +13,7 @@ def disable_auth(monkeypatch):
 
 def test_push_log_controller_with_valid_json_no_extra(client, caplog, disable_auth, mock_csrf_needed):
     request_body = [{'message': 'sample-message', 'level': 'info'}]
-    expected_log = "INFO     pcluster-manager:logger.py:24 {'source': 'frontend', 'message': 'sample-message'}"
+    expected_log = "INFO     pcluster-manager:logger.py:24 {'message': 'sample-message'}"
 
     caplog.clear()
     response = client.post('/logs', json=request_body)
@@ -25,7 +25,7 @@ def test_push_log_controller_with_valid_json_no_extra(client, caplog, disable_au
 def test_push_log_controller_with_valid_json_with_extra(client, caplog, disable_auth, mock_csrf_needed):
     request_body = [{'message': 'sample-message', 'level': 'error',
                     'extra': {'extra_1': 'value_1', 'extra_2': 'value_2'}}]
-    expected_log = "ERROR    pcluster-manager:logger.py:30 {'extra_1': 'value_1', 'extra_2': 'value_2', 'source': 'frontend', 'message': 'sample-message'}"
+    expected_log = "ERROR    pcluster-manager:logger.py:30 {'extra_1': 'value_1', 'extra_2': 'value_2', 'message': 'sample-message'}"
 
     caplog.clear()
     response = client.post('/logs', json=request_body)
