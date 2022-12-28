@@ -146,4 +146,16 @@ export default function loadTemplate(config: any, callback?: () => void) {
   }
 }
 
-export {loadTemplate}
+function subnetName(subnet: any) {
+  if (!subnet) return null
+  var tags = subnet.Tags
+  if (!tags) {
+    return null
+  }
+  tags = subnet.Tags.filter((t: any) => {
+    return t.Key === 'Name'
+  })
+  return tags.length > 0 ? tags[0].Value : null
+}
+
+export {loadTemplate, subnetName}
