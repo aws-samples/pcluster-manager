@@ -189,7 +189,7 @@ def run():
 
         for entry in request.json:
             level, message, extra = parse_log_entry(logger, entry)
-            push_log_entry(logger, level, message, extra, 'frontend')
+            push_log_entry(logger, level, message, extra)
 
         return {}, 200
 
