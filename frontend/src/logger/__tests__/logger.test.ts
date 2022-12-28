@@ -23,6 +23,9 @@ describe('given the application config', () => {
         const expectedLogEntry = {
           message: 'info message',
           level: 'INFO',
+          extra: {
+            source: 'frontend',
+          },
         }
         expect(mockedExecuteRequest).toHaveBeenCalledTimes(1)
         expect(mockedExecuteRequest).toHaveBeenCalledWith(
@@ -45,6 +48,7 @@ describe('given the application config', () => {
           extra: {
             extra1: 'value1',
             extra2: 'value2',
+            source: 'frontend',
           },
         }
 
@@ -57,6 +61,34 @@ describe('given the application config', () => {
         expect(response.status).toBe(200)
       })
 
+      it('should successfully push a log entry with a `source` parameter', async () => {
+        const response = await logger.error(
+          'error message',
+          {
+            extra1: 'value1',
+            extra2: 'value2',
+          },
+          'different-source',
+        )
+
+        const expectedLogEntry = {
+          message: 'error message',
+          level: 'ERROR',
+          extra: {
+            extra1: 'value1',
+            extra2: 'value2',
+            source: 'different-source',
+          },
+        }
+
+        expect(mockedExecuteRequest).toHaveBeenCalledTimes(1)
+        expect(mockedExecuteRequest).toHaveBeenCalledWith(
+          expectedMethod,
+          expectedPath,
+          expectedLogEntry,
+        )
+      })
+
       it('logs a warning about the impossiblity to push the log entry', async () => {
         const logSpy = jest.spyOn(console, 'warn')
         mockedExecuteRequest.mockRejectedValueOnce({
@@ -67,6 +99,7 @@ describe('given the application config', () => {
         await logger.error('error message', {
           extra1: 'value1',
           extra2: 'value2',
+          source: 'frontend',
         })
 
         expect(logSpy).toHaveBeenCalledWith('Unable to push log entry')
