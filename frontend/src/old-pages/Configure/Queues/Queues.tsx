@@ -26,6 +26,7 @@ import {
   Select,
   SpaceBetween,
   Toggle,
+  MultiselectProps,
 } from '@cloudscape-design/components'
 
 // State
@@ -37,9 +38,9 @@ import {
   CustomAMISettings,
   LabeledIcon,
   RootVolume,
-  SubnetSelect,
   SecurityGroups,
   IamPoliciesEditor,
+  SubnetSelect,
 } from '../Components'
 import {Trans, useTranslation} from 'react-i18next'
 import {SlurmMemorySettings} from './SlurmMemorySettings'
@@ -50,6 +51,8 @@ import {
 import * as SingleInstanceCR from './SingleInstanceComputeResource'
 import * as MultiInstanceCR from './MultiInstanceComputeResource'
 import {AllocationStrategy, ComputeResource} from './queues.types'
+import {SubnetMultiSelect} from './SubnetMultiSelect'
+import {NonCancelableEventHandler} from '@cloudscape-design/components/internal/events'
 
 // Constants
 const queuesPath = ['app', 'wizard', 'config', 'Scheduling', 'SlurmQueues']
@@ -171,17 +174,21 @@ function queueValidate(queueIndex: any) {
     clearState([...errorsPath, 'customAmi'])
   }
 
+  const version = getState(['app', 'version', 'full'])
+  const isMultiAZActive = isFeatureEnabled(version, 'multi_az')
   if (!queueSubnet) {
-    setState(
-      [...errorsPath, 'subnet'],
-      i18next.t('wizard.queues.validation.selectSubnet'),
-    )
+    let message: string
+    if (isMultiAZActive) {
+      message = i18next.t('wizard.queues.validation.selectSubnets')
+    } else {
+      message = i18next.t('wizard.queues.validation.selectSubnet')
+    }
+    setState([...errorsPath, 'subnet'], message)
     valid = false
   } else {
     setState([...errorsPath, 'subnet'], null)
   }
 
-  const version = getState(['app', 'version', 'full'])
   const isMultiInstanceTypesActive = isFeatureEnabled(
     version,
     'queues_multiple_instance_types',
@@ -299,7 +306,7 @@ function Queue({index}: any) {
 
   const subnetPath = [...queuesPath, index, 'Networking', 'SubnetIds']
   const subnetsList = useState(subnetPath) || []
-  const subnetValue = useState([...subnetPath, 0]) || ''
+  const isMultiAZActive = useFeatureFlag('multi_az')
 
   const remove = () => {
     setState(
@@ -323,6 +330,22 @@ function Queue({index}: any) {
       setState(enablePlacementGroupPath, enable)
     },
     [enablePlacementGroupPath],
+  )
+
+  const onSubnetMultiSelectChange: NonCancelableEventHandler<MultiselectProps.MultiselectChangeDetail> =
+    React.useCallback(
+      ({detail}) => {
+        setSubnetsAndValidate(index, queueValidate, detail)
+      },
+      [index],
+    )
+
+  const onSubnetSelectChange = React.useCallback(
+    (subnetId: string) => {
+      setState(subnetPath, [subnetId])
+      queueValidate(index)
+    },
+    [subnetPath, index],
   )
 
   const {canUseEFA, canUsePlacementGroup} = areMultiAZSelected(subnetsList)
@@ -402,16 +425,24 @@ function Queue({index}: any) {
         </Box>
         <ColumnLayout columns={2}>
           <FormField
-            label={t('wizard.queues.subnet.label')}
+            label={
+              isMultiAZActive
+                ? t('wizard.queues.subnet.label.multiple')
+                : t('wizard.queues.subnet.label.single')
+            }
             errorText={subnetError}
           >
-            <SubnetSelect
-              value={subnetValue}
-              onChange={(subnetId: any) => {
-                setState(subnetPath, [subnetId])
-                queueValidate(index)
-              }}
-            />
+            {isMultiAZActive ? (
+              <SubnetMultiSelect
+                value={subnetsList}
+                onChange={onSubnetMultiSelectChange}
+              />
+            ) : (
+              <SubnetSelect
+                value={subnetsList[0]}
+                onChange={onSubnetSelectChange}
+              />
+            )}
           </FormField>
           <FormField label={t('wizard.queues.purchaseType.label')}>
             <Select
@@ -585,6 +616,27 @@ export const areMultiAZSelected = (subnets: string[]) => {
     canUseEFA: false,
     canUsePlacementGroup: false,
   }
+}
+
+export function setSubnetsAndValidate(
+  queueIndex: number,
+  queueValidate: (index: number) => boolean,
+  detail: MultiselectProps.MultiselectChangeDetail,
+) {
+  const subnetPath = [
+    'app',
+    'wizard',
+    'config',
+    'Scheduling',
+    'SlurmQueues',
+    queueIndex,
+    'Networking',
+    'SubnetIds',
+  ]
+  const subnetIds =
+    detail.selectedOptions.map((option: any) => option.value) || []
+  setState(subnetPath, subnetIds)
+  queueValidate(queueIndex)
 }
 
 export {Queues, queuesValidate}

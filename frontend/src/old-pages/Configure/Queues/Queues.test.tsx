@@ -4,6 +4,18 @@ import {
   validateComputeResources,
 } from './MultiInstanceComputeResource'
 
+jest.mock('../../../store', () => {
+  const originalModule = jest.requireActual('../../../store')
+  return {
+    __esModule: true,
+    ...originalModule,
+    setState: jest.fn(),
+  }
+})
+
+import {setState} from '../../../store'
+import {setSubnetsAndValidate} from './Queues'
+
 describe('Given a list of instances', () => {
   const subject = allInstancesSupportEFA
   const efaInstances = new Set<string>(['t2.micro', 't2.medium'])
@@ -42,6 +54,33 @@ describe('Given a list of queues', () => {
   describe('when creating a new compute resource', () => {
     it('should create it with a default instance type', () => {
       expect(subject(0, 0).Instances).toHaveLength(1)
+    })
+  })
+})
+
+describe('Given a queue', () => {
+  const subject = setSubnetsAndValidate
+  describe('when selecting a list of subnets', () => {
+    const detail = {selectedOptions: [{value: 'subnet-1'}, {value: 'subnet-2'}]}
+    const queueIndex = 0
+    const subnetPath = [
+      'app',
+      'wizard',
+      'config',
+      'Scheduling',
+      'SlurmQueues',
+      queueIndex,
+      'Networking',
+      'SubnetIds',
+    ]
+    const queueValidate = jest.fn()
+    it('should set the correspondent state and validate the queue', () => {
+      subject(queueIndex, queueValidate, detail)
+      expect(setState).toHaveBeenCalledWith(subnetPath, [
+        'subnet-1',
+        'subnet-2',
+      ])
+      expect(queueValidate).toHaveBeenCalledWith(queueIndex)
     })
   })
 })
