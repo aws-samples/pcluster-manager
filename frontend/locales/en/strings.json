@@ -347,6 +347,7 @@
         "instanceTypeUnique": "Instance types must be unique within a Queue.",
         "instanceTypeMissing": "Select at least once instance type.",
         "selectSubnet": "You must select a Subnet.",
+        "selectSubnets": "You must select at least one Subnet.",
         "setRootVolumeSize": "You must set a RootVolume size.",
         "rootVolumeMinimum": "You must use an integer >= 35GB for Root Volume Size.",
         "scriptWithArgs": "You must specify a script path if you specify args.",
@@ -393,7 +394,10 @@
         "label": "Enable Placement Group"
       },
       "subnet": {
-        "label": "Subnet ID"
+        "label": {
+          "single": "Subnet ID",
+          "multiple": "Subnet IDs"
+        }
       },
       "purchaseType": {
         "label": "Purchase Type"
