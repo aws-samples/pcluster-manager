@@ -6,7 +6,7 @@ def test_boto3_exception_handler(client, client_error_response, app, monkeypatch
     response = client.delete('/manager/delete_user', json={'username': 'some-user'})
 
     assert response.status_code == 400
-    assert response.json == {'code': 400, 'message': 'Operation failed'}
+    assert response.json == {'code': 400, 'message': 'Something went wrong while invoking other AWS services'}
 
 def test_value_error_exception_handler(client, app, monkeypatch):
     def push_log_raising():
