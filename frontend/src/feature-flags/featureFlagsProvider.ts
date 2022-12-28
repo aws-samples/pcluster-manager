@@ -21,6 +21,7 @@ const versionToFeaturesMap: Record<string, AvailableFeature[]> = {
     'slurm_queue_update_strategy',
   ],
   '3.3.0': ['slurm_accounting', 'queues_multiple_instance_types'],
+  '3.4.0': ['on_node_updated'],
 }
 
 function composeFlagsListByVersion(currentVersion: string): AvailableFeature[] {
