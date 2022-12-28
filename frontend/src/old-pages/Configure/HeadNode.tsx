@@ -42,12 +42,13 @@ import {
 
 // Components
 import {
-  ActionsEditor,
+  HeadNodeActionsEditor,
   InstanceSelect,
   RootVolume,
   SecurityGroups,
   SubnetSelect,
   IamPoliciesEditor,
+  ActionsEditor,
 } from './Components'
 import {useFeatureFlag} from '../../feature-flags/useFeatureFlag'
 import {
@@ -83,6 +84,9 @@ function headNodeValidate() {
 
   const onConfiguredPath = [...actionsPath, 'OnNodeConfigured']
   const onConfigured = getState(onConfiguredPath)
+
+  const onUpdatedPath = [...actionsPath, 'OnNodeUpdated']
+  const onUpdated = getState(onUpdatedPath)
 
   let valid = true
 
@@ -151,6 +155,20 @@ function headNodeValidate() {
     valid = false
   } else {
     clearState([...errorsPath, 'onConfigured'])
+  }
+
+  if (
+    onUpdated &&
+    getState([...onUpdatedPath, 'Args']) &&
+    !getState([...onUpdatedPath, 'Script'])
+  ) {
+    setState(
+      [...errorsPath, 'onUpdated'],
+      i18next.t('wizard.headNode.validation.scriptWithArgs'),
+    )
+    valid = false
+  } else {
+    clearState([...errorsPath, 'onUpdated'])
   }
 
   valid = validateSlurmSettings()
@@ -384,7 +402,7 @@ function HeadNode() {
   const subnetErrors = useState([...errorsPath, 'subnet'])
   const subnetValue = useState(subnetPath) || ''
   const editing = useState(['app', 'wizard', 'editing'])
-  let isSlurmAccountingActive = useFeatureFlag('slurm_accounting')
+  const isOnNodeUpdatedActive = useFeatureFlag('on_node_updated')
 
   const toggleImdsSecured = () => {
     const setImdsSecured = !imdsSecured
@@ -464,7 +482,14 @@ function HeadNode() {
             <SecurityGroups basePath={headNodePath} />
           </FormField>
           <ExpandableSection header="Advanced options">
-            <ActionsEditor basePath={headNodePath} errorsPath={errorsPath} />
+            {isOnNodeUpdatedActive ? (
+              <HeadNodeActionsEditor
+                basePath={headNodePath}
+                errorsPath={errorsPath}
+              />
+            ) : (
+              <ActionsEditor basePath={headNodePath} errorsPath={errorsPath} />
+            )}
             <ExpandableSection header="IAM Policies">
               <IamPoliciesEditor basePath={headNodePath} />
             </ExpandableSection>
