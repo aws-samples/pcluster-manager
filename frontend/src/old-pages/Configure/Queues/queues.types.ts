@@ -26,3 +26,16 @@ export type ComputeResourceInstance = {InstanceType: string}
 export type MultiInstanceComputeResource = ComputeResource & {
   Instances: ComputeResourceInstance[]
 }
+
+export type Tag = {
+  Key: string
+  Value: string
+}
+
+export type Subnet = {
+  SubnetId: string
+  AvailabilityZone: string
+  AvailabilityZoneId: string
+  VpcId: string
+  Tags?: Tag[]
+}
