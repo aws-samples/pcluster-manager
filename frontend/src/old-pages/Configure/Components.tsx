@@ -59,6 +59,11 @@ type Extension = {
   args: {name: string; default?: string}[]
 }
 
+type ActionsEditorProps = {
+  basePath: string[]
+  errorsPath: string[]
+}
+
 const multiRunner =
   'https://raw.githubusercontent.com/aws-samples/pcluster-manager/main/resources/scripts/multi-runner.py'
 const knownExtensions: Extension[] = [
@@ -650,7 +655,7 @@ function ActionEditor({label, actionKey, errorPath, path}: any) {
   )
 }
 
-function ActionsEditor({basePath, errorsPath}: any) {
+function ActionsEditor({basePath, errorsPath}: ActionsEditorProps) {
   const actionsPath = [...basePath, 'CustomActions']
   const onStartPath = [...actionsPath, 'OnNodeStart']
   const onConfiguredPath = [...actionsPath, 'OnNodeConfigured']
@@ -659,20 +664,49 @@ function ActionsEditor({basePath, errorsPath}: any) {
   const onConfiguredErrors = useState([...errorsPath, 'onConfigured'])
 
   return (
-    <>
-      <SpaceBetween direction="vertical" size="xs">
-        <ActionEditor
-          label="On Start"
-          errorPath={onStartErrors}
-          path={onStartPath}
-        />
-        <ActionEditor
-          label="On Configured"
-          errorPath={onConfiguredErrors}
-          path={onConfiguredPath}
-        />
-      </SpaceBetween>
-    </>
+    <SpaceBetween direction="vertical" size="xs">
+      <ActionEditor
+        label="On Start"
+        errorPath={onStartErrors}
+        path={onStartPath}
+      />
+      <ActionEditor
+        label="On Configured"
+        errorPath={onConfiguredErrors}
+        path={onConfiguredPath}
+      />
+    </SpaceBetween>
+  )
+}
+
+function HeadNodeActionsEditor({basePath, errorsPath}: ActionsEditorProps) {
+  const actionsPath = [...basePath, 'CustomActions']
+  const onStartPath = [...actionsPath, 'OnNodeStart']
+  const onConfiguredPath = [...actionsPath, 'OnNodeConfigured']
+  const onUpdatedPath = [...actionsPath, 'OnNodeUpdated']
+
+  const onStartErrors = useState([...errorsPath, 'onStart'])
+  const onConfiguredErrors = useState([...errorsPath, 'onConfigured'])
+  const onUpdatedErrors = useState([...errorsPath, 'onUpdated'])
+
+  return (
+    <SpaceBetween direction="vertical" size="xs">
+      <ActionEditor
+        label="On Start"
+        errorPath={onStartErrors}
+        path={onStartPath}
+      />
+      <ActionEditor
+        label="On Configured"
+        errorPath={onConfiguredErrors}
+        path={onConfiguredPath}
+      />
+      <ActionEditor
+        label="On Updated"
+        errorPath={onUpdatedErrors}
+        path={onUpdatedPath}
+      />
+    </SpaceBetween>
   )
 }
 
@@ -962,6 +996,7 @@ export {
   InstanceSelect,
   LabeledIcon,
   ActionsEditor,
+  HeadNodeActionsEditor,
   CustomAMISettings,
   RootVolume,
   IamPoliciesEditor,
