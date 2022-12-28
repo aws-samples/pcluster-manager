@@ -13,7 +13,7 @@ def boto3_exception_handler(err):
     description = error['Message']
 
     logger.error(description, extra=dict(status=status, exception=type(err)))
-    return __handler_response(status, description)
+    return __handler_response(status, 'Something went wrong while invoking other AWS services')
 
 def websocket_mismatch_nop_handler(err):
     """ Handles websocket error caused by HMR in local development"""
