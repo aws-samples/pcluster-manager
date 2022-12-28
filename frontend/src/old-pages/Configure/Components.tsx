@@ -46,6 +46,7 @@ import {
 import {NonCancelableEventHandler} from '@cloudscape-design/components/internal/events'
 import TitleDescriptionHelpPanel from '../../components/help-panel/TitleDescriptionHelpPanel'
 import InfoLink from '../../components/InfoLink'
+import {subnetName} from './util'
 
 // Helper Functions
 function strToOption(str: any) {
@@ -136,18 +137,6 @@ function SubnetSelect({value, onChange, disabled}: any) {
     return <div>No Subnets Found.</div>
   }
 
-  const SubnetName = (subnet: any) => {
-    if (!subnet) return null
-    var tags = subnet.Tags
-    if (!tags) {
-      return null
-    }
-    tags = subnet.Tags.filter((t: any) => {
-      return t.Key === 'Name'
-    })
-    return tags.length > 0 ? tags[0].Value : null
-  }
-
   const itemToOption = (item: any) => {
     return {
       value: item.SubnetId,
@@ -155,7 +144,7 @@ function SubnetSelect({value, onChange, disabled}: any) {
       description:
         item.AvailabilityZone +
         ` - ${item.AvailabilityZoneId}` +
-        (SubnetName(item) ? ` (${SubnetName(item)})` : ''),
+        (subnetName(item) ? ` (${subnetName(item)})` : ''),
     }
   }
 
