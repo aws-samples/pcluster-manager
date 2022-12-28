@@ -40,7 +40,11 @@ export class Logger implements ILogger {
     logLevel: LogLevel,
     message: string,
     extra?: Record<string, unknown>,
+    source?: string,
   ): Promise<PostLogSuccess> {
+    if (!extra) extra = {}
+    extra['source'] = source || 'frontend'
+
     const logEntry = this.buildMessage(logLevel, message, extra)
     return this.executeRequest('post', '/logs', logEntry).catch(
       (err: AxiosError<PostLogError>) =>
@@ -48,24 +52,44 @@ export class Logger implements ILogger {
     )
   }
 
-  info(message: string, extra?: Record<string, unknown>): Promise<any> {
-    return this.log(LogLevel.info, message, extra)
+  info(
+    message: string,
+    extra?: Record<string, unknown>,
+    source?: string,
+  ): Promise<any> {
+    return this.log(LogLevel.info, message, extra, source)
   }
 
-  warning(message: string, extra?: Record<string, unknown>): Promise<any> {
-    return this.log(LogLevel.warning, message, extra)
+  warning(
+    message: string,
+    extra?: Record<string, unknown>,
+    source?: string,
+  ): Promise<any> {
+    return this.log(LogLevel.warning, message, extra, source)
   }
 
-  debug(message: string, extra?: Record<string, unknown>): Promise<any> {
-    return this.log(LogLevel.debug, message, extra)
+  debug(
+    message: string,
+    extra?: Record<string, unknown>,
+    source?: string,
+  ): Promise<any> {
+    return this.log(LogLevel.debug, message, extra, source)
   }
 
-  error(message: string, extra?: Record<string, unknown>): Promise<any> {
-    return this.log(LogLevel.error, message, extra)
+  error(
+    message: string,
+    extra?: Record<string, unknown>,
+    source?: string,
+  ): Promise<any> {
+    return this.log(LogLevel.error, message, extra, source)
   }
 
-  critical(message: string, extra?: Record<string, unknown>): Promise<any> {
-    return this.log(LogLevel.critical, message, extra)
+  critical(
+    message: string,
+    extra?: Record<string, unknown>,
+    source?: string,
+  ): Promise<any> {
+    return this.log(LogLevel.critical, message, extra, source)
   }
 
   private buildMessage(

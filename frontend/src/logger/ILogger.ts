@@ -1,11 +1,19 @@
 export interface ILogger {
-  info(message: string, extra?: Record<string, unknown>): void
+  info(message: string, extra?: Record<string, unknown>, source?: string): void
 
-  warning(message: string, extra?: Record<string, unknown>): void
+  warning(
+    message: string,
+    extra?: Record<string, unknown>,
+    source?: string,
+  ): void
 
-  debug(message: string, extra?: Record<string, unknown>): void
+  debug(message: string, extra?: Record<string, unknown>, source?: string): void
 
-  error(message: string, extra?: Record<string, unknown>): void
+  error(message: string, extra?: Record<string, unknown>, source?: string): void
 
-  critical(message: string, extra?: Record<string, unknown>): void
+  critical(
+    message: string,
+    extra?: Record<string, unknown>,
+    source?: string,
+  ): void
 }
