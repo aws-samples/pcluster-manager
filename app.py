@@ -40,7 +40,7 @@ from api.PclusterApiHandler import (
     scontrol_job,
     CLIENT_ID, CLIENT_SECRET, USER_POOL_ID
 )
-from api.logging import parse_log_entry, log_from_frontend
+from api.logging import parse_log_entry, push_log_entry
 from api.pcm_globals import logger
 from api.security.csrf import CSRF
 from api.security.csrf.csrf import csrf_needed
@@ -189,7 +189,7 @@ def run():
 
         for entry in request.json:
             level, message, extra = parse_log_entry(logger, entry)
-            log_from_frontend(logger, level, message, extra)
+            push_log_entry(logger, level, message, extra, 'frontend')
 
         return {}, 200
 

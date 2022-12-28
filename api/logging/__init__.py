@@ -24,9 +24,9 @@ def parse_log_entry(_logger, entry):
 
     return lowercase_level, message, extra
 
-def log_from_frontend(_logger, level, message, extra):
+def push_log_entry(_logger, level, message, extra, source):
     """ Logs a single log entry coming from the fronted """
     logging_fun = getattr(_logger, level, None)
     extra = {} if extra is None else extra
-    extra['source'] = 'frontend'
+    extra['source'] = source
     logging_fun(message, extra=extra)
