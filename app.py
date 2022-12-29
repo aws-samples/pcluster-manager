@@ -184,10 +184,11 @@ def run():
     @authenticated(ADMINS_GROUP)
     @csrf_needed
     def push_log():
-        if type(request.json) != list:
-            raise ValueError('Body must be a list of log entries')
+        body = request.json
+        if 'logs' not in body:
+            raise ValueError("Request body is missing the mandatory 'logs' key")
 
-        for entry in request.json:
+        for entry in body['logs']:
             level, message, extra = parse_log_entry(logger, entry)
             push_log_entry(logger, level, message, extra)
 
