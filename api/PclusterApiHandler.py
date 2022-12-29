@@ -22,6 +22,7 @@ from flask import abort, redirect, request
 from flask_restful import Resource, reqparse
 from jose import jwt
 
+from api.security.csrf.constants import CSRF_COOKIE_NAME
 from api.security.csrf.csrf import csrf_needed
 from api.utils import disable_auth
 
@@ -655,12 +656,21 @@ def login():
 
 
 def logout():
-    resp = redirect("/index.html", code=302)
+    resp = __cognito_logout_redirect(get_app_config())
     resp.set_cookie("accessToken", "", expires=0)
     resp.set_cookie("idToken", "", expires=0)
     resp.set_cookie("refreshToken", "", expires=0)
+    resp.set_cookie(CSRF_COOKIE_NAME, "", expires=0)
     return resp
 
+def __cognito_logout_redirect(config):
+    auth_url = AUTH_PATH
+    client_id = config['client_id']
+    redirect_uri = config['redirect_uri']
+    scope_list = config['scopes']
+
+    target_url = f'{auth_url}/logout?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code&scope={scope_list}'
+    return redirect(target_url, code=302)
 
 def _get_params(_request):
     params = {**_request.args}
