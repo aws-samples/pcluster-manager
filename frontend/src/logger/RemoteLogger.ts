@@ -1,5 +1,4 @@
 import {HTTPMethod} from '../http/executeRequest'
-import {AxiosError} from 'axios'
 import {ILogger} from './ILogger'
 
 enum LogLevel {
@@ -10,21 +9,22 @@ enum LogLevel {
   critical = 'CRITICAL',
 }
 
-interface PostLogRequest {
+interface LogEntry {
   message: string
   level: LogLevel
   extra?: Record<string, unknown>
 }
 
-interface PostLogError {
-  Code: number
-  Message: string
+type BufferConfig = {
+  size: number
+  window: number
 }
-
-type PostLogSuccess = {}
 
 export class Logger implements ILogger {
   private readonly executeRequest
+  private logsBuffer: LogEntry[] = []
+  private readonly bufferConfig: BufferConfig
+  private timeout: NodeJS.Timeout | undefined
 
   constructor(
     executeRequest: (
@@ -32,71 +32,73 @@ export class Logger implements ILogger {
       url: string,
       body?: any,
     ) => Promise<any>,
+    bufferConfig: BufferConfig = {
+      size: 20,
+      window: 5 * 1000,
+    },
   ) {
     this.executeRequest = executeRequest
+    this.bufferConfig = bufferConfig
   }
 
   private log(
     logLevel: LogLevel,
     message: string,
-    extra?: Record<string, unknown>,
+    extra: Record<string, unknown> = {},
     source?: string,
-  ): Promise<PostLogSuccess> {
-    if (!extra) extra = {}
+  ) {
     extra['source'] = source || 'frontend'
 
     const logEntry = this.buildMessage(logLevel, message, extra)
-    return this.executeRequest('post', '/logs', {logs: [logEntry]}).catch(
-      (err: AxiosError<PostLogError>) =>
-        console.warn('Unable to push log entry'),
-    )
+    this.logsBuffer.push(logEntry)
+    if (this.logsBuffer.length >= this.bufferConfig.size) {
+      this.flushBuffer()
+    } else if (!this.timeout) {
+      this.timeout = setTimeout(
+        () => this.flushBuffer(),
+        this.bufferConfig.window,
+      )
+    }
   }
 
-  info(
-    message: string,
-    extra?: Record<string, unknown>,
-    source?: string,
-  ): Promise<any> {
-    return this.log(LogLevel.info, message, extra, source)
+  private async flushBuffer() {
+    clearTimeout(this.timeout)
+    this.timeout = undefined
+
+    const entries = [...this.logsBuffer]
+    this.logsBuffer = []
+    try {
+      await this.executeRequest('post', '/logs', {logs: entries})
+    } catch (error) {
+      this.logsBuffer = [...entries, ...this.logsBuffer] // Retry failed logs when logging is called again
+    }
   }
 
-  warning(
-    message: string,
-    extra?: Record<string, unknown>,
-    source?: string,
-  ): Promise<any> {
-    return this.log(LogLevel.warning, message, extra, source)
+  info(message: string, extra?: Record<string, unknown>, source?: string) {
+    this.log(LogLevel.info, message, extra, source)
   }
 
-  debug(
-    message: string,
-    extra?: Record<string, unknown>,
-    source?: string,
-  ): Promise<any> {
-    return this.log(LogLevel.debug, message, extra, source)
+  warning(message: string, extra?: Record<string, unknown>, source?: string) {
+    this.log(LogLevel.warning, message, extra, source)
   }
 
-  error(
-    message: string,
-    extra?: Record<string, unknown>,
-    source?: string,
-  ): Promise<any> {
-    return this.log(LogLevel.error, message, extra, source)
+  debug(message: string, extra?: Record<string, unknown>, source?: string) {
+    this.log(LogLevel.debug, message, extra, source)
   }
 
-  critical(
-    message: string,
-    extra?: Record<string, unknown>,
-    source?: string,
-  ): Promise<any> {
-    return this.log(LogLevel.critical, message, extra, source)
+  error(message: string, extra?: Record<string, unknown>, source?: string) {
+    this.log(LogLevel.error, message, extra, source)
+  }
+
+  critical(message: string, extra?: Record<string, unknown>, source?: string) {
+    this.log(LogLevel.critical, message, extra, source)
   }
 
   private buildMessage(
     level: LogLevel,
     message: string,
     extra?: Record<string, unknown>,
-  ): PostLogRequest {
+  ): LogEntry {
     return {message, level, extra}
   }
 }
