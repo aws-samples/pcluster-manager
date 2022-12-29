@@ -46,7 +46,7 @@ export class Logger implements ILogger {
     extra['source'] = source || 'frontend'
 
     const logEntry = this.buildMessage(logLevel, message, extra)
-    return this.executeRequest('post', '/logs', logEntry).catch(
+    return this.executeRequest('post', '/logs', {logs: [logEntry]}).catch(
       (err: AxiosError<PostLogError>) =>
         console.warn('Unable to push log entry'),
     )
