@@ -39,11 +39,7 @@ export default function ClusterTabs() {
   ])
   const selectedClusterName = useState(['app', 'clusters', 'selected'])
 
-  function isMultiScriptAccountingEnabled() {
-    return getScripts(customActions).includes('slurm-accounting')
-  }
-
-  function isNativeAccountingEnabled() {
+  function isAccountingEnabled() {
     const accountingPath = [
       ...clusterPath,
       'config',
@@ -54,8 +50,7 @@ export default function ClusterTabs() {
     return getState(accountingPath) ? true : false
   }
 
-  let accountingEnabled =
-    isMultiScriptAccountingEnabled() || isNativeAccountingEnabled()
+  let accountingEnabled = isAccountingEnabled()
   let navigate = useNavigate()
   let params = useParams()
 
