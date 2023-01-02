@@ -112,6 +112,7 @@
       "refreshConfig": "Refresh AWS Config",
       "stopComputeFleet": "Stop Compute Fleet",
       "cancel": "Cancel",
+      "remove": "Remove",
       "back": "Back",
       "next": "Next",
       "update": "Update",

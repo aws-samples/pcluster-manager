@@ -29,12 +29,10 @@ import {
 
 // UI Elements
 import {
-  Alert,
   Autosuggest,
   Button,
   FormField,
   Input,
-  Link,
   SpaceBetween,
   Toggle,
   TokenGroup,
@@ -64,52 +62,6 @@ type ActionsEditorProps = {
   basePath: string[]
   errorsPath: string[]
 }
-
-const multiRunner =
-  'https://raw.githubusercontent.com/aws-samples/pcluster-manager/main/resources/scripts/multi-runner.py'
-const knownExtensions: Extension[] = [
-  {name: 'Cloud9', path: 'cloud9.sh', description: 'Cloud9 Install', args: []},
-  {
-    name: 'Downloader',
-    path: 'downloader.sh',
-    description: 'Downloader',
-    args: [{name: 'Destination', default: '/tmp'}, {name: 'Source'}],
-  },
-  {
-    name: 'Slurm Accounting',
-    path: 'slurm-accounting.sh',
-    description: 'Slurm Accounting',
-    args: [
-      {name: 'Secret ARN'},
-      {name: 'RDS Endpoint'},
-      {name: 'RDS Port', default: '3306'},
-    ],
-  },
-  {
-    name: 'Spack',
-    path: 'spack.sh',
-    description: 'Install Spack package manager.',
-    args: [{name: 'Spack Root'}],
-  },
-  {
-    name: 'Memory',
-    path: 'mem.sh',
-    description: 'Setup Memory Resource in Slurm.',
-    args: [],
-  },
-  {
-    name: 'Cost Tags',
-    path: 'cost-tags.sh',
-    description: 'Set cost tags on compute instances.',
-    args: [],
-  },
-  {
-    name: 'All or Nothing Scaling',
-    path: 'all-or-nothing.sh',
-    description: 'Sets up all-or-nothing scaling behaviour.',
-    args: [],
-  },
-]
 
 // Selectors
 const selectVpc = (state: any) => getState(state, ['app', 'wizard', 'vpc'])
@@ -362,7 +314,8 @@ function CustomAMISettings({basePath, appPath, errorsPath, validate}: any) {
   )
 }
 
-function ArgEditor({path, i, multi, scriptIndex}: any) {
+function ArgEditor({path, i}: any) {
+  const {t} = useTranslation()
   const args = useState(path)
   const arg = useState([...path, i])
   const remove = () => {
@@ -371,178 +324,20 @@ function ArgEditor({path, i, multi, scriptIndex}: any) {
     else clearState(path)
 
     clearEmptyNest(path, 3)
-  }
-
-  let argName = 'Arg'
-  if (multi && scriptIndex > -1 && scriptIndex < args.length - 1) {
-    const basePath = path.slice(0, -1)
-    const script = getState([...basePath, 'Script']) || ''
-    const baseScriptPath = script.slice(0, script.lastIndexOf('/') + 1)
-    let multiScriptPath = args[scriptIndex]
-    if (multiScriptPath.startsWith(baseScriptPath)) {
-      let multiScriptShortPath = multiScriptPath.slice(baseScriptPath.length)
-      let knownExtension = findFirst(
-        knownExtensions,
-        (e: any) => e.path === multiScriptShortPath,
-      )
-      if (knownExtension && i - scriptIndex <= knownExtension.args.length) {
-        argName = knownExtension.args[i - scriptIndex - 1].name
-      } else {
-        argName = `Arg ${i - scriptIndex}`
-      }
-    } else {
-      argName = `Arg ${i - scriptIndex}`
-    }
   }
 
   return (
     <SpaceBetween direction="horizontal" size="s">
-      <div style={{marginLeft: '25px', width: '120px'}}>{argName}: </div>
+      <div style={{marginLeft: '25px', width: '120px'}}>Arg:</div>
       <div style={{width: '440px'}}>
         <Input
-          value={multi ? arg.slice(1) : arg}
+          value={arg}
           onChange={({detail}) => {
-            setState([...path, i], multi ? '-' + detail.value : detail.value)
+            setState([...path, i], detail.value)
           }}
         />
       </div>
-      <Button onClick={remove}>Remove</Button>
-    </SpaceBetween>
-  )
-}
-
-function MultiRunnerScriptEditor({path, i}: any) {
-  const basePath = path.slice(0, -1)
-  const script = useState([...basePath, 'Script']) || ''
-  const baseScriptPath = script.slice(0, script.lastIndexOf('/') + 1)
-  const args = useState(path)
-  const arg = useState([...path, i])
-  const knownScripts = knownExtensions.map(({path}) => path)
-  const remove = () => {
-    if (args.length > 1)
-      setState([...path], [...args.slice(0, i), ...args.slice(i + 1)])
-    else clearState(path)
-    clearEmptyNest(path, 3)
-  }
-
-  const addArg = () => {
-    let insertPoint = 0
-    for (insertPoint = i + 1; insertPoint < args.length; insertPoint++) {
-      let arg = getState([...path, insertPoint]) || ''
-      if ((arg.length > 0 && arg[0] !== '-') || arg.length === 0) break
-    }
-    setState(
-      [...path],
-      [...args.slice(0, insertPoint), '-', ...args.slice(insertPoint)],
-    )
-  }
-
-  const setKnownScript = (scriptPath: any) => {
-    let end = 0
-    for (end = i + 1; end < args.length; end++) {
-      let arg = getState([...path, end]) || ''
-      if ((arg.length > 0 && arg[0] !== '-') || arg.length === 0) break
-    }
-
-    let knownExtension = findFirst(
-      knownExtensions,
-      (e: any) => e.path === scriptPath,
-    )
-    let scriptArgs = knownExtension
-      ? knownExtension.args.map((a: any) => `-${a.default || ''}`)
-      : []
-
-    let currentArgs = getState(path)
-    setState(path, [
-      ...currentArgs.slice(0, i),
-      baseScriptPath + scriptPath,
-      ...scriptArgs,
-      ...currentArgs.slice(end),
-    ])
-  }
-
-  const scriptToName = (script: any) => {
-    if (
-      script.startsWith(baseScriptPath) &&
-      knownScripts.includes(script.slice(baseScriptPath.length))
-    ) {
-      const path = script.slice(baseScriptPath.length)
-      const extension: Extension | undefined = findFirst(
-        knownExtensions,
-        e => e.path === path,
-      )
-      return extension ? extension.name : script
-    } else {
-      return script
-    }
-  }
-
-  return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: '16px',
-      }}
-    >
-      <span style={{whiteSpace: 'nowrap'}}>Script:</span>
-      <Autosuggest
-        value={scriptToName(arg)}
-        onChange={({detail}) => {
-          if (detail.value !== arg && baseScriptPath + detail.value !== arg) {
-            if (knownScripts.includes(detail.value))
-              setKnownScript(detail.value)
-            else setState([...path, i], detail.value)
-          }
-        }}
-        enteredTextLabel={newValue => {
-          if (newValue !== arg) setState([...path, i], newValue)
-          return newValue
-        }}
-        ariaLabel="Script Selector"
-        placeholder="http://path/to/script"
-        empty="No matches found"
-        options={knownExtensions.map(({name, path, description}) => {
-          return {label: name, value: path, description: description}
-        })}
-      />
-      <Button onClick={remove}>
-        <span style={{whiteSpace: 'nowrap', marginRight: '40px'}}>Remove</span>
-      </Button>
-      <Button onClick={addArg}>
-        <span style={{whiteSpace: 'nowrap', marginRight: '40px'}}>Add Arg</span>
-      </Button>
-    </div>
-  )
-}
-
-function MultiRunnerEditor({path}: any) {
-  const data = useState(path) || []
-  const addScript = () => {
-    setState(path, [...data, ''])
-  }
-  let scriptIndex = -1
-  return (
-    <SpaceBetween direction="vertical" size="xs">
-      <Button onClick={addScript}>Add Script</Button>
-      {data.map((a: any, i: any) =>
-        a.length > 0 && a[0] === '-' ? (
-          <ArgEditor
-            key={`osa${i}`}
-            arg={a}
-            i={i}
-            path={path}
-            multi={true}
-            scriptIndex={scriptIndex}
-          />
-        ) : (
-          (() => {
-            scriptIndex = i
-            return <MultiRunnerScriptEditor key={`msa${i}`} path={path} i={i} />
-          })()
-        ),
-      )}
+      <Button onClick={remove}>{t('wizard.actions.remove')}</Button>
     </SpaceBetween>
   )
 }
@@ -561,86 +356,38 @@ function ActionEditor({label, actionKey, errorPath, path}: any) {
     clearEmptyNest(path, 3)
   }
 
-  var useMultiRunner = script === multiRunner
-
-  const toggleUseMultiRunner = () => {
-    if (useMultiRunner) {
-      clearState([...path, 'Args'])
-      editScript([...path, 'Script'], '')
-    } else {
-      editScript([...path, 'Script'], multiRunner)
-    }
-  }
-
   return (
-    <>
-      <FormField
-        label={
-          <div>
-            {label}{' '}
-            <Toggle checked={useMultiRunner} onChange={toggleUseMultiRunner}>
-              Use Multi-Script Runner?
-            </Toggle>
+    <FormField label={label} errorText={errorPath}>
+      <SpaceBetween direction="vertical" size="xs">
+        <div
+          key={actionKey}
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: '16px',
+          }}
+        >
+          <div style={{flexGrow: 1}}>
+            <Input
+              placeholder="/home/ec2-user/start.sh"
+              value={script}
+              onChange={({detail}) =>
+                editScript([...path, 'Script'], detail.value)
+              }
+            />
           </div>
-        }
-        errorText={errorPath}
-      >
-        {useMultiRunner && (
-          <div style={{marginBottom: '10px'}}>
-            <Alert>
-              <b>Experimental!</b> The Multi-Script Runner is experimental and
-              uses scripts stored as a sibling{' '}
-              <Link
-                external
-                href="https://github.com/aws-samples/pcluster-manager/tree/main/resources/scripts"
-              >
-                here
-              </Link>{' '}
-              which are maintained separate from the AWS ParallelCluster
-              project. Please evaluate these scripts before running them and
-              valiate that they are compatible with your environment.
-            </Alert>
+          <div style={{flexShrink: 1}}>
+            <Button onClick={() => addArg([...path, 'Args'])}>+ Arg</Button>
           </div>
-        )}
-        {useMultiRunner && <MultiRunnerEditor path={[...path, 'Args']} />}
-        {!useMultiRunner && (
-          <SpaceBetween direction="vertical" size="xs">
-            <div
-              key={actionKey}
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: '16px',
-              }}
-            >
-              <div style={{flexGrow: 1}}>
-                <Input
-                  placeholder="/home/ec2-user/start.sh"
-                  value={script}
-                  onChange={({detail}) =>
-                    editScript([...path, 'Script'], detail.value)
-                  }
-                />
-              </div>
-              <div style={{flexShrink: 1}}>
-                <Button onClick={() => addArg([...path, 'Args'])}>+ Arg</Button>
-              </div>
-            </div>
-            <SpaceBetween direction="vertical" size="xxs">
-              {args.map((a: any, i: any) => (
-                <ArgEditor
-                  key={`osa${i}`}
-                  arg={a}
-                  i={i}
-                  path={[...path, 'Args']}
-                />
-              ))}
-            </SpaceBetween>
-          </SpaceBetween>
-        )}
-      </FormField>
-    </>
+        </div>
+        <SpaceBetween direction="vertical" size="xxs">
+          {args.map((a: any, i: any) => (
+            <ArgEditor key={`osa${i}`} arg={a} i={i} path={[...path, 'Args']} />
+          ))}
+        </SpaceBetween>
+      </SpaceBetween>
+    </FormField>
   )
 }
 
