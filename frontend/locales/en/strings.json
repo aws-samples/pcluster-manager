@@ -227,7 +227,7 @@
         "validation": {
           "databaseCannotBeEmpty": "Database cannot be empty",
           "usernameCannotBeEmpty": "Username cannot be empty",
-          "passwordCannotBeEmpty": "Password cannot be empty",
+          "passwordCannotBeEmpty": "Password Secret Arn cannot be empty",
           "scaledownIdleTimeLessThanOne": "Scaledown idle time should be at least 1 minute"
         },
         "container": {
@@ -242,7 +242,7 @@
           "label": "Username"
         },
         "password": {
-          "label": "Password"
+          "label": "Password Secret Arn"
         },
         "scaledownIdleTime": {
           "label": "Scaledown Idle Time (minutes)",
