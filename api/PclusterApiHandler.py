@@ -209,9 +209,6 @@ def get_cluster_config_text(cluster_name, region=None):
     else:
         info_resp = sigv4_request("GET", API_BASE_URL, url)
     if info_resp.status_code != 200:
-        if info_resp.status_code == 404:
-            raise ValueError(info_resp.json()['message'])
-
         abort(info_resp.status_code)
 
     cluster_info = info_resp.json()
