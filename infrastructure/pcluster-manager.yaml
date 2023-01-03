@@ -1,14 +1,31 @@
 Parameters:
   AdminUserEmail:
-    Description: Email address of administrative user setup by default.
+    Description: Email address of administrative user to setup by default (only with new Cognito instances).
     Type: String
-    MinLength: 1 # Force this to be selected
   PublicEcrImageUri:
     Description: When specified, the URI of the Docker image for the Lambda of the PclusterManager container
     Type: String
     Default: public.ecr.aws/pcm/pcluster-manager-awslambda:3.3.0
+  UserPoolId:
+    Description: UserPoolId of a previously deployed PCM Cognito User Pool. Leave blank to create a new one.
+    Type: String
+  UserPoolAuthDomain:
+    Description: UserPoolAuthDomain of a previously deployed PCM Cognito User Pool. Leave blank to create a new one.
+    Type: String
+  AppClientId:
+    Description: AppClientId of a previously deployed PCM Cognito User Pool. Leave blank to create a new one.
+    Type: String
+  SNSRole:
+    Description: SNSRole ARN of a previously deployed PCM Cognito Stack. Leave blank to create a new one.
+    Type: String
+  UserPoolClientSecretArn:
+    Description: UserPoolClientSecretArn of a previously deployed PCM instance
+    Type: String
+  UserPoolClientSecretName:
+    Description: UserPoolClientSecretName of a previously deployed PCM instance
+    Type: String
   EnableAuth:
-    Description: When false this enables all users to create an account & login with Admin privileges. Only use this value for tutorials or short-lived deployments.
+    Description: When false this disables the authentication requirement for PCM users. Only use this value for tutorials or short-lived deployments.
     Type: String
     Default: true
     AllowedValues: [true, false]
@@ -52,6 +69,15 @@ Metadata:
           - AdminUserEmail
           - AdminUserPhone
       - Label:
+          default: External PCM Cognito
+        Parameters:
+          - UserPoolId
+          - UserPoolAuthDomain
+          - AppClientId
+          - UserPoolClientSecretArn
+          - UserPoolClientSecretName
+          - SNSRole
+      - Label:
           default: ParallelCluster API
         Parameters:
           - Version
@@ -60,11 +86,23 @@ Metadata:
       EnableMFA:
         default: Require Multi-Factor Authentication for all Users
       EnableAuth:
-        default: Enable Auth Roles (e.g., Admin, User, Guest)
+        default: Enable Authentication
       AdminUserEmail:
         default: Initial Admin's Email 
       AdminUserPhone:
         default: Initial Admin's Phone Number
+      UserPoolId:
+        default: UserPoolId from a previously deployed PCM
+      UserPoolAuthDomain:
+        default: UserPoolAuthDomain from a previously deployed PCM
+      AppClientId:
+        default: AppClientId from a previously deployed PCM
+      UserPoolClientSecretArn:
+        default: UserPoolClientSecretArn from a previously deployed PCM
+      UserPoolClientSecretName:
+        default: UserPoolClientSecretName from a previously deployed PCM
+      SNSRole:
+        default: SNSRole ARN from a previously deployed PCM
 
 Conditions:
   NonDefaultVpc:
@@ -72,6 +110,16 @@ Conditions:
       - !Not [!Equals [!Ref ImageBuilderVpcId, ""]]
       - !Not [!Equals [!Ref ImageBuilderSubnetId, ""]]
   HasDefaultInfrastructure: !Equals [!Ref InfrastructureBucket, '']
+  UseExistingCognito:
+    !And
+      - !Not [!Equals [!Ref UserPoolId, ""]]
+      - !Not [!Equals [!Ref UserPoolAuthDomain, ""]]
+      - !Not [!Equals [!Ref AppClientId, ""]]
+      - !Not [!Equals [!Ref UserPoolClientSecretArn, ""]]
+      - !Not [!Equals [!Ref UserPoolClientSecretName, ""]]
+      - !Not [!Equals [!Ref SNSRole, ""]]
+  UseNewCognito:
+    !Not [ Condition: UseExistingCognito]
 
 Mappings:
   PclusterManager:
@@ -82,6 +130,7 @@ Mappings:
 Resources:
 
   PclusterManagerCognito:
+    Condition: UseNewCognito
     Type: AWS::CloudFormation::Stack
     DeletionPolicy: Retain
     Properties:
@@ -151,9 +200,9 @@ Resources:
           SITE_URL: !Sub
            - https://${Api}.execute-api.${AWS::Region}.${AWS::URLSuffix}
            - Api: !Ref ApiGateway
-          AUTH_PATH: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolAuthDomain ]
-          SECRET_ID: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolClientSecretName ]
-          AUDIENCE: !GetAtt [ PclusterManagerCognito, Outputs.AppClientId ]
+          AUTH_PATH: !If [ UseExistingCognito, !Ref UserPoolAuthDomain, !GetAtt [ PclusterManagerCognito, Outputs.UserPoolAuthDomain ]]
+          SECRET_ID: !If [ UseExistingCognito, !Ref UserPoolClientSecretName, !GetAtt [ PclusterManagerCognito, Outputs.UserPoolClientSecretName ]]
+          AUDIENCE: !If [ UseExistingCognito, !Ref AppClientId, !GetAtt [ PclusterManagerCognito, Outputs.AppClientId ]]
           OIDC_PROVIDER: 'Cognito'
           ENABLE_AUTH: !Ref EnableAuth
           ENABLE_MFA: !Ref EnableMFA
@@ -456,7 +505,7 @@ Resources:
       LoginURL: !Sub
        - https://${Api}.execute-api.${AWS::Region}.${AWS::URLSuffix}
        - Api: !Ref ApiGateway
-      UserPoolId: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]
+      UserPoolId: !If [ UseExistingCognito, !Ref UserPoolId, !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]]
 
   CognitoPostActionsFunction:
     Type: AWS::Lambda::Function
@@ -528,6 +577,7 @@ Resources:
   # Add the Admin User after updating the validation message(s)
   CognitoAdminUser:
     Type: AWS::Cognito::UserPoolUser
+    Condition: UseNewCognito
     DependsOn: [CognitoPostActions, PclusterManagerFunction]
     Properties:
       DesiredDeliveryMediums:
@@ -541,6 +591,7 @@ Resources:
       UserPoolId: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]
 
   CognitoUserToUserGroup:
+    Condition: UseNewCognito
     Type: AWS::Cognito::UserPoolUserToGroupAttachment
     Properties:
       GroupName: !GetAtt [ PclusterManagerCognito, Outputs.CognitoUserGroup ]
@@ -600,7 +651,7 @@ Resources:
                 Resource:
                   - !Sub
                     - arn:${AWS::Partition}:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}
-                    - { UserPoolId: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]}
+                    - { UserPoolId: !If [ UseExistingCognito, !Ref UserPoolId, !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]]}
         - PolicyName: PassRole
           PolicyDocument:
             Version: 2012-10-17
@@ -609,7 +660,7 @@ Resources:
                 Action:
                   - iam:PassRole
                 Resource:
-                  - !GetAtt [ PclusterManagerCognito, Outputs.SNSRole ]
+                  - !If [UseExistingCognito , !Ref SNSRole, !GetAtt [ PclusterManagerCognito, Outputs.SNSRole ]]
 
   # Policies
 
@@ -651,13 +702,13 @@ Resources:
             - cognito-idp:AdminDeleteUser
             Resource: !Sub
               - arn:${AWS::Partition}:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}
-              - { UserPoolId: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]}
+              - { UserPoolId: !If [UseExistingCognito, !Ref UserPoolId, !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]]}
             Effect: Allow
             Sid: CognitoPolicy
           - Action:
             - secretsmanager:GetSecretValue
             Resource:
-              - !GetAtt [ PclusterManagerCognito, Outputs.UserPoolClientSecretArn ]
+              - !If [UseExistingCognito, !Ref UserPoolClientSecretArn, !GetAtt [ PclusterManagerCognito, Outputs.UserPoolClientSecretArn ]]
             Effect: Allow
             Sid: SecretsRole
 
