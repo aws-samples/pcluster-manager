@@ -158,6 +158,7 @@ export default function Users(props: any) {
         resizableColumns
         trackBy={item => item.Attributes && item.Attributes.email}
         variant="full-page"
+        stickyHeader
         header={
           <Header
             variant="awsui-h1-sticky"
