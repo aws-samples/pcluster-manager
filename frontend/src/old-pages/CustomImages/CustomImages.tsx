@@ -110,6 +110,7 @@ function CustomImagesList() {
       resizableColumns
       trackBy="imageId"
       variant="full-page"
+      stickyHeader
       header={
         <Header
           variant="awsui-h1-sticky"

@@ -77,6 +77,7 @@ function OfficialImagesList({images}: {images: Image[]}) {
       resizableColumns
       trackBy="amiId"
       variant="full-page"
+      stickyHeader
       header={
         <Header
           variant="awsui-h1-sticky"
