@@ -53,7 +53,7 @@
     "@types/lodash": "^4.14.182",
     "@types/node": "^18.0.0",
     "eslint": "^8.19.0",
-    "eslint-config-next": "12.2.0",
+    "eslint-config-next": "13.1.1",
     "eslint-config-prettier": "^8.5.0",
     "husky": "^8.0.1",
     "jest": "^28.1.2",
