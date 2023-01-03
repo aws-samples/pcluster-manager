@@ -131,6 +131,7 @@ function ClusterList({clusters}: {clusters: ClusterInfoSummary[]}) {
     <Table
       {...collectionProps}
       variant="full-page"
+      stickyHeader
       header={
         <Header
           variant="awsui-h1-sticky"
