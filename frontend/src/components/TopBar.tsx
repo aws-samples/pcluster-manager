@@ -20,19 +20,16 @@ import {useQueryClient} from 'react-query'
 import {useLogger} from '../logger/LoggerProvider'
 import {NavigateFunction, useNavigate} from 'react-router-dom'
 
-function regions(selected: any) {
-  let supportedRegions = [
+export function regions(selected: string) {
+  const supportedRegions = [
     [
       ['US East (N. Virginia)', 'us-east-1'],
       ['US East (Ohio)', 'us-east-2'],
       ['US West (N. California)', 'us-west-1'],
       ['US West (Oregon)', 'us-west-2'],
     ],
-    [['Africa (Cape Town)', 'af-south-1']],
     [
-      ['Asia Pacific (Hong Kong)', 'ap-east-1'],
       ['Asia Pacific (Mumbai)', 'ap-south-1'],
-      ['Asia Pacific (Osaka)', 'ap-northeast-3'],
       ['Asia Pacific (Seoul)', 'ap-northeast-2'],
       ['Asia Pacific (Singapore)', 'ap-southeast-1'],
       ['Asia Pacific (Sydney)', 'ap-southeast-2'],
@@ -43,27 +40,36 @@ function regions(selected: any) {
       ['Europe (Frankfurt)', 'eu-central-1'],
       ['Europe (Ireland)', 'eu-west-1'],
       ['Europe (London)', 'eu-west-2'],
-      ['Europe (Milan)', 'eu-south-1'],
       ['Europe (Paris)', 'eu-west-3'],
       ['Europe (Stockholm)', 'eu-north-1'],
     ],
-    [['Middle East (Bahrain)', 'me-south-1']],
     [['South America (São Paulo)', 'sa-east-1']],
-    [
-      ['China (Beijing)', 'cn-north-1'],
-      ['China (Ningxia)', 'cn-northwest-1'],
-    ],
   ]
 
-  if (selected === 'us-gov-west-1')
-    supportedRegions = [
-      [
-        //["US Gov (east-1)", "us-gov-east-1"],
-        ['US Gov (west-1)', 'us-gov-west-1'],
-      ],
-    ]
+  const optInRegions = [
+    ['Africa (Cape Town)', 'af-south-1'],
+    ['Asia Pacific (Hong Kong)', 'ap-east-1'],
+    ['Europe (Milan)', 'eu-south-1'],
+    ['Middle East (Bahrain)', 'me-south-1'],
+    ['China (Beijing)', 'cn-north-1'],
+    ['China (Ningxia)', 'cn-northwest-1'],
+    ['AWS GovCloud (US-East)', 'us-gov-east-1'],
+    ['AWS GovCloud (US-West)', 'us-gov-west-1'],
+  ]
 
-  return supportedRegions.map((regions, i) => {
+  const optInRegion = optInRegions.filter(region => region[1] === selected)
+  if (optInRegion.length > 0) {
+    supportedRegions.unshift(optInRegion)
+  }
+
+  return supportedRegions
+}
+
+const regionsToDropdownItems = (
+  regionGroups: string[][][],
+  selected: string,
+) => {
+  return regionGroups.map((regions, i) => {
     return {
       type: 'menu-dropdown',
       className: 'region-group',
@@ -104,7 +110,8 @@ export default function Topbar() {
   const navigate = useNavigate()
 
   const defaultRegion = useState(['aws', 'region']) || 'DEFAULT'
-  const region = useState(['app', 'selectedRegion']) || defaultRegion
+  const selectedRegion = useState(['app', 'selectedRegion']) || defaultRegion
+  const displayedRegions = regions(selectedRegion)
 
   const handleLogout = () => {
     window.location.href = 'logout'
@@ -147,15 +154,17 @@ export default function Topbar() {
                 },
           ],
           ...[
-            region && {
+            selectedRegion && {
               type: 'menu-dropdown',
               ariaLabel: 'Region',
               disableUtilityCollapse: true,
               text: (
-                <span style={{fontWeight: 'normal'}}>{region || 'region'}</span>
+                <span style={{fontWeight: 'normal'}}>
+                  {selectedRegion || 'region'}
+                </span>
               ),
               onItemClick: selectRegion,
-              items: regions(region),
+              items: regionsToDropdownItems(displayedRegions, selectedRegion),
             },
           ],
         ]}
