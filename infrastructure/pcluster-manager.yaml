@@ -9,21 +9,27 @@ Parameters:
   UserPoolId:
     Description: UserPoolId of a previously deployed PCM Cognito User Pool. Leave blank to create a new one.
     Type: String
+    Default: ''
   UserPoolAuthDomain:
     Description: UserPoolAuthDomain of a previously deployed PCM Cognito User Pool. Leave blank to create a new one.
     Type: String
+    Default: ''
   AppClientId:
     Description: AppClientId of a previously deployed PCM Cognito User Pool. Leave blank to create a new one.
     Type: String
+    Default: ''
   SNSRole:
     Description: SNSRole ARN of a previously deployed PCM Cognito Stack. Leave blank to create a new one.
     Type: String
+    Default: ''
   UserPoolClientSecretArn:
     Description: UserPoolClientSecretArn of a previously deployed PCM instance
     Type: String
+    Default: ''
   UserPoolClientSecretName:
     Description: UserPoolClientSecretName of a previously deployed PCM instance
     Type: String
+    Default: ''
   EnableAuth:
     Description: When false this disables the authentication requirement for PCM users. Only use this value for tutorials or short-lived deployments.
     Type: String
