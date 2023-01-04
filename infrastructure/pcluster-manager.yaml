@@ -2,6 +2,7 @@ Parameters:
   AdminUserEmail:
     Description: Email address of administrative user to setup by default (only with new Cognito instances).
     Type: String
+    Default: ''
   PublicEcrImageUri:
     Description: When specified, the URI of the Docker image for the Lambda of the PClusterManager container
     Type: String
