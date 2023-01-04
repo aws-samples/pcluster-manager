@@ -3,7 +3,7 @@ Parameters:
     Description: Email address of administrative user to setup by default (only with new Cognito instances).
     Type: String
   PublicEcrImageUri:
-    Description: When specified, the URI of the Docker image for the Lambda of the PclusterManager container
+    Description: When specified, the URI of the Docker image for the Lambda of the PClusterManager container
     Type: String
     Default: public.ecr.aws/pcm/pcluster-manager-awslambda:3.3.0
   UserPoolId:
@@ -14,20 +14,8 @@ Parameters:
     Description: UserPoolAuthDomain of a previously deployed PCM Cognito User Pool. Leave blank to create a new one.
     Type: String
     Default: ''
-  AppClientId:
-    Description: AppClientId of a previously deployed PCM Cognito User Pool. Leave blank to create a new one.
-    Type: String
-    Default: ''
   SNSRole:
     Description: SNSRole ARN of a previously deployed PCM Cognito Stack. Leave blank to create a new one.
-    Type: String
-    Default: ''
-  UserPoolClientSecretArn:
-    Description: UserPoolClientSecretArn of a previously deployed PCM instance
-    Type: String
-    Default: ''
-  UserPoolClientSecretName:
-    Description: UserPoolClientSecretName of a previously deployed PCM instance
     Type: String
     Default: ''
   EnableAuth:
@@ -41,9 +29,9 @@ Parameters:
     Description: Whether or not to enable MFA through SMS. See https://aws-samples.github.io/pcluster-manager/02-tutorials/01-setup-sms.html
     Type: String
   AdminUserPhone:
-    Description: (Optional) Phone number of administrative user setup by default. This is required if MFA is enabled.
+    Description: Phone number of administrative user setup by default (only with new Cognito instances, this is required if MFA is enabled).
     Type: String
-    Default: '+10000000000'
+    Default: ''
   Version:
     Description: Version of AWS ParallelCluster to deploy
     Type: String
@@ -70,7 +58,7 @@ Metadata:
           - EnableAuth
           - EnableMFA
       - Label: 
-          default: Initial Admin User
+          default: Admin User (only with new Cognito instances)
         Parameters: 
           - AdminUserEmail
           - AdminUserPhone
@@ -79,9 +67,6 @@ Metadata:
         Parameters:
           - UserPoolId
           - UserPoolAuthDomain
-          - AppClientId
-          - UserPoolClientSecretArn
-          - UserPoolClientSecretName
           - SNSRole
       - Label:
           default: ParallelCluster API
@@ -94,19 +79,13 @@ Metadata:
       EnableAuth:
         default: Enable Authentication
       AdminUserEmail:
-        default: Initial Admin's Email 
+        default: Admin's Email
       AdminUserPhone:
-        default: Initial Admin's Phone Number
+        default: Admin's Phone Number
       UserPoolId:
         default: UserPoolId from a previously deployed PCM
       UserPoolAuthDomain:
         default: UserPoolAuthDomain from a previously deployed PCM
-      AppClientId:
-        default: AppClientId from a previously deployed PCM
-      UserPoolClientSecretArn:
-        default: UserPoolClientSecretArn from a previously deployed PCM
-      UserPoolClientSecretName:
-        default: UserPoolClientSecretName from a previously deployed PCM
       SNSRole:
         default: SNSRole ARN from a previously deployed PCM
 
@@ -120,9 +99,6 @@ Conditions:
     !And
       - !Not [!Equals [!Ref UserPoolId, ""]]
       - !Not [!Equals [!Ref UserPoolAuthDomain, ""]]
-      - !Not [!Equals [!Ref AppClientId, ""]]
-      - !Not [!Equals [!Ref UserPoolClientSecretArn, ""]]
-      - !Not [!Equals [!Ref UserPoolClientSecretName, ""]]
       - !Not [!Equals [!Ref SNSRole, ""]]
   UseNewCognito:
     !Not [ Condition: UseExistingCognito]
@@ -142,13 +118,8 @@ Resources:
     Properties:
       Parameters:
         AdminUserEmail: !Ref AdminUserEmail
+        AdminUserPhone: !Ref AdminUserPhone
         EnableMFA: !Ref EnableMFA
-        LogoutURL: !Sub
-         - https://${Api}.execute-api.${AWS::Region}.${AWS::URLSuffix}/index.html
-         - Api: !Ref ApiGateway
-        CallbackURL: !Sub
-         - https://${Api}.execute-api.${AWS::Region}.${AWS::URLSuffix}/login
-         - Api: !Ref ApiGateway
       TemplateURL: !Sub 
         - '${Bucket}/pcluster-manager-cognito.yaml'
         - Bucket: !If 
@@ -207,8 +178,8 @@ Resources:
            - https://${Api}.execute-api.${AWS::Region}.${AWS::URLSuffix}
            - Api: !Ref ApiGateway
           AUTH_PATH: !If [ UseExistingCognito, !Ref UserPoolAuthDomain, !GetAtt [ PclusterManagerCognito, Outputs.UserPoolAuthDomain ]]
-          SECRET_ID: !If [ UseExistingCognito, !Ref UserPoolClientSecretName, !GetAtt [ PclusterManagerCognito, Outputs.UserPoolClientSecretName ]]
-          AUDIENCE: !If [ UseExistingCognito, !Ref AppClientId, !GetAtt [ PclusterManagerCognito, Outputs.AppClientId ]]
+          SECRET_ID: !GetAtt UserPoolClientSecret.SecretName
+          AUDIENCE: !Ref CognitoAppClient
           OIDC_PROVIDER: 'Cognito'
           ENABLE_AUTH: !Ref EnableAuth
           ENABLE_MFA: !Ref EnableMFA
@@ -265,6 +236,157 @@ Resources:
       ApiId: !Ref ApiGateway
       StageName: $default
       AutoDeploy: True
+
+  CognitoAppClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      GenerateSecret: true
+      AllowedOAuthFlows:
+        - code
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthScopes:
+        - email
+        - openid
+      ExplicitAuthFlows:
+        - ALLOW_REFRESH_TOKEN_AUTH
+      CallbackURLs:
+        - !Sub
+          - https://${Api}.execute-api.${AWS::Region}.${AWS::URLSuffix}/login
+          - Api: !Ref ApiGateway
+      SupportedIdentityProviders:
+        - COGNITO
+      UserPoolId: !If [ UseExistingCognito, !Ref UserPoolId, !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]]
+      PreventUserExistenceErrors: ENABLED
+      RefreshTokenValidity: 7
+      AccessTokenValidity: 1
+      IdTokenValidity: 1
+      TokenValidityUnits:
+        AccessToken: "days"
+        IdToken: "days"
+
+  UserPoolClientSecret:
+    Type: Custom::UserPoolClientSecret
+    Properties:
+      ServiceToken: !GetAtt UserPoolClientSecretFunction.Arn
+      UserPoolId: !If [ UseExistingCognito, !Ref UserPoolId, !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]]
+      AppClientId: !Ref CognitoAppClient
+
+  UserPoolClientSecretFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: index.handler
+      Runtime: python3.9
+      MemorySize: 128
+      Timeout: 20
+      TracingConfig:
+        Mode: Active
+      Role: !GetAtt UserPoolClientSecretRole.Arn
+      Code:
+        ZipFile: |
+          import cfnresponse
+          import boto3
+          import random
+          import string
+          import json
+
+          cognito = boto3.client("cognito-idp")
+          secretsmanager = boto3.client("secretsmanager")
+
+          def generate_secret(stack_name, resource_id):
+              alnum = string.ascii_uppercase + string.digits
+              return f"{stack_name}-{resource_id}-" + "".join(random.choice(alnum) for _ in range(12))
+
+          def handler(event, context):
+              print(event)
+              print("boto version {}".format(boto3.__version__))
+
+              stack_name = event["StackId"].split("/")[1]
+              user_pool_id = event["ResourceProperties"]["UserPoolId"]
+              app_client_id = event["ResourceProperties"]["AppClientId"]
+              logical_resource_id = event["LogicalResourceId"]
+
+              response_data = {}
+              reason = None
+              response_status = cfnresponse.SUCCESS
+              try:
+                  if event["RequestType"] == "Create":
+                      response_data["Message"] = "Resource creation successful!"
+
+                      user_pool_client = cognito.describe_user_pool_client(UserPoolId=user_pool_id, ClientId=app_client_id)
+                      client_secret = user_pool_client["UserPoolClient"]["ClientSecret"]
+                      secret_name = generate_secret(stack_name, logical_resource_id)
+
+                      secret = json.dumps({"userPoolId": user_pool_id, "clientId": app_client_id, "clientSecret": client_secret})
+
+                      resp = secretsmanager.create_secret(
+                          Name=secret_name,
+                          Description=f"Client Secret for {app_client_id} / user pool {user_pool_id}",
+                          SecretString=secret,
+                          Tags=[
+                              {"Key": "custom:cloudformation:stack-name", "Value": stack_name},
+                              {"Key": "custom:cloudformation:logical-id", "Value": logical_resource_id},
+                          ],
+                      )
+                      response_data = {"SecretArn": resp["ARN"], "SecretName": resp["Name"], "SecretVersionId": resp["VersionId"]}
+
+                  elif event["RequestType"] == "Update":
+                      user_pool_client = cognito.describe_user_pool_client(UserPoolId=user_pool_id, ClientId=app_client_id)
+                      client_secret = user_pool_client["UserPoolClient"]["ClientSecret"]
+                      secret_name = event["PhysicalResourceId"]
+                      secret = json.dumps({"userPoolId": user_pool_id, "clientId": app_client_id, "clientSecret": client_secret})
+                      resp = secretsmanager.update_secret(
+                          SecretId=secret_name,
+                          Description=f"Client Secret for {app_client_id} / user pool {user_pool_id}",
+                          SecretString=secret,
+                      )
+                      response_data = {"SecretArn": resp["ARN"], "SecretName": resp["Name"], "SecretVersionId": resp["VersionId"]}
+
+                  else:
+                      secret_name = event["PhysicalResourceId"]
+                      resp = secretsmanager.delete_secret(SecretId=secret_name, ForceDeleteWithoutRecovery=True)
+                      response_data = {"SecretArn": resp["ARN"], "SecretName": resp["Name"]}
+
+              except Exception as exception:
+                  response_status = cfnresponse.FAILED
+                  reason = "Failed {}: {}".format(event["RequestType"], exception)
+
+              cfnresponse.send(event, context, response_status, response_data, secret_name, reason)
+
+  UserPoolClientSecretRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Policies:
+        - PolicyName: CognitoPermissions
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cognito-idp:DescribeUserPoolClient
+                Resource:
+                  - !Sub
+                    - arn:${AWS::Partition}:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}
+                    - { UserPoolId: !If [UseExistingCognito, !Ref UserPoolId, !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]]}
+        - PolicyName: SecretsManagerPermissions
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:CreateSecret
+                  - secretsmanager:TagResource
+                  - secretsmanager:UpdateSecret
+                  - secretsmanager:DeleteSecret
+                Resource:
+                  - !Sub arn:${AWS::Partition}:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${AWS::StackName}*
 
   PrivateEcrRepository:
     DependsOn: ParallelClusterApi
@@ -504,107 +626,6 @@ Resources:
       LogGroupName: !Sub /aws/lambda/${PclusterManagerFunction}
       RetentionInDays: 90
 
-  CognitoPostActions:
-    Type: Custom::CognitoPostActions
-    Properties:
-      ServiceToken: !GetAtt CognitoPostActionsFunction.Arn
-      LoginURL: !Sub
-       - https://${Api}.execute-api.${AWS::Region}.${AWS::URLSuffix}
-       - Api: !Ref ApiGateway
-      UserPoolId: !If [ UseExistingCognito, !Ref UserPoolId, !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]]
-
-  CognitoPostActionsFunction:
-    Type: AWS::Lambda::Function
-    Properties:
-      Handler: index.handler
-      Runtime: python3.9
-      MemorySize: 128
-      Timeout: 20
-      TracingConfig:
-        Mode: Active
-      Role: !GetAtt CognitoPostActionsRole.Arn
-      Code:
-        ZipFile: |
-          import cfnresponse
-          import boto3
-          import random
-          import string
-          import json
-
-          cognito = boto3.client("cognito-idp")
-
-          def create_physical_resource_id():
-              alnum = string.ascii_uppercase + string.ascii_lowercase + string.digits
-              return "".join(random.choice(alnum) for _ in range(16))
-
-          def handler(event, context):
-              print(event)
-              print("boto version {}".format(boto3.__version__))
-
-              stack_name = event["StackId"].split("/")[1]
-              user_pool_id = event["ResourceProperties"]["UserPoolId"]
-              login_url = event["ResourceProperties"]["LoginURL"]
-              logical_resource_id = event["LogicalResourceId"]
-
-              response_data = {}
-              reason = None
-              response_status = cfnresponse.SUCCESS
-
-              if event['RequestType'] == 'Create':
-                  physical_resource_id = create_physical_resource_id()
-              else:
-                  physical_resource_id = event['PhysicalResourceId']
-
-              try:
-                  if event["RequestType"] == "Create" or event["RequestType"] == "Update":
-                      response_data["Message"] = "Resource creation successful!"
-
-                      user_pool = cognito.describe_user_pool(UserPoolId=user_pool_id)['UserPool']
-                      known_keys = {"UserPoolId", "Policies", "LambdaConfig", "AutoVerifiedAttributes", "SmsVerificationMessage", "EmailVerificationMessage", "EmailVerificationSubject", "VerificationMessageTemplate", "SmsAuthenticationMessage", "MfaConfiguration", "DeviceConfiguration", "EmailConfiguration",
-                                    "SmsConfiguration", "UserPoolTags", "AdminCreateUserConfig", "UserPoolAddOns", "AccountRecoverySetting"}
-                      user_pool = {k: v for k,v in user_pool.items() if k in known_keys}
-                      user_pool['AdminCreateUserConfig']['InviteMessageTemplate']['EmailMessage'] = f"Thanks for installing PclusterManager on your AWS account. The following user has been created: {{username}}<br /><br />Please use this temporary password to login to your account: {{####}}<br /><br />Please click <a href=\"{login_url}\">here</a> to login."
-                      if 'UnusedAccountValidityDays' in user_pool['AdminCreateUserConfig']:
-                        del user_pool['AdminCreateUserConfig']['UnusedAccountValidityDays']
-                      user_pool['EmailVerificationMessage'] = f"Thanks for installing PclusterManager on your AWS account. Please click the link below to verify your email address. {{####}}<br /><br />Click <a href=\"{login_url}\">here</a> to login."
-                      print("user_pool", user_pool)
-                      cognito.update_user_pool(UserPoolId=user_pool_id, **user_pool)
-
-                  elif event["RequestType"] == "Delete":
-                      response_data["Message"] = "Resource deletion successful!"
-
-              except Exception as exception:
-                  response_data["Message"] = "Resource failure!"
-                  response_status = cfnresponse.FAILED
-                  reason = "Failed {}: {}".format(event["RequestType"], exception)
-
-              cfnresponse.send(event, context, response_status, response_data, physical_resource_id, reason)
-
-  # Add the Admin User after updating the validation message(s)
-  CognitoAdminUser:
-    Type: AWS::Cognito::UserPoolUser
-    Condition: UseNewCognito
-    DependsOn: [CognitoPostActions, PclusterManagerFunction]
-    Properties:
-      DesiredDeliveryMediums:
-        - EMAIL
-      UserAttributes:
-        - Name: email
-          Value: !Ref AdminUserEmail
-        - Name: phone_number
-          Value: !Ref AdminUserPhone
-      Username: !Ref AdminUserEmail
-      UserPoolId: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]
-
-  CognitoUserToUserGroup:
-    Condition: UseNewCognito
-    Type: AWS::Cognito::UserPoolUserToGroupAttachment
-    Properties:
-      GroupName: !GetAtt [ PclusterManagerCognito, Outputs.CognitoUserGroup ]
-      Username: !Ref CognitoAdminUser
-      UserPoolId: !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]
-
-  # Roles
 
   PclusterManagerUserRole:
     Type: AWS::IAM::Role
@@ -630,45 +651,6 @@ Resources:
         - !Ref PclusterManagerSsmSendPolicy
         - !Ref PclusterManagerSsmGetCommandInvocationPolicy
 
-  CognitoPostActionsRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: lambda.amazonaws.com
-            Action:
-              - 'sts:AssumeRole'
-      ManagedPolicyArns:
-        # Required for Lambda logging and XRay
-        - !Sub arn:${AWS::Partition}:iam::aws:policy/AWSXRayDaemonWriteAccess
-        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-      Policies:
-        - PolicyName: CognitoPermissions
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Effect: Allow
-                Action:
-                  - cognito-idp:DescribeUserPool
-                  - cognito-idp:UpdateUserPool
-                Resource:
-                  - !Sub
-                    - arn:${AWS::Partition}:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}
-                    - { UserPoolId: !If [ UseExistingCognito, !Ref UserPoolId, !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]]}
-        - PolicyName: PassRole
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Effect: Allow
-                Action:
-                  - iam:PassRole
-                Resource:
-                  - !If [UseExistingCognito , !Ref SNSRole, !GetAtt [ PclusterManagerCognito, Outputs.SNSRole ]]
-
-  # Policies
 
   PclusterManagerApiGatewayInvoke:
     Type: AWS::Lambda::Permission
@@ -714,7 +696,7 @@ Resources:
           - Action:
             - secretsmanager:GetSecretValue
             Resource:
-              - !If [UseExistingCognito, !Ref UserPoolClientSecretArn, !GetAtt [ PclusterManagerCognito, Outputs.UserPoolClientSecretArn ]]
+              - !GetAtt UserPoolClientSecret.SecretArn
             Effect: Allow
             Sid: SecretsRole
 
@@ -821,16 +803,24 @@ Resources:
             Effect: Allow
             Sid: SsmGetCommandInvocationPolicy
 
-# Outputs
 
 Outputs:
   PclusterManagerLambdaArn:
-    Description: 'ARN of the PclusterManager Lambda function'
+    Description: 'ARN of the PClusterManager Lambda function'
     Value: !GetAtt PclusterManagerFunction.Arn
   PclusterManagerUrl:
-    Description: 'Url to reach the PclusterManager Site.'
+    Description: 'Url to reach the PClusterManager Site.'
     Export:
       Name: !Sub ${AWS::StackName}-PclusterManagerSite
     Value: !Sub
       - https://${Api}.execute-api.${AWS::Region}.${AWS::URLSuffix}
       - Api: !Ref ApiGateway
+  AppClientId:
+    Description: The id of the Cognito app client
+    Value: !Ref CognitoAppClient
+  UserPoolClientSecretArn:
+    Description: The app client secret ARN for PClusterManager.
+    Value: !GetAtt UserPoolClientSecret.SecretArn
+  UserPoolClientSecretName:
+    Description: The app client secret name for PClusterManager.
+    Value: !GetAtt UserPoolClientSecret.SecretName
