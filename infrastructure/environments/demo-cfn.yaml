@@ -4,7 +4,11 @@ Parameters:
     ParameterValue: 3.4.0
   - ParameterKey: InfrastructureBucket
     ParameterValue: https://pcluster-manager-github-infrastructurebucket-7y5h202iem8l.s3.eu-west-1.amazonaws.com
-  - ParameterKey: AdminUserEmail
+  - ParameterKey: UserPoolId
+    UsePreviousValue: true
+  - ParameterKey: UserPoolAuthDomain
+    UsePreviousValue: true
+  - ParameterKey: SNSRole
     UsePreviousValue: true
   - ParameterKey: PublicEcrImageUri
     ParameterValue: public.ecr.aws/pcm/pcluster-manager-awslambda:latest
