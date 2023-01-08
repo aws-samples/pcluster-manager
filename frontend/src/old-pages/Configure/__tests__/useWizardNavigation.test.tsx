@@ -127,6 +127,36 @@ describe('Given a hook to navigate through the wizard', () => {
     })
   })
 
+  describe('when on create page', () => {
+    const page = 'create'
+    describe('if the user has uploaded a file, when clicking back button', () => {
+      beforeEach(() => {
+        mockStore.getState.mockReturnValue({
+          app: {
+            wizard: {
+              page: page,
+              source: {
+                type: 'upload',
+              },
+            },
+          },
+        })
+      })
+      it('should navigate back to source page', () => {
+        const {result} = renderHook(() => useWizardNavigation(validate), {
+          wrapper: ({children}) => {
+            return <Provider store={mockStore}>{children}</Provider>
+          },
+        })
+        result.current('previous', 0)
+        expect(setState).toHaveBeenCalledWith(
+          ['app', 'wizard', 'page'],
+          'source',
+        )
+      })
+    })
+  })
+
   describe('when on cluster page', () => {
     const page = 'cluster'
     describe('if multiUser is enabled, and the page is validated, when clicking next button', () => {
