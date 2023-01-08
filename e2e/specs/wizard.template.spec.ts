@@ -28,13 +28,13 @@ test.describe('environment: @demo', () => {
         await page.getByRole('radio', { name: 'Template' }).click();
         await page.getByRole('button', { name: 'Next' }).click();
 
-        await expect(page.getByRole('heading', { name: 'Cluster Properties' })).toBeVisible()
+        await expect(page.getByRole('heading', { name: 'Cluster' })).toBeVisible()
         await page.getByRole('button', { name: 'Next' }).click();
 
-        await expect(page.getByRole('heading', { name: 'Head Node Properties' })).toBeVisible()
+        await expect(page.getByRole('heading', { name: 'Head Node' })).toBeVisible()
         await page.getByRole('button', { name: 'Next' }).click();
 
-        await expect(page.getByRole('heading', { name: 'Storage Properties' })).toBeVisible()
+        await expect(page.getByRole('heading', { name: 'Storage' })).toBeVisible()
         await page.getByRole('button', { name: 'Next' }).click();
 
         await expect(page.getByRole('heading', { name: 'Queues' })).toBeVisible()
