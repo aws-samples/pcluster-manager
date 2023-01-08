@@ -178,10 +178,10 @@ function AdditionalSssdOptions() {
 function MultiUser() {
   const {t} = useTranslation()
   return (
-    <Container header={<Header variant="h2">Multi User Properties</Header>}>
+    <Container>
       <SpaceBetween direction="vertical" size="xs">
         <span>
-          If you don’t have an exisitng Active Directory you can create an AWS
+          If you don’t have an existing Active Directory you can create an AWS
           managed one following &nbsp;
           <Link
             external
@@ -195,56 +195,56 @@ function MultiUser() {
           .
         </span>
         <HelpTextInput
-          name={t('wizard.multiuser.domainName.name')}
+          name={t('wizard.multiUser.domainName.name')}
           path={dsPath}
           errorsPath={errorsPath}
           configKey={'DomainName'}
-          description={t('wizard.multiuser.domainName.description')}
+          description={t('wizard.multiUser.domainName.description')}
           placeholder={'dc=corp,dc=pcluster,dc=com'}
-          help={t('wizard.multiuser.domainName.help')}
+          help={t('wizard.multiUser.domainName.help')}
           onChange={({detail}) => {
             setState([...dsPath, 'DomainName'], detail.value)
             multiUserValidate()
           }}
         />
         <HelpTextInput
-          name={t('wizard.multiuser.domainAddress.name')}
+          name={t('wizard.multiUser.domainAddress.name')}
           path={dsPath}
           errorsPath={errorsPath}
           configKey={'DomainAddr'}
-          description={t('wizard.multiuser.domainAddress.description')}
+          description={t('wizard.multiUser.domainAddress.description')}
           placeholder={'ldaps://corp.pcluster.com'}
-          help={t('wizard.multiuser.domainAddress.help')}
+          help={t('wizard.multiUser.domainAddress.help')}
           onChange={({detail}) => {
             setState([...dsPath, 'DomainAddr'], detail.value)
             multiUserValidate()
           }}
         />
         <HelpTextInput
-          name={t('wizard.multiuser.passwordSecretArn.name')}
+          name={t('wizard.multiUser.passwordSecretArn.name')}
           path={dsPath}
           errorsPath={errorsPath}
           configKey={'PasswordSecretArn'}
-          description={t('wizard.multiuser.passwordSecretArn.description')}
+          description={t('wizard.multiUser.passwordSecretArn.description')}
           placeholder={
             'arn:aws:secretsmanager:region:000000000000:secret:secret_name'
           }
-          help={t('wizard.multiuser.passwordSecretArn.help')}
+          help={t('wizard.multiUser.passwordSecretArn.help')}
           onChange={({detail}) => {
             setState([...dsPath, 'PasswordSecretArn'], detail.value)
             multiUserValidate()
           }}
         />
         <HelpTextInput
-          name={t('wizard.multiuser.domainReadOnlyUser.name')}
+          name={t('wizard.multiUser.domainReadOnlyUser.name')}
           path={dsPath}
           errorsPath={errorsPath}
           configKey={'DomainReadOnlyUser'}
-          description={t('wizard.multiuser.domainReadOnlyUser.description')}
+          description={t('wizard.multiUser.domainReadOnlyUser.description')}
           placeholder={
             'cn=ReadOnlyUser,ou=Users,ou=CORP,dc=corp,dc=pcluster,dc=com'
           }
-          help={t('wizard.multiuser.domainReadOnlyUser.help')}
+          help={t('wizard.multiUser.domainReadOnlyUser.help')}
           onChange={({detail}) => {
             setState([...dsPath, 'DomainReadOnlyUser'], detail.value)
             multiUserValidate()
@@ -253,51 +253,51 @@ function MultiUser() {
         <ExpandableSection header="Advanced options">
           <SpaceBetween direction="vertical" size="xs">
             <HelpTextInput
-              name={t('wizard.multiuser.caCertificate.name')}
+              name={t('wizard.multiUser.caCertificate.name')}
               path={dsPath}
               errorsPath={errorsPath}
               configKey={'LdapTlsCaCert'}
-              description={t('wizard.multiuser.caCertificate.description')}
+              description={t('wizard.multiUser.caCertificate.description')}
               placeholder={'/path/to/certificate.pem'}
-              help={t('wizard.multiuser.caCertificate.help')}
+              help={t('wizard.multiUser.caCertificate.help')}
               onChange={({detail}) => {
                 setState([...dsPath, 'LdapTlsCaCert'], detail.value)
                 multiUserValidate()
               }}
             />
             <HelpTextInput
-              name={t('wizard.multiuser.requireCertificate.name')}
+              name={t('wizard.multiUser.requireCertificate.name')}
               path={dsPath}
               errorsPath={errorsPath}
               configKey={'LdapTlsReqCert'}
-              description={t('wizard.multiuser.requireCertificate.description')}
+              description={t('wizard.multiUser.requireCertificate.description')}
               placeholder={'hard'}
-              help={t('wizard.multiuser.requireCertificate.help')}
+              help={t('wizard.multiUser.requireCertificate.help')}
               onChange={({detail}) => {
                 setState([...dsPath, 'LdapTlsReqCert'], detail.value)
                 multiUserValidate()
               }}
             />
             <HelpTextInput
-              name={t('wizard.multiuser.LDAPAccessFilter.name')}
+              name={t('wizard.multiUser.LDAPAccessFilter.name')}
               path={dsPath}
               errorsPath={errorsPath}
               configKey={'LdapAccessFilter'}
-              description={t('wizard.multiuser.LDAPAccessFilter.description')}
+              description={t('wizard.multiUser.LDAPAccessFilter.description')}
               placeholder={
                 'memberOf=cn=TeamOne,ou=Users,ou=CORP,dc=corp,dc=pcluster,dc=com'
               }
-              help={t('wizard.multiuser.LDAPAccessFilter.help')}
+              help={t('wizard.multiUser.LDAPAccessFilter.help')}
               onChange={({detail}) => {
                 setState([...dsPath, 'LdapAccessFilter'], detail.value)
                 multiUserValidate()
               }}
             />
             <HelpToggle
-              name={t('wizard.multiuser.generateSSHKeys.name')}
+              name={t('wizard.multiUser.generateSSHKeys.name')}
               configKey={'GenerateSshKeysForUsers'}
-              description={t('wizard.multiuser.generateSSHKeys.description')}
-              help={t('wizard.multiuser.generateSSHKeys.help')}
+              description={t('wizard.multiUser.generateSSHKeys.description')}
+              help={t('wizard.multiUser.generateSSHKeys.help')}
               defaultValue={true}
             />
             <AdditionalSssdOptions />

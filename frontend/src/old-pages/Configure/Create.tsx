@@ -154,11 +154,11 @@ function Create() {
     <Container
       header={
         <Header
-          description={t('wizard.create.description', {
+          description={t('wizard.create.configuration.description', {
             action: editing ? 'update' : 'create',
           })}
         >
-          <Trans i18nKey="wizard.create.title" />
+          <Trans i18nKey="wizard.create.configuration.title" />
         </Header>
       }
     >
@@ -173,7 +173,7 @@ function Create() {
       {pending && (
         <div>
           <Spinner size="normal" />{' '}
-          {t('wizard.create.pending', {action: pending})}
+          {t('wizard.create.configuration.pending', {action: pending})}
         </div>
       )}
       {editing && (
@@ -183,7 +183,7 @@ function Create() {
             setState(['app', 'wizard', 'forceUpdate'], !forceUpdate)
           }
         >
-          {t('wizard.create.forceUpdate')}
+          {t('wizard.create.configuration.forceUpdate')}
         </Toggle>
       )}
       {!editing && (
@@ -193,7 +193,7 @@ function Create() {
             setState(['app', 'wizard', 'disableRollback'], !disableRollback)
           }
         >
-          {t('wizard.create.disableRollback')}
+          {t('wizard.create.configuration.disableRollback')}
         </Toggle>
       )}
     </Container>

@@ -416,7 +416,7 @@ function HeadNode() {
 
   return (
     <ColumnLayout columns={1}>
-      <Container header={<Header variant="h2">Head Node Properties</Header>}>
+      <Container>
         <SpaceBetween direction="vertical" size="s">
           <Box>
             <FormField
