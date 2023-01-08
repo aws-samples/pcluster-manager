@@ -20,15 +20,15 @@ test.describe('Given an endpoint where ParallelCluster Manager is deployed', () 
     await page.getByRole('textbox', { name: 'Enter your cluster name' }).fill("testcluster");
     await page.getByRole('button', { name: 'Next' }).click();
     
-    await expect(page.getByRole('heading', { name: 'Cluster Properties' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Cluster' })).toBeVisible()
     await page.getByRole('button', { name: 'Select a VPC' }).click();
     await page.getByText(/vpc-.*/).first().click();
     await page.getByRole('button', { name: 'Next' }).click();
     
-    await expect(page.getByRole('heading', { name: 'Head Node Properties' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Head Node' })).toBeVisible()
     await page.getByRole('button', { name: 'Next' }).click();
   
-    await expect(page.getByRole('heading', { name: 'Storage Properties' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Storage' })).toBeVisible()
     await page.getByRole('button', { name: 'Next' }).click();
   
     await expect(page.getByRole('heading', { name: 'Queues' })).toBeVisible()
