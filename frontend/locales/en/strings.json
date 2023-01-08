@@ -119,7 +119,15 @@
       "create": "Create",
       "dryRun": "Dry Run"
     },
+    "navigation": {
+      "optional": "optional",
+      "stepNumberLabel": "Step {{stepNumber}}",
+      "collapsedStepsLabel": "Step {{stepNumber}} of {{stepsCount}}",
+      "steps": "Steps"
+    },
     "source" : {
+      "title": "Source",
+      "description": "Choose cluster name and specify the source of the configuration.",
       "validation": {
         "cannotBeBlank": "Cluster name must not be blank.",
         "alreadyExists": "Cluster with name {{clusterName}} already exists. Please choose a unique name.",
@@ -159,11 +167,12 @@
       }
     },
     "cluster": {
+      "title": "Cluster",
+      "description": "Select the region and the VPC where the cluster will be deployed.",
       "validation": {
         "VpcSelect": "You must select a VPC.",
         "customAmiSelect": "You must select an AMI ID if you enable Custom AMI."
       },
-      "title": "Cluster Properties",
       "region": {
         "label": "Region",
         "description": "Region where the cluster will be created.",
@@ -179,14 +188,15 @@
         "description": "VPC where the cluster instances will reside.",
         "selectedAriaLabel": "Selected"
       },
-      "multiuser": {
+      "multiUser": {
         "title": "Multi User",
         "label": "Multi User Cluster",
         "description": "Enable Multi-User cluster through Active Directory integration."
       }
     },
     "headNode": {
-      "title": "HeadNode",
+      "title": "Head Node",
+      "description": "Specify Head Node properties. Optionally define custom actions and additional IAM policies.",
       "validation": {
         "selectSubnet": "You must select a Subnet.",
         "selectInstanceType": "You must select an instance type.",
@@ -263,6 +273,7 @@
     },
     "storage": {
       "title": "Storage",
+      "description": "Select between multiple storage options including EBS, EFS and FSx.",
       "validation": {
         "volumeSize": "You must specify a valid Volume Size."
       },
@@ -344,6 +355,8 @@
       }
     },
     "queues": {
+      "title": "Queues",
+      "description": "Specify queues and compute resources of the cluster",
       "validation": {
         "instanceTypeUnique": "Instance types must be unique within a Queue.",
         "instanceTypeMissing": "Select at least once instance type.",
@@ -410,7 +423,9 @@
         "label": "IAM Policies"
       }
     },
-    "multiuser": {
+    "multiUser": {
+      "title": "Multi User",
+      "description": "Specify existing Active Directory parameters to integrate it with the cluster.",
       "domainName": {
         "name": "Domain Name",
         "description": "The Active Directory (AD) domain that you use for identity information.",
@@ -453,11 +468,15 @@
       }
     },
     "create": {
-      "title": "Cluster Configuration",
-      "description": "This is the cluster configuration that will be used to {{action}} your cluster.",
-      "pending": "{{action}} request pending...",
-      "forceUpdate": "Force Update: Enable this to perform an update while the ComputeFleet is still running.",
-      "disableRollback": "Disable Rollback: Enable this to retain resources in the event of creation failure."
+      "title": "{{action}}",
+      "description": "Shows the generated cluster configuration template.",
+      "configuration": {
+        "title": "Cluster Configuration",
+        "description": "This is the cluster configuration that will be used to {{action}} your cluster.",
+        "pending": "{{action}} request pending...",
+        "forceUpdate": "Force Update: Enable this to perform an update while the ComputeFleet is still running.",
+        "disableRollback": "Disable Rollback: Enable this to retain resources in the event of creation failure."
+      }
     },
     "components": {
       "customAmi": {
