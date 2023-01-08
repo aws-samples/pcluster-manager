@@ -1072,7 +1072,7 @@ function Storage() {
   }
 
   return (
-    <Container header={<Header variant="h2">Storage Properties</Header>}>
+    <Container>
       <div style={{display: 'flex', flexDirection: 'column', gap: '20px'}}>
         {storages ? (
           storages.map((_: any, i: any) => (

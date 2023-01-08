@@ -395,16 +395,17 @@ function Cluster() {
         setState(headNodeKPPath, awsConfig.keypairs[0].KeyName)
       }
     }
-  }, [region, config, awsConfig, clusterConfig, wizardLoaded])
+  }, [
+    region,
+    config,
+    awsConfig,
+    clusterConfig,
+    wizardLoaded,
+    isMultipleInstanceTypesActive,
+  ])
 
   return (
-    <Container
-      header={
-        <Header variant="h2">
-          <Trans i18nKey="wizard.cluster.title" />
-        </Header>
-      }
-    >
+    <Container>
       <SpaceBetween direction="vertical" size="s">
         <RegionSelect />
         <OsSelect />
@@ -414,9 +415,9 @@ function Cluster() {
             <Header
               // @ts-expect-error TS(2322) FIXME: Type '"h4"' is not assignable to type 'Variant | u... Remove this comment to see the full error message
               variant="h4"
-              description={t('wizard.cluster.multiuser.description')}
+              description={t('wizard.cluster.multiUser.description')}
             >
-              <Trans i18nKey="wizard.cluster.multiuser.title" />
+              <Trans i18nKey="wizard.cluster.multiUser.title" />
             </Header>
             <Toggle
               disabled={editing}
@@ -425,7 +426,7 @@ function Cluster() {
                 setState(['app', 'wizard', 'multiUser'], !multiUserEnabled)
               }
             >
-              <Trans i18nKey="wizard.cluster.multiuser.label" />
+              <Trans i18nKey="wizard.cluster.multiUser.label" />
             </Toggle>
           </FormField>
         )}
