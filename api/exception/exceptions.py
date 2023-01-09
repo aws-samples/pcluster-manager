@@ -12,3 +12,14 @@ class CSRFError(Forbidden):
 
     def __init__(self, description):
         self.description = description
+
+class RefreshTokenError(Exception):
+    ERROR_FMT = 'Refresh token error: {description}'
+    description = 'Refresh token flow failed'
+
+    def __init__(self, description=None):
+        if description:
+            self.description = self.ERROR_FMT.format(description=description)
+
+    def __str__(self):
+        return self.description
