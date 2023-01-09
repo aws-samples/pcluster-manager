@@ -45,7 +45,6 @@ import {pages, useWizardNavigation} from './useWizardNavigation'
 const validators: {[key: string]: (...args: any[]) => boolean} = {
   source: sourceValidate,
   cluster: clusterValidate,
-  multiUser: multiUserValidate,
   headNode: headNodeValidate,
   storage: storageValidate,
   queues: queuesValidate,
@@ -221,12 +220,6 @@ function Configure() {
             title: t('wizard.cluster.title'),
             description: t('wizard.cluster.description'),
             content: <Cluster />,
-          },
-          {
-            title: t('wizard.multiUser.title'),
-            description: t('wizard.multiUser.description'),
-            isOptional: true,
-            content: <MultiUser />,
           },
           {
             title: t('wizard.headNode.title'),
