@@ -1,3 +1,6 @@
+from api.exception.exceptions import RefreshTokenError
+
+
 def test_boto3_exception_handler(client, client_error_response, app, monkeypatch):
     def delete_user_raising_clienterror():
         raise client_error_response
@@ -17,6 +20,17 @@ def test_value_error_exception_handler(client, app, monkeypatch):
 
     assert response.status_code == 400
     assert response.json == {'code': 400, 'message': 'Validation error'}
+
+def test_unauthenticated_error_handler(client, app, monkeypatch):
+
+    def push_log_raising():
+        raise RefreshTokenError('refresh-token-error')
+
+    monkeypatch.setitem(app.view_functions, 'push_log', push_log_raising)
+    response = client.post('/logs')
+
+    assert response.status_code == 401
+    assert response.json == {'code': 401, 'message': 'Refresh token error: refresh-token-error'}
 
 def test_global_exception_handler_with_app_logic(client, app, monkeypatch):
     def get_app_config_raising_generic_exception():

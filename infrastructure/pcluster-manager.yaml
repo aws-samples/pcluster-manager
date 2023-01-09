@@ -259,11 +259,11 @@ Resources:
       UserPoolId: !If [ UseExistingCognito, !Ref UserPoolId, !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]]
       PreventUserExistenceErrors: ENABLED
       RefreshTokenValidity: 7
-      AccessTokenValidity: 1
-      IdTokenValidity: 1
+      AccessTokenValidity: 10
+      IdTokenValidity: 10
       TokenValidityUnits:
-        AccessToken: "days"
-        IdToken: "days"
+        AccessToken: "minutes"
+        IdToken: "minutes"
 
   UserPoolClientSecret:
     Type: Custom::UserPoolClientSecret
