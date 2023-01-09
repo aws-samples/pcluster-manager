@@ -22,6 +22,8 @@ from flask import abort, redirect, request
 from flask_restful import Resource, reqparse
 from jose import jwt
 
+from api.exception.exceptions import RefreshTokenError
+from api.pcm_globals import set_auth_cookies_in_context
 from api.security.csrf.constants import CSRF_COOKIE_NAME
 from api.security.csrf.csrf import csrf_needed
 from api.utils import disable_auth
@@ -116,8 +118,24 @@ def sigv4_request(method, host, path, params={}, headers={}, body=None):
 
     return req_call(boto_request.url, data=body_data, headers=boto_request.headers, timeout=30)
 
+def refresh_tokens(refresh_token):
+    auth = requests.auth.HTTPBasicAuth(CLIENT_ID, CLIENT_SECRET)
 
-# Wrappers
+    resp = requests.post(
+        TOKEN_URL,
+        data={"grant_type": 'refresh_token', "refresh_token": refresh_token, "client_id": CLIENT_ID},
+        auth=auth,
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+    )
+
+    if resp.status_code != 200:
+        raise RefreshTokenError(resp.json().get('error'))
+
+    values = resp.json()
+    access_token = values.get("access_token")
+    id_token = values.get("id_token")
+
+    return {'accessToken': access_token, 'idToken': id_token}
 
 def authenticate(groups):
     if disable_auth():
@@ -130,7 +148,13 @@ def authenticate(groups):
     try:
         decoded = jwt_decode(access_token)
     except jwt.ExpiredSignatureError:
-        return abort(401)
+        refresh_token = request.cookies.get('refreshToken', None)
+        if refresh_token is None:
+            return abort(401)
+
+        tokens = refresh_tokens(refresh_token)
+        decoded = jwt_decode(tokens['accessToken'])
+        set_auth_cookies_in_context(tokens)
     except Exception as e:
         return abort(401)
 
@@ -638,13 +662,13 @@ def login():
         return abort(401)
 
     id_token = code_resp.json().get("id_token")
-    refresh_token = code_resp.json().get("refresh_token")
+    refresh_token = code_resp.json().get("refresh_token", None)
 
-    # give the jwt to the client for future requests
     resp = redirect("/index.html", code=302)
     resp.set_cookie("accessToken", access_token, httponly=True, secure=True, samesite="Lax")
     resp.set_cookie("idToken", id_token, httponly=True, secure=True, samesite="Lax")
-    resp.set_cookie("refreshToken", refresh_token, httponly=True, secure=True, samesite="Lax")
+    if refresh_token is not None:
+        resp.set_cookie("refreshToken", refresh_token, httponly=True, secure=True, samesite="Lax")
     return resp
 
 
