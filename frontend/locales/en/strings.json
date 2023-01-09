@@ -189,9 +189,53 @@
         "selectedAriaLabel": "Selected"
       },
       "multiUser": {
-        "title": "Multi User",
-        "label": "Multi User Cluster",
-        "description": "Enable Multi-User cluster through Active Directory integration."
+        "title": "Multi-user properties",
+        "description": "Specify existing Active Directory parameters to integrate it with the cluster.",
+        "help": "If you do not have an existing Active Directory you can create an AWS managed one following <1>this tutorial</1>.",
+        "checkbox": {
+          "label": "Multi-user cluster",
+          "description":"Enable Multi-user cluster through Active Directory integration."
+        },
+        "domainName": {
+          "name": "Domain Name",
+          "description": "The Active Directory (AD) domain that you use for identity information.",
+          "help": "This property corresponds to the sssd-ldap parameter that's called ldap_search_base."
+        },
+        "domainAddress": {
+          "name": "Domain Address",
+          "description": "The URI or URIs that point to the AD domain controller that's used as the LDAP server.",
+          "help": "The URI corresponds to the sssd-ldap parameter that's called ldap_uri. The value can be a comma separated string of URIs. To use LDAP, you must add ldap:// to the beginning of the each URI."
+        },
+        "passwordSecretArn" : {
+          "name": "Password Secret ARN",
+          "description": "The Amazon Resource Name (ARN) of the AWS Secrets Manager secret that contains the DomainReadOnlyUser plaintext password.",
+          "help": "The content of the secret corresponds to SSSD-LDAP parameter that's called ldap_default_authtok."
+        },
+        "domainReadOnlyUser": {
+          "name": "Domain Read Only User",
+          "description": "The identity that's used to query the AD domain for identity information when authenticating cluster user logins.",
+          "help": "It corresponds to sssd-ldap parameter that's called ldap_default_bind_dn. Use your AD identity information for this value."
+        },
+       "caCertificate": {
+         "name": "CA Certificate",
+         "description": "The absolute path to a certificates bundle containing the certificates for every certification authority in the certification chain that issued a certificate for the domain controllers.",
+         "help": "It corresponds to the sssd-ldap parameter that's called ldap_tls_cacert."
+       },
+        "requireCertificate": {
+          "name": "Require Certificate",
+          "description": "Specifies what checks to perform on server certificates in a TLS session.",
+          "help": "It corresponds to sssd-ldap parameter that's called ldap_tls_reqcert."
+        },
+        "LDAPAccessFilter": {
+          "name": "LDAP Access Filter",
+          "description": "Specifies a filter to limit LDAP queries to a subset of the directory that's being queried.",
+          "help": "This property corresponds to the sssd-ldap parameter that's called ldap_access_filter. You can use it to limit queries to an AD that supports a large number of users."
+        },
+        "generateSSHKeys": {
+          "name": "Generate SSH Keys",
+          "description": "Defines whether AWS ParallelCluster generates SSH key pairs for cluster users after they log in to the head node for the first time.",
+          "help": "The key pair is saved to the user home directory at /home/username/.ssh/. Users can use the SSH key pair for subsequent logins to the cluster head node and compute nodes. With AWS ParallelCluster, logins to cluster compute nodes are disabled by design. If a user hasn't logged into the head node, SSH keys aren't generated and the user won't be able to log in to compute nodes."
+        }
       }
     },
     "headNode": {
@@ -421,50 +465,6 @@
       },
       "IamPolicies": {
         "label": "IAM Policies"
-      }
-    },
-    "multiUser": {
-      "title": "Multi User",
-      "description": "Specify existing Active Directory parameters to integrate it with the cluster.",
-      "domainName": {
-        "name": "Domain Name",
-        "description": "The Active Directory (AD) domain that you use for identity information.",
-        "help": "This property corresponds to the sssd-ldap parameter that's called ldap_search_base."
-      },
-      "domainAddress": {
-        "name": "Domain Address",
-        "description": "The URI or URIs that point to the AD domain controller that's used as the LDAP server.",
-        "help": "The URI corresponds to the sssd-ldap parameter that's called ldap_uri. The value can be a comma separated string of URIs. To use LDAP, you must add ldap:// to the beginning of the each URI."
-      },
-      "passwordSecretArn" : {
-        "name": "Password Secret ARN",
-        "description": "The Amazon Resource Name (ARN) of the AWS Secrets Manager secret that contains the DomainReadOnlyUser plaintext password.",
-        "help": "The content of the secret corresponds to SSSD-LDAP parameter that's called ldap_default_authtok."
-      },
-      "domainReadOnlyUser": {
-        "name": "Domain Read Only User",
-        "description": "The identity that's used to query the AD domain for identity information when authenticating cluster user logins.",
-        "help": "It corresponds to sssd-ldap parameter that's called ldap_default_bind_dn. Use your AD identity information for this value."
-      },
-     "caCertificate": {
-       "name": "CA Certificate",
-       "description": "The absolute path to a certificates bundle containing the certificates for every certification authority in the certification chain that issued a certificate for the domain controllers.",
-       "help": "It corresponds to the sssd-ldap parameter that's called ldap_tls_cacert."
-     },
-      "requireCertificate": {
-        "name": "Require Certificate",
-        "description": "Specifies what checks to perform on server certificates in a TLS session.",
-        "help": "It corresponds to sssd-ldap parameter that's called ldap_tls_reqcert."
-      },
-      "LDAPAccessFilter": {
-        "name": "LDAP Access Filter",
-        "description": "Specifies a filter to limit LDAP queries to a subset of the directory that's being queried.",
-        "help": "This property corresponds to the sssd-ldap parameter that's called ldap_access_filter. You can use it to limit queries to an AD that supports a large number of users."
-      },
-      "generateSSHKeys": {
-        "name": "Generate SSH Keys",
-        "description": "Defines whether AWS ParallelCluster generates SSH key pairs for cluster users after they log in to the head node for the first time.",
-        "help": "The key pair is saved to the user home directory at /home/username/.ssh/. Users can use the SSH key pair for subsequent logins to the cluster head node and compute nodes. With AWS ParallelCluster, logins to cluster compute nodes are disabled by design. If a user hasn't logged into the head node, SSH keys aren't generated and the user won't be able to log in to compute nodes."
       }
     },
     "create": {
