@@ -237,6 +237,9 @@ Resources:
       ApiId: !Ref ApiGateway
       StageName: $default
       AutoDeploy: True
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: 50 
+        ThrottlingRateLimit: 100
 
   CognitoAppClient:
     Type: AWS::Cognito::UserPoolClient
