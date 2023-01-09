@@ -1,8 +1,12 @@
 import os
 from unittest import mock
-from api.PclusterApiHandler import authenticate
+
+import pytest
+from flask import g
+from api.PclusterApiHandler import authenticate, refresh_tokens, USER_ROLES_CLAIM
 from jose import jwt
 
+from api.exception.exceptions import RefreshTokenError
 
 @mock.patch.dict(os.environ,{"ENABLE_AUTH": "false"})
 def test_authenticate():
@@ -59,6 +63,18 @@ def test_authenticate_with_signature_exception_returns_401(mocker, app):
 
         mock_abort.assert_called_once_with(401)
 
+def test_authenticate_with_valid_refresh_token(mocker, app):
+    refresh_tokens = {'accessToken': 'access-token', 'idToken': 'id-token'}
+    mock_decoded = {USER_ROLES_CLAIM: ['any-group']}
+
+    with app.test_request_context(headers={'Cookie': 'accessToken=access-token;refreshToken=refresh-token'}):
+        mock_refresh_tokens = mocker.patch('api.PclusterApiHandler.refresh_tokens', return_value=refresh_tokens)
+        mocker.patch('api.PclusterApiHandler.jwt_decode', side_effect=[jwt.ExpiredSignatureError(), mock_decoded])
+
+        authenticate({'any-group'})
+
+        mock_refresh_tokens.assert_called_with('refresh-token')
+        assert g.auth_cookies == refresh_tokens
 
 def test_authenticate_with_non_guest_group_not_in_user_roles_claim_returns_403(mocker, app):
     with app.test_request_context(headers={'Cookie': 'accessToken=access-token'}):
