@@ -31,7 +31,7 @@ test.describe('Given an endpoint where ParallelCluster Manager is deployed', () 
     await expect(page.getByRole('heading', { name: 'Storage' })).toBeVisible()
     await page.getByRole('button', { name: 'Next' }).click();
   
-    await expect(page.getByRole('heading', { name: 'Queues' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Queues' }).first()).toBeVisible()
     await page.getByRole('button', { name: 'Next' }).click();
   
     await expect(page.getByRole('heading', { name: 'Cluster Configuration' })).toBeVisible()
