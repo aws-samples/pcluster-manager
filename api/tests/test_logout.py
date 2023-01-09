@@ -29,6 +29,7 @@ def test_logout_redirect(app, mock_cognito_redirect, mock_revoke_refresh_token):
 
     assert res.status_code == 302
     assert res.location == mock_cognito_redirect
+    mock_revoke_refresh_token.assert_called_once_with('refresh-token')
 
 def test_logout_clear_cookies(app, mock_revoke_refresh_token):
     """
@@ -44,3 +45,4 @@ def test_logout_clear_cookies(app, mock_revoke_refresh_token):
     assert "idToken=; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/" in cookie_list
     assert "refreshToken=; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/" in cookie_list
     assert "csrf=; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/" in cookie_list
+    mock_revoke_refresh_token.assert_called_once_with('refresh-token')
