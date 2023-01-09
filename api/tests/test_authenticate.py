@@ -63,7 +63,7 @@ def test_authenticate_with_signature_exception_returns_401(mocker, app):
 
         mock_abort.assert_called_once_with(401)
 
-def test_authenticate_with_valid_refresh_token(mocker, app):
+def test_authenticate_with_expired_access_token(mocker, app):
     refresh_tokens = {'accessToken': 'access-token', 'idToken': 'id-token'}
     mock_decoded = {USER_ROLES_CLAIM: ['any-group']}
 
