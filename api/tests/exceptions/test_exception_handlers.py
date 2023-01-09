@@ -25,5 +25,5 @@ def test_global_exception_handler_with_app_logic(client, app, monkeypatch):
     monkeypatch.setitem(app.view_functions, 'get_app_config_', get_app_config_raising_generic_exception)
     response = client.get('/manager/get_app_config')
 
-    assert response.status_code == 500
-    assert response.json == {'code': 500, 'message': 'Something went wrong'}
+    assert response.status_code == 400
+    assert response.json == {'code': 400, 'message': 'An error occurred while trying to complete your request. Please try again later. If the problem persists, please contact support for further assistance.'}

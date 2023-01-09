@@ -250,10 +250,10 @@ def ssm_command(region, instance_id, user, run_command):
         time.sleep(0.75)
 
     if time.time() - start > 60:
-        return {"message": "Timed out waiting for command to complete."}, 500
+        raise Exception("Timed out waiting for command to complete.")
 
     if status["Status"] != "Success":
-        return {"message": status["StandardErrorContent"]}, 500
+        raise Exception(status["StandardErrorContent"])
 
     output = status["StandardOutputContent"]
     return output
@@ -422,10 +422,10 @@ def get_dcv_session():
         time.sleep(0.75)
 
     if time.time() - start > 15:
-        return {"message": "Timed out waiting for dcv session to start."}, 500
+        raise Exception("Timed out waiting for dcv session to start.")
 
     if status["Status"] != "Success":
-        return {"message": status["StandardErrorContent"]}, 500
+        raise Exception(status["StandardErrorContent"])
 
     output = status["StandardOutputContent"]
 
@@ -434,7 +434,7 @@ def get_dcv_session():
     )
 
     if not dcv_parameters:
-        return {"message": "Something went wrong during DCV connection. Check logs in /var/log/parallelcluster/ ."}, 500
+        raise Exception("Something went wrong during DCV connection. Check logs in /var/log/parallelcluster/ .")
 
     ret = {
         "port": dcv_parameters.group(1),
@@ -592,12 +592,9 @@ def _augment_user(cognito, user):
 
 
 def list_users():
-    try:
-        cognito = boto3.client("cognito-idp")
-        users = cognito.list_users(UserPoolId=USER_POOL_ID)["Users"]
-        return {"users": [_augment_user(cognito, user) for user in users]}
-    except Exception as e:
-        return {"exception": str(e)}
+    cognito = boto3.client("cognito-idp")
+    users = cognito.list_users(UserPoolId=USER_POOL_ID)["Users"]
+    return {"users": [_augment_user(cognito, user) for user in users]}
 
 
 def delete_user():
@@ -607,21 +604,17 @@ def delete_user():
     return {"Username": username}
 
 def create_user():
-    try:
-        cognito = boto3.client("cognito-idp")
-        username = request.json.get("Username")
-        phone_number = request.json.get("Phonenumber")
-        user_attributes = [{"Name": "email", "Value": username}]
-        if phone_number:
-            user_attributes.append({"Name": "phone_number", "Value": phone_number})
-        user = cognito.admin_create_user(
-            UserPoolId=USER_POOL_ID, Username=username, DesiredDeliveryMediums=["EMAIL"], UserAttributes=user_attributes
-        ).get("User")
-        cognito.admin_add_user_to_group(UserPoolId=USER_POOL_ID, Username=username, GroupName="admin")
-        return _augment_user(cognito, user)
-    except Exception as e:
-        return {"message": str(e)}, 500
-
+    cognito = boto3.client("cognito-idp")
+    username = request.json.get("Username")
+    phone_number = request.json.get("Phonenumber")
+    user_attributes = [{"Name": "email", "Value": username}]
+    if phone_number:
+        user_attributes.append({"Name": "phone_number", "Value": phone_number})
+    user = cognito.admin_create_user(
+        UserPoolId=USER_POOL_ID, Username=username, DesiredDeliveryMediums=["EMAIL"], UserAttributes=user_attributes
+    ).get("User")
+    cognito.admin_add_user_to_group(UserPoolId=USER_POOL_ID, Username=username, GroupName="admin")
+    return _augment_user(cognito, user)
 
 def login():
     code = request.args.get("code")

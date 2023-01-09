@@ -32,11 +32,11 @@ def global_exception_handler(err):
     try:
         code = err.code
     except:
-        code = 500
+        code = 400
     descr = str(err)
 
     logger.error(descr, extra=dict(status=code, exception=type(err)))
-    return __handler_response(code)
+    return __handler_response(code, 'An error occurred while trying to complete your request. Please try again later. If the problem persists, please contact support for further assistance.')
 
 
 def __handler_response(code, description='Something went wrong'):
