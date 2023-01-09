@@ -19,6 +19,8 @@ import {findFirst, getIn} from '../../util'
 
 // UI Elements
 import {
+  Checkbox,
+  CheckboxProps,
   Container,
   FormField,
   Header,
@@ -37,6 +39,8 @@ import {useFeatureFlag} from '../../feature-flags/useFeatureFlag'
 import {useComputeResourceAdapter} from './Queues/Queues'
 import {createComputeResource as singleCreate} from './Queues/SingleInstanceComputeResource'
 import {createComputeResource as multiCreate} from './Queues/MultiInstanceComputeResource'
+import {MultiUser, multiUserValidate} from './MultiUser'
+import {NonCancelableEventHandler} from '@cloudscape-design/components/internal/events'
 
 // Constants
 const errorsPath = ['app', 'wizard', 'errors', 'cluster']
@@ -51,6 +55,7 @@ function clusterValidate() {
   const editing = getState(['app', 'wizard', 'editing'])
   const customAmiEnabled = getState(['app', 'wizard', 'customAMI', 'enabled'])
   const customAmi = getState(['app', 'wizard', 'config', 'Image', 'CustomAmi'])
+  const multiUserEnabled = getState(['app', 'wizard', 'multiUser']) || false
   let valid = true
 
   setState([...errorsPath, 'validated'], true)
@@ -73,6 +78,12 @@ function clusterValidate() {
     valid = false
   } else {
     clearState([...errorsPath, 'customAmi'])
+  }
+
+  if (multiUserEnabled && !multiUserValidate()) {
+    valid = false
+  } else {
+    clearState([...errorsPath, 'multiUser'])
   }
 
   return valid
@@ -404,40 +415,44 @@ function Cluster() {
     isMultipleInstanceTypesActive,
   ])
 
+  const handleMultiUserChange: NonCancelableEventHandler<
+    CheckboxProps.ChangeDetail
+  > = ({detail}) => {
+    if (!detail.checked) {
+      clearState(['app', 'wizard', 'config', 'DirectoryService'])
+    }
+    setState(['app', 'wizard', 'multiUser'], detail.checked)
+  }
+
   return (
-    <Container>
-      <SpaceBetween direction="vertical" size="s">
-        <RegionSelect />
-        <OsSelect />
-        <VpcSelect />
-        {isMultiuserClusterActive && (
-          <FormField>
-            <Header
-              // @ts-expect-error TS(2322) FIXME: Type '"h4"' is not assignable to type 'Variant | u... Remove this comment to see the full error message
-              variant="h4"
-              description={t('wizard.cluster.multiUser.description')}
-            >
-              <Trans i18nKey="wizard.cluster.multiUser.title" />
-            </Header>
-            <Toggle
-              disabled={editing}
-              checked={multiUserEnabled}
-              onChange={() =>
-                setState(['app', 'wizard', 'multiUser'], !multiUserEnabled)
-              }
-            >
-              <Trans i18nKey="wizard.cluster.multiUser.label" />
-            </Toggle>
-          </FormField>
-        )}
-        <CustomAMISettings
-          basePath={configPath}
-          appPath={['app', 'wizard']}
-          errorsPath={errorsPath}
-          validate={clusterValidate}
-        />
-      </SpaceBetween>
-    </Container>
+    <SpaceBetween direction="vertical" size="s">
+      <Container>
+        <SpaceBetween direction="vertical" size="s">
+          <RegionSelect />
+          <OsSelect />
+          <VpcSelect />
+          <CustomAMISettings
+            basePath={configPath}
+            appPath={['app', 'wizard']}
+            errorsPath={errorsPath}
+            validate={clusterValidate}
+          />
+          {isMultiuserClusterActive && (
+            <FormField>
+              <Checkbox
+                disabled={editing}
+                description={t('wizard.cluster.multiUser.checkbox.description')}
+                checked={multiUserEnabled}
+                onChange={handleMultiUserChange}
+              >
+                <Trans i18nKey="wizard.cluster.multiUser.checkbox.label" />
+              </Checkbox>
+            </FormField>
+          )}
+        </SpaceBetween>
+      </Container>
+      {multiUserEnabled && <MultiUser />}
+    </SpaceBetween>
   )
 }
 
