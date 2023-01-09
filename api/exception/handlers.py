@@ -32,7 +32,7 @@ def global_exception_handler(err):
     try:
         code = err.code
     except:
-        code = 500
+        code = 400
     descr = str(err)
 
     logger.error(descr, extra=dict(status=code, exception=type(err)))
