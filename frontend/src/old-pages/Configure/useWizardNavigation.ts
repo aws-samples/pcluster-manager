@@ -2,28 +2,19 @@ import {getState, setState, updateState, useState} from '../../store'
 // @ts-expect-error TS(7016) FIXME: Could not find a declaration file for module 'js-y... Remove this comment to see the full error message
 import jsyaml from 'js-yaml'
 
-const pages = [
-  'source',
-  'cluster',
-  'multiUser',
-  'headNode',
-  'storage',
-  'queues',
-  'create',
-]
+const pages = ['source', 'cluster', 'headNode', 'storage', 'queues', 'create']
 
 export const useWizardNavigation = (validate: (page: string) => boolean) => {
   const currentPage = useState(['app', 'wizard', 'page']) || 'source'
-  const isMultiUserEnabled = useState(['app', 'wizard', 'multiUser'])
   const source = useState(['app', 'wizard', 'source', 'type'])
 
   return (reason: string, requestedStepIndex: number) => {
     switch (reason) {
       case 'next':
-        handleNext(currentPage, isMultiUserEnabled, validate)
+        handleNext(currentPage, validate)
         break
       case 'previous':
-        handlePrev(currentPage, source, isMultiUserEnabled)
+        handlePrev(currentPage, source)
         break
       case 'step':
         handleStep(currentPage, pages[requestedStepIndex], validate)
@@ -36,7 +27,6 @@ export const useWizardNavigation = (validate: (page: string) => boolean) => {
 
 const handleNext = (
   currentPage: string,
-  isMultiUserEnabled: boolean,
   validate: (page: string) => boolean,
 ) => {
   if (validate(currentPage))
@@ -45,24 +35,11 @@ const handleNext = (
     )
   else return
 
-  if (currentPage === 'cluster') {
-    if (isMultiUserEnabled) {
-      setPage('multiUser')
-      return
-    } else {
-      setPage('headNode')
-      return
-    }
-  }
   const nextPage = pages[pages.indexOf(currentPage) + 1]
   setPage(nextPage)
 }
 
-const handlePrev = (
-  currentPage: string,
-  source: string,
-  isMultiUserEnabled: boolean,
-) => {
+const handlePrev = (currentPage: string, source: string) => {
   setState(['app', 'wizard', 'errors'], null)
 
   // Special case where the user uploaded a file, hitting "back"
@@ -71,15 +48,7 @@ const handlePrev = (
     setPage('source')
     return
   }
-  if (currentPage === 'headNode') {
-    if (isMultiUserEnabled) {
-      setPage('multiUser')
-      return
-    } else {
-      setPage('cluster')
-      return
-    }
-  }
+
   const prevPage = pages[pages.indexOf(currentPage) - 1]
   setPage(prevPage)
 }
