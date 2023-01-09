@@ -23,7 +23,7 @@ from flask_restful import Resource, reqparse
 from jose import jwt
 
 from api.exception.exceptions import RefreshTokenError
-from api.pcm_globals import set_auth_cookies_in_context
+from api.pcm_globals import set_auth_cookies_in_context, logger
 from api.security.csrf.constants import CSRF_COOKIE_NAME
 from api.security.csrf.csrf import csrf_needed
 from api.utils import disable_auth
@@ -42,6 +42,7 @@ SITE_URL = os.getenv("SITE_URL", API_BASE_URL)
 SCOPES_LIST = os.getenv("SCOPES_LIST")
 REGION = os.getenv("AWS_DEFAULT_REGION")
 TOKEN_URL = os.getenv("TOKEN_URL", f"{AUTH_PATH}/oauth2/token")
+REVOKE_REFRESH_TOKEN_URL = f"{AUTH_PATH}/oauth2/revoke"
 AUTH_URL = os.getenv("AUTH_URL", f"{AUTH_PATH}/login")
 JWKS_URL = os.getenv("JWKS_URL")
 AUDIENCE = os.getenv("AUDIENCE")
@@ -673,12 +674,29 @@ def login():
 
 
 def logout():
+    refresh_token = request.cookies.get('refreshToken', None)
+    if refresh_token is not None:
+        revoke_cognito_refresh_token(refresh_token)
+
     resp = __cognito_logout_redirect(get_app_config())
     resp.set_cookie("accessToken", "", expires=0)
     resp.set_cookie("idToken", "", expires=0)
     resp.set_cookie("refreshToken", "", expires=0)
     resp.set_cookie(CSRF_COOKIE_NAME, "", expires=0)
     return resp
+
+def revoke_cognito_refresh_token(refresh_token):
+    auth = requests.auth.HTTPBasicAuth(CLIENT_ID, CLIENT_SECRET)
+    revoke_resp = requests.post(
+        REVOKE_REFRESH_TOKEN_URL,
+        data={"token": refresh_token},
+        auth=auth,
+        headers={"Content-Type": "application/x-www-form-urlencoded"})
+
+    if revoke_resp.status_code != 200:
+        logger.warning('Unable to revoke cognito refresh token')
+
+
 
 def __cognito_logout_redirect(config):
     auth_url = AUTH_PATH
