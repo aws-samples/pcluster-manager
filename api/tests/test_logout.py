@@ -14,24 +14,30 @@ def mock_cognito_redirect(mocker):
 
     return mocked_cognito_redirect_url
 
-def test_logout_redirect(mock_cognito_redirect):
+@pytest.fixture
+def mock_revoke_refresh_token(mocker):
+    return mocker.patch('api.PclusterApiHandler.revoke_cognito_refresh_token')
+
+def test_logout_redirect(app, mock_cognito_redirect, mock_revoke_refresh_token):
     """
     Given a handler for the /logout endpoint
       When user logs out
         Then it should redirect to index.html
     """
-    res = logout()
+    with app.test_request_context(headers={'Cookie': 'accessToken=access-token;refreshToken=refresh-token'}):
+        res = logout()
 
     assert res.status_code == 302
     assert res.location == mock_cognito_redirect
 
-def test_logout_clear_cookies(mocker, app):
+def test_logout_clear_cookies(app, mock_revoke_refresh_token):
     """
     Given an handler for the /logout endpoint
       When user logs out
         Then it should clear the authentication cookies
     """
-    res = logout()
+    with app.test_request_context(headers={'Cookie': 'accessToken=access-token;refreshToken=refresh-token'}):
+        res = logout()
     
     cookie_list = res.headers.getlist('Set-Cookie')
     assert "accessToken=; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/" in cookie_list
