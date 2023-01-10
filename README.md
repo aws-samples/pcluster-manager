@@ -3,9 +3,7 @@ ParallelCluster Manager - Make HPC Easy
 
 This project is a front-end for [AWS Parallel Cluster](https://github.com/aws/aws-parallelcluster)
 
-Quickly and easily create HPC cluster in AWS using ParallelCluster Manager. This UI uses the AWS ParallelCluster 3.0 API to Create, Update and Delete Clusters as well as access, view logs, and build Amazon Machine Images (AMI's).
-
-Want to request a new feature? [open a feature request](https://github.com/aws-samples/pcluster-manager/issues/new)
+Quickly and easily create HPC cluster in AWS using ParallelCluster Manager. This UI uses the AWS ParallelCluster 3.x API to Create, Update and Delete Clusters as well as access, view logs, and build Amazon Machine Images (AMI's).
 
 You can get started with your first cluster in as little as 15 minutes using the links below.
 
@@ -59,7 +57,6 @@ ParallelCluster Manager is built on a serverless architecture and falls into the
 | EC2           | ~15 mins one-time to build Container Image                       |
 
 Typical usage will likely cost < $1 / month.
-
 
 ## Reusing a Cognito User Pool
 
@@ -118,7 +115,7 @@ It is possible to reuse a Cognito user pool across multiple PCM instances to avo
    - `SNSRole`
 3. Install a new PCM instance using the [Quickstart](#quickstart-15-mins-🚀) and fill in all `External PCM Cognito` parameters with the outputs that you just copied. This will prevent PCM from creating a new pool and will use the linked one instead.
 
-## Identify the installed version of ParallelCluster and ParallelClsuster Manager
+## Identify the installed version of ParallelCluster and ParallelCluster Manager
 1. From the CloudFormation console, select a PCM stack.
 2. Select the **Parameters** tab.
 3. The version of ParallelCluster is available under `Version`.
@@ -126,7 +123,7 @@ It is possible to reuse a Cognito user pool across multiple PCM instances to avo
 
 ## Updating
 
-To update the the latest version, run the following, make sure to set the region to where you deployed the stack:
+To update the the latest version, launch a new stack following the [Quickstart](#quickstart-15-mins-🚀).
 
 ## Development
 
@@ -138,11 +135,10 @@ See [Security Issue Notifications](CONTRIBUTING.md#security-issue-notifications)
 
 ## Contributing
 
-Please refer to our [Contributing Guidelines](CONTRIBUTING.md) before reporting bugs or feature requests
+Please refer to our [Contributing Guidelines](CONTRIBUTING.md) before reporting bugs or feature requests.
 
-Please refer to our [Project Guidelines](PROJECT_GUIDELINES.md) before diving into the code
+Please refer to our [Project Guidelines](PROJECT_GUIDELINES.md) before diving into the code.
 
 ## License
 
 This project is licensed under the Apache-2.0 License.
-
