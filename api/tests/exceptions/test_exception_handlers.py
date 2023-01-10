@@ -32,6 +32,16 @@ def test_unauthenticated_error_handler(client, app, monkeypatch):
     assert response.status_code == 401
     assert response.json == {'code': 401, 'message': 'Refresh token error: refresh-token-error'}
 
+def test_validation_error_handler(client, mock_enable_auth, mock_csrf_needed):
+
+    response = client.post('/manager/ec2_action', query_string={'region': 'eu-west-1', 'instance_ids': 'i-1,i-2', 'action': 'invalid-action'})
+
+    assert response.status_code == 400
+    assert response.json == {
+        'code': 400, 'message': 'Input validation failed for /manager/ec2_action',
+        'validation_errors': {'action': ['Must be one of: stop_instances, start_instances.']}
+    }
+
 def test_global_exception_handler_with_app_logic(client, app, monkeypatch):
     def get_app_config_raising_generic_exception():
         raise Exception('generic exception')
