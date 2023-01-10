@@ -10,3 +10,17 @@ class EC2ActionSchema(Schema):
 
 
 EC2Action = EC2ActionSchema(unknown=INCLUDE)
+
+
+class CreateUserSchema(Schema):
+    Username = fields.Email(required=True)
+    Phonenumber = fields.String()
+
+
+CreateUser = CreateUserSchema(unknown=INCLUDE)
+
+
+class DeleteUserSchema(Schema):
+    username = fields.UUID(required=True)
+
+DeleteUser = DeleteUserSchema(unknown=INCLUDE)
