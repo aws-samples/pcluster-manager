@@ -45,7 +45,7 @@ from api.pcm_globals import logger
 from api.security.csrf import CSRF
 from api.security.csrf.csrf import csrf_needed
 from api.security.fingerprint import CognitoFingerprintGenerator
-from api.validation import valid, EC2Action
+from api.validation import validated, EC2Action
 from api.validation.schemas import CreateUser, DeleteUser
 
 ADMINS_GROUP = { "admin" }
@@ -88,7 +88,7 @@ def run():
     @app.route("/manager/ec2_action", methods=["POST"])
     @authenticated(ADMINS_GROUP)
     @csrf_needed
-    @valid(args=EC2Action)
+    @validated(params=EC2Action)
     def ec2_action_():
         return ec2_action()
 
@@ -139,14 +139,14 @@ def run():
     @app.route("/manager/create_user", methods=["POST"])
     @authenticated(ADMINS_GROUP)
     @csrf_needed
-    @valid(json=CreateUser)
+    @validated(body=CreateUser)
     def create_user_():
         return create_user()
 
     @app.route("/manager/delete_user", methods=["DELETE"])
     @authenticated(ADMINS_GROUP)
     @csrf_needed
-    @valid(args=DeleteUser)
+    @validated(params=DeleteUser)
     def delete_user_():
         return delete_user()
 
