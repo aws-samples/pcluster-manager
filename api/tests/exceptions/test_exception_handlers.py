@@ -1,3 +1,5 @@
+from marshmallow import ValidationError
+
 from api.exception.exceptions import RefreshTokenError
 
 
@@ -31,6 +33,20 @@ def test_unauthenticated_error_handler(client, app, monkeypatch):
 
     assert response.status_code == 401
     assert response.json == {'code': 401, 'message': 'Refresh token error: refresh-token-error'}
+
+def test_validation_error_handler(client, app, monkeypatch):
+
+    def ec2_action_raising():
+        raise ValidationError('Input validation failed for /manager/ec2_action', data={'field': ['validation-error']})
+
+    monkeypatch.setitem(app.view_functions, 'ec2_action_', ec2_action_raising)
+    response = client.post('/manager/ec2_action')
+
+    assert response.status_code == 400
+    assert response.json == {
+        'code': 400, 'message': 'Input validation failed for /manager/ec2_action',
+        'validation_errors': {'field': ['validation-error']}
+    }
 
 def test_global_exception_handler_with_app_logic(client, app, monkeypatch):
     def get_app_config_raising_generic_exception():

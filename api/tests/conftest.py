@@ -1,3 +1,5 @@
+import os
+
 import pytest
 
 import api.security
@@ -44,3 +46,7 @@ def dev_client(dev_app):
 def mock_csrf_needed(mocker, app):
     mock_csrf_enabled = mocker.patch.object(api.security.csrf.csrf, 'is_csrf_enabled')
     mock_csrf_enabled.return_value = False
+
+@pytest.fixture(scope='function')
+def mock_enable_auth(mocker):
+    return mocker.patch.dict(os.environ, {'ENABLE_AUTH': 'false'})
