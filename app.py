@@ -45,6 +45,7 @@ from api.pcm_globals import logger
 from api.security.csrf import CSRF
 from api.security.csrf.csrf import csrf_needed
 from api.security.fingerprint import CognitoFingerprintGenerator
+from api.validation import valid, EC2Action
 
 ADMINS_GROUP = { "admin" }
 
@@ -86,6 +87,7 @@ def run():
     @app.route("/manager/ec2_action", methods=["POST"])
     @authenticated(ADMINS_GROUP)
     @csrf_needed
+    @valid(args=EC2Action)
     def ec2_action_():
         return ec2_action()
 
