@@ -46,14 +46,6 @@ Enter your email and wait (~15 mins) for the stack to go into **CREATE_COMPLETE*
 
 For more details see the [Getting Started Guide](https://pcluster.cloud).
 
-## Screen Shot
-
-![Main Page](docs/static/01-getting-started/main-page.png)
-
-## System Architecture
-
-![ParallelCluster Manager Architecture](docs/static/architecture.png)
-
 ## Costs
 
 ParallelCluster Manager is built on a serverless architecture and falls into the free tier for most uses. I've detailed the dependency services and their free-tier limits below:
