@@ -126,6 +126,12 @@ It is possible to reuse a Cognito user pool across multiple PCM instances to avo
    - `SNSRole`
 3. Install a new PCM instance using the [Quickstart](#quickstart-15-mins-🚀) and fill in all `External PCM Cognito` parameters with the outputs that you just copied. This will prevent PCM from creating a new pool and will use the linked one instead.
 
+## Identify the installed version of ParallelCluster and ParallelClsuster Manager
+1. From the CloudFormation console, select a PCM stack.
+2. Select the **Parameters** tab.
+3. The version of ParallelCluster is available under `Version`.
+4. The version of ParallelCluster Manager is the latest part of the `PublicEcrImageUri` parameter. For example if the value is `public.ecr.aws/pcm/pcluster-manager-awslambda:3.3.0` the version is `3.3.0`.
+
 ## Updating
 
 To update the the latest version, run the following, make sure to set the region to where you deployed the stack:
