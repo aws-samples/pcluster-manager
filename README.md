@@ -3,9 +3,7 @@ ParallelCluster Manager - Make HPC Easy
 
 This project is a front-end for [AWS Parallel Cluster](https://github.com/aws/aws-parallelcluster)
 
-Quickly and easily create HPC cluster in AWS using ParallelCluster Manager. This UI uses the AWS ParallelCluster 3.0 API to Create, Update and Delete Clusters as well as access, view logs, and build Amazon Machine Images (AMI's).
-
-Want to request a new feature? [open a feature request](https://github.com/aws-samples/pcluster-manager/issues/new)
+Quickly and easily create HPC cluster in AWS using ParallelCluster Manager. This UI uses the AWS ParallelCluster 3.x API to Create, Update and Delete Clusters as well as access, view logs, and build Amazon Machine Images (AMI's).
 
 You can get started with your first cluster in as little as 15 minutes using the links below.
 
@@ -46,14 +44,6 @@ Enter your email and wait (~15 mins) for the stack to go into **CREATE_COMPLETE*
 
 For more details see the [Getting Started Guide](https://pcluster.cloud).
 
-## Screen Shot
-
-![Main Page](docs/static/01-getting-started/main-page.png)
-
-## System Architecture
-
-![ParallelCluster Manager Architecture](docs/static/architecture.png)
-
 ## Costs
 
 ParallelCluster Manager is built on a serverless architecture and falls into the free tier for most uses. I've detailed the dependency services and their free-tier limits below:
@@ -67,7 +57,6 @@ ParallelCluster Manager is built on a serverless architecture and falls into the
 | EC2           | ~15 mins one-time to build Container Image                       |
 
 Typical usage will likely cost < $1 / month.
-
 
 ## Reusing a Cognito User Pool
 
@@ -126,100 +115,19 @@ It is possible to reuse a Cognito user pool across multiple PCM instances to avo
    - `SNSRole`
 3. Install a new PCM instance using the [Quickstart](#quickstart-15-mins-🚀) and fill in all `External PCM Cognito` parameters with the outputs that you just copied. This will prevent PCM from creating a new pool and will use the linked one instead.
 
+## Identify the installed version of ParallelCluster and ParallelCluster Manager
+1. From the CloudFormation console, select a PCM stack.
+2. Select the **Parameters** tab.
+3. The version of ParallelCluster is available under `Version`.
+4. The version of ParallelCluster Manager is the latest part of the `PublicEcrImageUri` parameter. For example if the value is `public.ecr.aws/pcm/pcluster-manager-awslambda:3.3.0` the version is `3.3.0`.
+
 ## Updating
 
-To update the the latest version, run the following, make sure to set the region to where you deployed the stack:
+To update the the latest version, launch a new stack following the [Quickstart](#quickstart-15-mins-🚀).
 
-```bash
-git clone https://github.com/aws-samples/pcluster-manager.git
-cd pcluster-manager/
-./scripts/update.sh --region us-east-1  # should be region where stack is deployed
-```
+## Development
 
-## Local Development
-
-To run AWS ParallelCluster Manager locally, start by setting the following environment variables:
-
-```bash
-export AWS_ACCESS_KEY_ID=[...]
-export AWS_SECRET_ACCESS_KEY=[...]
-export AWS_DEFAULT_REGION=us-east-2
-export API_BASE_URL=https://[API_ID].execute-api.us-east-2.amazonaws.com/prod  # get this from ParallelClusterApi stack outputs
-export ENV=dev
-```
-
-Install dependencies by running:
-
-```bash
-pip3 install -r requirements.txt
-```
-
-#### Backend with Cognito
-From the Cognito service page of the AWS account where pcluster-manager has been deployed, click on the user pool
-and then on the *App Integration* tab. In the App client list at the bottom, make note of the *Client ID*, then
-click on the App client and click *Edit* in the *Hosted UI* section, adding `http://localhost:5001/login` to the
-*Allowed callback URLs*.
-
-Then export the following variables:
-
-```bash
-export SECRET_ID=<the value of the UserPoolClientSecretName output from the PclusterManagerCognito stack>
-export SITE_URL=http://localhost:5001
-export AUDIENCE=<the value of the Client ID noted in the previous step>
-export AUTH_PATH=<the UserPoolAuthDomain output of the ParallelClusterCognito nested stack>
-```
-
-Start the API backend by running:
-
-```bash
-./scripts/run_flask.sh
-```
-
-Start the React frontend by running:
-
-```bash
-cd frontend/
-npm install # if this is your first time starting the frontend
-npm run dev
-```
-
-Lastly, navigate to [http://localhost:5001](http://localhost:5001)
-
-#### Frontend
-Disable authentication (*HMR does not work when working on http://localhost:5001*), note that this has to be exported in shell where the backend runs:
-
-```bash
-export ENABLE_AUTH=false
-```
-
-Start the API backend by running:
-
-```bash
-./scripts/run_flask.sh
-```
-
-Start the React frontend by running:
-
-```bash
-cd frontend/
-npm install # if this is your first time starting the frontend
-npm run dev
-```
-
-Navigate to [http://localhost:3000](http://localhost:3000)
-
-## Typescript
-The project has been converted to Typescript using [ts-migrate](https://github.com/airbnb/ts-migrate/tree/master/packages/ts-migrate)(an in depth explanation can be found [here](https://medium.com/airbnb-engineering/ts-migrate-a-tool-for-migrating-to-typescript-at-scale-cd23bfeb5cc)).
-The tool automatically adds comments similar to `// @ts-expect-error` when typing errors cannot be fixed automatically: if you fix a type error either by adding a missing third party declaration or tweaking the signature of a function, you can adjust automatically the codebase and remove `//@ts-ignore` comments using `npm run ts-reignore`.
-
-## Testing
-
-Launch tests of the API backend by running:
-
-```bash
-pytest
-```
-For detailed information on how to invoke `pytest`, see this [resource](https://docs.pytest.org/en/7.1.x/how-to/usage.html). 
+See [Development guide](DEVELOPMENT.md) to setup a local environment.
 
 ## Security
 
@@ -227,11 +135,10 @@ See [Security Issue Notifications](CONTRIBUTING.md#security-issue-notifications)
 
 ## Contributing
 
-Please refer to our [Contributing Guidelines](CONTRIBUTING.md) before reporting bugs or feature requests
+Please refer to our [Contributing Guidelines](CONTRIBUTING.md) before reporting bugs or feature requests.
 
-Please refer to our [Project Guidelines](PROJECT_GUIDELINES.md) before diving into the code
+Please refer to our [Project Guidelines](PROJECT_GUIDELINES.md) before diving into the code.
 
 ## License
 
 This project is licensed under the Apache-2.0 License.
-
