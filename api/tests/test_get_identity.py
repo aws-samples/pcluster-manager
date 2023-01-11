@@ -1,3 +1,5 @@
+import pytest
+
 from api.PclusterApiHandler import get_identity
 
 
@@ -71,7 +73,7 @@ def test_get_identity_auth_enabled_no_username_provided(monkeypatch, mocker, app
     Given an handler for the /get-identity endpoint
       When authentication is enabled
       When username could not be retrieved
-        Then it should return a 400
+        Then it should raise Exception
     """
     monkeypatch.setenv("ENABLE_AUTH", "true")
     monkeypatch.setattr('api.PclusterApiHandler.USER_ROLES_CLAIM', 'user_roles_claim')
@@ -82,15 +84,15 @@ def test_get_identity_auth_enabled_no_username_provided(monkeypatch, mocker, app
     }
     with app.test_request_context(headers={'Cookie': 'accessToken=access-token; idToken=identity-token'}):
       mocker.patch('api.PclusterApiHandler.jwt_decode', side_effect=[accessTokenDecoded, identityTokenDecoded])
-
-      assert get_identity() == ({"message": "No username present in access or id token."}, 400)
+      with pytest.raises(Exception):
+          get_identity()
 
 def test_get_identity_auth_enabled_no_user_roles_provided(monkeypatch, mocker, app):
     """
     Given an handler for the /get-identity endpoint
       When authentication is enabled
       When user roles could not be retrieved
-        Then it should return 400
+        Then it should raise Exception
     """
     monkeypatch.setenv("ENABLE_AUTH", "true")
     monkeypatch.setattr('api.PclusterApiHandler.USER_ROLES_CLAIM', 'user_roles_claim')
@@ -102,5 +104,6 @@ def test_get_identity_auth_enabled_no_user_roles_provided(monkeypatch, mocker, a
     with app.test_request_context(headers={'Cookie': 'accessToken=access-token; idToken=identity-token'}):
       mocker.patch('api.PclusterApiHandler.jwt_decode', side_effect=[accessTokenDecoded, identityTokenDecoded])
 
-      assert get_identity() == ({"message": "No user_roles present in access or id token."}, 400)
+      with pytest.raises(Exception):
+          get_identity()
       
