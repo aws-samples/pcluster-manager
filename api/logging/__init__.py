@@ -11,12 +11,7 @@ def parse_log_entry(_logger, entry):
         message,
         extra dict (if present)
     """
-    if 'level' not in entry or 'message' not in entry:
-        raise ValueError('Request body missing one or more mandatory fields ["message", "level"]')
-
     level, message, extra = entry.get('level'), entry.get('message'), entry.get('extra')
-    if not (extra is None or type(extra) is dict):
-        raise ValueError('Extra param must be a valid json object')
 
     lowercase_level = level.lower()
     if lowercase_level not in VALID_LOG_LEVELS:
