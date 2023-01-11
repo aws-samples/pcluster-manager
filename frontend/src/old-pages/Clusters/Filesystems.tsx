@@ -26,6 +26,9 @@ import {
 // Components
 import EmptyState from '../../components/EmptyState'
 import {useFeatureFlag} from '../../feature-flags/useFeatureFlag'
+import {EC2Instance} from '../../types/instances'
+import {Region} from '../../types/base'
+import {Storages} from '../Configure/Storage.types'
 
 function StorageId({storage}: any) {
   const settingsKey = `${storage.StorageType}Settings`
@@ -86,11 +89,29 @@ function StorageId({storage}: any) {
   )
 }
 
+export function buildFilesystemLink(
+  region: Region,
+  headNode: EC2Instance | undefined,
+  item: Storages[0],
+) {
+  if (!headNode?.instanceId) return null
+
+  return `${consoleDomain(region)}/systems-manager/managed-instances/${
+    headNode.instanceId
+  }/file-system?region=${region}&osplatform=Linux#%7B%22path%22%3A%22${
+    item.MountDir
+  }%22%7D`
+}
+
 export default function Filesystems() {
   const clusterName = useState(['app', 'clusters', 'selected'])
   const clusterPath = ['clusters', 'index', clusterName]
-  const storage = useState([...clusterPath, 'config', 'SharedStorage']) || []
-  const headNode = useState([...clusterPath, 'headNode'])
+  const storage: Storages =
+    useState([...clusterPath, 'config', 'SharedStorage']) || []
+  const headNode: EC2Instance | undefined = useState([
+    ...clusterPath,
+    'headNode',
+  ])
   const defaultRegion = useState(['aws', 'region'])
   const region = useState(['app', 'selectedRegion']) || defaultRegion
 
@@ -137,22 +158,16 @@ export default function Filesystems() {
               {
                 id: 'mount',
                 header: 'Mount Point',
-                cell: item => (
-                  <Link
-                    external
-                    href={`${consoleDomain(
-                      region,
-                    )}/systems-manager/managed-instances/${
-                      headNode.instanceId
-                    }/file-system?region=${region}&osplatform=Linux#%7B%22path%22%3A%22${
-                      (item as any).MountDir
-                    }%22%7D`}
-                    rel="noreferrer"
-                    target="_blank"
-                  >
-                    {(item as any).MountDir}
-                  </Link>
-                ),
+                cell: item => {
+                  const href = buildFilesystemLink(region, headNode, item)
+                  const text = (item as any).MountDir
+                  if (!href) return text
+                  return (
+                    <Link external href={href}>
+                      {text}
+                    </Link>
+                  )
+                },
                 sortingField: 'MountDir',
               },
               {
