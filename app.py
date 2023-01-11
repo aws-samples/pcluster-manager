@@ -46,7 +46,8 @@ from api.security.csrf import CSRF
 from api.security.csrf.csrf import csrf_needed
 from api.security.fingerprint import CognitoFingerprintGenerator
 from api.validation import validated, EC2Action
-from api.validation.schemas import CreateUser, DeleteUser, GetClusterConfig, GetCustomImageConfig, GetAwsConfig, GetInstanceTypes, Login, PushLog, PriceEstimate
+from api.validation.schemas import CreateUser, DeleteUser, GetClusterConfig, GetCustomImageConfig, GetAwsConfig, GetInstanceTypes,\
+     Login, PushLog, PriceEstimate, GetDcvSession, QueueStatus, ScontrolJob, CancelJob, Sacct
 
 ADMINS_GROUP = { "admin" }
 
@@ -119,6 +120,7 @@ def run():
     @app.route("/manager/get_dcv_session")
     @authenticated(ADMINS_GROUP)
     @csrf_needed
+    @validated(params=GetDcvSession)
     def get_dcv_session_():
         return get_dcv_session()
 
@@ -156,12 +158,14 @@ def run():
 
     @app.route("/manager/queue_status")
     @authenticated(ADMINS_GROUP)
+    @validated(params=QueueStatus)
     def queue_status_():
         return queue_status()
 
     @app.route("/manager/cancel_job")
     @authenticated(ADMINS_GROUP)
     @csrf_needed
+    @validated(params=CancelJob)
     def cancel_job_():
         return cancel_job()
 
@@ -174,11 +178,13 @@ def run():
     @app.route("/manager/sacct", methods=["POST"])
     @authenticated(ADMINS_GROUP)
     @csrf_needed
+    @validated(params=Sacct)
     def sacct_():
         return sacct()
 
     @app.route("/manager/scontrol_job")
     @authenticated(ADMINS_GROUP)
+    @validated(params=ScontrolJob)
     def scontrol_job_():
         return scontrol_job()
 
