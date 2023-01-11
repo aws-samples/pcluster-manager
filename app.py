@@ -46,7 +46,7 @@ from api.security.csrf import CSRF
 from api.security.csrf.csrf import csrf_needed
 from api.security.fingerprint import CognitoFingerprintGenerator
 from api.validation import validated, EC2Action
-from api.validation.schemas import CreateUser, DeleteUser
+from api.validation.schemas import CreateUser, DeleteUser, GetClusterConfig, GetCustomImageConfig, GetAwsConfig, GetInstanceTypes
 
 ADMINS_GROUP = { "admin" }
 
@@ -94,21 +94,25 @@ def run():
 
     @app.route("/manager/get_cluster_configuration")
     @authenticated(ADMINS_GROUP)
+    @validated(params=GetClusterConfig)
     def get_cluster_config_():
         return get_cluster_config()
 
     @app.route("/manager/get_custom_image_configuration")
     @authenticated(ADMINS_GROUP)
+    @validated(params=GetCustomImageConfig)
     def get_custom_image_config_():
         return get_custom_image_config()
 
     @app.route("/manager/get_aws_configuration")
     @authenticated(ADMINS_GROUP)
+    @validated(params=GetAwsConfig)
     def get_aws_config_():
         return get_aws_config()
 
     @app.route("/manager/get_instance_types")
     @authenticated(ADMINS_GROUP)
+    @validated(params=GetInstanceTypes)
     def get_instance_types_():
         return get_instance_types()
 
