@@ -52,6 +52,49 @@ class GetInstanceTypesSchema(Schema):
 GetInstanceTypes = GetInstanceTypesSchema(unknown=INCLUDE)
 
 
+class GetDcvSessionSchema(Schema):
+    user = fields.String()
+    instance_id = fields.String(required=True)
+    region = fields.String(validate=aws_region_validator)
+
+GetDcvSession = GetDcvSessionSchema(unknown=INCLUDE)
+
+
+class QueueStatusSchema(Schema):
+    user = fields.String()
+    instance_id = fields.String(required=True)
+    region = fields.String(required=True, validate=aws_region_validator)
+
+QueueStatus = QueueStatusSchema(unknown=INCLUDE)
+
+
+class ScontrolJobSchema(Schema):
+    user = fields.String()
+    instance_id = fields.String(required=True)
+    job_id = fields.String(required=True)
+    region = fields.String(required=True, validate=aws_region_validator)
+
+ScontrolJob = ScontrolJobSchema(unknown=INCLUDE)
+
+
+class CancelJobSchema(Schema):
+    user = fields.String()
+    instance_id = fields.String(required=True)
+    job_id = fields.String(required=True)
+    region = fields.String(required=True, validate=aws_region_validator)
+
+CancelJob = CancelJobSchema(unknown=INCLUDE)
+
+
+class SacctSchema(Schema):
+    user = fields.String()
+    instance_id = fields.String(required=True)
+    cluster_name = fields.String(required=True, validate=is_alphanumeric_with_hyphen)
+    region = fields.String(required=True, validate=aws_region_validator)
+
+Sacct = SacctSchema(unknown=INCLUDE)
+
+
 class LoginSchema(Schema):
     code = fields.String(required=True)
 
