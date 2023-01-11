@@ -46,7 +46,7 @@ from api.security.csrf import CSRF
 from api.security.csrf.csrf import csrf_needed
 from api.security.fingerprint import CognitoFingerprintGenerator
 from api.validation import validated, EC2Action
-from api.validation.schemas import CreateUser, DeleteUser, GetClusterConfig, GetCustomImageConfig, GetAwsConfig, GetInstanceTypes
+from api.validation.schemas import CreateUser, DeleteUser, GetClusterConfig, GetCustomImageConfig, GetAwsConfig, GetInstanceTypes, Login, PushLog, PriceEstimate
 
 ADMINS_GROUP = { "admin" }
 
@@ -167,6 +167,7 @@ def run():
 
     @app.route("/manager/price_estimate")
     @authenticated(ADMINS_GROUP)
+    @validated(params=PriceEstimate)
     def price_estimate_():
         return price_estimate()
 
@@ -182,6 +183,7 @@ def run():
         return scontrol_job()
 
     @app.route("/login")
+    @validated(params=Login)
     def login_():
         return login()
 
@@ -192,12 +194,9 @@ def run():
     @app.route('/logs', methods=['POST'])
     @authenticated(ADMINS_GROUP)
     @csrf_needed
+    @validated(body=PushLog)
     def push_log():
-        body = request.json
-        if 'logs' not in body:
-            raise ValueError("Request body is missing the mandatory 'logs' key")
-
-        for entry in body['logs']:
+        for entry in request.json['logs']:
             level, message, extra = parse_log_entry(logger, entry)
             push_log_entry(logger, level, message, extra)
 
