@@ -1,6 +1,7 @@
 from marshmallow import Schema, fields, validate, INCLUDE
 
 from api.validation.validators import comma_splittable, aws_region_validator, is_alphanumeric_with_hyphen
+from api.logging import VALID_LOG_LEVELS
 
 
 class EC2ActionSchema(Schema):
@@ -55,3 +56,20 @@ class LoginSchema(Schema):
     code = fields.String(required=True)
 
 Login = LoginSchema(unknown=INCLUDE)
+
+class PushLogSchema(Schema):
+    class PushLogEntrySchema(Schema):
+        level = fields.String(required=True, validate=validate.OneOf(VALID_LOG_LEVELS))
+        message = fields.String(required=True)
+        extra = fields.Dict()
+
+    logs = fields.List(fields.Nested(PushLogEntrySchema), required=True)
+
+PushLog = PushLogSchema(unknown=INCLUDE)
+
+class PriceEstimateSchema(Schema):
+    cluster_name = fields.String(required=True)
+    queue_name = fields.String(required=True)
+    region = fields.String(validate=aws_region_validator)
+
+PriceEstimate = PriceEstimateSchema(unknown=INCLUDE)

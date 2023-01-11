@@ -167,6 +167,7 @@ def run():
 
     @app.route("/manager/price_estimate")
     @authenticated(ADMINS_GROUP)
+    @validated(params=PriceEstimate)
     def price_estimate_():
         return price_estimate()
 
