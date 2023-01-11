@@ -1,6 +1,8 @@
 from marshmallow import validate
 import re
 
+from api.logging import VALID_LOG_LEVELS
+
 # PC available regions
 PC_REGIONS = [
     'us-east-2','us-east-1','us-west-1','us-west-2',
@@ -27,3 +29,7 @@ def is_alphanumeric_with_hyphen(arg: str):
 
 
 aws_region_validator = validate.OneOf(choices=PC_REGIONS)
+
+
+def valid_api_log_levels_predicate(loglevel):
+    return loglevel.lower() in VALID_LOG_LEVELS
