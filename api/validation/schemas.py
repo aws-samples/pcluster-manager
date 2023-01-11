@@ -49,3 +49,9 @@ class GetInstanceTypesSchema(Schema):
     region = fields.String(validate=aws_region_validator)
 
 GetInstanceTypes = GetInstanceTypesSchema(unknown=INCLUDE)
+
+
+class LoginSchema(Schema):
+    code = fields.String(required=True)
+
+Login = LoginSchema(unknown=INCLUDE)

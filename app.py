@@ -46,7 +46,7 @@ from api.security.csrf import CSRF
 from api.security.csrf.csrf import csrf_needed
 from api.security.fingerprint import CognitoFingerprintGenerator
 from api.validation import validated, EC2Action
-from api.validation.schemas import CreateUser, DeleteUser, GetClusterConfig, GetCustomImageConfig, GetAwsConfig, GetInstanceTypes
+from api.validation.schemas import CreateUser, DeleteUser, GetClusterConfig, GetCustomImageConfig, GetAwsConfig, GetInstanceTypes, Login
 
 ADMINS_GROUP = { "admin" }
 
@@ -182,6 +182,7 @@ def run():
         return scontrol_job()
 
     @app.route("/login")
+    @validated(params=Login)
     def login_():
         return login()
 

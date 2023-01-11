@@ -643,8 +643,6 @@ def create_user():
 
 def login():
     code = request.args.get("code")
-    if not code:
-        return abort(400) # the endpoint shouldn't be called without the code (it's not strictly an authorization error)
 
     # Convert the authorization code into a jwt
     auth = requests.auth.HTTPBasicAuth(CLIENT_ID, CLIENT_SECRET)
