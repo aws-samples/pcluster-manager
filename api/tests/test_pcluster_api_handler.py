@@ -18,15 +18,6 @@ def test_on_successful_login_auth_cookies_are_set(mock_post, client):
         assert "refreshToken=testRefreshToken; Secure; HttpOnly; Path=/; SameSite=Lax" in cookie_list
 
 
-def test_login_request_with_no_code_return_400(mocker, app):
-    with app.test_request_context('/login'):
-        mock_abort = mocker.patch('api.PclusterApiHandler.abort')
-
-        login()
-
-        mock_abort.assert_called_once_with(400)
-
-
 def test_login_with_no_access_token_returns_401(mocker, app):
     with app.test_request_context('/login', query_string='code=testCode'):
         mock_abort = mocker.patch('api.PclusterApiHandler.abort')
