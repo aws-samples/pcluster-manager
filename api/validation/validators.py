@@ -1,4 +1,5 @@
 from marshmallow import validate
+import re
 
 # PC available regions
 PC_REGIONS = [
@@ -18,5 +19,11 @@ def comma_splittable(arg: str):
         return True
     except:
         return False
+
+
+def is_alphanumeric_with_hyphen(arg: str):
+    pattern = re.compile(r"^[a-zA-Z][a-zA-Z0-9-]+$")
+    return bool(re.fullmatch(pattern, arg))
+
 
 aws_region_validator = validate.OneOf(choices=PC_REGIONS)
