@@ -1,3 +1,4 @@
+import os
 from unittest.mock import ANY, call
 
 import pytest
@@ -17,7 +18,7 @@ def mock_urandom(mocker):
     return mocker.patch('os.urandom', return_value=MOCK_URANDOM_VALUE)
 
 
-def test_crsf_extension(app):
+def test_crsf_extension_get_new_csrf(app):
     """
     When an app is built
         and CSRF ext is applied
@@ -32,6 +33,27 @@ def test_crsf_extension(app):
 
     assert resp.status_code != 405
     assert 'csrf_token' in resp.json
+    assert len(csrf_cookies) > 0
+    assert 'Secure; HttpOnly; Path=/; SameSite=Lax' in csrf_cookies[0]
+
+def test_crsf_extension_get_existing_csrf(app):
+    """
+    When an app is built
+        and CSRF ext is applied
+            it should expose a new endpoint /csrf
+            it should set csrf cookie
+            it should return a csrf_token in a json
+    """
+    CSRF(app)
+    test_client = app.test_client()
+    test_client.set_cookie(os.getenv('SITE_URL'), 'csrf', 'csrf-value', samesite='Lax', httponly=True, secure=True)
+    resp = test_client.get('/csrf')
+    csrf_cookies = list(cookie_value for cookie_header, cookie_value in resp.headers if
+                        'Set-Cookie' in cookie_header and CSRF_COOKIE_NAME in cookie_value)
+
+    assert resp.status_code != 405
+    assert 'csrf_token' in resp.json
+    assert resp.json.get('csrf_token') == 'csrf-value'
     assert len(csrf_cookies) > 0
     assert 'Secure; HttpOnly; Path=/; SameSite=Lax' in csrf_cookies[0]
 
