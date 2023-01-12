@@ -51,7 +51,7 @@ function App({Component, pageProps}: AppProps) {
     <>
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>ParallelCluster Manager</title>
+        <title>AWS ParallelCluster UI</title>
       </Head>
       <QueryClientProvider client={queryClient}>
         <I18nextProvider i18n={i18n}>

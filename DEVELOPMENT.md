@@ -1,6 +1,6 @@
 # Development
 
-To run AWS ParallelCluster Manager locally, start by setting the following environment variables:
+To run AWS ParallelCluster UI locally, start by setting the following environment variables:
 
 ```bash
 export AWS_ACCESS_KEY_ID=[...]
@@ -17,7 +17,7 @@ pip3 install -r requirements.txt
 ```
 
 ## Backend with Cognito
-From the Cognito service page of the AWS account where pcluster-manager has been deployed, click on the user pool
+From the Cognito service page of the AWS account where PCUI has been deployed, click on the user pool
 and then on the *App Integration* tab. In the App client list at the bottom, make note of the *Client ID*, then
 click on the App client and click *Edit* in the *Hosted UI* section, adding `http://localhost:5001/login` to the
 *Allowed callback URLs*.
