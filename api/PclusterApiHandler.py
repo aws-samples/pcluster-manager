@@ -715,7 +715,7 @@ def pc_proxy_get():
     response = sigv4_request(request.method, API_BASE_URL, request.args.get("path"), _get_params(request))
     return response.json(), response.status_code
 
-@pc.route('/', methods=['GET','POST','PUT','PATCH','DELETE'], strict_slashes=False)
+@pc.route('/', methods=['POST','PUT','PATCH','DELETE'], strict_slashes=False)
 @authenticated({'admin'})
 @csrf_needed
 @validated(params=PCProxy)
