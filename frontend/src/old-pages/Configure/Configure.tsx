@@ -157,17 +157,22 @@ function Configure() {
             {t('wizard.actions.refreshConfig')}
           </Button>
         )}
-        {editing &&
-          (fleetStatus === 'RUNNING' || fleetStatus === 'STOP_REQUESTED') && (
-            <Button
-              className="action"
-              variant="normal"
-              loading={fleetStatus === 'STOP_REQUESTED'}
-              onClick={stopComputeFleet}
-            >
-              {t('wizard.actions.stopComputeFleet')}
-            </Button>
-          )}
+        {editing && (
+          <Button
+            variant="normal"
+            disabled={
+              fleetStatus !== 'RUNNING' &&
+              fleetStatus !== 'STOP_REQUESTED' &&
+              fleetStatus !== 'STOPPING'
+            }
+            loading={
+              fleetStatus === 'STOP_REQUESTED' || fleetStatus === 'STOPPING'
+            }
+            onClick={stopComputeFleet}
+          >
+            {t('wizard.actions.stopComputeFleet')}
+          </Button>
+        )}
         {currentPage === 'create' && (
           <Button onClick={wizardHandleDryRun}>
             {t('wizard.actions.dryRun')}
