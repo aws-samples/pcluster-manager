@@ -1,7 +1,8 @@
 {
   "global": {
+    "projectName": "AWS ParallelCluster UI",
     "menu": {
-      "header": "ParallelCluster Manager",
+      "header": "$t(global.projectName)",
       "clusters": "Clusters",
       "customImages": "Custom Images",
       "officialImages": "Official Images",
@@ -25,13 +26,13 @@
     "footer": {
       "learnMore": "Learn more",
       "docs": {
-        "title": "AWS ParallelCluster Manager documentation",
+        "title": "$t(global.projectName) documentation",
         "link": "https://pcluster.cloud/"
       }
     },
     "default": {
-      "title": "ParallelCluster Manager",
-      "description": "Quickly and easily create HPC cluster in AWS using ParallelCluster Manager. This UI uses the AWS ParallelCluster API to Create, Update and Delete Clusters as well as access, view logs, and build Amazon Machine Images (AMI's)."
+      "title": "$t(global.projectName)",
+      "description": "Quickly and easily create HPC cluster in AWS using $t(global.projectName). This UI uses the AWS ParallelCluster API to Create, Update and Delete Clusters as well as access, view logs, and build Amazon Machine Images (AMI's)."
     }
   },
   "infoLink": {

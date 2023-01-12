@@ -131,11 +131,11 @@ export default function Topbar() {
     <div id="top-bar">
       <TopNavigation
         identity={{
-          title: 'AWS ParallelCluster Manager',
+          title: 'AWS ParallelCluster UI',
           href: '/',
           logo: {
             src: '/img/pcluster.svg',
-            alt: 'AWS ParallelCluster Manager Logo',
+            alt: 'AWS ParallelCluster UI Logo',
           },
         }}
         utilities={[
