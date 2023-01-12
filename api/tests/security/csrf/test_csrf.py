@@ -41,8 +41,8 @@ def test_crsf_extension_get_existing_csrf(app):
     When an app is built
         and CSRF ext is applied
             it should expose a new endpoint /csrf
-            it should set csrf cookie
-            it should return a csrf_token in a json
+            it should set csrf cookie if not already present
+            it should return the aforementioned csrf_token in a json
     """
     CSRF(app)
     test_client = app.test_client()
