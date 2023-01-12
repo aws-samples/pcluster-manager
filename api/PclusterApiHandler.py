@@ -23,7 +23,7 @@ from flask_restful import Resource, reqparse
 from jose import jwt
 
 from api.exception.exceptions import RefreshTokenError
-from api.pcm_globals import set_auth_cookies_in_context, logger
+from api.pcm_globals import set_auth_cookies_in_context, logger, auth_cookies
 from api.security.csrf.constants import CSRF_COOKIE_NAME
 from api.security.csrf.csrf import csrf_needed
 from api.utils import disable_auth
@@ -582,27 +582,26 @@ def get_identity():
         return {"user_roles": ["user", "admin"], "username": "username", "attributes": {"email": "user@domain.com"}}
 
     access_token = request.cookies.get("accessToken")
-    id_token = request.cookies.get("idToken")
-    if not (access_token and id_token):
-        return {"message": "No access or id token."}, 401
-    try:
-        claims = ["email"]
+    id_token = request.cookies.get("idToken", None)
 
+    claims = ["email"]
+    try:
         decoded_access = jwt_decode(access_token)
-        identity_from_access_token = _get_identity_from_token(decoded=decoded_access, claims=claims)
+    except jwt.ExpiredSignatureError:
+        decoded_access = jwt_decode(auth_cookies['accessToken'])
+
+    identity = _get_identity_from_token(decoded=decoded_access, claims=claims)
+
+    if id_token:
         decoded_id = jwt_decode(id_token, audience=AUDIENCE, access_token=access_token)
         identity_from_id_token = _get_identity_from_token(decoded=decoded_id, claims=claims)
+        identity.update(identity_from_id_token)
 
-        identity = {**identity_from_access_token, **identity_from_id_token}
+    if "username" not in identity:
+        raise Exception('No username present in access or id token.')
+    if "user_roles" not in identity:
+        raise Exception('No user_roles present in access or id token.')
 
-        if "username" not in identity:
-            return {"message": "No username present in access or id token."}, 400
-        if "user_roles" not in identity:
-            return {"message": "No user_roles present in access or id token."}, 400
-
-    except jwt.ExpiredSignatureError:
-        return {"message": "Signature expired."}, 401
-    
     return identity
 
 
