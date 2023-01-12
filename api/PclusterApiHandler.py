@@ -346,22 +346,17 @@ def sacct():
         if isinstance(accounting, tuple):
             return accounting
         # Try to retrieve relevant cost information
-        try:
-            queue_name = json.loads(accounting)[0]["partition"]
-            _price_guess = _price_estimate(cluster_name, region, queue_name)
-            if not isinstance(_price_guess, tuple):
-                price_guess = _price_guess
-        except Exception as e:
-            pass
-    try:
-        if accounting == "":
-            return {"jobs": []}
-        accounting_ret = {"jobs": json.loads(accounting)}
-        if "jobs" in sacct_args and price_guess:
-            accounting_ret["jobs"][0]["price_estimate"] = price_guess
-        return accounting_ret
-    except Exception as e:
-        raise e
+        queue_name = json.loads(accounting)[0]["partition"]
+        _price_guess = _price_estimate(cluster_name, region, queue_name)
+        if not isinstance(_price_guess, tuple):
+            price_guess = _price_guess
+
+    if accounting == "":
+        return {"jobs": []}
+    accounting_ret = {"jobs": json.loads(accounting)}
+    if "jobs" in sacct_args and price_guess:
+        accounting_ret["jobs"][0]["price_estimate"] = price_guess
+    return accounting_ret
 
 
 def scontrol_job():
