@@ -323,16 +323,10 @@ def price_estimate():
 
 
 def sacct():
-    parser = reqparse.RequestParser()
-    parser.add_argument("instance_id", type=str)
-    parser.add_argument("user", type=str, location="args")
-    parser.add_argument("region", type=str)
-    parser.add_argument("cluster_name", type=str)
-    args = parser.parse_args()
-    user = args.get("user", "ec2-user")
-    instance_id = args.get("instance_id")
-    cluster_name = args.get("cluster_name")
-    region = args.get("region")
+    user = request.args.get("user", "ec2-user")
+    instance_id = request.args.get("instance_id")
+    cluster_name = request.args.get("cluster_name")
+    region = request.args.get("region")
     body = request.json
 
     price_guess = None
