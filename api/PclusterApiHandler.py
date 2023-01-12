@@ -588,9 +588,6 @@ def get_identity():
     try:
         decoded_access = jwt_decode(access_token)
     except jwt.ExpiredSignatureError:
-        if not auth_cookies:
-            return {}, 401
-
         decoded_access = jwt_decode(auth_cookies['accessToken'])
 
     identity = _get_identity_from_token(decoded=decoded_access, claims=claims)
