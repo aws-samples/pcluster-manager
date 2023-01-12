@@ -111,7 +111,7 @@ def test_get_identity_auth_enabled_no_user_roles_provided(monkeypatch, mocker, a
       with pytest.raises(Exception):
           get_identity()
 
-def test_get_identity_auht_enabled_expired_access_token_with_correctly_refreshed_tokens(app, mocker):
+def test_get_identity_auth_enabled_expired_access_token_with_correctly_refreshed_tokens(app, mocker):
     """
     Given a controller method for the get_identity endpoint
       when auth is enabled
