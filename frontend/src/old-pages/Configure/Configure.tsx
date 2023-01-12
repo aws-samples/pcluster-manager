@@ -8,7 +8,7 @@
 // or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-import React, {useCallback} from 'react'
+import React, {useCallback, useEffect} from 'react'
 import {useNavigate} from 'react-router-dom'
 
 import {clearState, getState, setState, useState} from '../../store'
@@ -24,7 +24,6 @@ import {
 import {Source, sourceValidate} from './Source'
 import {Cluster, clusterValidate} from './Cluster'
 import {HeadNode, headNodeValidate} from './HeadNode'
-import {MultiUser, multiUserValidate} from './MultiUser'
 import {Storage, storageValidate} from './Storage'
 import {Queues, queuesValidate} from './Queues/Queues'
 import {
@@ -41,6 +40,8 @@ import {useWizardSectionChangeLog} from '../../navigation/useWizardSectionChange
 import {NonCancelableEventHandler} from '@cloudscape-design/components/internal/events'
 import i18next from 'i18next'
 import {pages, useWizardNavigation} from './useWizardNavigation'
+import {ComputeFleetStatus} from '../../types/clusters'
+import {useClusterPoll} from '../../components/useClusterPoll'
 
 const validators: {[key: string]: (...args: any[]) => boolean} = {
   source: sourceValidate,
@@ -95,7 +96,20 @@ function Configure() {
   let navigate = useNavigate()
 
   const clusterPath = ['clusters', 'index', clusterName]
-  const fleetStatus = useState([...clusterPath, 'computeFleetStatus'])
+  const fleetStatus: ComputeFleetStatus = useState([
+    ...clusterPath,
+    'computeFleetStatus',
+  ])
+
+  const clusterPoll = useClusterPoll(clusterName, false)
+
+  useEffect(() => {
+    if (fleetStatus === 'STOP_REQUESTED') {
+      clusterPoll.start()
+    } else if (fleetStatus === 'STOPPED') {
+      clusterPoll.stop()
+    }
+  }, [fleetStatus, clusterPoll])
 
   const clearStateAndCloseWizard = useCallback(() => {
     clearWizardState(clearState, false)
