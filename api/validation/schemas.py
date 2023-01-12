@@ -117,3 +117,8 @@ class PriceEstimateSchema(Schema):
     region = fields.String(validate=aws_region_validator, required=True)
 
 PriceEstimate = PriceEstimateSchema(unknown=INCLUDE)
+
+class PCProxySchema(Schema):
+    path = fields.String(required=True)
+
+PCProxy = PCProxySchema(unknown=INCLUDE)
