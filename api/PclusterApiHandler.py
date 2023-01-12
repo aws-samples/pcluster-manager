@@ -18,8 +18,7 @@ import boto3
 import botocore
 import requests
 import yaml
-from flask import abort, redirect, request
-from flask_restful import Resource, reqparse
+from flask import abort, redirect, request, Blueprint
 from jose import jwt
 
 from api.exception.exceptions import RefreshTokenError
@@ -27,6 +26,8 @@ from api.pcm_globals import set_auth_cookies_in_context, logger, auth_cookies
 from api.security.csrf.constants import CSRF_COOKIE_NAME
 from api.security.csrf.csrf import csrf_needed
 from api.utils import disable_auth
+from api.validation import validated
+from api.validation.schemas import PCProxy
 
 USER_POOL_ID = os.getenv("USER_POOL_ID")
 AUTH_PATH = os.getenv("AUTH_PATH")
@@ -322,16 +323,10 @@ def price_estimate():
 
 
 def sacct():
-    parser = reqparse.RequestParser()
-    parser.add_argument("instance_id", type=str)
-    parser.add_argument("user", type=str, location="args")
-    parser.add_argument("region", type=str)
-    parser.add_argument("cluster_name", type=str)
-    args = parser.parse_args()
-    user = args.get("user", "ec2-user")
-    instance_id = args.get("instance_id")
-    cluster_name = args.get("cluster_name")
-    region = args.get("region")
+    user = request.args.get("user", "ec2-user")
+    instance_id = request.args.get("instance_id")
+    cluster_name = request.args.get("cluster_name")
+    region = request.args.get("region")
     body = request.json
 
     price_guess = None
@@ -710,45 +705,25 @@ def _get_params(_request):
     return params
 
 
-# Proxy
+pc = Blueprint('pc', __name__)
 
+@pc.get('/', strict_slashes=False)
+@authenticated({'admin'})
+@validated(params=PCProxy)
+def pc_proxy_get():
+    response = sigv4_request(request.method, API_BASE_URL, request.args.get("path"), _get_params(request))
+    return response.json(), response.status_code
 
-class PclusterApiHandler(Resource):
-    __read_decorators = [authenticated({'admin'})]
-    __write_decorators = [authenticated({'admin'}), csrf_needed]
+@pc.route('/', methods=['POST','PUT','PATCH','DELETE'], strict_slashes=False)
+@authenticated({'admin'})
+@csrf_needed
+@validated(params=PCProxy)
+def pc_proxy():
+    body = None
+    try:
+        body = request.json
+    except:
+        pass
 
-    method_decorators = {
-        'get': __read_decorators,
-        'post': __write_decorators,
-        'put': __write_decorators,
-        'delete': __write_decorators,
-        'patch': __write_decorators
-    }
-
-    def get(self):
-        response = sigv4_request("GET", API_BASE_URL, request.args.get("path"), _get_params(request))
-        return response.json(), response.status_code
-
-    def post(self):
-        resp = sigv4_request("POST", API_BASE_URL, request.args.get("path"), _get_params(request), body=request.json)
-        return resp.json(), resp.status_code
-
-    def put(self):
-        resp = sigv4_request("PUT", API_BASE_URL, request.args.get("path"), _get_params(request), body=request.json)
-        return resp.json(), resp.status_code
-
-    def delete(self):
-        body = None
-        try:
-            if "Content-Type" in request.headers and request.headers.get("ContentType") == "application/json":
-                body = request.json
-        except Exception as e:
-            print("Exception retrieving body of delete call.")
-            raise e
-
-        resp = sigv4_request("DELETE", API_BASE_URL, request.args.get("path"), _get_params(request), body=body)
-        return resp.json(), resp.status_code
-
-    def patch(self):
-        resp = sigv4_request("PATCH", API_BASE_URL, request.args.get("path"), _get_params(request), body=request.json)
-        return resp.json(), resp.status_code
+    response = sigv4_request(request.method, API_BASE_URL, request.args.get("path"), _get_params(request), body=body)
+    return response.json(), response.status_code

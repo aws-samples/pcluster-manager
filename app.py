@@ -12,12 +12,10 @@ import datetime
 
 from flask import Response, request
 from flask.json import JSONEncoder
-from flask_restful import Api
 from werkzeug.routing import BaseConverter
 
 import api.utils as utils
 from api.PclusterApiHandler import (
-    PclusterApiHandler,
     authenticated,
     cancel_job,
     create_user,
@@ -38,7 +36,7 @@ from api.PclusterApiHandler import (
     queue_status,
     sacct,
     scontrol_job,
-    CLIENT_ID, CLIENT_SECRET, USER_POOL_ID
+    CLIENT_ID, CLIENT_SECRET, USER_POOL_ID, pc
 )
 from api.logging import parse_log_entry, push_log_entry
 from api.pcm_globals import logger
@@ -73,7 +71,6 @@ def run():
     app.json_encoder = PClusterJSONEncoder
     app.url_map.converters["regex"] = RegexConverter
     CSRF(app, CognitoFingerprintGenerator(CLIENT_ID, CLIENT_SECRET, USER_POOL_ID))
-    api = Api(app)
 
     @app.errorhandler(401)
     def custom_401(_error):
@@ -216,7 +213,7 @@ def run():
     def catch_all2(base, u_path):
         return utils.serve_frontend(app, base)
 
-    api.add_resource(PclusterApiHandler, "/api")
+    app.register_blueprint(pc, url_prefix='/api')
     return app
 
 
