@@ -223,7 +223,6 @@ def ec2_action():
     else:
         return {"message": "You must specify an action."}, 400
 
-    print(resp)
     ret = {"message": "success"}
     return ret
 
@@ -292,8 +291,6 @@ def _price_estimate(cluster_name, region, queue_name):
 
     if len(queue["ComputeResources"]) == 1:
         instance_type = queue["ComputeResources"][0]["InstanceType"]
-        print("****************************************************")
-        print("instance type", instance_type)
         pricing_filters = [
             {"Field": "tenancy", "Value": "shared", "Type": "TERM_MATCH"},
             {"Field": "instanceType", "Value": instance_type, "Type": "TERM_MATCH"},
@@ -332,7 +329,7 @@ def sacct():
     price_guess = None
     sacct_args = " ".join(f"--{k} {v}" for k, v in body.items())
     sacct_args += " --allusers" if "user" not in body else ""
-    print(f"sacct {sacct_args} --json " + "| jq -c .jobs\\|\\map\\({name,nodes,partition,state,job_id,exit_code\\}\\)")
+
     if "jobs" not in body:
         accounting = ssm_command(
             region,
@@ -349,23 +346,17 @@ def sacct():
         if isinstance(accounting, tuple):
             return accounting
         # Try to retrieve relevant cost information
-        try:
-            queue_name = json.loads(accounting)[0]["partition"]
-            _price_guess = _price_estimate(cluster_name, region, queue_name)
-            if not isinstance(_price_guess, tuple):
-                price_guess = _price_guess
-        except Exception as e:
-            print(e)
-    try:
-        if accounting == "":
-            return {"jobs": []}
-        accounting_ret = {"jobs": json.loads(accounting)}
-        if "jobs" in sacct_args and price_guess:
-            accounting_ret["jobs"][0]["price_estimate"] = price_guess
-        return accounting_ret
-    except Exception as e:
-        print(accounting)
-        raise e
+        queue_name = json.loads(accounting)[0]["partition"]
+        _price_guess = _price_estimate(cluster_name, region, queue_name)
+        if not isinstance(_price_guess, tuple):
+            price_guess = _price_guess
+
+    if accounting == "":
+        return {"jobs": []}
+    accounting_ret = {"jobs": json.loads(accounting)}
+    if "jobs" in sacct_args and price_guess:
+        accounting_ret["jobs"][0]["price_estimate"] = price_guess
+    return accounting_ret
 
 
 def scontrol_job():

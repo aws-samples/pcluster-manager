@@ -154,7 +154,7 @@ def generate_response(response, event):
 
 def handle_request(app, event, context):
     if event.get("source") in ["aws.events", "serverless-plugin-warmup"]:
-        print("Lambda warming event received, skipping handler")
+        #  Lambda warming event received, skipping handler
         return {}
 
     if event.get("version") == "2.0":
