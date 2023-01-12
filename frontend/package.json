@@ -1,5 +1,5 @@
 {
-  "name": "ParallelClusterManager",
+  "name": "aws-parallelcluster-ui",
   "version": "3.3.0",
   "private": true,
   "homepage": "/",
