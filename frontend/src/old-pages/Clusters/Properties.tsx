@@ -12,8 +12,7 @@ import {ClusterStatus, ClusterDescription} from '../../types/clusters'
 import React, {PropsWithChildren, ReactElement} from 'react'
 import {Trans, useTranslation} from 'react-i18next'
 import {findFirst, clusterDefaultUser} from '../../util'
-import {getState, useState, setState, ssmPolicy} from '../../store'
-import {DescribeCluster} from '../../model'
+import {useState, setState, ssmPolicy} from '../../store'
 
 // UI Elements
 import {
@@ -36,6 +35,7 @@ import {
 } from '../../components/Status'
 import TitleDescriptionHelpPanel from '../../components/help-panel/TitleDescriptionHelpPanel'
 import InfoLink from '../../components/InfoLink'
+import {useClusterPoll} from '../../components/useClusterPoll'
 
 // Key:Value pair (label / children)
 const ValueWithLabel = ({
@@ -79,16 +79,7 @@ export default function ClusterProperties() {
   ])
   const ssmEnabled = iamPolicies && findFirst(iamPolicies, isSsmPolicy)
 
-  React.useEffect(() => {
-    const tick = () => {
-      const clusterName = getState(['app', 'clusters', 'selected'])
-      clusterName && DescribeCluster(clusterName)
-    }
-    const timerId = setInterval(tick, 5000)
-    return () => {
-      clearInterval(timerId)
-    }
-  }, [])
+  useClusterPoll(clusterName, true)
 
   return (
     <>
