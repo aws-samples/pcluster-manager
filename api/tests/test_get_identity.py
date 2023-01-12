@@ -1,5 +1,9 @@
-import pytest
+from unittest.mock import call, ANY
 
+import pytest
+from jose import ExpiredSignatureError
+
+import api
 from api.PclusterApiHandler import get_identity
 
 
@@ -106,4 +110,23 @@ def test_get_identity_auth_enabled_no_user_roles_provided(monkeypatch, mocker, a
 
       with pytest.raises(Exception):
           get_identity()
-      
+
+def test_get_identity_auht_enabled_expired_access_token_with_correctly_refreshed_tokens(app, mocker):
+    """
+    Given a controller method for the get_identity endpoint
+      when auth is enabled
+      when access token is expired
+        and the refresh token is performed successfully
+          it should return the identity built from the refreshed tokens
+    """
+    mock_decoded_access_token = {'user_roles_claim': ['access-token-group'],'username': 'access-token-username','email': 'access-token-email'}
+
+    mock_jwt_decode = mocker.patch('api.PclusterApiHandler.jwt_decode', side_effect=[ExpiredSignatureError(), mock_decoded_access_token])
+    mocker.patch.object(api.PclusterApiHandler, 'auth_cookies', {'accessToken': 'refreshed-access-token'})
+    mocker.patch('api.PclusterApiHandler.USER_ROLES_CLAIM', 'user_roles_claim')
+
+    with app.test_request_context('/manager/get_identity', headers={'Cookie': 'accessToken=access-token'}):
+        identity = get_identity()
+
+    mock_jwt_decode.assert_has_calls([call(ANY), call('refreshed-access-token')])
+    assert identity == {'attributes': {'email': 'access-token-email'}, 'user_roles': ['access-token-group'], 'username': 'access-token-username'}
