@@ -1,9 +1,9 @@
-ParallelCluster Manager - Make HPC Easy
+AWS ParallelCluster UI - Make HPC Easy
 ================================
 
 This project is a front-end for [AWS Parallel Cluster](https://github.com/aws/aws-parallelcluster)
 
-Quickly and easily create HPC cluster in AWS using ParallelCluster Manager. This UI uses the AWS ParallelCluster 3.x API to Create, Update and Delete Clusters as well as access, view logs, and build Amazon Machine Images (AMI's).
+Quickly and easily create HPC cluster in AWS using AWS ParallelCluster UI. This UI uses the AWS ParallelCluster 3.x API to Create, Update and Delete Clusters as well as access, view logs, and build Amazon Machine Images (AMI's).
 
 You can get started with your first cluster in as little as 15 minutes using the links below.
 
@@ -46,7 +46,7 @@ For more details see the [Getting Started Guide](https://pcluster.cloud).
 
 ## Costs
 
-ParallelCluster Manager is built on a serverless architecture and falls into the free tier for most uses. I've detailed the dependency services and their free-tier limits below:
+AWS ParallelCluster UI is built on a serverless architecture and falls into the free tier for most uses. I've detailed the dependency services and their free-tier limits below:
 
 | Service       | Free Tier                                                        |
 |---------------|------------------------------------------------------------------|
@@ -60,26 +60,26 @@ Typical usage will likely cost < $1 / month.
 
 ## Reusing a Cognito User Pool
 
-It is possible to reuse a Cognito user pool across multiple PCM instances to avoid having to recreate the user base for each installation. There are two ways to do this:
+It is possible to reuse a Cognito user pool across multiple PCUI instances to avoid having to recreate the user base for each installation. There are two ways to do this:
 
-1. Use an existing PCM installation that utilizes Cognito as a nested stack. This is the default setup when installing PCM through the 1-click links and leaving all Cognito parameters blank.
+1. Use an existing PCUI installation that utilizes Cognito as a nested stack. This is the default setup when installing PCUI through the 1-click links and leaving all Cognito parameters blank.
 
-2. Use a standalone Cognito installation that is deployed before the PCM installation and then linked to it. This has the advantage of being completely separate from PCM and makes CloudFormation updates simpler, as it is not using a nested stack.
+2. Use a standalone Cognito installation that is deployed before the PCUI installation and then linked to it. This has the advantage of being completely separate from PCUI and makes CloudFormation updates simpler, as it is not using a nested stack.
 
-### Reusing an Existing PCM Installation with Cognito as a Nested Stack
+### Reusing an Existing PCUI Installation with Cognito as a Nested Stack
 
-1. From the CloudFormation console, select the PCM stack that contains the Cognito pool that you want to reuse.
+1. From the CloudFormation console, select the PCUI stack that contains the Cognito pool that you want to reuse.
 2. Navigate to the Cognito nested stack.
 3. Select the **Outputs** tab.
 4. Copy the following values:
    - `UserPoolId`
    - `UserPoolAuthDomain`
    - `SNSRole`
-5. Install a new PCM instance using the [Quickstart](#quickstart-15-mins-🚀) and fill in all `External PCM Cognito` parameters with the outputs that you just copied. This will prevent PCM from creating a new pool and will use the linked one instead.
+5. Install a new PCUI instance using the [Quickstart](#quickstart-15-mins-🚀) and fill in all `External PCUI Cognito` parameters with the outputs that you just copied. This will prevent PCUI from creating a new pool and will use the linked one instead.
 
 ### Reusing a Standalone Cognito Installation
 
-1. Launch the Cognito-only stack in the same region as the PCM will be deployed. You can do this by clicking on one of the links below for the desired region (use the alternative launch link if S3 template loading fails).
+1. Launch the Cognito-only stack in the same region as the PCUI will be deployed. You can do this by clicking on one of the links below for the desired region (use the alternative launch link if S3 template loading fails).
 
 
 | Region       | Launch                                                                                                                                                                                                                                                                                                              | Alternative launch link |
@@ -113,13 +113,13 @@ It is possible to reuse a Cognito user pool across multiple PCM instances to avo
    - `UserPoolId`
    - `UserPoolAuthDomain`
    - `SNSRole`
-3. Install a new PCM instance using the [Quickstart](#quickstart-15-mins-🚀) and fill in all `External PCM Cognito` parameters with the outputs that you just copied. This will prevent PCM from creating a new pool and will use the linked one instead.
+3. Install a new PCUI instance using the [Quickstart](#quickstart-15-mins-🚀) and fill in all `External PCUI Cognito` parameters with the outputs that you just copied. This will prevent PCUI from creating a new pool and will use the linked one instead.
 
-## Identify the installed version of ParallelCluster and ParallelCluster Manager
-1. From the CloudFormation console, select a PCM stack.
+## Identify the installed version of AWS ParallelCluster and AWS ParallelCluster UI
+1. From the CloudFormation console, select a PCUI stack.
 2. Select the **Parameters** tab.
-3. The version of ParallelCluster is available under `Version`.
-4. The version of ParallelCluster Manager is the latest part of the `PublicEcrImageUri` parameter. For example if the value is `public.ecr.aws/pcm/pcluster-manager-awslambda:3.3.0` the version is `3.3.0`.
+3. The version of AWS ParallelCluster is available under `Version`.
+4. The version of AWS ParallelCluster UI is the latest part of the `PublicEcrImageUri` parameter. For example if the value is `public.ecr.aws/pcm/pcluster-manager-awslambda:3.3.0` the version is `3.3.0`.
 
 ## Updating
 

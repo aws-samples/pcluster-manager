@@ -11,7 +11,7 @@
 import { expect, test } from '@playwright/test';
 import { visitAndLogin } from '../test-utils/login';
 
-test.describe('Given an endpoint where ParallelCluster Manager is deployed', () => {
+test.describe('Given an endpoint where AWS ParallelCluster UI is deployed', () => {
   test('a user should be able to login, navigate till the end of the cluster creation wizard, and perform a dry-run successfully', async ({ page }) => {
     await visitAndLogin(page)
   
