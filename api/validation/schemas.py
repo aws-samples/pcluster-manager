@@ -86,7 +86,7 @@ CancelJob = CancelJobSchema(unknown=INCLUDE)
 
 class SacctSchema(Schema):
     user = fields.String(validate=validate.Length(max=64))
-    instance_id = fields.String(required=True, validate=validate.Length(max=32))
+    instance_id = fields.String(required=True, validate=validate.Length(max=60))
     cluster_name = fields.String(required=True, validate=validate.And(is_alphanumeric_with_hyphen, validate.Length(max=60)))
     region = fields.String(required=True, validate=aws_region_validator)
 
