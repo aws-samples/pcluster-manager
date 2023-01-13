@@ -161,6 +161,9 @@ Resources:
       PackageType: Image
       MemorySize: 512
       Timeout: 30
+      Tags:
+        - Key: 'parallelcluster:ui:version'
+          Value: !FindInMap [ PclusterManager, Constants, ShortVersion ]
       TracingConfig:
         Mode: Active
       Environment:
@@ -192,6 +195,8 @@ Resources:
       Name: PclusterManager
       Description: PclusterManager Lambda Proxy
       ProtocolType: HTTP
+      Tags:
+        'parallelcluster:ui:version': !FindInMap [PclusterManager, Constants, ShortVersion]
 
   ApiGatewayRoute:
     Type: AWS::ApiGatewayV2::Route
