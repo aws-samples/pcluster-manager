@@ -1,4 +1,4 @@
-import React, {Component, ReactNode} from 'react'
+import React, {Component, ErrorInfo, ReactNode} from 'react'
 import {
   Modal,
   Box,
@@ -29,8 +29,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
   private promiseRejectionHandler = (event: PromiseRejectionEvent) => {
     this.props.logger.error(event.reason)
   }
+
   private errorHandler = (event: ErrorEvent) => {
-    this.props.logger.error(event.message)
+    this.props.logger.error(event.message, {trace: event.error?.stack})
   }
 
   private redirectToHomepage = () => {
@@ -41,8 +42,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
     return {error: true}
   }
 
-  public componentDidCatch(error: Error) {
-    this.props.logger.error(error.message)
+  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    this.props.logger.error(error.message, {
+      trace: error.stack,
+      componentStack: errorInfo.componentStack,
+    })
   }
 
   public componentDidMount() {
