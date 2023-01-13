@@ -40,6 +40,28 @@ describe('Given a RemoteLogger', () => {
       )
     })
 
+    it('should successfully push a non-string message', () => {
+      logger.info({somekey: 'some-value'} as unknown as string)
+
+      const expectedLogEntry = {
+        logs: [
+          {
+            message: '{"somekey":"some-value"}',
+            level: 'INFO',
+            extra: {
+              source: 'frontend',
+            },
+          },
+        ],
+      }
+      expect(mockedExecuteRequest).toHaveBeenCalledTimes(1)
+      expect(mockedExecuteRequest).toHaveBeenCalledWith(
+        expectedMethod,
+        expectedPath,
+        expectedLogEntry,
+      )
+    })
+
     it('should successfully push a log entry with extra parameters', () => {
       logger.error('error message', {
         extra1: 'value1',

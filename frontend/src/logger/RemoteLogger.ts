@@ -99,6 +99,8 @@ export class Logger implements ILogger {
     message: string,
     extra?: Record<string, unknown>,
   ): LogEntry {
-    return {message, level, extra}
+    const stringMessage =
+      typeof message === 'string' ? message : JSON.stringify(message)
+    return {message: stringMessage, level, extra}
   }
 }
