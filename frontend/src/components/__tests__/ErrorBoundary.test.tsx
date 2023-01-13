@@ -1,4 +1,4 @@
-import {render, waitFor} from '@testing-library/react'
+import {render, RenderResult, waitFor} from '@testing-library/react'
 import {ErrorBoundary} from '../ErrorBoundary'
 import {mock, MockProxy} from 'jest-mock-extended'
 import {ILogger} from '../../logger/ILogger'
@@ -14,7 +14,7 @@ i18n.use(initReactI18next).init({
 const mockTFunction: TFunction = label => label
 
 const ThrowingInRenderChild = () => {
-  throw new Error()
+  throw new Error('some-error')
 }
 
 const MockProviders = (props: any) => (
@@ -29,8 +29,10 @@ describe('Given an ErrorBoundary component', () => {
   })
 
   describe('when there is an error in a Child component', () => {
-    it('should render the fallback ui', async () => {
-      const {getByText} = await waitFor(() =>
+    let renderResult: RenderResult
+
+    beforeEach(async () => {
+      renderResult = await waitFor(() =>
         render(
           <MockProviders>
             <ErrorBoundary logger={mockLogger} t={mockTFunction}>
@@ -39,7 +41,18 @@ describe('Given an ErrorBoundary component', () => {
           </MockProviders>,
         ),
       )
-      expect(getByText('errorBoundary.modal.header')).toBeTruthy()
+    })
+
+    it('should render the fallback ui', async () => {
+      expect(renderResult.getByText('errorBoundary.modal.header')).toBeTruthy()
+    })
+
+    it('should log error, stacktrace and component stack', async () => {
+      expect(mockLogger.error).toHaveBeenCalledTimes(1)
+      expect(mockLogger.error).toHaveBeenCalledWith('some-error', {
+        trace: expect.any(String),
+        componentStack: expect.any(String),
+      })
     })
   })
 
@@ -89,13 +102,18 @@ describe('Given an ErrorBoundary component', () => {
       beforeEach(() => {
         const mockError: Partial<ErrorEvent> = {
           message: 'some-message',
+          error: {
+            stack: 'some-stack',
+          },
         }
         eventHandlers.error(mockError)
       })
 
-      it('should log the error', () => {
+      it('should log the error and the stacktrace', () => {
         expect(mockLogger.error).toHaveBeenCalledTimes(1)
-        expect(mockLogger.error).toHaveBeenCalledWith('some-message')
+        expect(mockLogger.error).toHaveBeenCalledWith('some-message', {
+          trace: 'some-stack',
+        })
       })
     })
   })
