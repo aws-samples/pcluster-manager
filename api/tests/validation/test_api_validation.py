@@ -1,3 +1,5 @@
+from unittest.mock import Mock, PropertyMock
+
 import pytest
 from marshmallow import Schema, fields, validate, ValidationError
 
@@ -29,6 +31,33 @@ def test_valid_request_successful(mock_csrf_needed, mock_enable_auth):
                                 cookies_schema=MockRequestCookiesSchema())
 
     assert errors == {}
+
+def test_invalid_request_successful_with_raise_on_missing_body_enabled(mock_csrf_needed, mock_enable_auth):
+    request = MockRequest()
+    mock_json_property = PropertyMock(side_effect=Exception)
+    original_json_property = MockRequest.json
+    MockRequest.json = mock_json_property
+
+    with pytest.raises(ValueError):
+        __validate_request(request, body_schema=MockRequestJsonSchema(), params_schema=MockRequestArgsSchema(),
+                                    cookies_schema=MockRequestCookiesSchema())
+
+    mock_json_property.assert_called_once()
+    MockRequest.json = original_json_property
+
+def test_invalid_request_successful_with_raise_on_missing_body_disabled(mock_csrf_needed, mock_enable_auth):
+    request = MockRequest()
+    mock_json_property = PropertyMock(side_effect=Exception)
+    original_json_property = MockRequest.json
+    MockRequest.json = mock_json_property
+
+    errors = __validate_request(request, body_schema=MockRequestJsonSchema(), params_schema=MockRequestArgsSchema(),
+                                cookies_schema=MockRequestCookiesSchema(), raise_on_missing_body=False)
+
+    mock_json_property.assert_called_once()
+    assert errors == {}
+
+    MockRequest.json = original_json_property
 
 
 def test_valid_request_failure(mock_csrf_needed, mock_enable_auth):
