@@ -27,7 +27,7 @@ from api.security.csrf.constants import CSRF_COOKIE_NAME
 from api.security.csrf.csrf import csrf_needed
 from api.utils import disable_auth
 from api.validation import validated
-from api.validation.schemas import PCProxy
+from api.validation.schemas import PCProxyArgs, PCProxyBody
 
 USER_POOL_ID = os.getenv("USER_POOL_ID")
 AUTH_PATH = os.getenv("AUTH_PATH")
@@ -700,7 +700,7 @@ pc = Blueprint('pc', __name__)
 
 @pc.get('/', strict_slashes=False)
 @authenticated({'admin'})
-@validated(params=PCProxy)
+@validated(params=PCProxyArgs)
 def pc_proxy_get():
     response = sigv4_request(request.method, API_BASE_URL, request.args.get("path"), _get_params(request))
     return response.json(), response.status_code
@@ -708,7 +708,7 @@ def pc_proxy_get():
 @pc.route('/', methods=['POST','PUT','PATCH','DELETE'], strict_slashes=False)
 @authenticated({'admin'})
 @csrf_needed
-@validated(params=PCProxy)
+@validated(params=PCProxyArgs, body=PCProxyBody, raise_on_missing_body=False)
 def pc_proxy():
     body = None
     try:

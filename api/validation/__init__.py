@@ -6,13 +6,14 @@ from marshmallow import Schema, ValidationError
 from api.validation.schemas import EC2Action
 
 
-def __validate_request(_request: Request, *, body_schema: Schema = None, params_schema: Schema = None, cookies_schema: Schema = None):
+def __validate_request(_request: Request, *, body_schema: Schema = None, params_schema: Schema = None, cookies_schema: Schema = None, raise_on_missing_body = True):
     errors = {}
     if body_schema:
         try:
             errors.update(body_schema.validate(_request.json))
         except:
-            raise ValueError('Expected json body')
+            if raise_on_missing_body:
+                raise ValueError('Expected json body')
 
     if params_schema:
         errors.update(params_schema.validate(_request.args))
@@ -23,11 +24,11 @@ def __validate_request(_request: Request, *, body_schema: Schema = None, params_
     return errors
 
 
-def validated(*, body: Schema = None, params: Schema = None, cookies: Schema = None):
+def validated(*, body: Schema = None, params: Schema = None, cookies: Schema = None, raise_on_missing_body = True):
     def wrapper(func):
         @wraps(func)
         def decorated(*pargs, **kwargs):
-            errors = __validate_request(request, body_schema=body, params_schema=params, cookies_schema=cookies)
+            errors = __validate_request(request, body_schema=body, params_schema=params, cookies_schema=cookies, raise_on_missing_body=raise_on_missing_body)
             if errors:
                 raise ValidationError(f'Input validation failed for {request.path}', data=errors)
             return func(*pargs, **kwargs)
