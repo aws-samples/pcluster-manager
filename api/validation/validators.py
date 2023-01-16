@@ -1,4 +1,6 @@
-from marshmallow import validate
+import json
+
+from marshmallow import validate, ValidationError
 import re
 
 from api.logging import VALID_LOG_LEVELS
@@ -33,3 +35,9 @@ aws_region_validator = validate.OneOf(choices=PC_REGIONS)
 
 def valid_api_log_levels_predicate(loglevel):
     return loglevel.lower() in VALID_LOG_LEVELS
+
+def size_not_exceeding(data, size):
+    bytes_ = bytes(json.dumps(data), 'utf-8')
+    byte_size = len(bytes_)
+    if byte_size > size:
+        raise ValidationError(f'Request body exceeded max size of {size}')

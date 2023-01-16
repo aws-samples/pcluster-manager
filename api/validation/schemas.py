@@ -1,6 +1,8 @@
-from marshmallow import Schema, fields, validate, INCLUDE
+from marshmallow import Schema, fields, validate, INCLUDE, validates_schema, ValidationError
 
-from api.validation.validators import comma_splittable, aws_region_validator, is_alphanumeric_with_hyphen, valid_api_log_levels_predicate
+from api.validation.validators import comma_splittable, aws_region_validator, is_alphanumeric_with_hyphen, \
+    valid_api_log_levels_predicate, size_not_exceeding
+
 
 class EC2ActionSchema(Schema):
     action = fields.String(required=True, validate=validate.OneOf(['stop_instances', 'start_instances']))
@@ -116,7 +118,17 @@ class PriceEstimateSchema(Schema):
 
 PriceEstimate = PriceEstimateSchema(unknown=INCLUDE)
 
-class PCProxySchema(Schema):
+class PCProxyArgsSchema(Schema):
     path = fields.String(required=True, validate=validate.Length(max=512))
 
-PCProxy = PCProxySchema(unknown=INCLUDE)
+PCProxyArgs = PCProxyArgsSchema(unknown=INCLUDE)
+
+class PCProxyBodySchema(Schema):
+    def __init__(self, max_size, **kwargs):
+        super().__init__(**kwargs)
+        self.max_size = max_size
+    @validates_schema(pass_original=False)
+    def request_body_not_exceeding(self, data, **kwargs):
+        size_not_exceeding(data, self.max_size)
+
+PCProxyBody = PCProxyBodySchema(max_size=8192,unknown=INCLUDE)
