@@ -20,6 +20,8 @@ type BufferConfig = {
   window: number
 }
 
+const DEAFULT_MESSAGE = 'This log entry has no message.'
+
 export class Logger implements ILogger {
   private readonly executeRequest
   private logsBuffer: LogEntry[] = []
@@ -100,11 +102,27 @@ export class Logger implements ILogger {
 
   private buildMessage(
     level: LogLevel,
-    messsage: Error | string,
+    payload: Error | string,
     extra?: Record<string, unknown>,
   ): LogEntry {
-    const stringMessage =
-      typeof message === 'string' ? message : JSON.stringify(message)
-    return {message: stringMessage, level, extra}
+    if (!payload) {
+      return {message: DEAFULT_MESSAGE, level, extra}
+    }
+
+    if (payload instanceof Error) {
+      extra = {
+        ...extra,
+        trace: payload.stack,
+      }
+
+      return {message: payload.message, level, extra}
+    }
+
+    if (typeof payload !== 'string') {
+      const message = JSON.stringify(payload)
+      return {message, level, extra}
+    }
+
+    return {message: payload, level, extra}
   }
 }
