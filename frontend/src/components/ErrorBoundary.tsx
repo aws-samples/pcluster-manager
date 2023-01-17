@@ -31,7 +31,13 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
   }
 
   private errorHandler = (event: ErrorEvent) => {
-    this.props.logger.error(event.message, {trace: event.error?.stack})
+    /**
+     * Some ErrorEvents miss the error property
+     * for instance the ResizeObserver loop errors
+     *
+     * We fallback to just logging the message
+     */
+    this.props.logger.error(event.error || event.message)
   }
 
   private redirectToHomepage = () => {
@@ -43,8 +49,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    this.props.logger.error(error.message, {
-      trace: error.stack,
+    this.props.logger.error(error, {
       componentStack: errorInfo.componentStack,
     })
   }
