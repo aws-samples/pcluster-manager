@@ -39,7 +39,7 @@ type Slug =
   | 'clusterCreate'
   | 'clusterUpdate'
 type BreadcrumbsProps = {
-  pageSlug: Slug
+  pageSlug?: Slug
   slugOnClick?: CancelableEventHandler<BreadcrumbGroupProps.ClickDetail>
 }
 
@@ -126,7 +126,9 @@ export default function Layout({
         content={children}
         contentType="table"
         navigation={<SideBar />}
-        breadcrumbs={<Breadcrumbs slug={pageSlug} onClick={slugOnClick} />}
+        breadcrumbs={
+          pageSlug && <Breadcrumbs slug={pageSlug} onClick={slugOnClick} />
+        }
         notifications={<Flashbar items={messages} />}
         {...props}
         tools={element}
