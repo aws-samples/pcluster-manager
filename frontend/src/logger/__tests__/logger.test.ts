@@ -40,6 +40,51 @@ describe('Given a RemoteLogger', () => {
       )
     })
 
+    it('should successfully push the trace when message is an Error', () => {
+      logger.error(new Error('some-message'))
+
+      const expectedLogEntry = {
+        logs: [
+          {
+            message: 'some-message',
+            level: 'ERROR',
+            extra: {
+              source: 'frontend',
+              trace: expect.any(String),
+            },
+          },
+        ],
+      }
+      expect(mockedExecuteRequest).toHaveBeenCalledTimes(1)
+      expect(mockedExecuteRequest).toHaveBeenCalledWith(
+        expectedMethod,
+        expectedPath,
+        expectedLogEntry,
+      )
+    })
+
+    it('should successfully push an undefined message', () => {
+      logger.info(undefined as unknown as string)
+
+      const expectedLogEntry = {
+        logs: [
+          {
+            message: 'This log entry has no message.',
+            level: 'INFO',
+            extra: {
+              source: 'frontend',
+            },
+          },
+        ],
+      }
+      expect(mockedExecuteRequest).toHaveBeenCalledTimes(1)
+      expect(mockedExecuteRequest).toHaveBeenCalledWith(
+        expectedMethod,
+        expectedPath,
+        expectedLogEntry,
+      )
+    })
+
     it('should successfully push a non-string message', () => {
       logger.info({somekey: 'some-value'} as unknown as string)
 
