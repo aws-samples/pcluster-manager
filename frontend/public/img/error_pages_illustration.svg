@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 91" width="140" height="91" aria-hidden="true">
+  <path
+    d="M122,62a17,17,0,1,0-17-17A17,17,0,0,0,122,62Zm0-17,6.46-6.46L122,45l-6.46-6.46Zm0,0-6.46,6.46L122,45l6.46,6.46Z"
+    fill="none"
+    stroke="#ef6d00"
+    strokeWidth="2"
+  />
+  <path
+    d="M10,12a3,3,0,1,1,3-3A3,3,0,0,1,10,12Zm10,0a3,3,0,1,1,3-3A3,3,0,0,1,20,12Zm10,0a3,3,0,1,1,3-3A3,3,0,0,1,30,12Z"
+    fill="#aab7b8"
+    fillRule="evenodd"
+  />
+  <path d="M40,31v9h9V31Zm0,17v9h9V48Zm0,19v9h9V67Z" fill="none" stroke="#aab7b8" strokeWidth="2" />
+  <path
+    d="M123,22V3a2,2,0,0,0-2-2H3A2,2,0,0,0,1,3V88a2,2,0,0,0,2,2H121a2,2,0,0,0,2-2V69.89"
+    fill="none"
+    stroke="#aab7b8"
+    strokeWidth="2"
+  />
+  <rect x="23.46" y="17.04" width="2.06" height="72.7" fill="#aab7b8" />
+  <rect x="1.52" y="15.44" width="121.73" height="2.06" fill="#aab7b8" />
+  <rect x="55.81" y="34.51" width="44.51" height="1.99" fill="#aab7b8" />
+  <rect x="55.86" y="53.5" width="44.51" height="1.99" fill="#aab7b8" />
+  <rect x="55.87" y="69.49" width="48.01" height="1.99" fill="#aab7b8" />
+</svg>
