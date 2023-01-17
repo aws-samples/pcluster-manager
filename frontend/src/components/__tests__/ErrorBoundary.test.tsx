@@ -13,8 +13,9 @@ i18n.use(initReactI18next).init({
 
 const mockTFunction: TFunction = label => label
 
+const mockThrownError = new Error('some-error')
 const ThrowingInRenderChild = () => {
-  throw new Error('some-error')
+  throw mockThrownError
 }
 
 const MockProviders = (props: any) => (
@@ -47,10 +48,9 @@ describe('Given an ErrorBoundary component', () => {
       expect(renderResult.getByText('errorBoundary.modal.header')).toBeTruthy()
     })
 
-    it('should log error, stacktrace and component stack', async () => {
+    it('should log error and component stack', async () => {
       expect(mockLogger.error).toHaveBeenCalledTimes(1)
-      expect(mockLogger.error).toHaveBeenCalledWith('some-error', {
-        trace: expect.any(String),
+      expect(mockLogger.error).toHaveBeenCalledWith(mockThrownError, {
         componentStack: expect.any(String),
       })
     })
@@ -99,20 +99,35 @@ describe('Given an ErrorBoundary component', () => {
     })
 
     describe('when an error event is fired', () => {
-      beforeEach(() => {
-        const mockError: Partial<ErrorEvent> = {
-          message: 'some-message',
-          error: {
-            stack: 'some-stack',
-          },
-        }
-        eventHandlers.error(mockError)
+      let mockError: Partial<ErrorEvent>
+      describe('when the actual error is avilable', () => {
+        beforeEach(() => {
+          mockError = {
+            error: {
+              stack: 'some-stack',
+            },
+          }
+          eventHandlers.error(mockError)
+        })
+
+        it('should log the error', () => {
+          expect(mockLogger.error).toHaveBeenCalledTimes(1)
+          expect(mockLogger.error).toHaveBeenCalledWith(mockError.error)
+        })
       })
 
-      it('should log the error and the stacktrace', () => {
-        expect(mockLogger.error).toHaveBeenCalledTimes(1)
-        expect(mockLogger.error).toHaveBeenCalledWith('some-message', {
-          trace: 'some-stack',
+      describe('when the actual error is not avilable', () => {
+        beforeEach(() => {
+          mockError = {
+            error: undefined,
+            message: 'some-message',
+          }
+          eventHandlers.error(mockError)
+        })
+
+        it('should log the message', () => {
+          expect(mockLogger.error).toHaveBeenCalledTimes(1)
+          expect(mockLogger.error).toHaveBeenCalledWith(mockError.message)
         })
       })
     })
