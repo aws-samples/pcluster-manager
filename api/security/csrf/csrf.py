@@ -9,7 +9,7 @@ from api.exception import CSRFError
 from api.security.csrf import CSRF_SECRET_KEY
 from api.security.csrf.constants import CSRF_COOKIE_NAME, SALT, CSRF_TOKEN_HEADER
 
-digest_method = staticmethod(hashlib.sha256)
+digest_method = hashlib.sha256
 signer_kwargs = {'signer_kwargs': {'digest_method': digest_method}}
 
 def generate_csrf_token(secret_key, salt):
