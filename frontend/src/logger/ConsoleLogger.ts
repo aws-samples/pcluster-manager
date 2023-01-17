@@ -18,7 +18,7 @@ export class ConsoleLogger implements ILogger {
   }
 
   error(
-    message: string,
+    message: Error | string,
     extra?: Record<string, unknown>,
     source?: string,
   ): void {
@@ -42,7 +42,7 @@ export class ConsoleLogger implements ILogger {
   }
 
   private formatMessage(
-    message: string,
+    message: Error | string,
     extra: Record<string, unknown> | undefined,
     source?: string,
   ) {
