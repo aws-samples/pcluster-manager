@@ -9,6 +9,10 @@
       "users": "Users",
       "viewLicense": "View License"
     },
+    "docs": {
+      "title": "$t(global.projectName) documentation",
+      "link": "https://pcluster.cloud/"
+    },
     "errors": {
       "csrfError": "An unexpected error occurred. Please reload the page and try again"
     },
@@ -22,13 +26,15 @@
       "button": "Go to Homepage"   
     }
   },
+  "noMatch": {
+    "title": "Page not found",
+    "description": "You might have typed the address incorrectly or you might have used an outdated link. Check the link and try again.",
+    "links": "Use the following links:",
+    "home": "Homepage"
+  },
   "helpPanel": {
     "footer": {
-      "learnMore": "Learn more",
-      "docs": {
-        "title": "$t(global.projectName) documentation",
-        "link": "https://pcluster.cloud/"
-      }
+      "learnMore": "Learn more"
     },
     "default": {
       "title": "$t(global.projectName)",
