@@ -10,7 +10,7 @@ enum LogLevel {
 }
 
 interface LogEntry {
-  message: string
+  message: Error | string
   level: LogLevel
   extra?: Record<string, unknown>
 }
@@ -43,7 +43,7 @@ export class Logger implements ILogger {
 
   private log(
     logLevel: LogLevel,
-    message: string,
+    message: Error | string,
     extra: Record<string, unknown> = {},
     source?: string,
   ) {
@@ -86,7 +86,11 @@ export class Logger implements ILogger {
     this.log(LogLevel.debug, message, extra, source)
   }
 
-  error(message: string, extra?: Record<string, unknown>, source?: string) {
+  error(
+    message: Error | string,
+    extra?: Record<string, unknown>,
+    source?: string,
+  ) {
     this.log(LogLevel.error, message, extra, source)
   }
 
@@ -96,7 +100,7 @@ export class Logger implements ILogger {
 
   private buildMessage(
     level: LogLevel,
-    message: string,
+    messsage: Error | string,
     extra?: Record<string, unknown>,
   ): LogEntry {
     const stringMessage =
