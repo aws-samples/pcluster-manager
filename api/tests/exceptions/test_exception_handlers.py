@@ -38,14 +38,11 @@ def test_csrf_error_exception_handler(client, app, monkeypatch):
 
 
 def test_unauthenticated_error_handler(client, app, monkeypatch):
+    with app.test_request_context('/'):
+        app.preprocess_request()
+        response, status_code = unauthenticated_error_handler(RefreshTokenError('refresh-token-error'))
 
-    def push_log_raising():
-        raise RefreshTokenError('refresh-token-error')
-
-    monkeypatch.setitem(app.view_functions, 'push_log', push_log_raising)
-    response = client.post('/logs')
-
-    assert response.status_code == 401
+    assert status_code == 401
     assert response.json == {'code': 401, 'message': 'Refresh token error: refresh-token-error'}
 
 def test_validation_error_handler(client, app, monkeypatch):
