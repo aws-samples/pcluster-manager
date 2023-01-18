@@ -16,7 +16,7 @@ export interface ILogger {
   ): void
 
   critical(
-    message: string,
+    message: Error | string,
     extra?: Record<string, unknown>,
     source?: string,
   ): void
