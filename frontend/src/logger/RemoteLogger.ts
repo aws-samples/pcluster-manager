@@ -10,7 +10,7 @@ enum LogLevel {
 }
 
 interface LogEntry {
-  message: string
+  message: Error | string
   level: LogLevel
   extra?: Record<string, unknown>
 }
@@ -19,6 +19,8 @@ type BufferConfig = {
   size: number
   window: number
 }
+
+const DEFAULT_MESSAGE = 'This log entry has no message.'
 
 export class Logger implements ILogger {
   private readonly executeRequest
@@ -43,7 +45,7 @@ export class Logger implements ILogger {
 
   private log(
     logLevel: LogLevel,
-    message: string,
+    message: Error | string,
     extra: Record<string, unknown> = {},
     source?: string,
   ) {
@@ -86,19 +88,45 @@ export class Logger implements ILogger {
     this.log(LogLevel.debug, message, extra, source)
   }
 
-  error(message: string, extra?: Record<string, unknown>, source?: string) {
+  error(
+    message: Error | string,
+    extra?: Record<string, unknown>,
+    source?: string,
+  ) {
     this.log(LogLevel.error, message, extra, source)
   }
 
-  critical(message: string, extra?: Record<string, unknown>, source?: string) {
+  critical(
+    message: Error | string,
+    extra?: Record<string, unknown>,
+    source?: string,
+  ) {
     this.log(LogLevel.critical, message, extra, source)
   }
 
   private buildMessage(
     level: LogLevel,
-    message: string,
+    payload: Error | string,
     extra?: Record<string, unknown>,
   ): LogEntry {
-    return {message, level, extra}
+    if (!payload) {
+      return {message: DEFAULT_MESSAGE, level, extra}
+    }
+
+    if (payload instanceof Error) {
+      extra = {
+        ...extra,
+        stackTrace: payload.stack,
+      }
+
+      return {message: payload.message, level, extra}
+    }
+
+    if (typeof payload !== 'string') {
+      const message = JSON.stringify(payload)
+      return {message, level, extra}
+    }
+
+    return {message: payload, level, extra}
   }
 }

@@ -9,10 +9,14 @@ export interface ILogger {
 
   debug(message: string, extra?: Record<string, unknown>, source?: string): void
 
-  error(message: string, extra?: Record<string, unknown>, source?: string): void
+  error(
+    message: Error | string,
+    extra?: Record<string, unknown>,
+    source?: string,
+  ): void
 
   critical(
-    message: string,
+    message: Error | string,
     extra?: Record<string, unknown>,
     source?: string,
   ): void
