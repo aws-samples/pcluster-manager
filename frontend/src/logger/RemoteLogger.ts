@@ -116,7 +116,7 @@ export class Logger implements ILogger {
     if (payload instanceof Error) {
       extra = {
         ...extra,
-        trace: payload.stack,
+        stackTrace: payload.stack,
       }
 
       return {message: payload.message, level, extra}

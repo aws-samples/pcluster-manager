@@ -50,7 +50,7 @@ describe('Given a RemoteLogger', () => {
             level: 'ERROR',
             extra: {
               source: 'frontend',
-              trace: expect.any(String),
+              stackTrace: expect.any(String),
             },
           },
         ],
