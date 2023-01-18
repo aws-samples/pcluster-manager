@@ -6,13 +6,11 @@ from api.security.csrf import CSRF_COOKIE_NAME
 
 
 def test_boto3_exception_handler(client, client_error_response, app, monkeypatch):
-    def delete_user_raising_clienterror():
-        raise client_error_response
+    with app.test_request_context('/'):
+        app.preprocess_request()
+        response, status_code = boto3_exception_handler(client_error_response)
 
-    monkeypatch.setitem(app.view_functions, 'delete_user_', delete_user_raising_clienterror)
-    response = client.delete('/manager/delete_user', json={'username': 'some-user'})
-
-    assert response.status_code == 400
+    assert status_code == 400
     assert response.json == {'code': 400, 'message': 'Something went wrong while invoking other AWS services'}
 
 def test_value_error_exception_handler(client, app, monkeypatch):
