@@ -1,7 +1,8 @@
 from marshmallow import ValidationError
 
 from api.exception.exceptions import RefreshTokenError, CSRFError
-from api.exception.handlers import csrf_error_handler
+from api.exception.handlers import csrf_error_handler, boto3_exception_handler, value_error_handler, \
+    unauthenticated_error_handler, validation_error_handler, global_exception_handler
 from api.security.csrf import CSRF_COOKIE_NAME
 
 
@@ -14,13 +15,11 @@ def test_boto3_exception_handler(client, client_error_response, app, monkeypatch
     assert response.json == {'code': 400, 'message': 'Something went wrong while invoking other AWS services'}
 
 def test_value_error_exception_handler(client, app, monkeypatch):
-    def push_log_raising():
-        raise ValueError('Validation error')
+    with app.test_request_context('/'):
+        app.preprocess_request()
+        response, status_code = value_error_handler(ValueError('Validation error'))
 
-    monkeypatch.setitem(app.view_functions, 'push_log', push_log_raising)
-    response = client.post('/logs')
-
-    assert response.status_code == 400
+    assert status_code == 400
     assert response.json == {'code': 400, 'message': 'Validation error'}
 
 def test_csrf_error_exception_handler(client, app, monkeypatch):
