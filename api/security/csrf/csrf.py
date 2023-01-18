@@ -42,7 +42,7 @@ def set_csrf_cookie(resp, csrf_token):
     resp.set_cookie(CSRF_COOKIE_NAME, value=csrf_token, httponly=True, secure=True, samesite="Lax")
 
 def remove_csrf_cookie(resp):
-    resp.set_cookie(CSRF_COOKIE_NAME, value='', expires=0)
+    resp.delete_cookie(CSRF_COOKIE_NAME)
 
 def csrf_needed(func):
     @functools.wraps(func)
