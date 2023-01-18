@@ -57,11 +57,9 @@ def test_validation_error_handler(client, app, monkeypatch):
     }
 
 def test_global_exception_handler_with_app_logic(client, app, monkeypatch):
-    def get_app_config_raising_generic_exception():
-        raise Exception('generic exception')
+    with app.test_request_context('/'):
+        app.preprocess_request()
+        response, status_code = global_exception_handler(Exception('generic exception'))
 
-    monkeypatch.setitem(app.view_functions, 'get_app_config_', get_app_config_raising_generic_exception)
-    response = client.get('/manager/get_app_config')
-
-    assert response.status_code == 400
+    assert status_code == 400
     assert response.json == {'code': 400, 'message': 'An error occurred while trying to complete your request. Please try again later. If the problem persists, please contact support for further assistance.'}
