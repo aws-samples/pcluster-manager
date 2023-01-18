@@ -1,4 +1,5 @@
 import json
+from typing import Union
 
 from flask import Request, Response
 
@@ -14,7 +15,7 @@ def log_response_body_and_headers(_logger, response: Response):
     _logger.info(f'Response info: {json.dumps(details)}')
 
 
-def __get_http_info(r: Request | Response) -> dict:
+def __get_http_info(r: Union[Request,Response]) -> dict:
     headers = __filter_headers(r.headers)
     details = {'headers': headers}
 
