@@ -20,7 +20,7 @@ type BufferConfig = {
   window: number
 }
 
-const DEAFULT_MESSAGE = 'This log entry has no message.'
+const DEFAULT_MESSAGE = 'This log entry has no message.'
 
 export class Logger implements ILogger {
   private readonly executeRequest
@@ -110,7 +110,7 @@ export class Logger implements ILogger {
     extra?: Record<string, unknown>,
   ): LogEntry {
     if (!payload) {
-      return {message: DEAFULT_MESSAGE, level, extra}
+      return {message: DEFAULT_MESSAGE, level, extra}
     }
 
     if (payload instanceof Error) {
