@@ -14,7 +14,7 @@ def mock_csrf_token_value():
 
 @pytest.fixture
 def mock_csrf_token_string(mock_csrf_token_value):
-    return URLSafeSerializer(SECRET_KEY, SALT).dumps(mock_csrf_token_value)
+    return URLSafeSerializer(SECRET_KEY, SALT, signer_kwargs={'digest_method': hashlib.sha256}).dumps(mock_csrf_token_value)
 
 
 @pytest.fixture(scope='function')

@@ -1,6 +1,8 @@
 from marshmallow import ValidationError
 
-from api.exception.exceptions import RefreshTokenError
+from api.exception.exceptions import RefreshTokenError, CSRFError
+from api.exception.handlers import csrf_error_handler
+from api.security.csrf import CSRF_COOKIE_NAME
 
 
 def test_boto3_exception_handler(client, client_error_response, app, monkeypatch):
@@ -22,6 +24,21 @@ def test_value_error_exception_handler(client, app, monkeypatch):
 
     assert response.status_code == 400
     assert response.json == {'code': 400, 'message': 'Validation error'}
+
+def test_csrf_error_exception_handler(client, app, monkeypatch):
+
+    with app.test_request_context('/'):
+        app.preprocess_request()
+        response, status_code = csrf_error_handler(CSRFError('CSRF Error'))
+
+    csrf_cookies = list(cookie_value for cookie_header, cookie_value in response.headers if
+                        'Set-Cookie' in cookie_header and CSRF_COOKIE_NAME in cookie_value)
+
+    assert status_code == 403
+    assert response.json == {'code': 403, 'message': '403 Forbidden: CSRF Error'}
+    assert len(csrf_cookies) > 0
+    assert 'Expires=Thu, 01 Jan 1970 00:00:00 GMT' in csrf_cookies[0]
+
 
 def test_unauthenticated_error_handler(client, app, monkeypatch):
 

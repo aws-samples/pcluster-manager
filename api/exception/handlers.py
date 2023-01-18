@@ -7,6 +7,7 @@ from werkzeug.routing import WebsocketMismatch
 from api.exception import CSRFError
 from api.exception.exceptions import RefreshTokenError
 from api.pcm_globals import logger
+from api.security.csrf.csrf import remove_csrf_cookie
 
 
 def boto3_exception_handler(err):
@@ -29,7 +30,9 @@ def value_error_handler(err):
 def csrf_error_handler(err):
     descr, code = str(err), 403
     logger.error(descr, extra=dict(status=code, exception=type(err)))
-    return __handler_response(code, descr)
+    response, status_code = __handler_response(code, descr)
+    remove_csrf_cookie(response)
+    return response, status_code
 
 def unauthenticated_error_handler(err):
     descr, code = str(err), 401
