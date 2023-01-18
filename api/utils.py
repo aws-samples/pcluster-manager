@@ -15,8 +15,9 @@ import dateutil
 from flask import Flask, Response, request, send_from_directory
 import requests
 
+from api.pcm_globals import PCMGlobals, logger
 from api.exception import ExceptionHandler
-from api.pcm_globals import PCMGlobals
+from api.logging import RequestResponseLogging
 from api.security import SecurityHeaders
 
 
@@ -99,6 +100,7 @@ def build_flask_app(name):
 
     SecurityHeaders(app, running_local=is_running_local)
     ExceptionHandler(app, running_local=is_running_local)
+    RequestResponseLogging(app=app, logger=logger)
 
     return app
 
