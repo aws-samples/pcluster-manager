@@ -1,8 +1,7 @@
 from marshmallow import ValidationError
 
 from api.exception.exceptions import RefreshTokenError, CSRFError
-from api.exception.handlers import csrf_error_handler, boto3_exception_handler, value_error_handler, \
-    unauthenticated_error_handler, validation_error_handler, global_exception_handler
+from api.exception.handlers import csrf_error_handler, boto3_exception_handler, value_error_handler, unauthenticated_error_handler, validation_error_handler, global_exception_handler
 from api.security.csrf import CSRF_COOKIE_NAME
 
 
