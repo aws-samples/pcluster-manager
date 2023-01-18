@@ -96,7 +96,11 @@ export class Logger implements ILogger {
     this.log(LogLevel.error, message, extra, source)
   }
 
-  critical(message: string, extra?: Record<string, unknown>, source?: string) {
+  critical(
+    message: Error | string,
+    extra?: Record<string, unknown>,
+    source?: string,
+  ) {
     this.log(LogLevel.critical, message, extra, source)
   }
 
