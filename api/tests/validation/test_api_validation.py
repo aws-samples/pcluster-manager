@@ -25,14 +25,14 @@ class MockRequestJsonSchema(Schema):
     username = fields.Email(required=True)
 
 
-def test_valid_request_successful(mock_csrf_needed, mock_enable_auth):
+def test_valid_request_successful(mock_csrf_needed, mock_disable_auth):
     request = MockRequest()
     errors = __validate_request(request, body_schema=MockRequestJsonSchema(), params_schema=MockRequestArgsSchema(),
                                 cookies_schema=MockRequestCookiesSchema())
 
     assert errors == {}
 
-def test_invalid_request_successful_with_raise_on_missing_body_enabled(mock_csrf_needed, mock_enable_auth):
+def test_invalid_request_successful_with_raise_on_missing_body_enabled(mock_csrf_needed, mock_disable_auth):
     request = MockRequest()
     mock_json_property = PropertyMock(side_effect=Exception)
     original_json_property = MockRequest.json
@@ -45,7 +45,7 @@ def test_invalid_request_successful_with_raise_on_missing_body_enabled(mock_csrf
     mock_json_property.assert_called_once()
     MockRequest.json = original_json_property
 
-def test_invalid_request_successful_with_raise_on_missing_body_disabled(mock_csrf_needed, mock_enable_auth):
+def test_invalid_request_successful_with_raise_on_missing_body_disabled(mock_csrf_needed, mock_disable_auth):
     request = MockRequest()
     mock_json_property = PropertyMock(side_effect=Exception)
     original_json_property = MockRequest.json
@@ -60,7 +60,7 @@ def test_invalid_request_successful_with_raise_on_missing_body_disabled(mock_csr
     MockRequest.json = original_json_property
 
 
-def test_valid_request_failure(mock_csrf_needed, mock_enable_auth):
+def test_valid_request_failure(mock_csrf_needed, mock_disable_auth):
     request = MockRequest()
     request.cookies['int_value'] = 50
     errors = __validate_request(request, body_schema=MockRequestJsonSchema(), params_schema=MockRequestArgsSchema(),
@@ -69,7 +69,7 @@ def test_valid_request_failure(mock_csrf_needed, mock_enable_auth):
     assert errors == {'int_value': ['Must be greater than or equal to 99 and less than or equal to 101.']}
 
 
-def test_valid_decorator_success(app, mock_csrf_needed, mock_enable_auth):
+def test_valid_decorator_success(app, mock_csrf_needed, mock_disable_auth):
     def func(): pass
     func = validated(body=MockRequestJsonSchema())(func)
 
@@ -77,7 +77,7 @@ def test_valid_decorator_success(app, mock_csrf_needed, mock_enable_auth):
         func()
 
 
-def test_valid_decorator_failure(app, mock_csrf_needed, mock_enable_auth):
+def test_valid_decorator_failure(app, mock_csrf_needed, mock_disable_auth):
     def func(): pass
     func = validated(body=MockRequestJsonSchema())(func)
 

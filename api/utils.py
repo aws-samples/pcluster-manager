@@ -19,6 +19,8 @@ from api.exception import ExceptionHandler
 from api.pcm_globals import PCMGlobals
 from api.security import SecurityHeaders
 
+# needed to only allow tests to disable auth
+DISABLE_AUTH=False
 
 def to_utc_datetime(time_in, default_timezone=datetime.timezone.utc) -> datetime.datetime:
     """
@@ -63,10 +65,8 @@ def to_iso_timestr(time_in: datetime.datetime) -> str:
 def running_local():
     return os.getenv("ENV") == "dev"
 
-
 def disable_auth():
-    return os.getenv("ENABLE_AUTH") == "false"
-
+    return DISABLE_AUTH
 
 def proxy_to(to_url):
     """
