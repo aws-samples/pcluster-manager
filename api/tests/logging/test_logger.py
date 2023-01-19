@@ -1,5 +1,6 @@
-import json
 from unittest.mock import MagicMock
+
+from flask import Response
 
 from api.logging import RequestResponseLogging, log_request_body_and_headers, log_response_body_and_headers
 from api.logging.logger import DefaultLogger
@@ -42,6 +43,44 @@ def test_request_response_logging_extension(app):
     assert 'log_request' in before_func_names
     assert 'log_response' in after_func_names
 
+def test_request_response_logging_execution_no_log_paths(app, mocker):
+    """
+        Given a Flask app
+          when using the RequestResponseLogging extension
+          when invoking a path from the specified no_logs_path
+            it should not call the log_request_body_and_headers and log_response_body_and_headers functions
+        """
+
+    mock_log_request = mocker.patch('api.logging.http_info.log_request_body_and_headers')
+    mock_log_response = mocker.patch('api.logging.http_info.log_response_body_and_headers')
+
+    RequestResponseLogging(app)
+
+    with app.test_request_context('/logs'):
+        app.preprocess_request()
+        app.process_response(Response('fake-response'))
+
+    mock_log_request.assert_not_called()
+    mock_log_response.assert_not_called()
+
+def test_request_response_logging_execution(app, mocker):
+    """
+        Given a Flask app
+          when using the RequestResponseLogging extension
+          when invoking a path
+            it should call the log_request_body_and_headers and log_response_body_and_headers functions
+        """
+    mock_log_request = mocker.patch('api.logging.log_request_body_and_headers')
+    mock_log_response = mocker.patch('api.logging.log_response_body_and_headers')
+
+    RequestResponseLogging(app)
+
+    with app.test_request_context('/'):
+        app.preprocess_request()
+        app.process_response(Response('fake-response'))
+
+    mock_log_request.assert_called_once()
+    mock_log_response.assert_called_once()
 
 def __get_function_name_list(functions):
     return list(fun.__name__ for app_name, funcs in functions.items() for fun in funcs)
@@ -51,30 +90,36 @@ class MockRequest:
     headers = {'int_value': 100}
     args = {'region': 'eu-west-1'}
     json = {'username': 'user@email.com'}
+    path = '/fake-path'
 
 
 def test_log_request_body_and_headers(mocker):
     mock_logger = MagicMock(wraps=DefaultLogger(True))
-
+    mocker.patch('api.pcm_globals.apigw_request_id', 'apigw-request-id')
     log_request_body_and_headers(mock_logger, MockRequest())
 
     expected_details = {
         'headers': {'int_value': 100},
+        'apigw-request-id': 'apigw-request-id',
         'body': {'username': 'user@email.com'},
-        'params': {'region': 'eu-west-1'}
+        'path': '/fake-path',
+        'params': {'region': 'eu-west-1'},
+        'type': 'REQUEST'
     }
 
-    mock_logger.info.assert_called_once_with(f'Request info: {json.dumps(expected_details)}')
+    mock_logger.info.assert_called_once_with(expected_details)
 
 
 def test_log_response_body_and_headers(mocker):
     mock_logger = MagicMock(wraps=DefaultLogger(True))
-
+    mocker.patch('api.pcm_globals.apigw_request_id', 'apigw-request-id')
     log_response_body_and_headers(mock_logger, MockRequest())
 
     expected_details = {
         'headers': {'int_value': 100},
-        'body': {'username': 'user@email.com'}
+        'apigw-request-id': 'apigw-request-id',
+        'body': {'username': 'user@email.com'},
+        'type': 'RESPONSE'
     }
 
-    mock_logger.info.assert_called_once_with(f'Response info: {json.dumps(expected_details)}')
+    mock_logger.info.assert_called_once_with(expected_details)
