@@ -103,7 +103,7 @@ def build_flask_app(name):
     return app
 
 
-def serve_frontend(app, path):
+def serve_frontend(app, path=""):
     if running_local():
         return proxy_to("http://localhost:3000/" + path)
 
