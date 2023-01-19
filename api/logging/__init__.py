@@ -29,18 +29,21 @@ def push_log_entry(_logger, level, message, extra):
 
 
 class RequestResponseLogging:
-    def __init__(self, logger, app: Flask = None):
+    def __init__(self, logger, app: Flask = None, no_log_paths=['/logs']):
         self.logger = logger
+        self.no_log_paths = no_log_paths
         if app:
             self.init_app(app)
 
     def init_app(self, app):
 
         def log_request():
-            log_request_body_and_headers(self.logger, request)
+            if request.path not in self.no_log_paths:
+                log_request_body_and_headers(self.logger, request)
 
         def log_response(response = None):
-            log_response_body_and_headers(self.logger, response)
+            if request.path not in self.no_log_paths:
+                log_response_body_and_headers(self.logger, response)
             return response
 
         app.before_request(log_request)
