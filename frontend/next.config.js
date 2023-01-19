@@ -11,6 +11,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  experimental: {
+    images: {
+      unoptimized: true,
+    },
+  },
   async rewrites() {
     return [
       /**
