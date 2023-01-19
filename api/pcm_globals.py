@@ -10,6 +10,22 @@ _logger_ctxvar = ContextVar('pcm_logger')
 
 logger = LocalProxy(_logger_ctxvar)
 
+global_apigw_request_id = None
+def set_apigw_request_id_global(_apigw_request_id):
+    global global_apigw_request_id
+    global_apigw_request_id = _apigw_request_id
+def set_apigw_request_id_in_context(_apigw_request_id):
+    global global_apigw_request_id
+    global_apigw_request_id = None
+    g.apigw_request_id = _apigw_request_id
+
+def get_request_ids():
+    if 'apigw_request_id' not in g:
+        g.apigw_request_id = None
+    return g.apigw_request_id
+
+apigw_request_id = LocalProxy(get_request_ids)
+
 def set_auth_cookies_in_context(cookies: dict):
     g.auth_cookies = cookies
 
@@ -38,7 +54,11 @@ class PCMGlobals(object):
         def set_global_logger_before_func():
             _logger_ctxvar.set(_logger)
 
+        def set_global_apigw_request_id_in_context():
+            set_apigw_request_id_in_context(global_apigw_request_id)
+
         app.before_request(set_global_logger_before_func)
+        app.before_request(set_global_apigw_request_id_in_context)
 
         # required for setting auth cookies in case of a token refresh
         app.after_request(add_auth_cookies)

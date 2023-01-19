@@ -14,6 +14,8 @@ from typing import Any, Dict
 
 import app
 import logging
+
+from api.pcm_globals import set_apigw_request_id_global
 from awslambda.serverless_wsgi import handle_request
 
 # Initialize as a global to re-use across Lambda invocations
@@ -38,6 +40,11 @@ def lambda_handler(event: Dict[str, Any], context) -> Dict[str, Any]:
             pcluster_manager_api = _init_flask_app()
         # Setting default region to region where lambda function is executed
         os.environ["AWS_DEFAULT_REGION"] = os.environ["AWS_REGION"]
+
+        if 'requestContext' in event and 'requestId' in event['requestContext']:
+            # set apigw requestId to allow Flask app context to use it in logging
+            set_apigw_request_id_global(event["requestContext"]["requestId"])
+
         return handle_request(pcluster_manager_api, event, context)
     except Exception as e:
         logging.critical("Unexpected exception: %s", e, exc_info=True)
