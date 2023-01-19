@@ -3,20 +3,16 @@ from unittest import mock
 
 import pytest
 from flask import g
-from api.PclusterApiHandler import authenticate, refresh_tokens, USER_ROLES_CLAIM
+from api.PclusterApiHandler import authenticate, USER_ROLES_CLAIM
 from jose import jwt
 
-from api.exception.exceptions import RefreshTokenError
-
-@mock.patch.dict(os.environ,{"ENABLE_AUTH": "false"})
-def test_authenticate():
+def test_authenticate(mock_disable_auth):
     """
     Given an authentication middleware
       When authentication is disabled
         Then it should do nothing
     """
     assert authenticate({'any-group'}) is None
-
 
 def test_authenticate_with_no_access_token_returns_401(mocker, app):
     with app.test_request_context():
