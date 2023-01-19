@@ -29,20 +29,20 @@ def push_log_entry(_logger, level, message, extra):
 
 
 class RequestResponseLogging:
-    def __init__(self, logger, app: Flask = None, no_log_paths=['/logs']):
+    def __init__(self, logger, app: Flask = None, urls_deny_list=['/logs']):
         self.logger = logger
-        self.no_log_paths = no_log_paths
+        self.urls_deny_list = urls_deny_list
         if app:
             self.init_app(app)
 
     def init_app(self, app):
 
         def log_request():
-            if request.path not in self.no_log_paths:
+            if request.path not in self.urls_deny_list:
                 log_request_body_and_headers(self.logger, request)
 
         def log_response(response = None):
-            if request.path not in self.no_log_paths:
+            if request.path not in self.urls_deny_list:
                 log_response_body_and_headers(self.logger, response)
             return response
 

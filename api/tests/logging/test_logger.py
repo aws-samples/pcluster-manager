@@ -43,7 +43,7 @@ def test_request_response_logging_extension(app):
     assert 'log_request' in before_func_names
     assert 'log_response' in after_func_names
 
-def test_request_response_logging_execution_no_log_paths(app, mocker):
+def test_request_response_logging_execution_urls_deny_list(app, mocker):
     """
         Given a Flask app
           when using the RequestResponseLogging extension

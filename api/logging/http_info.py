@@ -9,13 +9,11 @@ def log_request_body_and_headers(_logger, request: Request):
     details['path'] = request.path
     if request.args:
         details['params'] = request.args
-    details['type'] = 'REQUEST'
     _logger.info(details)
 
 
 def log_response_body_and_headers(_logger, response: Response):
     details = __get_http_info(response)
-    details['type'] = 'RESPONSE'
     _logger.info(details)
 
 
