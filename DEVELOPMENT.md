@@ -47,29 +47,6 @@ npm run dev
 
 Lastly, navigate to [http://localhost:5001](http://localhost:5001)
 
-## Frontend
-Disable authentication (*HMR does not work when working on http://localhost:5001*), note that this has to be exported in shell where the backend runs:
-
-```bash
-export ENABLE_AUTH=false
-```
-
-Start the API backend by running:
-
-```bash
-./scripts/run_flask.sh
-```
-
-Start the React frontend by running:
-
-```bash
-cd frontend/
-npm install # if this is your first time starting the frontend
-npm run dev
-```
-
-Navigate to [http://localhost:3000](http://localhost:3000)
-
 ## Typescript
 The project has been converted to Typescript using [ts-migrate](https://github.com/airbnb/ts-migrate/tree/master/packages/ts-migrate)(an in depth explanation can be found [here](https://medium.com/airbnb-engineering/ts-migrate-a-tool-for-migrating-to-typescript-at-scale-cd23bfeb5cc)).
 The tool automatically adds comments similar to `// @ts-expect-error` when typing errors cannot be fixed automatically: if you fix a type error either by adding a missing third party declaration or tweaking the signature of a function, you can adjust automatically the codebase and remove `//@ts-ignore` comments using `npm run ts-reignore`.
