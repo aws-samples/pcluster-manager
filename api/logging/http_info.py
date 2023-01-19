@@ -1,7 +1,6 @@
 from typing import Union
 
 from flask import Request, Response
-from api import pcm_globals
 
 
 def log_request_body_and_headers(_logger, request: Request):
@@ -9,6 +8,12 @@ def log_request_body_and_headers(_logger, request: Request):
     details['path'] = request.path
     if request.args:
         details['params'] = request.args
+
+    if 'serverless.event' in request.environ:
+        env = request.environ.get('serverless.event')
+        if 'requestContext' in env and 'requestId' in env.get('requestContext'):
+            details['apigw-request-id'] = env.get('requestContext').get('requestId')
+
     _logger.info(details)
 
 
@@ -21,8 +26,6 @@ def __get_http_info(r: Union[Request,Response]) -> dict:
     headers = __filter_headers(r.headers)
     details = {'headers': headers}
 
-    if pcm_globals.apigw_request_id:
-        details['apigw-request-id'] = pcm_globals.apigw_request_id
     try:
         body = r.json
         if body:
