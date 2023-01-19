@@ -91,35 +91,37 @@ class MockRequest:
     args = {'region': 'eu-west-1'}
     json = {'username': 'user@email.com'}
     path = '/fake-path'
+    environ = {
+        'serverless.event': {
+            'requestContext': {
+                'requestId': 'apigw-request-id'
+            }
+        }
+    }
 
 
-def test_log_request_body_and_headers(mocker):
+def test_log_request_body_and_headers():
     mock_logger = MagicMock(wraps=DefaultLogger(True))
-    mocker.patch('api.pcm_globals.apigw_request_id', 'apigw-request-id')
     log_request_body_and_headers(mock_logger, MockRequest())
 
     expected_details = {
         'headers': {'int_value': 100},
-        'apigw-request-id': 'apigw-request-id',
         'body': {'username': 'user@email.com'},
         'path': '/fake-path',
         'params': {'region': 'eu-west-1'},
-        'type': 'REQUEST'
+        'apigw-request-id': 'apigw-request-id'
     }
 
     mock_logger.info.assert_called_once_with(expected_details)
 
 
-def test_log_response_body_and_headers(mocker):
+def test_log_response_body_and_headers():
     mock_logger = MagicMock(wraps=DefaultLogger(True))
-    mocker.patch('api.pcm_globals.apigw_request_id', 'apigw-request-id')
     log_response_body_and_headers(mock_logger, MockRequest())
 
     expected_details = {
         'headers': {'int_value': 100},
-        'apigw-request-id': 'apigw-request-id',
-        'body': {'username': 'user@email.com'},
-        'type': 'RESPONSE'
+        'body': {'username': 'user@email.com'}
     }
 
     mock_logger.info.assert_called_once_with(expected_details)
