@@ -14,6 +14,7 @@ from typing import Any, Dict
 
 import app
 import logging
+
 from awslambda.serverless_wsgi import handle_request
 
 # Initialize as a global to re-use across Lambda invocations

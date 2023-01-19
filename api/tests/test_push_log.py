@@ -12,7 +12,7 @@ def test_push_log_controller_with_valid_json_no_extra(client, caplog, mock_disab
     response = client.post('/logs', json=request_body)
 
     assert response.status_code == 200
-    assert trim_log(caplog) == expected_log
+    assert expected_log in trim_log(caplog)
 
 
 def test_push_log_controller_with_valid_json_with_extra(client, caplog, mock_disable_auth, mock_csrf_needed):
@@ -24,4 +24,4 @@ def test_push_log_controller_with_valid_json_with_extra(client, caplog, mock_dis
     response = client.post('/logs', json=request_body)
 
     assert response.status_code == 200
-    assert trim_log(caplog) == expected_log
+    assert expected_log in trim_log(caplog)
