@@ -1,4 +1,3 @@
-import json
 from typing import Union
 
 from flask import Request, Response
