@@ -1,4 +1,4 @@
-import hashlib
+from hashlib import pbkdf2_hmac
 from abc import ABC
 
 
@@ -7,6 +7,7 @@ class IFingerprintGenerator(ABC):
     def fingerprint(self):
         pass
 
+SALT = 'cognito-fingerprint-salt'.encode()
 
 class CognitoFingerprintGenerator(IFingerprintGenerator):
 
@@ -16,9 +17,5 @@ class CognitoFingerprintGenerator(IFingerprintGenerator):
         self.user_pool_id = user_pool_id
 
     def fingerprint(self):
-        hash = self.__hash('', self.client_id)
-        hash = self.__hash(hash, self.client_secret)
-        return self.__hash(hash, self.user_pool_id)
-
-    def __hash(self, a, b):
-        return hashlib.sha256(f'{a}:{b}'.encode('utf-8')).hexdigest()
+        to_encrypt = self.client_id + self.client_secret + self.user_pool_id
+        return pbkdf2_hmac('sha256', to_encrypt.encode(), SALT, 500_000).hex()

@@ -4,7 +4,13 @@ import pytest
 
 import api.security
 from app import run
+import app as _app
 
+@pytest.fixture(autouse=True)
+def mock_cognito_variables(mocker):
+    mocker.patch.object(_app, 'CLIENT_ID', 'client-id')
+    mocker.patch.object(_app, 'USER_POOL_ID', 'user-pool')
+    mocker.patch.object(_app, 'CLIENT_SECRET', 'client-secret')
 
 @pytest.fixture()
 def app():
@@ -14,8 +20,6 @@ def app():
     })
 
     yield app
-
-
 
 @pytest.fixture()
 def client(app):
@@ -29,10 +33,13 @@ def runner(app):
 @pytest.fixture()
 def dev_app(monkeypatch):
     monkeypatch.setenv("ENV", "dev")
+
     app = run()
     app.config.update({
         "TESTING": True,
     })
+
+    
 
     yield app
 
