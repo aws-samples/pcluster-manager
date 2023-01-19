@@ -77,6 +77,10 @@ def run():
         return Response(
             "You are not authorized to perform this action.", 401
         )
+    
+    @app.errorhandler(404)
+    def page_not_found(_error):
+        return utils.serve_frontend(app)
 
     @app.route("/", defaults={"path": ""})
     @app.route('/<path:path>')
