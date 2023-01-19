@@ -3,7 +3,7 @@ from unittest.mock import call, ANY
 import pytest
 
 from api.PclusterApiHandler import revoke_cognito_refresh_token
-from api.logging import DefaultLogger
+from api.logging.logger import DefaultLogger
 
 
 @pytest.fixture
