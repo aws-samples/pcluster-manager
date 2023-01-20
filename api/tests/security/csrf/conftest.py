@@ -1,7 +1,7 @@
 import hashlib
 
 import pytest
-from itsdangerous import URLSafeSerializer
+from itsdangerous import URLSafeTimedSerializer
 
 from api.tests.security.csrf.test_csrf import MOCK_URANDOM_VALUE, SECRET_KEY, SALT
 
@@ -14,7 +14,7 @@ def mock_csrf_token_value():
 
 @pytest.fixture
 def mock_csrf_token_string(mock_csrf_token_value):
-    return URLSafeSerializer(SECRET_KEY, SALT, signer_kwargs={'digest_method': hashlib.sha256}).dumps(mock_csrf_token_value)
+    return URLSafeTimedSerializer(SECRET_KEY, SALT, signer_kwargs={'digest_method': hashlib.sha256}).dumps(mock_csrf_token_value)
 
 
 @pytest.fixture(scope='function')

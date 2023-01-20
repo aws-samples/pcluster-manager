@@ -1,8 +1,10 @@
-import os
+import datetime
+import time
 from unittest.mock import ANY, call
 
 import pytest
 from flask import request
+from itsdangerous import BadSignature
 
 from api.exception import CSRFError
 from api.security.csrf import CSRF, generate_csrf_token
@@ -28,6 +30,8 @@ def test_crsf_extension_get_new_csrf(app):
               it should return the csrf_token in a json
     """
     CSRF(app)
+    now = datetime.datetime.utcnow()
+    expected_expiration = (now + datetime.timedelta(seconds=30)).strftime('%a, %d %b %Y %H:%M:%S')
     resp = app.test_client().get('/csrf')
     csrf_cookies = list(cookie_value for cookie_header, cookie_value in resp.headers if
                         'Set-Cookie' in cookie_header and CSRF_COOKIE_NAME in cookie_value)
@@ -36,27 +40,7 @@ def test_crsf_extension_get_new_csrf(app):
     assert 'csrf_token' in resp.json
     assert len(csrf_cookies) > 0
     assert 'Secure; HttpOnly; Path=/; SameSite=Lax' in csrf_cookies[0]
-
-def test_crsf_extension_get_existing_csrf(app):
-    """
-    When an app is built
-        and CSRF ext is applied
-            it should expose a new endpoint /csrf
-            when a csrf cookie is already set in the incoming request
-              it should return the csrf_token in a json
-    """
-    CSRF(app)
-    test_client = app.test_client()
-    test_client.set_cookie(os.getenv('SITE_URL'), 'csrf', 'csrf-value', samesite='Lax', httponly=True, secure=True)
-    resp = test_client.get('/csrf')
-    csrf_cookies = list(cookie_value for cookie_header, cookie_value in resp.headers if
-                        'Set-Cookie' in cookie_header and CSRF_COOKIE_NAME in cookie_value)
-
-    assert resp.status_code != 405
-    assert 'csrf_token' in resp.json
-    assert resp.json.get('csrf_token') == 'csrf-value'
-    assert len(csrf_cookies) > 0
-    assert 'Secure; HttpOnly; Path=/; SameSite=Lax' in csrf_cookies[0]
+    assert f'Expires={expected_expiration}' in csrf_cookies[0]
 
 
 def test_csrf_needed_decorator(mocker, capsys, mock_csrf_token_string, app, mock_parse_csrf):
@@ -117,6 +101,12 @@ def test_parse_csrf_token(mock_urandom, mock_csrf_token_value):
 
     assert actual_token_value == mock_csrf_token_value
 
+def test_parse_csrf_token_expired(mock_urandom):
+    csrf_token = generate_csrf_token(SECRET_KEY,SALT)
+    time.sleep(1)
+
+    with pytest.raises(BadSignature):
+        parse_csrf_token(SECRET_KEY, SALT, csrf_token, max_age=0)
 
 def test_validate_csrf(mock_parse_csrf):
     """
