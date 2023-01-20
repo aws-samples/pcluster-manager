@@ -10,11 +10,8 @@ csrf_blueprint = Blueprint('csrf', __name__)
 
 @csrf_blueprint.get('/csrf')
 def get_and_set_csrf_token():
-    csrf_token = request.cookies.get(CSRF_COOKIE_NAME)
-    if not csrf_token:
-        csrf_secret_key = current_app.config.get(CSRF_SECRET_KEY)
-        csrf_token = generate_csrf_token(csrf_secret_key, SALT)
-
+    csrf_secret_key = current_app.config.get(CSRF_SECRET_KEY)
+    csrf_token = generate_csrf_token(csrf_secret_key, SALT)
     resp = jsonify(csrf_token=csrf_token)
     set_csrf_cookie(resp, csrf_token)
     return resp
