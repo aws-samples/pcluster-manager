@@ -1,3 +1,4 @@
+import datetime
 import time
 from unittest.mock import ANY, call
 
@@ -29,6 +30,8 @@ def test_crsf_extension_get_new_csrf(app):
               it should return the csrf_token in a json
     """
     CSRF(app)
+    now = datetime.datetime.utcnow()
+    expected_expiration = (now + datetime.timedelta(seconds=30)).strftime('%a, %d %b %Y %H:%M:%S')
     resp = app.test_client().get('/csrf')
     csrf_cookies = list(cookie_value for cookie_header, cookie_value in resp.headers if
                         'Set-Cookie' in cookie_header and CSRF_COOKIE_NAME in cookie_value)
@@ -37,7 +40,7 @@ def test_crsf_extension_get_new_csrf(app):
     assert 'csrf_token' in resp.json
     assert len(csrf_cookies) > 0
     assert 'Secure; HttpOnly; Path=/; SameSite=Lax' in csrf_cookies[0]
-    assert 'Expires=' in csrf_cookies[0]
+    assert f'Expires={expected_expiration}' in csrf_cookies[0]
 
 
 def test_csrf_needed_decorator(mocker, capsys, mock_csrf_token_string, app, mock_parse_csrf):

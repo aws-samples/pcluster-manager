@@ -1,7 +1,6 @@
 import functools
 import hashlib
 import os
-from datetime import datetime, timedelta
 
 from flask import request, current_app
 from itsdangerous import BadSignature, URLSafeTimedSerializer
@@ -42,8 +41,7 @@ def is_csrf_enabled():
 
 
 def set_csrf_cookie(resp, csrf_token, max_age=CSRF_DEFAULT_MAX_AGE):
-    expiration_date = datetime.now() + timedelta(seconds=max_age)
-    resp.set_cookie(CSRF_COOKIE_NAME, expires=expiration_date, value=csrf_token, httponly=True, secure=True, samesite="Lax")
+    resp.set_cookie(CSRF_COOKIE_NAME, max_age=max_age, value=csrf_token, httponly=True, secure=True, samesite="Lax")
 
 def remove_csrf_cookie(resp):
     resp.delete_cookie(CSRF_COOKIE_NAME)
