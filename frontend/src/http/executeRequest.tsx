@@ -27,14 +27,17 @@ export function internalExecuteRequest(...params: RequestParams) {
   const [method, url, body, headers, appConfig] = params
   const requestFunc = axiosInstance[method]
 
-  const defaultHeaders = {'Content-Type': 'application/json'}
+  const headersToSend = {'Content-Type': 'application/json', ...headers}
   const handle401and403 = appConfig
     ? handleNotAuthorizedErrors(appConfig)
     : identityFn<Promise<any>>
 
-  return handle401and403(
-    requestFunc(url, body, {headers: {...defaultHeaders, ...headers}}),
-  )
+  const promise =
+    method === 'get' || method === 'delete'
+      ? requestFunc(url, {headers: headersToSend})
+      : requestFunc(url, body, {headers: headersToSend})
+
+  return handle401and403(promise)
 }
 
 export const executeRequest = (...params: RequestParams) =>
