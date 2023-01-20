@@ -899,24 +899,10 @@ async function GetAppConfig() {
   }
 }
 
-async function LoadCsrfToken(logger: ILogger): Promise<string | null> {
-  try {
-    const token = await getCsrfToken(axiosInstance)
-    setCsrfTokenHeader(axiosInstance, token)
-    logger.info(`Set X-CSRF-Token header to ${token}`)
-    return token
-  } catch (error) {
-    logger.error('Could not fetch CSRF token')
-    notify(i18n.t('global.errors.csrfError'), 'error')
-    return null
-  }
-}
-
-async function LoadInitialState(logger: ILogger) {
+async function LoadInitialState() {
   const region = getState(['app', 'selectedRegion'])
   clearState(['app', 'aws'])
   clearAllState()
-  await LoadCsrfToken(logger)
   GetVersion()
   await GetAppConfig()
   GetIdentity(_ => {
