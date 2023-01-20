@@ -68,7 +68,7 @@ function request(method: HTTPMethod, url: string, body: any = undefined) {
         : `${url}?region=${region}`
       : url
 
-  return executeRequest(method, url, body, appConfig)
+  return executeRequest(method, url, body, {}, appConfig)
 }
 
 function CreateCluster(
