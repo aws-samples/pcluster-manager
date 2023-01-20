@@ -1,12 +1,10 @@
 import {CreateCluster} from '../model'
 
-const mockPost = jest.fn()
-
-jest.mock('axios', () => ({
-  create: () => ({
-    post: (...args: unknown[]) => mockPost(...args),
-  }),
+jest.mock('../http/executeRequest', () => ({
+  executeRequest: jest.fn(),
 }))
+import {executeRequest} from '../http/executeRequest'
+const mockRequest = executeRequest as jest.Mock
 
 describe('given a CreateCluster command and a cluster configuration', () => {
   const clusterName = 'any-name'
@@ -23,7 +21,7 @@ describe('given a CreateCluster command and a cluster configuration', () => {
           some: 'data',
         },
       }
-      mockPost.mockResolvedValueOnce(mockResponse)
+      mockRequest.mockResolvedValueOnce(mockResponse)
     })
 
     it('should emit the API request', async () => {
@@ -38,10 +36,12 @@ describe('given a CreateCluster command and a cluster configuration', () => {
         mockRegion,
         mockSelectedRegion,
       )
-      expect(mockPost).toHaveBeenCalledTimes(1)
-      expect(mockPost).toHaveBeenCalledWith(
+      expect(mockRequest).toHaveBeenCalledTimes(1)
+      expect(mockRequest).toHaveBeenCalledWith(
+        'post',
         'api?path=/v3/clusters&region=some-region',
         expectedBody,
+        expect.any(Object),
         expect.any(Object),
       )
     })
@@ -73,9 +73,11 @@ describe('given a CreateCluster command and a cluster configuration', () => {
           false,
           mockDryRun,
         )
-        expect(mockPost).toHaveBeenCalledTimes(1)
-        expect(mockPost).toHaveBeenCalledWith(
+        expect(mockRequest).toHaveBeenCalledTimes(1)
+        expect(mockRequest).toHaveBeenCalledWith(
+          'post',
           'api?path=/v3/clusters&dryrun=true&region=some-region',
+          expect.any(Object),
           expect.any(Object),
           expect.any(Object),
         )
@@ -93,9 +95,11 @@ describe('given a CreateCluster command and a cluster configuration', () => {
           mockSelectedRegion,
           mockDisableRollback,
         )
-        expect(mockPost).toHaveBeenCalledTimes(1)
-        expect(mockPost).toHaveBeenCalledWith(
+        expect(mockRequest).toHaveBeenCalledTimes(1)
+        expect(mockRequest).toHaveBeenCalledWith(
+          'post',
           'api?path=/v3/clusters&rollbackOnFailure=false&region=some-region',
+          expect.any(Object),
           expect.any(Object),
           expect.any(Object),
         )
@@ -114,7 +118,7 @@ describe('given a CreateCluster command and a cluster configuration', () => {
           },
         },
       }
-      mockPost.mockRejectedValueOnce(mockError)
+      mockRequest.mockRejectedValueOnce(mockError)
     })
 
     it('should call the error callback', async () => {
