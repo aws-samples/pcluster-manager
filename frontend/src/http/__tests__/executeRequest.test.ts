@@ -30,35 +30,35 @@ describe('given the application config', () => {
 
   describe('and an axios instance', () => {
     it('should be correctly invoked with method GET', () => {
-      executeRequest('get', '/', {}, mockAppConfig)
+      executeRequest('get', '/', {}, {}, mockAppConfig)
 
       expect(mockOperation).toHaveBeenCalledTimes(1)
       expect(mockOperation).toHaveBeenCalledWith('/', {}, expectedConf)
     })
 
     it('should be correctly invoked with method POST', () => {
-      executeRequest('post', '/', {}, mockAppConfig)
+      executeRequest('post', '/', {}, {}, mockAppConfig)
 
       expect(mockOperation).toHaveBeenCalledTimes(1)
       expect(mockOperation).toHaveBeenCalledWith('/', {}, expectedConf)
     })
 
     it('should be correctly invoked with method PUT', () => {
-      executeRequest('put', '/', {}, mockAppConfig)
+      executeRequest('put', '/', {}, {}, mockAppConfig)
 
       expect(mockOperation).toHaveBeenCalledTimes(1)
       expect(mockOperation).toHaveBeenCalledWith('/', {}, expectedConf)
     })
 
     it('should be correctly invoked with method PATCH', () => {
-      executeRequest('patch', '/', {}, mockAppConfig)
+      executeRequest('patch', '/', {}, {}, mockAppConfig)
 
       expect(mockOperation).toHaveBeenCalledTimes(1)
       expect(mockOperation).toHaveBeenCalledWith('/', {}, expectedConf)
     })
 
     it('should be correctly invoked with method DELETE', () => {
-      executeRequest('delete', '/', {}, mockAppConfig)
+      executeRequest('delete', '/', {}, {}, mockAppConfig)
 
       expect(mockOperation).toHaveBeenCalledTimes(1)
       expect(mockOperation).toHaveBeenCalledWith('/', {}, expectedConf)

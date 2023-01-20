@@ -2,6 +2,7 @@ import axios from 'axios'
 import {AppConfig} from '../app-config/types'
 import {handleNotAuthorizedErrors} from '../auth/handleNotAuthorizedErrors'
 import identityFn from 'lodash/identity'
+import {requestWithCSRF} from './csrf'
 
 export const axiosInstance = axios.create({
   baseURL: getHost(),
@@ -22,7 +23,7 @@ export type RequestParams = [
   appConfig?: AppConfig,
 ]
 
-export function executeRequest(...params: RequestParams) {
+function internalExecuteRequest(...params: RequestParams) {
   const [method, url, body, headers, appConfig] = params
   const requestFunc = axiosInstance[method]
 
@@ -35,3 +36,6 @@ export function executeRequest(...params: RequestParams) {
     requestFunc(url, body, {headers: {...defaultHeaders, ...headers}}),
   )
 }
+
+export const executeRequest = (...params: RequestParams) =>
+  requestWithCSRF(internalExecuteRequest, ...params)

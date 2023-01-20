@@ -22,10 +22,6 @@ import {generateRandomId} from './util'
 import {AppConfig} from './app-config/types'
 import {getAppConfig} from './app-config'
 import {axiosInstance, executeRequest, HTTPMethod} from './http/executeRequest'
-import {getCsrfToken} from './auth/getCsrfToken'
-import {ILogger} from './logger/ILogger'
-import {setCsrfTokenHeader} from './http/setCsrfTokenHeader'
-import i18n from './i18n'
 
 // Types
 type Callback = (arg?: any) => void
