@@ -4,19 +4,19 @@ Parameters:
     Type: String
     Default: ''
   PublicEcrImageUri:
-    Description: When specified, the URI of the Docker image for the Lambda of the PClusterManager container
+    Description: When specified, the URI of the Docker image for the Lambda of the ParallelCluster UI container
     Type: String
-    Default: public.ecr.aws/pcm/pcluster-manager-awslambda:3.3.0
+    Default: public.ecr.aws/pcm/parallelcluster-ui:3.3.0
   UserPoolId:
-    Description: UserPoolId of a previously deployed PCM Cognito User Pool. Leave blank to create a new one.
+    Description: UserPoolId of a previously deployed PCUI Cognito User Pool. Leave blank to create a new one.
     Type: String
     Default: ''
   UserPoolAuthDomain:
-    Description: UserPoolAuthDomain of a previously deployed PCM Cognito User Pool. Leave blank to create a new one.
+    Description: UserPoolAuthDomain of a previously deployed PCUI Cognito User Pool. Leave blank to create a new one.
     Type: String
     Default: ''
   SNSRole:
-    Description: SNSRole ARN of a previously deployed PCM Cognito Stack. Leave blank to create a new one.
+    Description: SNSRole ARN of a previously deployed PCUI Cognito Stack. Leave blank to create a new one.
     Type: String
     Default: ''
   EnableMFA:
@@ -58,7 +58,7 @@ Metadata:
           - AdminUserEmail
           - AdminUserPhone
       - Label:
-          default: External PCM Cognito
+          default: External PCUI Cognito
         Parameters:
           - UserPoolId
           - UserPoolAuthDomain
@@ -76,11 +76,11 @@ Metadata:
       AdminUserPhone:
         default: Admin's Phone Number
       UserPoolId:
-        default: UserPoolId from a previously deployed PCM
+        default: UserPoolId from a previously deployed PCUI
       UserPoolAuthDomain:
-        default: UserPoolAuthDomain from a previously deployed PCM
+        default: UserPoolAuthDomain from a previously deployed PCUI
       SNSRole:
-        default: SNSRole ARN from a previously deployed PCM
+        default: SNSRole ARN from a previously deployed PCUI
 
 Conditions:
   NonDefaultVpc:
@@ -97,14 +97,14 @@ Conditions:
     !Not [ Condition: UseExistingCognito]
 
 Mappings:
-  PclusterManager:
+  ParallelClusterUI:
     Constants:
       Version: 3.3.0
       ShortVersion: 3.3.0
 
 Resources:
 
-  PclusterManagerCognito:
+  Cognito:
     Condition: UseNewCognito
     Type: AWS::CloudFormation::Stack
     DeletionPolicy: Retain
@@ -114,7 +114,7 @@ Resources:
         AdminUserPhone: !Ref AdminUserPhone
         EnableMFA: !Ref EnableMFA
       TemplateURL: !Sub 
-        - '${Bucket}/pcluster-manager-cognito.yaml'
+        - '${Bucket}/parallelcluster-ui-cognito.yaml'
         - Bucket: !If 
           - HasDefaultInfrastructure
           - PLACEHOLDER
@@ -154,10 +154,10 @@ Resources:
           - !Sub ${InfrastructureBucket}
       TimeoutInMinutes: 30
 
-  PclusterManagerFunction:
+  ParallelClusterUIFunction:
     Type: AWS::Lambda::Function
     Properties:
-      Role: !GetAtt PclusterManagerUserRole.Arn
+      Role: !GetAtt ParallelClusterUIUserRole.Arn
       PackageType: Image
       MemorySize: 512
       Timeout: 30
@@ -173,13 +173,13 @@ Resources:
           SITE_URL: !Sub
            - https://${Api}.execute-api.${AWS::Region}.${AWS::URLSuffix}
            - Api: !Ref ApiGateway
-          AUTH_PATH: !If [ UseExistingCognito, !Ref UserPoolAuthDomain, !GetAtt [ PclusterManagerCognito, Outputs.UserPoolAuthDomain ]]
+          AUTH_PATH: !If [ UseExistingCognito, !Ref UserPoolAuthDomain, !GetAtt [ Cognito, Outputs.UserPoolAuthDomain ]]
           SECRET_ID: !GetAtt UserPoolClientSecret.SecretName
           AUDIENCE: !Ref CognitoAppClient
           OIDC_PROVIDER: 'Cognito'
           ENABLE_MFA: !Ref EnableMFA
       FunctionName: !Sub
-        - PclusterManagerFunction-${StackIdSuffix}
+        - ParallelClusterUIFunction-${StackIdSuffix}
         - { StackIdSuffix: !Select [2, !Split ['/', !Ref 'AWS::StackId']] }
       Code:
         ImageUri: !Sub
@@ -192,8 +192,8 @@ Resources:
   ApiGateway:
     Type: AWS::ApiGatewayV2::Api
     Properties:
-      Name: PclusterManager
-      Description: PclusterManager Lambda Proxy
+      Name: ParallelClusterUI
+      Description: ParallelClusterUI Lambda Proxy
       ProtocolType: HTTP
       Tags:
         'parallelcluster:ui:version': !FindInMap [PclusterManager, Constants, ShortVersion]
@@ -214,12 +214,12 @@ Resources:
       Description: 'ANY integration'
       IntegrationType: AWS_PROXY
       IntegrationUri: !Sub
-        - arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:PclusterManagerFunction-${StackIdSuffix}/invocations
+        - arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:ParallelClusterUIFunction-${StackIdSuffix}/invocations
         - { StackIdSuffix: !Select [2, !Split ['/', !Ref 'AWS::StackId']] }
       PayloadFormatVersion: 2.0
       TimeoutInMillis: 30000
 
-  PCMApiGatewayAccessLog:
+  ApiGatewayAccessLog:
     Type: AWS::Logs::LogGroup
     Properties:
       RetentionInDays: 90
@@ -228,7 +228,7 @@ Resources:
     Type: AWS::ApiGatewayV2::Stage
     Properties: 
       AccessLogSettings: 
-        DestinationArn: !GetAtt PCMApiGatewayAccessLog.Arn
+        DestinationArn: !GetAtt ApiGatewayAccessLog.Arn
         Format: '{ "requestId":"$context.requestId", "ip": "$context.identity.sourceIp", "requestTime":"$context.requestTime", "httpMethod":"$context.httpMethod","path":"$context.path", "status":"$context.status","protocol":"$context.protocol", "responseLength":"$context.responseLength" }'
       ApiId: !Ref ApiGateway
       StageName: $default
@@ -255,7 +255,7 @@ Resources:
           - Api: !Ref ApiGateway
       SupportedIdentityProviders:
         - COGNITO
-      UserPoolId: !If [ UseExistingCognito, !Ref UserPoolId, !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]]
+      UserPoolId: !If [ UseExistingCognito, !Ref UserPoolId, !GetAtt [ Cognito, Outputs.UserPoolId ]]
       PreventUserExistenceErrors: ENABLED
       RefreshTokenValidity: 7
       AccessTokenValidity: 10
@@ -268,7 +268,7 @@ Resources:
     Type: Custom::UserPoolClientSecret
     Properties:
       ServiceToken: !GetAtt UserPoolClientSecretFunction.Arn
-      UserPoolId: !If [ UseExistingCognito, !Ref UserPoolId, !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]]
+      UserPoolId: !If [ UseExistingCognito, !Ref UserPoolId, !GetAtt [ Cognito, Outputs.UserPoolId ]]
       AppClientId: !Ref CognitoAppClient
 
   UserPoolClientSecretFunction:
@@ -374,7 +374,7 @@ Resources:
                 Resource:
                   - !Sub
                     - arn:${AWS::Partition}:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}
-                    - { UserPoolId: !If [UseExistingCognito, !Ref UserPoolId, !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]]}
+                    - { UserPoolId: !If [UseExistingCognito, !Ref UserPoolId, !GetAtt [ Cognito, Outputs.UserPoolId ]]}
         - PolicyName: SecretsManagerPermissions
           PolicyDocument:
             Version: 2012-10-17
@@ -393,7 +393,7 @@ Resources:
     Type: AWS::ECR::Repository
     Properties:
       RepositoryName: !Sub
-        - 'pcluster-manager-${StackIdSuffix}'
+        - 'parallelcluster-ui-${StackIdSuffix}'
         - { StackIdSuffix: !Select [2, !Split ['/', !Ref 'AWS::StackId']] }
 
   ImageBuilderInstanceRole:
@@ -431,8 +431,8 @@ Resources:
     Type: AWS::ImageBuilder::InfrastructureConfiguration
     Properties:
       Name: !Sub
-        - PclusterManagerImageBuilderInfrastructureConfiguration-${Version}-${StackIdSuffix}
-        - { Version: !Join ['_', !Split ['.', !FindInMap [PclusterManager, Constants, Version]]], StackIdSuffix: !Select [2, !Split ['/', !Ref 'AWS::StackId']] }
+        - ParallelClusterUIImageBuilderInfrastructureConfiguration-${Version}-${StackIdSuffix}
+        - { Version: !Join ['_', !Split ['.', !FindInMap [ParallelClusterUI, Constants, Version]]], StackIdSuffix: !Select [2, !Split ['/', !Ref 'AWS::StackId']] }
       InstanceProfileName: !Ref ImageBuilderInstanceProfile
       TerminateInstanceOnFailure: true
       SubnetId:
@@ -455,9 +455,9 @@ Resources:
         - ComponentArn: !Sub arn:${AWS::Partition}:imagebuilder:${AWS::Region}:aws:component/update-linux/x.x.x
       ContainerType: DOCKER
       Name: !Sub
-        - 'pcluster-manager-${Version}-${StackIdSuffix}'
-        - { Version: !Join ['_', !Split ['.', !FindInMap [PclusterManager, Constants, Version]]], StackIdSuffix: !Select [2, !Split ['/', !Ref 'AWS::StackId']] }
-      Version: !FindInMap [PclusterManager, Constants, ShortVersion]
+        - 'parallelcluster-ui-${Version}-${StackIdSuffix}'
+        - { Version: !Join ['_', !Split ['.', !FindInMap [ParallelClusterUI, Constants, Version]]], StackIdSuffix: !Select [2, !Split ['/', !Ref 'AWS::StackId']] }
+      Version: !FindInMap [ParallelClusterUI, Constants, ShortVersion]
       ParentImage: !Ref PublicEcrImageUri
       PlatformOverride: Linux
       TargetRepository:
@@ -480,7 +480,7 @@ Resources:
     Properties:
       Name: !Sub
         - 'EcrImagePipeline-${Version}-${StackIdSuffix}'
-        - { Version: !Join ['_', !Split ['.', !FindInMap [PclusterManager, Constants, Version]]], StackIdSuffix: !Select [2, !Split ['/', !Ref 'AWS::StackId']] }
+        - { Version: !Join ['_', !Split ['.', !FindInMap [ParallelClusterUI, Constants, Version]]], StackIdSuffix: !Select [2, !Split ['/', !Ref 'AWS::StackId']] }
       Status: ENABLED
       ContainerRecipeArn: !Ref EcrImageRecipe
       InfrastructureConfigurationArn: !Ref InfrastructureConfiguration
@@ -617,17 +617,17 @@ Resources:
     Properties:
       ServiceToken: !GetAtt EcrImageDeletionLambda.Arn
       EcrRepositoryName: !Ref PrivateEcrRepository
-      Version: !FindInMap [PclusterManager, Constants, ShortVersion]
+      Version: !FindInMap [ParallelClusterUI, Constants, ShortVersion]
       EcrImagePipelineArn: !GetAtt EcrImagePipeline.Arn
 
-  PclusterManagerLambdaLogGroup:
+  ParallelClusterUILambdaLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub /aws/lambda/${PclusterManagerFunction}
+      LogGroupName: !Sub /aws/lambda/${ParallelClusterUIFunction}
       RetentionInDays: 90
 
 
-  PclusterManagerUserRole:
+  ParallelClusterUIUserRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -642,21 +642,21 @@ Resources:
         - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
         # Access to the ParllelCluster API
         - !Ref ParallelClusterApiGatewayInvoke
-        # Required to run PclusterManager functionalities
-        - !Ref PclusterManagerCognitoPolicy
-        - !Ref PclusterManagerEC2Policy
-        - !Ref PclusterManagerDescribeFsxPolicy
-        - !Ref PclusterManagerDescribeEfsPolicy
-        - !Ref PclusterManagerPricingPolicy
-        - !Ref PclusterManagerSsmSendPolicy
-        - !Ref PclusterManagerSsmGetCommandInvocationPolicy
+        # Required to run ParallelClusterUI functionalities
+        - !Ref CognitoPolicy
+        - !Ref EC2Policy
+        - !Ref DescribeFsxPolicy
+        - !Ref DescribeEfsPolicy
+        - !Ref PricingPolicy
+        - !Ref SsmSendPolicy
+        - !Ref SsmGetCommandInvocationPolicy
 
 
-  PclusterManagerApiGatewayInvoke:
+  ParallelClusterUIApiGatewayInvoke:
     Type: AWS::Lambda::Permission
     Properties:
       Action: lambda:InvokeFunction
-      FunctionName: !GetAtt PclusterManagerFunction.Arn
+      FunctionName: !GetAtt ParallelClusterUIFunction.Arn
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub
         - arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGateway}/*
@@ -675,7 +675,7 @@ Resources:
               - arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${PCApiGateway}/*/*
               - { PCApiGateway: !Select [2, !Split ['/', !Select [0, !Split ['.', !GetAtt [ ParallelClusterApi, Outputs.ParallelClusterApiInvokeUrl ]]]]] }
 
-  PclusterManagerCognitoPolicy:
+  CognitoPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
       PolicyDocument:
@@ -690,7 +690,7 @@ Resources:
             - cognito-idp:AdminDeleteUser
             Resource: !Sub
               - arn:${AWS::Partition}:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}
-              - { UserPoolId: !If [UseExistingCognito, !Ref UserPoolId, !GetAtt [ PclusterManagerCognito, Outputs.UserPoolId ]]}
+              - { UserPoolId: !If [UseExistingCognito, !Ref UserPoolId, !GetAtt [ Cognito, Outputs.UserPoolId ]]}
             Effect: Allow
             Sid: CognitoPolicy
           - Action:
@@ -700,7 +700,7 @@ Resources:
             Effect: Allow
             Sid: SecretsRole
 
-  PclusterManagerEC2Policy:
+  EC2Policy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
       PolicyDocument:
@@ -727,7 +727,7 @@ Resources:
             Effect: Allow
             Sid: EC2ManagePolicy
 
-  PclusterManagerDescribeFsxPolicy:
+  DescribeFsxPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
       PolicyDocument:
@@ -742,7 +742,7 @@ Resources:
             Effect: Allow
             Sid: FsxPolicy
 
-  PclusterManagerDescribeEfsPolicy:
+  DescribeEfsPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
       PolicyDocument:
@@ -755,7 +755,7 @@ Resources:
             Effect: Allow
             Sid: EfsPolicy
 
-  PclusterManagerPricingPolicy:
+  PricingPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
       PolicyDocument:
@@ -768,7 +768,7 @@ Resources:
             Effect: Allow
             Sid: PricingPolicy
 
-  PclusterManagerSsmSendPolicy:
+  SsmSendPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
       PolicyDocument:
@@ -790,7 +790,7 @@ Resources:
             Effect: Allow
             Sid: SsmSendPolicyCommand
 
-  PclusterManagerSsmGetCommandInvocationPolicy:
+  SsmGetCommandInvocationPolicy:
     Type: AWS::IAM::ManagedPolicy
     Properties:
       PolicyDocument:
@@ -805,13 +805,13 @@ Resources:
 
 
 Outputs:
-  PclusterManagerLambdaArn:
-    Description: 'ARN of the PClusterManager Lambda function'
-    Value: !GetAtt PclusterManagerFunction.Arn
-  PclusterManagerUrl:
-    Description: 'Url to reach the PClusterManager Site.'
+  ParallelClusterUILambdaArn:
+    Description: 'ARN of the ParallelCluster UI Lambda function'
+    Value: !GetAtt ParallelClusterUIFunction.Arn
+  ParallelClusterUIUrl:
+    Description: 'Url to reach the ParallelCluster UI Site.'
     Export:
-      Name: !Sub ${AWS::StackName}-PclusterManagerSite
+      Name: !Sub ${AWS::StackName}-ParallelClusterUISite
     Value: !Sub
       - https://${Api}.execute-api.${AWS::Region}.${AWS::URLSuffix}
       - Api: !Ref ApiGateway
@@ -819,8 +819,8 @@ Outputs:
     Description: The id of the Cognito app client
     Value: !Ref CognitoAppClient
   UserPoolClientSecretArn:
-    Description: The app client secret ARN for PClusterManager.
+    Description: The app client secret ARN for ParallelCluster UI.
     Value: !GetAtt UserPoolClientSecret.SecretArn
   UserPoolClientSecretName:
-    Description: The app client secret name for PClusterManager.
+    Description: The app client secret name for ParallelCluster UI.
     Value: !GetAtt UserPoolClientSecret.SecretName

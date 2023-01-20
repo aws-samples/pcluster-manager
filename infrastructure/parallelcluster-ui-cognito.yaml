@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Pcluster Manager Cognito User Pool
+Description: ParallelCluster UI Cognito User Pool
 
 Parameters:
   AdminUserEmail:
@@ -70,7 +70,7 @@ Resources:
     Type: AWS::Cognito::UserPoolDomain
     Properties:
       UserPoolId: !Ref CognitoUserPool
-      Domain: !Join [ "-", ["pcluster-manager-auth", !Select [2, !Split [ "/", !Ref 'AWS::StackId']]]]
+      Domain: !Join [ "-", ["pcui-auth", !Select [2, !Split [ "/", !Ref 'AWS::StackId']]]]
 
   CognitoUserPool:
     Type: AWS::Cognito::UserPool
@@ -96,14 +96,14 @@ Resources:
       AdminCreateUserConfig:
         AllowAdminCreateUserOnly: true
         InviteMessageTemplate:
-          EmailSubject: "[PClusterManager] Welcome to Pcluster Manager, please verify your account."
-          EmailMessage: "Thanks for installing PClusterManager on your AWS account. The following user has been created: {username}<br /><br />Please use this temporary password to login to your account: {####}"
+          EmailSubject: "[AWS ParallelCluster UI] Welcome to AWS ParallelCluster UI, please verify your account."
+          EmailMessage: "Thanks for installing AWS ParallelCluster UI on your AWS account. The following user has been created: {username}<br /><br />Please use this temporary password to login to your account: {####}"
       UsernameAttributes:
         - 'email'
       VerificationMessageTemplate:
         DefaultEmailOption: CONFIRM_WITH_CODE
-        EmailMessage: "Thanks for signing up to PClusterManager. Please use the following code to verify your account: {####}"
-        EmailSubject: "[PClusterManager] Please verify your account"
+        EmailMessage: "Thanks for signing up to AWS ParallelCluster UI. Please use the following code to verify your account: {####}"
+        EmailSubject: "[AWS ParallelCluster UI] Please verify your account"
 
 
   CognitoAdminGroup:
