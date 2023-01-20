@@ -17,8 +17,8 @@ The stack will create two new roles:
 
 ## Update the infrastructure of an environment
 When a change is made to one of the following files:
-- pcluster-manager.yaml
-- pcluster-manager-cognito.yaml
+- parallelcluster-ui.yaml
+- parallelcluster-ui-cognito.yaml
 - SSMSessionProfile-cfn.yaml
 
 it is not sufficient to run the `update.sh` script to update the PCM instances because it builds and deploys the Lambda image (with only the changes to backend and frontend().

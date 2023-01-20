@@ -54,7 +54,7 @@ Resources:
                   - ecr:DescribeRepositories
                   - cloudformation:DescribeStackResources
                 Resource:
-                  - !Sub arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:PclusterManagerFunction*
+                  - !Sub arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:ParallelClusterUIFunction*
                   - !Sub arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/*
                   - !Sub arn:${AWS::Partition}:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/*/*
               - Effect: Allow
@@ -110,7 +110,7 @@ Resources:
                   - cloudformation:UpdateStack
                   - cloudformation:CreateChangeSet
                 Resource:
-                  - !Sub arn:${AWS::Partition}:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/pcluster-manager-demo*
+                  - !Sub arn:${AWS::Partition}:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/parallelcluster-ui-demo*
                   - !Sub arn:${AWS::Partition}:cloudformation:${AWS::Region}:aws:transform/*
               - Effect: Allow
                 Action:
@@ -139,13 +139,13 @@ Resources:
                   - iam:AttachRolePolicy
                   - iam:PassRole
                 Resource:
-                  - !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:role/pcluster-manager-demo*
-                  - !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/pcluster-manager-demo*
+                  - !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:role/parallelcluster-ui-demo*
+                  - !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/parallelcluster-ui-demo*
               - Effect: Allow
                 Action:
                   - lambda:UpdateFunctionConfiguration
                 Resource:
-                  - !Sub arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:PclusterManagerFunction-*
+                  - !Sub arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:ParallelClusterUIFunction-*
               - Effect: Allow
                 Action:
                   - cognito-idp:UpdateGroup
