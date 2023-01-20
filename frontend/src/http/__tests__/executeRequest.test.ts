@@ -33,7 +33,7 @@ describe('given the application config', () => {
       internalExecuteRequest('get', '/', {}, {}, mockAppConfig)
 
       expect(mockOperation).toHaveBeenCalledTimes(1)
-      expect(mockOperation).toHaveBeenCalledWith('/', {}, expectedConf)
+      expect(mockOperation).toHaveBeenCalledWith('/', expectedConf)
     })
 
     it('should be correctly invoked with method POST', () => {
@@ -61,7 +61,7 @@ describe('given the application config', () => {
       internalExecuteRequest('delete', '/', {}, {}, mockAppConfig)
 
       expect(mockOperation).toHaveBeenCalledTimes(1)
-      expect(mockOperation).toHaveBeenCalledWith('/', {}, expectedConf)
+      expect(mockOperation).toHaveBeenCalledWith('/', expectedConf)
     })
   })
 })
