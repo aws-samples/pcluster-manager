@@ -1,5 +1,5 @@
 import {AppConfig} from '../../app-config/types'
-import {executeRequest} from '../executeRequest'
+import {internalExecuteRequest} from '../executeRequest'
 
 const mockOperation = jest.fn()
 
@@ -30,35 +30,35 @@ describe('given the application config', () => {
 
   describe('and an axios instance', () => {
     it('should be correctly invoked with method GET', () => {
-      executeRequest('get', '/', {}, {}, mockAppConfig)
+      internalExecuteRequest('get', '/', {}, {}, mockAppConfig)
 
       expect(mockOperation).toHaveBeenCalledTimes(1)
       expect(mockOperation).toHaveBeenCalledWith('/', {}, expectedConf)
     })
 
     it('should be correctly invoked with method POST', () => {
-      executeRequest('post', '/', {}, {}, mockAppConfig)
+      internalExecuteRequest('post', '/', {}, {}, mockAppConfig)
 
       expect(mockOperation).toHaveBeenCalledTimes(1)
       expect(mockOperation).toHaveBeenCalledWith('/', {}, expectedConf)
     })
 
     it('should be correctly invoked with method PUT', () => {
-      executeRequest('put', '/', {}, {}, mockAppConfig)
+      internalExecuteRequest('put', '/', {}, {}, mockAppConfig)
 
       expect(mockOperation).toHaveBeenCalledTimes(1)
       expect(mockOperation).toHaveBeenCalledWith('/', {}, expectedConf)
     })
 
     it('should be correctly invoked with method PATCH', () => {
-      executeRequest('patch', '/', {}, {}, mockAppConfig)
+      internalExecuteRequest('patch', '/', {}, {}, mockAppConfig)
 
       expect(mockOperation).toHaveBeenCalledTimes(1)
       expect(mockOperation).toHaveBeenCalledWith('/', {}, expectedConf)
     })
 
     it('should be correctly invoked with method DELETE', () => {
-      executeRequest('delete', '/', {}, {}, mockAppConfig)
+      internalExecuteRequest('delete', '/', {}, {}, mockAppConfig)
 
       expect(mockOperation).toHaveBeenCalledTimes(1)
       expect(mockOperation).toHaveBeenCalledWith('/', {}, expectedConf)

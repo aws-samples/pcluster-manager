@@ -23,7 +23,7 @@ export type RequestParams = [
   appConfig?: AppConfig,
 ]
 
-function internalExecuteRequest(...params: RequestParams) {
+export function internalExecuteRequest(...params: RequestParams) {
   const [method, url, body, headers, appConfig] = params
   const requestFunc = axiosInstance[method]
 
