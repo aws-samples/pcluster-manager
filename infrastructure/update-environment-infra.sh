@@ -19,14 +19,14 @@
 # Example: ./infrastructure/update-environment-infra.sh demo
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-FILES=(SSMSessionProfile-cfn.yaml pcluster-manager-cognito.yaml pcluster-manager.yaml)
+FILES=(SSMSessionProfile-cfn.yaml parallelcluster-ui-cognito.yaml parallelcluster-ui.yaml)
 ENVIRONMENT=$1
 . ${SCRIPT_DIR}/environments/${ENVIRONMENT}-variables.sh
 
 # The yaml files describing the infrastructure are uploaded to a private S3 bucket
 # and then used to update the CloudFormation stack, where the same bucket is passed as parameters.
 # This is done to make sure that we deploy all the changes to the infrastructure, and not only the changes
-# made to pcluster-manager.yaml (the parent stack)
+# made to parallelcluster-ui.yaml (the parent stack)
 echo Uploading to: ${BUCKET}
 for FILE in "${FILES[@]}"
 do
