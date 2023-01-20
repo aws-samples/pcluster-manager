@@ -17,7 +17,6 @@ import {LoadInitialState} from '../model'
 // UI Elements
 import TopNavigation from '@cloudscape-design/components/top-navigation'
 import {useQueryClient} from 'react-query'
-import {useLogger} from '../logger/LoggerProvider'
 import {NavigateFunction, useNavigate} from 'react-router-dom'
 
 export function regions(selected: string) {
@@ -106,7 +105,6 @@ export const clearClusterOnRegionChange = (
 export default function Topbar() {
   let username = useState(['identity', 'attributes', 'email'])
   const queryClient = useQueryClient()
-  const logger = useLogger()
   const navigate = useNavigate()
 
   const defaultRegion = useState(['aws', 'region']) || 'DEFAULT'
@@ -121,7 +119,7 @@ export default function Topbar() {
     let newRegion = region.detail.id
     setState(['app', 'selectedRegion'], newRegion)
     clearClusterOnRegionChange(location.pathname, navigate)
-    LoadInitialState(logger)
+    LoadInitialState()
     queryClient.invalidateQueries()
   }
 

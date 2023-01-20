@@ -13,9 +13,6 @@
       "title": "$t(global.projectName) documentation",
       "link": "https://pcluster.cloud/"
     },
-    "errors": {
-      "csrfError": "An unexpected error occurred. Please reload the page and try again"
-    },
     "openNewTab": "Open in a new tab"
   },
   "errorBoundary": {

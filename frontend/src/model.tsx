@@ -22,10 +22,6 @@ import {generateRandomId} from './util'
 import {AppConfig} from './app-config/types'
 import {getAppConfig} from './app-config'
 import {axiosInstance, executeRequest, HTTPMethod} from './http/executeRequest'
-import {getCsrfToken} from './auth/getCsrfToken'
-import {ILogger} from './logger/ILogger'
-import {setCsrfTokenHeader} from './http/setCsrfTokenHeader'
-import i18n from './i18n'
 
 // Types
 type Callback = (arg?: any) => void
@@ -68,7 +64,7 @@ function request(method: HTTPMethod, url: string, body: any = undefined) {
         : `${url}?region=${region}`
       : url
 
-  return executeRequest(method, url, body, appConfig)
+  return executeRequest(method, url, body, {}, appConfig)
 }
 
 function CreateCluster(
@@ -899,24 +895,10 @@ async function GetAppConfig() {
   }
 }
 
-async function LoadCsrfToken(logger: ILogger): Promise<string | null> {
-  try {
-    const token = await getCsrfToken(axiosInstance)
-    setCsrfTokenHeader(axiosInstance, token)
-    logger.info(`Set X-CSRF-Token header to ${token}`)
-    return token
-  } catch (error) {
-    logger.error('Could not fetch CSRF token')
-    notify(i18n.t('global.errors.csrfError'), 'error')
-    return null
-  }
-}
-
-async function LoadInitialState(logger: ILogger) {
+async function LoadInitialState() {
   const region = getState(['app', 'selectedRegion'])
   clearState(['app', 'aws'])
   clearAllState()
-  await LoadCsrfToken(logger)
   GetVersion()
   await GetAppConfig()
   GetIdentity(_ => {

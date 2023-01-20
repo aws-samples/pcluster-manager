@@ -2,6 +2,7 @@ import axios from 'axios'
 import {AppConfig} from '../app-config/types'
 import {handleNotAuthorizedErrors} from '../auth/handleNotAuthorizedErrors'
 import identityFn from 'lodash/identity'
+import {requestWithCSRF} from './csrf'
 
 export const axiosInstance = axios.create({
   baseURL: getHost(),
@@ -14,18 +15,27 @@ function getHost() {
 
 export type HTTPMethod = 'get' | 'put' | 'post' | 'patch' | 'delete'
 
-export function executeRequest(
+export type RequestParams = [
   method: HTTPMethod,
   url: string,
   body?: any,
+  headers?: Record<string, string>,
   appConfig?: AppConfig,
-) {
+]
+
+export function internalExecuteRequest(...params: RequestParams) {
+  const [method, url, body, headers, appConfig] = params
   const requestFunc = axiosInstance[method]
 
-  const headers = {'Content-Type': 'application/json'}
+  const defaultHeaders = {'Content-Type': 'application/json'}
   const handle401and403 = appConfig
     ? handleNotAuthorizedErrors(appConfig)
     : identityFn<Promise<any>>
 
-  return handle401and403(requestFunc(url, body, {headers}))
+  return handle401and403(
+    requestFunc(url, body, {headers: {...defaultHeaders, ...headers}}),
+  )
 }
+
+export const executeRequest = (...params: RequestParams) =>
+  requestWithCSRF(internalExecuteRequest, ...params)
