@@ -1,9 +1,8 @@
 #!/bin/bash -e
 
-LOCAL=false
 TAG=latest
 
-USAGE="$(basename "$0") [-h] [--stack-name STACKNAME] [--region REGION] [--tag TAG] [--local]"
+USAGE="$(basename "$0") [-h] [--stack-name STACKNAME] [--region REGION] [--tag TAG]"
 
 while [[ $# -gt 0 ]]
 do
@@ -28,10 +27,6 @@ case $key in
     TAG=$2
     shift # past argument
     shift # past value
-    ;;
-    --local)
-    LOCAL=true
-    shift # past argument
     ;;
     *)    # unknown option
     echo "$usage" >&2
@@ -60,28 +55,19 @@ CF_OUTPUT=`aws cloudformation describe-stack-resources --stack-name "$STACKNAME"
 
 LAMBDA_NAME="$(resource_id_from_cf_output "$CF_OUTPUT" "ParallelClusterUIFunction")"
 LAMBDA_ARN=$(aws lambda --region ${REGION} list-functions --query "Functions[?contains(FunctionName, '$LAMBDA_NAME')] | [0].FunctionArn" | xargs echo)
-ECR_REPO=pcluster-manager-awslambda
 
-PUBLIC_ECR_ENDPOINT="public.ecr.aws/pcm"
 ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
 ECR_ENDPOINT="${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com"
 PRIVATE_ECR_REPO="$(resource_id_from_cf_output "$CF_OUTPUT" "PrivateEcrRepository")"
 IMAGE=${ECR_ENDPOINT}/${PRIVATE_ECR_REPO}:latest
 
-if [ "$LOCAL" == "true" ]; then
-    pushd frontend
-    if [ ! -d node_modules ]; then
-      npm install
-    fi
-    docker build --build-arg PUBLIC_URL=/ -t frontend-awslambda .
-    popd
-    docker build -f Dockerfile.awslambda -t ${IMAGE} .
-else
-    echo "Logging in to docker..."
-    AWS_SESSION_TOKEN= AWS_ACCESS_KEY_ID= AWS_SECRET_ACCESS_KEY= aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin "${PUBLIC_ECR_ENDPOINT}"
-    docker pull ${PUBLIC_ECR_ENDPOINT}/${ECR_REPO}:${TAG}
-    docker tag ${PUBLIC_ECR_ENDPOINT}/${ECR_REPO}:${TAG} ${IMAGE}
+pushd frontend
+if [ ! -d node_modules ]; then
+  npm install
 fi
+docker build --build-arg PUBLIC_URL=/ -t frontend-awslambda .
+popd
+docker build -f Dockerfile.awslambda -t ${IMAGE} .
 
 echo "Logging in to private repo..."
 aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin "${ECR_ENDPOINT}"
