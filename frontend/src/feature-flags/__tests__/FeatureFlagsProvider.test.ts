@@ -53,6 +53,7 @@ describe('given a feature flags provider and a list of rules', () => {
         'slurm_queue_update_strategy',
         'slurm_accounting',
         'queues_multiple_instance_types',
+        'dynamic_fs_mount',
       ])
     })
   })

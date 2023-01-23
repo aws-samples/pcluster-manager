@@ -19,3 +19,4 @@ export type AvailableFeature =
   | 'queues_multiple_instance_types'
   | 'multi_az'
   | 'on_node_updated'
+  | 'dynamic_fs_mount'
