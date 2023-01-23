@@ -146,8 +146,6 @@ export function FsxLustreSettings({index}: any) {
   const exportPath = useState(exportPathPath) || ''
   const compression = useState(compressionPath)
 
-  const editing = useState(['app', 'wizard', 'editing'])
-
   React.useEffect(() => {
     const fsxPath = [...storagePath, index, 'FsxLustreSettings']
     const storageCapacityPath = [...fsxPath, 'StorageCapacity']
@@ -222,7 +220,6 @@ export function FsxLustreSettings({index}: any) {
             setState(storageCapacityPath, clampCapacity(storageCapacity))
           }}
           type="number"
-          disabled={editing}
         />
       </div>
       <FormField
@@ -252,7 +249,6 @@ export function FsxLustreSettings({index}: any) {
         }
       >
         <Select
-          disabled={editing}
           selectedOption={strToOption(lustreType || 'PERSISTENT_1')}
           onChange={({detail}) => {
             setState(lustreTypePath, detail.selectedOption.value)
@@ -290,7 +286,6 @@ export function FsxLustreSettings({index}: any) {
             }
           >
             <Input
-              disabled={editing}
               placeholder={t('wizard.storage.Fsx.import.placeholder')}
               value={importPath}
               onChange={({detail}) => setImportPath(detail.value)}
@@ -318,7 +313,6 @@ export function FsxLustreSettings({index}: any) {
             }
           >
             <Input
-              disabled={editing}
               placeholder={t('wizard.storage.Fsx.export.placeholder')}
               value={exportPath}
               onChange={({detail}) => {
@@ -558,7 +552,6 @@ function EbsSettings({index}: any) {
   const encryptedPath = [...ebsPath, 'Encrypted']
   const kmsPath = [...ebsPath, 'KmsKeyId']
   const snapshotIdPath = [...ebsPath, 'SnapshotId']
-  const editing = useState(['app', 'wizard', 'editing'])
 
   const deletionPolicyPath = [...ebsPath, 'DeletionPolicy']
   const deletionPolicies = ['Delete', 'Retain', 'Snapshot']
@@ -603,7 +596,6 @@ function EbsSettings({index}: any) {
         >
           <Trans i18nKey="wizard.storage.Ebs.volumeType.label" />:
           <Select
-            disabled={editing}
             placeholder={t('wizard.queues.validation.scriptWithArgs', {
               defaultVlumeType: defaultVolumeType,
             })}
@@ -628,7 +620,6 @@ function EbsSettings({index}: any) {
           <div style={{display: 'flex', flexShrink: 1}}>
             <FormField errorText={volumeErrors}>
               <Input
-                disabled={editing}
                 inputMode={'decimal'}
                 type={'number' as InputProps.Type}
                 value={volumeSize}
@@ -839,7 +830,6 @@ function StorageInstance({index}: any) {
             }
           >
             <Input
-              disabled={editing}
               value={mountPoint}
               onChange={({detail}) => {
                 setState([...storagePath, index, 'MountDir'], detail.value)
