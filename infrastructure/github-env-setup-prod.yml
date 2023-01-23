@@ -42,7 +42,7 @@ Resources:
                   - ecr-public:BatchCheckLayerAvailability
                   - ecr-public:PutImage
                   - ecr-public:TagResource
-                Resource: !Sub arn:${AWS::Partition}:ecr-public::${AWS::AccountId}:repository/pcluster-manager-awslambda
+                Resource: !Sub arn:${AWS::Partition}:ecr-public::${AWS::AccountId}:repository/parallelcluster-ui
         - PolicyName: UploadS3Bucket
           PolicyDocument:
             Version: 2012-10-17

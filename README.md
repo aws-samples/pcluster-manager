@@ -119,7 +119,7 @@ It is possible to reuse a Cognito user pool across multiple PCUI instances to av
 1. From the CloudFormation console, select a PCUI stack.
 2. Select the **Parameters** tab.
 3. The version of AWS ParallelCluster is available under `Version`.
-4. The version of AWS ParallelCluster UI is the latest part of the `PublicEcrImageUri` parameter. For example if the value is `public.ecr.aws/pcm/pcluster-manager-awslambda:3.3.0` the version is `3.3.0`.
+4. The version of AWS ParallelCluster UI is the latest part of the `PublicEcrImageUri` parameter. For example if the value is `public.ecr.aws/pcm/parallelcluster-ui:3.3.0` the version is `3.3.0`.
 
 ## Updating
 
