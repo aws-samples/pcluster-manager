@@ -769,7 +769,8 @@ function StorageInstance({index}: any) {
   const fsxFilesystems = useState(['aws', 'fsxFilesystems'])
   const fsxVolumes = useState(['aws', 'fsxVolumes'])
   const efsFilesystems = useState(['aws', 'efs_filesystems']) || []
-  const editing = useState(['app', 'wizard', 'editing'])
+
+  const canEditFilesystems = useDynamicStorage()
 
   const canToggle =
     (useExisting && canCreateStorage(storageType, storages, uiSettings)) ||
@@ -810,7 +811,7 @@ function StorageInstance({index}: any) {
         <Header
           variant="h3"
           actions={
-            <Button disabled={editing} onClick={removeStorage}>
+            <Button disabled={!canEditFilesystems} onClick={removeStorage}>
               Remove
             </Button>
           }
@@ -987,11 +988,11 @@ function StorageInstance({index}: any) {
 
 function Storage() {
   const storages = useState(storagePath)
-  const editing = useState(['app', 'wizard', 'editing'])
   const uiStorageSettings = useState(['app', 'wizard', 'storage', 'ui'])
   const storageType = useState(['app', 'wizard', 'storage', 'type'])
   const isFsxOnTapActive = useFeatureFlag('fsx_ontap')
   const isFsxOpenZsfActive = useFeatureFlag('fsx_openzsf')
+  const canEditFilesystems = useDynamicStorage()
 
   const storageMaxes: Record<string, number> = {
     FsxLustre: 21,
@@ -1082,7 +1083,7 @@ function Storage() {
           <div>No shared storage options selected.</div>
         )}
 
-        {!editing && storageTypes.length > 0 && (
+        {canEditFilesystems && storageTypes.length > 0 && (
           <div
             style={{
               display: 'flex',
@@ -1101,7 +1102,6 @@ function Storage() {
             >
               Storage Type:
               <Select
-                disabled={editing}
                 placeholder="Please Select a Filesystem Type"
                 selectedOption={
                   storageType &&
@@ -1172,4 +1172,16 @@ function canAttachExistingStorage(
   return existingAlreadyAttached < maxExistingToAttach
 }
 
-export {Storage, storageValidate, canCreateStorage, canAttachExistingStorage}
+function useDynamicStorage() {
+  const editingCluster = useState(['app', 'wizard', 'editing'])
+  const isDynamicFSMountActive = useFeatureFlag('dynamic_fs_mount')
+  return isDynamicFSMountActive || !editingCluster
+}
+
+export {
+  Storage,
+  storageValidate,
+  canCreateStorage,
+  canAttachExistingStorage,
+  useDynamicStorage,
+}
