@@ -95,6 +95,6 @@ jobs:
           role-to-assume: arn:aws:iam::***REMOVED***:role/pcluster-manager-github-PrivateDeployRole-8D5K5C4RM02U
       
       - name: Update staging environment
-        run: ./scripts/update.sh --stack-name "parallelcluster-ui-demo" --region eu-west-1 --local
+        run: ./scripts/update.sh --stack-name "parallelcluster-ui-demo" --region eu-west-1
 
 
