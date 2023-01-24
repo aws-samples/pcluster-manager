@@ -1,4 +1,4 @@
-TemplateURL: https://pcluster-manager-github-infrastructurebucket-7y5h202iem8l.s3.eu-west-1.amazonaws.com/pcluster-manager.yaml
+TemplateURL: https://pcluster-manager-github-infrastructurebucket-7y5h202iem8l.s3.eu-west-1.amazonaws.com/parallelcluster-ui.yaml
 Parameters:
   - ParameterKey: Version
     ParameterValue: 3.4.0

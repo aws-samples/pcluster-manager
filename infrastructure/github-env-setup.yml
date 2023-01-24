@@ -160,7 +160,7 @@ Resources:
                 Action:
                   - imagebuilder:UpdateInfrastructureConfiguration
                 Resource:
-                  - !Sub arn:${AWS::Partition}:imagebuilder:${AWS::Region}:${AWS::AccountId}:infrastructure-configuration/pclustermanagerimagebuilderinfrastructureconfiguration-*
+                  - !Sub arn:${AWS::Partition}:imagebuilder:${AWS::Region}:${AWS::AccountId}:infrastructure-configuration/parallelclusteruiimagebuilderinfrastructureconfiguration-*
         - PolicyName: PassRolePolicy
           PolicyDocument:
             Version: 2012-10-17
@@ -169,7 +169,7 @@ Resources:
                 Action:
                   - iam:PassRole
                 Resource:
-                  - !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:role/executionServiceEC2Role/pcluster-manager-demo-ImageBuilderInstanceRole*
+                  - !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:role/executionServiceEC2Role/parallelcluster-ui-demo-ImageBuilderInstanceRole*
 
   E2ETestExecution:
     Type: AWS::IAM::Role
