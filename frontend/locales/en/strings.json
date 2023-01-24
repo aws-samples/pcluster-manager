@@ -155,6 +155,10 @@
           "label": "Interface",
           "description": "Create a new cluster configuration by using the $t(global.projectName)."
         },
+        "template": {
+          "label": "Existing template",
+          "description": "Choose this to use the wizard starting from an existing configuration or template file. This will proceed through the wizard process to allow you to customize any options before creating the cluster."
+        },
         "cluster": {
           "label": "Existing cluster",
           "description": "Start by selecting an existing cluster for the configuration of your new cluster. The selected existing cluster version must match the $t(global.projectName) version.",
