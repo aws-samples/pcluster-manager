@@ -50,12 +50,23 @@
         "help": "Copy the SSH command.",
         "tooltiptext": "Copy the command to SSH into the head node. If the key pair you use to create the head node isn't the default, you must specify the path to the key pair. See <0>Connect to your Linux instance using an SSH Client</0> for more information."
       },
+      "configurationLabel": "Cluster configuration",
+      "statusLabel": "Cluster status",
+      "computeFleetStatusLabel": "Compute fleet status",
+      "creationTimeLabel": "Created time",
+      "lastUpdatedTimeLabel": "Latest update time",
+      "regionLabel": "Region",
+      "versionLabel": "Version",
       "ec2InstanceConnect": {
         "label": "EC2 Instance Connect",
         "help": "Copy the command to connect to the head node using <0>EC2 Instance Connect</0>. You must <1>install mSSH helper</1> locally before running this command."
       }
     },
     "list": {
+      "header": {
+        "title": "Clusters",
+        "description": "The list of your clusters."
+      },
       "dialogs": {
         "delete": "Are you sure you want to delete cluster {{clusterName}}?"
       },
@@ -89,6 +100,7 @@
       "loadingText": "Loading clusters...",
       "countText": "Results:",
       "filteringAriaLabel": "Filter cluster",
+      "filteringPlaceholder": "Enter search text",
       "splitPanel": {
         "preferencesTitle": "Split panel preferences",
         "preferencesPositionLabel": "Split panel position",
