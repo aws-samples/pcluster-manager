@@ -142,7 +142,7 @@ export default function ClusterProperties() {
                 </div>
               </ValueWithLabel>
             )}
-            <ValueWithLabel label="clusterConfiguration">
+            <ValueWithLabel label={t('cluster.properties.configurationLabel')}>
               <Button
                 disabled={cluster.clusterStatus === ClusterStatus.CreateFailed}
                 iconName="external"
@@ -155,24 +155,32 @@ export default function ClusterProperties() {
             </ValueWithLabel>
           </SpaceBetween>
           <SpaceBetween size="l">
-            <ValueWithLabel label="clusterStatus">
+            <ValueWithLabel label={t('cluster.properties.statusLabel')}>
               <ClusterStatusIndicator cluster={cluster} />
             </ValueWithLabel>
-            <ValueWithLabel label="computeFleetStatus">
+            <ValueWithLabel
+              label={t('cluster.properties.computeFleetStatusLabel')}
+            >
               <ComputeFleetStatusIndicator
                 status={cluster.computeFleetStatus}
               />
             </ValueWithLabel>
-            <ValueWithLabel label="creationTime">
+            <ValueWithLabel label={t('cluster.properties.creationTimeLabel')}>
               <DateView date={cluster.creationTime} />
             </ValueWithLabel>
           </SpaceBetween>
           <SpaceBetween size="l">
-            <ValueWithLabel label="lastUpdatedTime">
+            <ValueWithLabel
+              label={t('cluster.properties.lastUpdatedTimeLabel')}
+            >
               <DateView date={cluster.lastUpdatedTime} />
             </ValueWithLabel>
-            <ValueWithLabel label="region">{cluster.region}</ValueWithLabel>
-            <ValueWithLabel label="version">{cluster.version}</ValueWithLabel>
+            <ValueWithLabel label={t('cluster.properties.regionLabel')}>
+              {cluster.region}
+            </ValueWithLabel>
+            <ValueWithLabel label={t('cluster.properties.versionLabel')}>
+              {cluster.version}
+            </ValueWithLabel>
             {headNode &&
               headNode.publicIpAddress &&
               headNode.publicIpAddress !== '' &&
