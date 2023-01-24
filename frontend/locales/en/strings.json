@@ -476,7 +476,7 @@
       "description": "Review or edit your configuration and create your cluster.",
       "configuration": {
         "title": "Cluster configuration",
-        "description": "Review or edit your cluster configuration that's used to create your cluster.",
+        "description": "Review or edit your cluster configuration that's used to {{action}} your cluster.",
         "pending": "{{action}} request pending...",
         "forceUpdate": "Force update: Edit the cluster while the compute fleet is still running.",
         "disableRollback": "Disable rollback: Retain the cluster resources in case of a cluster create failure."
