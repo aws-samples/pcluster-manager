@@ -19,7 +19,7 @@
     "modal": {
       "closeAriaLabel": "Close",
       "header": "Something went wrong",
-      "description": "The application has encountered an unknown error and it is now in an inconsistent state. If you think that this is an error on our side please help us improve your experience by sending an error report on our <1>GitHub issues page</1>. Closing this dialog will bring you back to the home page.",
+      "description": "The application has encountered an unknown error and it is now in an inconsistent state. If you think that this is an error on our side, please help us improve by sending an error report on our <1>GitHub issues page</1>. Close this dialog to go back to the home page.",
       "button": "Go to Homepage"   
     }
   },
@@ -35,7 +35,7 @@
     },
     "default": {
       "title": "$t(global.projectName)",
-      "description": "Quickly and easily create HPC cluster in AWS using $t(global.projectName). This UI uses the AWS ParallelCluster API to Create, Update and Delete Clusters as well as access, view logs, and build Amazon Machine Images (AMI's)."
+      "description": "Create an HPC cluster in AWS using $t(global.projectName). This UI uses the AWS ParallelCluster API to create, edit, and delete clusters, as well as to access and view logs, and build Amazon Machine Images (AMI's)."
     }
   },
   "infoLink": {
@@ -45,14 +45,14 @@
   "cluster": {
     "properties": {
       "sshcommand": {
-        "label": "SSH Command",
-        "success": "SSH Command copied",
-        "help": "Copy SSH Command",
-        "tooltiptext": "Command to SSH into the HeadNode. If the keypair you used to create the HeadNode isn't default, you'll need to specify the path to the keypair. See <0>Connect to your Linux instance using an SSH Client</0> for more info."
+        "label": "SSH command",
+        "success": "SSH command copied",
+        "help": "Copy the SSH command.",
+        "tooltiptext": "Copy the command to SSH into the head node. If the key pair you use to create the head node isn't the default, you must specify the path to the key pair. See <0>Connect to your Linux instance using an SSH Client</0> for more information."
       },
       "ec2InstanceConnect": {
         "label": "EC2 Instance Connect",
-        "help": "This copies the command to connect to the HeadNode using <0>EC2 Instance Connect</0>. You will need to <1>install mSSH helper</1> locally before running this command."
+        "help": "Copy the command to connect to the head node using <0>EC2 Instance Connect</0>. You must <1>install mSSH helper</1> locally before running this command."
       }
     },
     "list": {
@@ -60,20 +60,20 @@
         "delete": "Are you sure you want to delete cluster {{clusterName}}?"
       },
       "actions": {
-        "create": "Create Cluster",
+        "create": "Create",
         "edit": "Edit",
-        "start": "Start",
-        "stop": "Stop",
+        "start": "Start fleet",
+        "stop": "Stop fleet",
         "delete": "Delete",
         "shell": "Shell",
-        "filesystem": "Filesystem",
+        "filesystem": "File system",
         "dcv": "DCV"
       },
       "filtering": {
         "empty": {
           "title": "No clusters",
           "subtitle": "No clusters to display",
-          "action": "Create Cluster"
+          "action": "Create cluster"
         },
         "noMatch": {
           "title": "No matches",
@@ -106,22 +106,22 @@
     },
     "accounting": {
       "costEstimate": {
-        "title": "Cost Estimate",
-        "help": "This cost estimate is based on the time the job took, the number of nodes and an estimate of the node cost. It could be inaccurate and is just meant to be an overall estimate."
+        "title": "Cost estimate",
+        "help": "This cost estimate is based on the time taken for the job to run, the number of nodes, and an estimate of the node cost. The estimate could be inaccurate and is only meant to be an overall estimate."
       }
     }
   },
   "wizard": {
     "actions": {
-      "refreshConfig": "Refresh AWS Config",
-      "stopComputeFleet": "Stop Compute Fleet",
+      "refreshConfig": "Refresh",
+      "stopComputeFleet": "Stop fleet",
       "cancel": "Cancel",
       "remove": "Remove",
       "back": "Back",
       "next": "Next",
-      "update": "Update",
+      "update": "Edit",
       "create": "Create",
-      "dryRun": "Dry Run"
+      "dryRun": "Dry run"
     },
     "navigation": {
       "optional": "optional",
@@ -129,168 +129,168 @@
       "collapsedStepsLabel": "Step {{stepNumber}} of {{stepsCount}}",
       "steps": "Steps"
     },
-    "source" : {
+    "source": {
       "title": "Source",
-      "description": "Choose cluster name and specify the source of the configuration.",
+      "description": "Choose a cluster name and configuration source.",
       "validation": {
         "cannotBeBlank": "Cluster name must not be blank.",
-        "alreadyExists": "Cluster with name {{clusterName}} already exists. Please choose a unique name.",
-        "doesntMatchRegex": "Cluster name '{{clusterName}}' doesn't match the format /^[a-zA-Z][a-zA-Z0-9-]+$/. Please choose a name consisting of only upper and lower-case letters, numbers and dashes.",
+        "alreadyExists": "Cluster with name {{clusterName}} already exists. Choose a unique name.",
+        "doesntMatchRegex": "Cluster name '{{clusterName}}' doesn't match the the required format. Enter a name that starts with an alphabetical character and has up to 60 characters. If Slurm accounting is configured, the name can have up to 40 characters. Valid characters: A-Z, a-z, 0-9, and - (hyphen)",
         "specifySourceCopy": "You must select a cluster to copy from."
       },
       "clusterSelect": {
-        "placeholder": "Please select a cluster."
+        "placeholder": "Select a cluster."
       },
       "clusterName": {
-        "label": "Cluster Name",
-        "description": "Please choose an identifier for this cluster. It is suggested to be lower-case and without spaces (e.g. my-cluster)).",
+        "label": "Cluster name",
+        "description": "The name must start with an alphabetical character and can have up to 60 characters. If Slurm accounting is configured, the name can have up to 40 characters. Valid characters: A-Z, a-z, 0-9, and - (hyphen).",
         "placeholder": "Enter your cluster name"
       },
       "configurationSource": {
-        "label": "Configuration Source",
-        "description": "Please choose the source configuration for the cluster you want to create."
+        "label": "Source",
+        "description": "Choose the source for creating your cluster configuration and cluster. After you choose a source, you step through the $t(global.projectName) configuration options for review and edits, to create your cluster."
       },
       "sourceOptions": {
         "wizard": {
-          "label": "Wizard",
-          "description": "Choose this to start a new cluster configuration."
+          "label": "Interface",
+          "description": "Create a new cluster configuration by using the $t(global.projectName)."
         },
         "template": {
-          "label": "Template",
+          "label": "Existing template",
           "description": "Choose this to use the wizard starting from an existing configuration or template file. This will proceed through the wizard process to allow you to customize any options before creating the cluster."
         },
         "cluster": {
-          "label": "From Cluster",
-          "description": "Use an existing cluster as a starting point for the configuration of your new cluster. Only clusters whose version matches the version of Pcluster Manager can be selected.",
+          "label": "Existing cluster",
+          "description": "Start by selecting an existing cluster for the configuration of your new cluster. The selected existing cluster version must match the $t(global.projectName) version.",
           "empty": "No cluster available"
         },
         "file": {
-          "label": "Upload a file",
-          "description": "Choose this if you already have a file you wish to upload. This will proceed directly to the creation step."
+          "label": "File upload",
+          "description": "Start by uploading your own partial or complete YAML configuration file."
         }
       }
     },
     "cluster": {
       "title": "Cluster",
-      "description": "Select the region and the VPC where the cluster will be deployed.",
+      "description": "Configure the settings that apply to all cluster resources.",
       "validation": {
         "VpcSelect": "You must select a VPC.",
-        "customAmiSelect": "You must select an AMI ID if you enable Custom AMI."
+        "customAmiSelect": "You must select an AMI ID if you add a custom AMI."
       },
       "region": {
         "label": "Region",
-        "description": "Region where the cluster will be created.",
+        "description": "The AWS Region for the cluster.",
         "selectedAriaLabel": "Selected"
       },
       "os": {
-        "label": "Operating System",
-        "description": "OS installed on the cluster nodes.",
+        "label": "Operating system",
+        "description": "The operating system installed on the cluster nodes.",
         "selectedAriaLabel": "Selected"
       },
       "vpc": {
         "label": "VPC",
-        "description": "VPC where the cluster instances will reside.",
+        "description": "The VPC for the cluster instances.",
         "selectedAriaLabel": "Selected"
       },
       "multiUser": {
-        "title": "Multi-user properties",
-        "description": "Specify existing Active Directory parameters to integrate it with the cluster.",
-        "help": "If you do not have an existing Active Directory you can create an AWS managed one following <1>this tutorial</1>.",
+        "title": "Multiple user management properties",
+        "description": "Configure Active Directory access settings for multiple users on a cluster.",
+        "help": "If you don't have an existing Active Directory, you can create one by following <1>this tutorial</1>.",
         "checkbox": {
-          "label": "Multi-user cluster",
-          "description":"Enable Multi-user cluster through Active Directory integration."
+          "label": "Multiple users on a cluster.",
+          "description": "Manage multiple cluster users in your Active Directory."
         },
         "domainName": {
-          "name": "Domain Name",
+          "name": "Domain name",
           "description": "The Active Directory (AD) domain that you use for identity information.",
-          "help": "This property corresponds to the sssd-ldap parameter that's called ldap_search_base."
+          "help": "The Domain name corresponds to the SSSD-LDAP parameter that's called ldap_search_base."
         },
         "domainAddress": {
-          "name": "Domain Address",
-          "description": "The URI or URIs that point to the AD domain controller that's used as the LDAP server.",
-          "help": "The URI corresponds to the sssd-ldap parameter that's called ldap_uri. The value can be a comma separated string of URIs. To use LDAP, you must add ldap:// to the beginning of the each URI."
+          "name": "Domain address",
+          "description": "The URI or URIs that point to the Active Directory domain controller that's used as the LDAP server.",
+          "help": "The URI corresponds to the SSSD-LDAP parameter that's called ldap_uri. The value can be a comma separated string of URIs. To use LDAP, you must add ldap:// to the beginning of the each URI."
         },
         "passwordSecretArn" : {
-          "name": "Password Secret ARN",
-          "description": "The Amazon Resource Name (ARN) of the AWS Secrets Manager secret that contains the DomainReadOnlyUser plaintext password.",
-          "help": "The content of the secret corresponds to SSSD-LDAP parameter that's called ldap_default_authtok."
+          "name": "Password secret Amazon Resource Name (ARN)",
+          "description": "The ARN of the AWS Secrets Manager secret that contains the Domain Read Only User plaintext password.",
+          "help": "The content of the secret corresponds to the SSSD-LDAP parameter that's called ldap_default_authtok."
         },
         "domainReadOnlyUser": {
           "name": "Domain Read Only User",
-          "description": "The identity that's used to query the AD domain for identity information when authenticating cluster user logins.",
-          "help": "It corresponds to sssd-ldap parameter that's called ldap_default_bind_dn. Use your AD identity information for this value."
+          "description": "The identity that's used to query the Active Directory domain for identity information when authenticating cluster user logins.",
+          "help": "The Domain Read Only User corresponds to SSSD-LDAP parameter that's called ldap_default_bind_dn. Use your Active Directory identity information for this value."
         },
        "caCertificate": {
-         "name": "CA Certificate",
-         "description": "The absolute path to a certificates bundle containing the certificates for every certification authority in the certification chain that issued a certificate for the domain controllers.",
-         "help": "It corresponds to the sssd-ldap parameter that's called ldap_tls_cacert."
+         "name": "CA certificate",
+         "description": "The absolute path to a certificates bundle containing the certificates for every CA in the certification chain that issued a certificate for the domain controllers.",
+         "help": "The CA certificate corresponds to the SSSD-LDAP parameter that's called ldap_tls_cacert."
        },
         "requireCertificate": {
-          "name": "Require Certificate",
-          "description": "Specifies what checks to perform on server certificates in a TLS session.",
-          "help": "It corresponds to sssd-ldap parameter that's called ldap_tls_reqcert."
+          "name": "Require certificate",
+          "description": "Specifies the checks to perform on server certificates in a TLS session.",
+          "help": "Require certificate corresponds to SSSD-LDAP parameter that's called ldap_tls_reqcert."
         },
         "LDAPAccessFilter": {
-          "name": "LDAP Access Filter",
+          "name": "LDAP access filter",
           "description": "Specifies a filter to limit LDAP queries to a subset of the directory that's being queried.",
-          "help": "This property corresponds to the sssd-ldap parameter that's called ldap_access_filter. You can use it to limit queries to an AD that supports a large number of users."
+          "help": "LDAP access filter corresponds to the SSSD-LDAP parameter that's called ldap_access_filter. You can use it to limit queries to an Active Directory that supports a large number of users."
         },
         "generateSSHKeys": {
-          "name": "Generate SSH Keys",
+          "name": "Generate SSH keys",
           "description": "Defines whether AWS ParallelCluster generates SSH key pairs for cluster users after they log in to the head node for the first time.",
           "help": "The key pair is saved to the user home directory at /home/username/.ssh/. Users can use the SSH key pair for subsequent logins to the cluster head node and compute nodes. With AWS ParallelCluster, logins to cluster compute nodes are disabled by design. If a user hasn't logged into the head node, SSH keys aren't generated and the user won't be able to log in to compute nodes."
         }
       }
     },
     "headNode": {
-      "title": "Head Node",
-      "description": "Specify Head Node properties. Optionally define custom actions and additional IAM policies.",
+      "title": "Head node",
+      "description": "Configure the head node.",
       "validation": {
-        "selectSubnet": "You must select a Subnet.",
+        "selectSubnet": "You must select a subnet.",
         "selectInstanceType": "You must select an instance type.",
-        "setRootVolumeSize": "You must set a RootVolume size.",
-        "rootVolumeMinimum": "You must use an integer >= 35GB for Root Volume Size.",
+        "setRootVolumeSize": "You must set a root volume size.",
+        "rootVolumeMinimum": "You must use an integer >= 35GB for root volume size.",
         "scriptWithArgs": "You must specify a script path if you specify args."
       },
       "Dcv": {
-        "label": "Virtual Desktop",
-        "description": "Allow a virtual desktop session on the HeadNode via DCV. If you select this option, we suggest using a larger instance size.",
-        "help": "Remote-Desktop into the headnode to visualize results."
+        "label": "Virtual desktop",
+        "description": "Add the DCV virtual desktop option on the head node. Increase your instance size if you add this option.",
+        "help": "Use the DCV virtual desktop to access the head node and visualize results."
       },
       "Ssm": {
-        "title":"Virtual Console",
-        "label": "Remote Console Enabled",
-        "description": "Allow connecting to HeadNode via SSM.",
-        "help": "This setting will enable SSM which permits connecting to the head node via a virtual console."
+        "title":"SSM session",
+        "label": "Add SSM session",
+        "description": "Add an SSM session to access the head node. The required IAM policy is automatically added to the Additional IAM policies setting.",
+        "help": "You can access the head node by opening an SSM session from the $t(global.projectName) Clusters."
       },
       "instanceType": {
-        "label": "Head Node Instance Type"
+        "label": "Instance type"
       },
       "keypair": {
-        "label": "Keypair",
-        "description": "Keypair used to connect to HeadNode via SSH. If you don't specify an SSH keypair you can still connect to the cluster using SSM, make sure to turn on 'Remote Console' in order to do so."
+        "label": "Key pair",
+        "description": "Choose a key pair to connect the head node by using SSH."
       },
       "imdsSecured": {
-        "label": "IMDS Secured",
-        "help": "If enabled, restrict access to IMDS (and thus instance credentials) to users with superuser permissions. For more information, see <0>How instance metadata service version 2 works</0> in the <i>Amazon EC2 User Guide for Linux Instances</i>."
+        "label": "Instance metadata service (IMDS) secured",
+        "help": "IMDS secured restricts access to IMDS (and thus instance credentials) to users with superuser permissions. For more information, see <0>How instance metadata service version 2 works</0> in the <i>Amazon EC2 User Guide for Linux Instances</i>."
       },
       "subnetId": {
         "label": "Subnet ID",
-        "description": "Subnet ID for HeadNode."
+        "description": "Subnet ID for head node."
       },
       "securityGroups": {
-       "label": "Additional Security Groups",
-       "help": "Provides additional security groups for the HeadNode."
+       "label": "Additional security groups",
+       "help": "Select a security group."
       },
       "slurmSettings": {
         "validation": {
-          "databaseCannotBeEmpty": "Database cannot be empty",
-          "usernameCannotBeEmpty": "Username cannot be empty",
-          "passwordCannotBeEmpty": "Password Secret Arn cannot be empty",
-          "scaledownIdleTimeLessThanOne": "Scaledown idle time should be at least 1 minute"
+          "databaseCannotBeEmpty": "Database can't be empty",
+          "usernameCannotBeEmpty": "Username can't be empty",
+          "passwordCannotBeEmpty": "Password secret ARN can't be empty",
+          "scaledownIdleTimeLessThanOne": "Scale down idle time is at least 1 minute"
         },
         "container": {
-          "title": "Slurm Settings",
+          "title": "Slurm settings",
           "optional": "optional"
         },
         "database": {
@@ -301,14 +301,14 @@
           "label": "Username"
         },
         "password": {
-          "label": "Password Secret Arn"
+          "label": "Password secret ARN"
         },
         "scaledownIdleTime": {
-          "label": "Scaledown Idle Time (minutes)",
+          "label": "Scale down idle time (minutes)",
           "placeholder": "10"
         },
         "queueUpdateStrategy": {
-          "label": "Queue Update Strategy",
+          "label": "Queue update strategy",
           "placeholder": "Select a queue update strategy",
           "selectedAriaLabel": "Selected",
           "options": {
@@ -320,36 +320,36 @@
       }
     },
     "storage": {
-      "title": "Storage",
-      "description": "Select between multiple storage options including EBS, EFS and FSx.",
+      "title": "Shared storage",
+      "description": "Configure shared storage for your cluster.",
       "validation": {
-        "volumeSize": "You must specify a valid Volume Size."
+        "volumeSize": "You must specify a valid volume size."
       },
       "Fsx": {
         "capacity": {
-          "label": "Storage Capacity: {{storageCapacity}} GB"
+          "label": "Storage capacity: {{storageCapacity}} GB"
         },
         "lustreType": {
-          "label": "FSx Lustre Type",
-          "help": "Choose SCRATCH_1 and SCRATCH_2 deployment types when you need temporary storage and shorter-term processing of data. The SCRATCH_2 deployment type provides in-transit encryption of data and higher burst throughput capacity than SCRATCH_1. Choose PERSISTENT_2 deployment type for longer-term storage and workloads and encryption of data in transit, choose PERSISTENT_1 only for backwards compatibility. See <0>DeploymentType</0>."
+          "label": "FSx for Lustre",
+          "help": "Choose SCRATCH_1 and SCRATCH_2 deployment types when you need temporary storage and shorter-term processing of data. The SCRATCH_2 deployment type provides in-transit encryption of data and higher burst throughput capacity than SCRATCH_1. Choose the PERSISTENT_2 deployment type for longer-term storage and workloads and encryption of data in transit, choose PERSISTENT_1 only for backwards compatibility. See <0>DeploymentType</0>."
         },
         "import": {
-          "label": "Import Path",
+          "label": "Import path",
           "placeholder": "s3://yourbucket",
-          "help": "Set Import Path to read files into your filesystem from an S3 bucket. See <0>ImportPath</0>."
+          "help": "Set Import path to read files into your file system from an S3 bucket. See <0>ImportPath</0>."
         },
         "export": {
-          "label": "Export Path",
+          "label": "Export path",
           "placeholder": "s3://yourbucket",
-          "help": "Set Export Path to write files from your filesystem into an S3 bucket. See <0>ExportPath</0>."
+          "help": "Set Export path to write files from your file system into an S3 bucket. See <0>ExportPath</0>."
         },
         "throughput": {
-          "label": "Per Unit Storage Throughput",
-          "help": "Describes the amount of read and write throughput for each 1 tebibyte of storage, in MB/s/TiB. See <0>PerUnitStorageThroughput</0>."
+          "label": "Per unit storage throughput",
+          "help": "Describes the amount of read and write throughput for each 1 TiB of storage, in MB/s/TiB. See <0>PerUnitStorageThroughput</0>."
         },
         "compression": {
-          "label": "Compress Filesystem Data?",
-          "help": "When data compression is enabled, Amazon FSx for Lustre automatically compresses newly written files before they are written to disk and automatically uncompresses them when they are read. See <0>DataCompressionType</0>."
+          "label": "Compress file system data",
+          "help": "When data compression is used, Amazon FSx for Lustre automatically compresses newly written files before they are written to disk and automatically uncompresses them when they are read. See <0>DataCompressionType</0>."
         }
       },
       "Efs": {
@@ -360,16 +360,16 @@
           "kmsId": "KMS ID"
         },
         "performanceMode": {
-          "label": "Performance Mode:"
+          "label": "Performance mode:"
         },
         "provisioned": {
-          "label": "Provisioned Throughput",
-          "help": "Defines the provisioned throughput (from 1-1024 in MiB/s) of the Amazon EFS file system. If not provided filesystem will be created in 'bursting' mode. See <0>ThroughputMode section.</0>"
+          "label": "Provisioned throughput",
+          "help": "Defines the provisioned throughput (from 1 to 1024 in MiB/s) of the Amazon EFS file system. If not provided the file system defaults to bursting mode. See <0>ThroughputMode section.</0>"
         }
       },
       "Ebs": {
         "volumeType": {
-          "label": "Volume Type",
+          "label": "Volume type",
           "placeholder": "Default ({{defaultVolumeType}})"
         },
         "encrypted": {
@@ -383,8 +383,8 @@
           "help": "Specifies the Amazon EBS snapshot ID if you're using a snapshot as the source for the volume. See <0>SnapshotID</0>."
         },
         "deletionPolicy": {
-          "label": "Deletion Policy",
-          "help": "Specifies whether the volume should be retained, deleted, or snapshotted when the cluster is deleted. See <0>DeletionPolicy</0>."
+          "label": "Deletion policy",
+          "help": "Specifies whether the volume should be retained, deleted, or snapshotted when the cluster is deleted or the volume is removed. See <0>DeletionPolicy</0>."
         }
       },
       "instance": {
@@ -392,43 +392,43 @@
           "label": "Name: {{storageName}}"
         },
         "mountPoint": {
-          "label": "Mount Point",
-          "help": "Where to mount the shared storage on both the Head Node and Compute Fleet instances."
+          "label": "Mount path",
+          "help": "Specify where to mount the shared storage on both the head node and compute instances."
         },
         "useExisting": {
-          "label": "Use Existing Filesystem",
-          "help": "Specify an existing fileystem and mount it to all instances in the cluster. See <0>FSx Filesystem ID</0>, <1>EFS Filesystem ID</1>, <2>EBS Volume ID</2>",
+          "label": "External file system",
+          "help": "Specify an external file system and mount it to all instances in the cluster. See <0>FSx file system ID</0>, <1>EFS file system ID</1>, <2>EBS Volume ID</2>",
           "placeholder": "i.e. fsx-1234 or efs-1234"
         }
       }
     },
     "queues": {
       "title": "Queues",
-      "description": "Specify queues and compute resources of the cluster",
+      "description": "Specify queues and compute resources for the cluster",
       "validation": {
-        "instanceTypeUnique": "Instance types must be unique within a Queue.",
-        "instanceTypeMissing": "Select at least once instance type.",
-        "selectSubnet": "You must select a Subnet.",
-        "selectSubnets": "You must select at least one Subnet.",
-        "setRootVolumeSize": "You must set a RootVolume size.",
-        "rootVolumeMinimum": "You must use an integer >= 35GB for Root Volume Size.",
+        "instanceTypeUnique": "Instance types must be unique within a queue.",
+        "instanceTypeMissing": "Select at least one instance type.",
+        "selectSubnet": "You must select a subnet.",
+        "selectSubnets": "You must select at least one subnet.",
+        "setRootVolumeSize": "You must set a root volume size.",
+        "rootVolumeMinimum": "You must use an integer >= 35GB for root volume size.",
         "scriptWithArgs": "You must specify a script path if you specify args.",
-        "customAmiSelect": "You must select an AMI ID if you enable Custom AMI."
+        "customAmiSelect": "You must select an AMI ID if you use a custom AMI."
       },
       "container": {
         "title": "Queues"
       },
       "slurmMemorySettings": {
         "container": {
-          "title": "Slurm Memory Settings",
-          "help": "If enabled, users may use <i>--mem</i> to specify the amount of memory per node required by a job. For more information, see the <0>Slurm documentation for ConstrainRAMSpace</0>"
+          "title": "Slurm memory settings",
+          "help": "When using Slurm memory-based scheduling, use <i>--mem</i> to specify the amount of memory per node required by a job. For more information, see the <0>Slurm documentation for ConstrainRAMSpace</0>"
         },
         "toggle": {
-          "label": "Slurm Memory Based Scheduling"
+          "label": "Slurm memory based scheduling"
         },
         "info": {
-          "header": "Slurm Memory Based Scheduling can be enabled if only one instance type is selected",
-          "body": "If more than one instance type is selected in any queue, Slurm Memory Based Scheduling is disabled by default."
+          "header": "You can use Slurm memory based scheduling only when you select one instance type",
+          "body": "If you select more than one instance type in any queue, Slurm memory-based scheduling isn't available by default."
         }
       },
       "allocationStrategy": {
@@ -437,23 +437,23 @@
         "capacityOptimized": "Capacity optimized"
       },
       "schedulableMemory": {
-        "name": "Schedulable Memory (MiB)",
-        "description": "Amount of memory in MiB to be made available to jobs on the compute nodes of the compute resource",
-        "placeholder": "Leave empty for default",
-        "help": "The default value is 95 % of the memory advertised by EC2."
+        "name": "Schedulable memory (in MiB)",
+        "description": "The amount of memory (in MiB) made available to jobs on the compute nodes of the compute resource",
+        "placeholder": "Leave blank for default",
+        "help": "The default value is 95 percent of the memory advertised by EC2."
       },
       "computeResource": {
-        "staticNodes": "Static Nodes",
-        "dynamicNodes": "DynamicNodes",
-        "instanceType": "Instance Type",
-        "disableHT": "Disable Hyperthreading",
-        "enableEfa": "Enable EFA"
+        "staticNodes": "Static nodes",
+        "dynamicNodes": "Dynamic nodes",
+        "instanceType": "Instance type",
+        "disableHT": "Turn off multithreading",
+        "enableEfa": "Use EFA"
       },
       "addQueueButton": {
         "label": "Add queue"
       },
       "placementGroup": {
-        "label": "Enable Placement Group"
+        "label": "Use placement group"
       },
       "subnet": {
         "label": {
@@ -462,60 +462,60 @@
         }
       },
       "purchaseType": {
-        "label": "Purchase Type"
+        "label": "Purchase type"
       },
       "securityGroups": {
-        "label": "Additional Security Groups"
+        "label": "Additional security groups"
       },
       "IamPolicies": {
-        "label": "IAM Policies"
+        "label": "IAM policies"
       }
     },
     "create": {
       "title": "{{action}}",
-      "description": "Shows the generated cluster configuration template.",
+      "description": "Review or edit your configuration and create your cluster.",
       "configuration": {
-        "title": "Cluster Configuration",
-        "description": "This is the cluster configuration that will be used to {{action}} your cluster.",
+        "title": "Cluster configuration",
+        "description": "Review or edit your cluster configuration that's used to {{action}} your cluster.",
         "pending": "{{action}} request pending...",
-        "forceUpdate": "Force Update: Enable this to perform an update while the ComputeFleet is still running.",
-        "disableRollback": "Disable Rollback: Enable this to retain resources in the event of creation failure."
+        "forceUpdate": "Force update: Edit the cluster while the compute fleet is still running.",
+        "disableRollback": "Disable rollback: Retain the cluster resources in case of a cluster create failure."
       }
     },
     "components": {
       "customAmi": {
-        "ariaLabel": "Use Custom AMI?",
-        "label": "Use Custom AMI?",
+        "ariaLabel": "Custom AMI",
+        "label": "Custom AMI",
         "helpPanel": {
           "title": "Custom AMI",
-          "description": "Custom AMI's provide a way to customize the cluster. See the <0>Image section</0> of the documentation for more information.",
+          "description": "Custom AMI's provide you a way to customize the cluster. See the <0>Image section</0> of the documentation for more information.",
           "link": "https://docs.aws.amazon.com/parallelcluster/latest/ug/pcluster.build-image-v3.html"
         },
         "suggestLabel": "Custom AMI ID"
       },
       "rootVolume": {
         "size": {
-          "label": "Root Volume Size (GB)",
-          "description": "Typically users will use a shared storage option for application data so a smaller root volume size is suitable. Blank will use the default from the AMI.",
+          "label": "Root volume size (GB)",
+          "description": "Typically users use a shared storage option for application data so a smaller root volume size is suitable. Leave this blank to use the default from the AMI.",
           "placeholder": "Enter root volume size."
         },
         "type": {
-          "label": "Volume Type",
+          "label": "Volume type",
           "placeholder": "Default ({{defaultRootVolumeType}})"
         }
       }
     }
   },
   "customImages": {
-    "copyImageConfiguration": "Image Configuration URL copied to clipboard.",
-    "copyAmiId": "AMI Id copied to clipboard."
+    "copyImageConfiguration": "Image configuration URL copied to clipboard.",
+    "copyAmiId": "AMI ID copied to clipboard."
   },
   "components": {
     "ClusterFailedHelp": {
-      "errorMessage": "Stack failed to create, see <0>CloudFormation Stack Events</0> or <1>Cluster Logs</1> to see why."
+      "errorMessage": "Stack failed to create, see <0>CloudFormation stack events</0> or <1>Cluster logs</1> to see why."
     },
     "ValidationErrors": {
-      "update": "Update",
+      "update": "Edit",
       "validation": "Validation",
       "errors": "Errors",
       "warnings": "Warnings"

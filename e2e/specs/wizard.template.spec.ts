@@ -19,19 +19,19 @@ test.describe('environment: @demo', () => {
       test('user can perform a dry-run successfully', async ({ page }) => {
         await visitAndLogin(page)
 
-        await page.getByRole('button', { name: 'Create Cluster' }).first().click();
+        await page.getByRole('button', { name: 'Create' }).first().click();
         await page.getByPlaceholder('Enter your cluster name').fill('sdasdasd');
 
         page.on("filechooser", (fileChooser: FileChooser) => {
           fileChooser.setFiles([TEMPLATE_PATH]);
         })
-        await page.getByRole('radio', { name: 'Template' }).click();
+        await page.getByRole('radio', { name: 'Existing template' }).click();
         await page.getByRole('button', { name: 'Next' }).click();
 
         await expect(page.getByRole('heading', { name: 'Cluster', exact: true })).toBeVisible()
         await page.getByRole('button', { name: 'Next' }).click();
 
-        await expect(page.getByRole('heading', { name: 'Head Node' })).toBeVisible()
+        await expect(page.getByRole('heading', { name: 'Head node' })).toBeVisible()
         await page.getByRole('button', { name: 'Next' }).click();
 
         await expect(page.getByRole('heading', { name: 'Storage' })).toBeVisible()
@@ -40,8 +40,8 @@ test.describe('environment: @demo', () => {
         await expect(page.getByRole('heading', { name: 'Queues' }).first()).toBeVisible()
         await page.getByRole('button', { name: 'Next' }).click();
 
-        await expect(page.getByRole('heading', { name: 'Cluster Configuration' })).toBeVisible()
-        await page.getByRole('button', { name: 'Dry Run' }).click();
+        await expect(page.getByRole('heading', { name: 'Cluster configuration' })).toBeVisible()
+        await page.getByRole('button', { name: 'Dry run' }).click();
 
         await expect(page.getByText('Request would have succeeded, but DryRun flag is set.')).toBeVisible()
       });

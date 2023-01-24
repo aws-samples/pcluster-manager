@@ -15,8 +15,8 @@ test.describe('Given an endpoint where AWS ParallelCluster UI is deployed', () =
   test('a user should be able to login, navigate till the end of the cluster creation wizard, and perform a dry-run successfully', async ({ page }) => {
     await visitAndLogin(page)
   
-    await page.getByRole('button', { name: 'Create Cluster' }).first().click();
-    await expect(page.getByRole('heading', { name: 'Cluster Name' })).toBeVisible()
+    await page.getByRole('button', { name: 'Create' }).first().click();
+    await expect(page.getByRole('heading', { name: 'Cluster name' })).toBeVisible()
     await page.getByRole('textbox', { name: 'Enter your cluster name' }).fill("testcluster");
     await page.getByRole('button', { name: 'Next' }).click();
     
@@ -25,7 +25,7 @@ test.describe('Given an endpoint where AWS ParallelCluster UI is deployed', () =
     await page.getByText(/vpc-.*/).first().click();
     await page.getByRole('button', { name: 'Next' }).click();
     
-    await expect(page.getByRole('heading', { name: 'Head Node' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Head node' })).toBeVisible()
     await page.getByRole('button', { name: 'Next' }).click();
   
     await expect(page.getByRole('heading', { name: 'Storage' })).toBeVisible()
@@ -34,8 +34,8 @@ test.describe('Given an endpoint where AWS ParallelCluster UI is deployed', () =
     await expect(page.getByRole('heading', { name: 'Queues' }).first()).toBeVisible()
     await page.getByRole('button', { name: 'Next' }).click();
   
-    await expect(page.getByRole('heading', { name: 'Cluster Configuration' })).toBeVisible()
-    await page.getByRole('button', { name: 'Dry Run' }).click();
+    await expect(page.getByRole('heading', { name: 'Cluster configuration' })).toBeVisible()
+    await page.getByRole('button', { name: 'Dry run' }).click();
   
     await expect(page.getByText('Request would have succeeded, but DryRun flag is set.')).toBeVisible()
   });
