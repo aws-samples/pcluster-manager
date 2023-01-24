@@ -97,7 +97,7 @@ describe('given a component to show the clusters list', () => {
           ),
         )
 
-        await userEvent.click(output.getByText('Create Cluster'))
+        await userEvent.click(output.getByText('Create'))
         expect(mockNavigate).toHaveBeenCalledWith('/configure')
       })
     })
