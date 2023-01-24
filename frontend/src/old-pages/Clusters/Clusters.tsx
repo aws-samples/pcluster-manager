@@ -135,6 +135,7 @@ function ClusterList({clusters}: {clusters: ClusterInfoSummary[]}) {
       header={
         <Header
           variant="awsui-h1-sticky"
+          description={t('cluster.list.header.description')}
           counter={items && `(${items.length})`}
           actions={
             <SpaceBetween direction="horizontal" size="xs">
@@ -147,7 +148,7 @@ function ClusterList({clusters}: {clusters: ClusterInfoSummary[]}) {
             </SpaceBetween>
           }
         >
-          Clusters
+          {t('cluster.list.header.title')}
         </Header>
       }
       trackBy="clusterName"
@@ -180,6 +181,7 @@ function ClusterList({clusters}: {clusters: ClusterInfoSummary[]}) {
           {...filterProps}
           countText={`${t('cluster.list.countText')} ${filteredItemsCount}`}
           filteringAriaLabel={t('cluster.list.filteringAriaLabel')}
+          filteringPlaceholder={t('cluster.list.filteringPlaceholder')}
         />
       }
       selectedItems={(items || []).filter(
