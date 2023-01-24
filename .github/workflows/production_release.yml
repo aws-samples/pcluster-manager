@@ -74,7 +74,7 @@ jobs:
           role-to-assume: arn:aws:iam::046399108653:role/pcluster-manager-github-prod-ProductionDeploy-1I1HYDA5DH7T3
 
       - name: Build and upload Docker image
-        run: ./scripts/build_awslambda.sh --release
+        run: ./scripts/build_and_release_image.sh --release
       
       - name: Upload infrastructure files to S3
         run: ./infrastructure/release_infrastructure.sh
