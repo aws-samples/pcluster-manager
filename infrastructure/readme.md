@@ -21,7 +21,7 @@ When a change is made to one of the following files:
 - parallelcluster-ui-cognito.yaml
 - SSMSessionProfile-cfn.yaml
 
-it is not sufficient to run the `build_and_update_lambda.sh` script to update the PCM instances because it builds and deploys the Lambda image (with only the changes to backend and frontend().
+it is not sufficient to run the `build_and_update_lambda.sh` script to update the PCUI instances because it builds and deploys the Lambda image (with only the changes to backend and frontend().
 To update the infrastructure just run the `infrastructure/update-environment-infra.sh` and pass the environment to update.
 If you have to update the `demo` environment do the following:
 - gain `Admin` access to the AWS account in which the environment is hosted

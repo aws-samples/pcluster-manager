@@ -25,7 +25,7 @@ click on the App client and click *Edit* in the *Hosted UI* section, adding `htt
 Then export the following variables:
 
 ```bash
-export SECRET_ID=<the value of the UserPoolClientSecretName output from the PclusterManagerCognito stack>
+export SECRET_ID=<the value of the UserPoolClientSecretName output from the Cognito stack>
 export SITE_URL=http://localhost:5001
 export AUDIENCE=<the value of the Client ID noted in the previous step>
 export AUTH_PATH=<the UserPoolAuthDomain output of the ParallelClusterCognito nested stack>
