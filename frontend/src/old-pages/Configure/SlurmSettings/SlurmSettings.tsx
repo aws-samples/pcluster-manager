@@ -116,12 +116,15 @@ function SlurmSettings() {
   return (
     <Container
       header={
-        <Header variant="h2">
+        <Header
+          variant="h2"
+          description={t('wizard.headNode.slurmSettings.container.description')}
+        >
           {t('wizard.headNode.slurmSettings.container.title')}{' '}
           <span
             style={{fontWeight: '400', fontStyle: 'italic', fontSize: '14px'}}
           >
-            - {t('wizard.headNode.slurmSettings.container.optional')}
+            ({t('wizard.headNode.slurmSettings.container.optional')})
           </span>
         </Header>
       }
