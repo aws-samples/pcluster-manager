@@ -5,7 +5,7 @@ get_current_pcm_version() {
   npm --prefix ./frontend pkg get version | tr -d '"'
 }
 
-ECR_REPO=pcluster-manager-awslambda
+ECR_REPO=parallelcluster-ui
 USAGE="$(basename "$0") [-h] [--release] [--tag TAG]"
 GIT_SHA=$(git rev-parse --short HEAD)
 TAG=${GIT_SHA}

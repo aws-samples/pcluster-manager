@@ -10,8 +10,8 @@
 # OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 # limitations under the License.
 
-REGULAR_BUCKET=pcm-release-us-east-1
-ALTERNATIVE_BUCKET=pcm-release-eu-west-1
+REGULAR_BUCKET=parallelcluster-ui-release-artifacts-us-east-1
+ALTERNATIVE_BUCKET=parallelcluster-ui-release-artifacts-eu-west-1
 REGULAR_REGION_FOR_TEMPLATES="us-east-1"
 ALTERNATIVE_REGION_FOR_TEMPLATES="eu-west-1"
 
