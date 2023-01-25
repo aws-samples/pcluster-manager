@@ -70,7 +70,7 @@ Resources:
                   - ecr:InitiateLayerUpload
                   - ecr:BatchCheckLayerAvailability
                   - ecr:PutImage
-                Resource: !Sub arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/pcluster-manager*
+                Resource: !Sub arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/parallelcluster-ui*
 
   GithubOidc:
     Type: AWS::IAM::OIDCProvider
