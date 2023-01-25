@@ -366,6 +366,7 @@ function JobModal() {
 }
 
 export default function ClusterAccounting() {
+  const {t} = useTranslation()
   const clusterName = useState(['app', 'clusters', 'selected'])
   //const accounting = useState(['clusters', 'index', clusterName, 'accounting']);
   //const errors = useState(['clusters', 'index', clusterName, 'accounting', 'errors']) || [];
@@ -643,7 +644,7 @@ export default function ClusterAccounting() {
               columnDefinitions={[
                 {
                   id: 'id',
-                  header: 'ID',
+                  header: t('cluster.accounting.id'),
                   cell: job => (
                     <Link onFollow={() => selectJob(job.job_id)}>
                       {job.job_id}
@@ -653,25 +654,25 @@ export default function ClusterAccounting() {
                 },
                 {
                   id: 'name',
-                  header: 'name',
+                  header: t('cluster.accounting.name'),
                   cell: job => job.name,
                   sortingField: 'name',
                 },
                 {
                   id: 'queue',
-                  header: 'queue',
+                  header: t('cluster.accounting.queue'),
                   cell: job => job.partition,
                   sortingField: 'partition',
                 },
                 {
                   id: 'user',
-                  header: 'user',
+                  header: t('cluster.accounting.user'),
                   cell: job => job.user,
                   sortingField: 'user',
                 },
                 {
                   id: 'state',
-                  header: 'state',
+                  header: t('cluster.accounting.state'),
                   cell: job => (
                     <JobStatusIndicator
                       status={getIn(job, ['state', 'current'])}
@@ -681,13 +682,13 @@ export default function ClusterAccounting() {
                 },
               ]}
               items={items}
-              loadingText="Loading jobs..."
+              loadingText={t('cluster.accounting.loadingJobs')}
               pagination={<Pagination {...paginationProps} />}
               filter={
                 <TextFilter
                   {...filterProps}
                   countText={`Results: ${filteredItemsCount}`}
-                  filteringAriaLabel="Filter jobs"
+                  filteringAriaLabel={t('cluster.accounting.filterJobs')}
                 />
               }
             />

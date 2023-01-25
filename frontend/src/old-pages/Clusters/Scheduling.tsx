@@ -41,6 +41,7 @@ import {
 import {JobStatusIndicator} from '../../components/Status'
 import EmptyState from '../../components/EmptyState'
 import Loading from '../../components/Loading'
+import {useTranslation} from 'react-i18next'
 
 // Key:Value pair (label / children)
 const ValueWithLabel = ({
@@ -250,6 +251,7 @@ function JobModal() {
 }
 
 export default function ClusterScheduling() {
+  const {t} = useTranslation()
   const clusterName = useState(['app', 'clusters', 'selected'])
   const clusterPath = ['clusters', 'index', clusterName]
   const cluster = useState(clusterPath)
@@ -346,7 +348,7 @@ export default function ClusterScheduling() {
             columnDefinitions={[
               {
                 id: 'id',
-                header: 'ID',
+                header: t('cluster.scheduling.id'),
                 cell: job => (
                   <Link onFollow={() => selectJob(job.job_id)}>
                     {job.job_id}
@@ -356,50 +358,50 @@ export default function ClusterScheduling() {
               },
               {
                 id: 'name',
-                header: 'name',
+                header: t('cluster.scheduling.name'),
                 cell: job => job.name,
                 sortingField: 'name',
               },
               {
                 id: 'partition',
-                header: 'partition',
+                header: t('cluster.scheduling.partition'),
                 cell: job => job.partition,
                 sortingField: 'partition',
               },
               {
                 id: 'nodes',
-                header: 'nodes',
+                header: t('cluster.scheduling.nodes'),
                 cell: job => job.nodes,
                 sortingField: 'nodes',
               },
               {
                 id: 'state',
-                header: 'state',
+                header: t('cluster.scheduling.state'),
                 cell: job => <JobStatusIndicator status={job.job_state} />,
                 sortingField: 'job_state',
               },
               {
                 id: 'time',
-                header: 'time',
+                header: t('cluster.scheduling.runTime'),
                 cell: job => job.time,
                 sortingField: 'time',
               },
               {
                 id: 'actions',
-                header: 'Actions',
+                header: t('cluster.scheduling.actions'),
                 cell: job => (
                   <JobActions disabled={fleetStatus !== 'RUNNING'} job={job} />
                 ),
               },
             ]}
             items={items}
-            loadingText="Loading jobs..."
+            loadingText={t('cluster.scheduling.loadingJobs')}
             pagination={<Pagination {...paginationProps} />}
             filter={
               <TextFilter
                 {...filterProps}
                 countText={`Results: ${filteredItemsCount}`}
-                filteringAriaLabel="Filter jobs"
+                filteringAriaLabel={t('cluster.scheduling.filterJobs')}
               />
             }
           />
@@ -409,12 +411,9 @@ export default function ClusterScheduling() {
           </div>
         ))}
       {clusterMinor === 0 && (
-        <div>
-          Scheduling is only available in clusters with version 3.1.x and
-          greater.
-        </div>
+        <div>{t('cluster.scheduling.schedulingEnabled')}</div>
       )}
-      {!ssmEnabled && <div>You must enable SSM to monitor jobs.</div>}
+      {!ssmEnabled && <div>{t('cluster.scheduling.ssmEnabled')}</div>}
     </SpaceBetween>
   )
 }

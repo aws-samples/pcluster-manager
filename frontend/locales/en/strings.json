@@ -43,6 +43,15 @@
     "ariaLabel": "Info"
   },
   "cluster": {
+    "tabs": {
+      "details": "Details",
+      "instances": "Instances",
+      "storage": "Storage",
+      "scheduling": "Job scheduling",
+      "accounting": "Accounting",
+      "stackEvents": "Stack events",
+      "logs": "Logs"
+    },
     "properties": {
       "sshcommand": {
         "label": "SSH command",
@@ -61,6 +70,68 @@
         "label": "EC2 Instance Connect",
         "help": "Copy the command to connect to the head node using <0>EC2 Instance Connect</0>. You must <1>install mSSH helper</1> locally before running this command."
       }
+    },
+    "instances": {
+      "id": "ID",
+      "instance": "Instance",
+      "launchedTime": "Launched time",
+      "type": "Type",
+      "privateIp": "Private IP",
+      "publicIp": "Public IP",
+      "state": "State",
+      "actionsLabel": "Actions",
+      "actions": {
+        "stop": "Stop compute fleet",
+        "start": "Start compute fleet",
+        "logs": "Logs"
+      },
+      "computeFleetInfo": "Compute fleet must be stopped."
+    },
+    "storage": {
+      "id": "ID",
+      "mountPoint": "Mount point",
+      "name": "Name",
+      "type": "Type",
+      "noFilesystems": "No filesystems",
+      "noFilesystemsFound": "No filesystems found.",
+      "noFilesystemsToDisplay": "No filesystems to display.",
+      "filter": {
+        "loading": "Loading Filesystems...",
+        "filteringAriaLabel": "Filter filesystems",
+        "noMatches": "No matches",
+        "noFilesystems": "No filesystems match the filters.",
+        "clear": "Clear filter"
+      }
+    },
+    "accounting": {
+      "id": "ID",
+      "name": "Name",
+      "queue": "Queue",
+      "user": "User",
+      "state": "State",
+      "loadingJobs": "Loading jobs...",
+      "filterJobs": "Filter jobs",
+      "costEstimate": {
+        "title": "Cost estimate",
+        "help": "This cost estimate is based on the time taken for the job to run, the number of nodes, and an estimate of the node cost. The estimate could be inaccurate and is only meant to be an overall estimate."
+      }
+    },
+    "scheduling": {
+      "id": "ID",
+      "name": "Name",
+      "partition": "Partition",
+      "runTime": "Run time",
+      "nodes": "Nodes",
+      "actions": "Actions",
+      "queue": "Queue",
+      "state": "State",
+      "schedulingEnabled": "Scheduling is only available in clusters with version 3.1.x and greater.",
+      "ssmEnabled": "You must enable SSM to monitor jobs.",
+      "filterJobs": "Filter jobs",
+      "loadingJobs": "Loading jobs..."
+    },
+    "logs": {
+      "label": "Select a log stream from the left."
     },
     "list": {
       "header": {
@@ -114,12 +185,6 @@
         "resizeHandleAriaLabel": "Resize split panel",
         "noClusterSelectedText": "No cluster selected",
         "selectClusterText": "Select a cluster to see its details"
-      }
-    },
-    "accounting": {
-      "costEstimate": {
-        "title": "Cost estimate",
-        "help": "This cost estimate is based on the time taken for the job to run, the number of nodes, and an estimate of the node cost. The estimate could be inaccurate and is only meant to be an overall estimate."
       }
     }
   },

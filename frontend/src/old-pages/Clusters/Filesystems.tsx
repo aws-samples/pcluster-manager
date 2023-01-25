@@ -29,8 +29,10 @@ import {useFeatureFlag} from '../../feature-flags/useFeatureFlag'
 import {EC2Instance} from '../../types/instances'
 import {Region} from '../../types/base'
 import {Storages} from '../Configure/Storage.types'
+import {useTranslation} from 'react-i18next'
 
 function StorageId({storage}: any) {
+  const {t} = useTranslation()
   const settingsKey = `${storage.StorageType}Settings`
   const canMountFileSystem = ['Efs', 'FsxLustre'].includes(storage.StorageType)
   const idKey = canMountFileSystem ? 'FileSystemId' : 'VolumeId'
@@ -55,7 +57,7 @@ function StorageId({storage}: any) {
       {fsxStorageTypes.includes(storage.StorageType) && (
         <Link
           external
-          externalIconAriaLabel="Opens a new tab"
+          externalIconAriaLabel={t('global.openNewTab')}
           href={`${consoleDomain(
             region,
           )}/fsx/home?region=${region}${detailsFragment}/${id}`}
@@ -66,7 +68,7 @@ function StorageId({storage}: any) {
       {storage.StorageType === 'Efs' && (
         <Link
           external
-          externalIconAriaLabel="Opens a new tab"
+          externalIconAriaLabel={t('global.openNewTab')}
           href={`${consoleDomain(
             region,
           )}/efs/home?region=${region}#/file-systems/${id}`}
@@ -77,7 +79,7 @@ function StorageId({storage}: any) {
       {storage.StorageType === 'Ebs' && (
         <Link
           external
-          externalIconAriaLabel="Opens a new tab"
+          externalIconAriaLabel={t('global.openNewTab')}
           href={`${consoleDomain(
             region,
           )}/ec2/v2/home?region=${region}#VolumeDetails:volumeId=${id}`}
@@ -104,6 +106,7 @@ export function buildFilesystemLink(
 }
 
 export default function Filesystems() {
+  const {t} = useTranslation()
   const clusterName = useState(['app', 'clusters', 'selected'])
   const clusterPath = ['clusters', 'index', clusterName]
   const storage: Storages =
@@ -126,17 +129,17 @@ export default function Filesystems() {
     filtering: {
       empty: (
         <EmptyState
-          title="No filesystems"
-          subtitle="No filesystems to display."
+          title={t('cluster.storage.noFilesystems')}
+          subtitle={t('cluster.storage.noFilesystemsToDisplay')}
         />
       ),
       noMatch: (
         <EmptyState
-          title="No matches"
-          subtitle="No filesystems match the filters."
+          title={t('cluster.storage.filter.noMatches')}
+          subtitle={t('cluster.storage.filter.noFilesystems')}
           action={
             <Button onClick={() => actions.setFiltering('')}>
-              Clear filter
+              {t('cluster.storage.filter.clear')}
             </Button>
           }
         />
@@ -157,7 +160,7 @@ export default function Filesystems() {
             columnDefinitions={[
               {
                 id: 'mount',
-                header: 'Mount Point',
+                header: t('cluster.storage.mountPoint'),
                 cell: item => {
                   const href = buildFilesystemLink(region, headNode, item)
                   const text = (item as any).MountDir
@@ -172,37 +175,39 @@ export default function Filesystems() {
               },
               {
                 id: 'name',
-                header: 'Name',
+                header: t('cluster.storage.name'),
                 cell: item => (item as any).Name,
                 sortingField: 'Name',
               },
               {
                 id: 'type',
-                header: 'Type',
+                header: t('cluster.storage.type'),
                 cell: item => (item as any).StorageType,
                 sortingField: 'StorageType',
               },
               {
                 id: 'id',
-                header: 'id',
+                header: t('cluster.storage.id'),
                 // @ts-expect-error TS(2786) FIXME: 'StorageId' cannot be used as a JSX component.
                 cell: item => <StorageId storage={item} />,
               },
             ]}
             items={items}
-            loadingText="Loading Filesystems..."
+            loadingText={t('cluster.storage.filter.loading')}
             pagination={<Pagination {...paginationProps} />}
             filter={
               <TextFilter
                 {...filterProps}
                 countText={`Results: ${filteredItemsCount}`}
-                filteringAriaLabel="Filter filesystems"
+                filteringAriaLabel={t(
+                  'cluster.storage.filter.filteringAriaLabel',
+                )}
               />
             }
           />
         </div>
       )}
-      {!storage && <div>No Filesystems Found.</div>}
+      {!storage && <div>{t('cluster.storage.noFilesystemsFound')}</div>}
     </>
   )
 }
