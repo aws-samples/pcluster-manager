@@ -130,10 +130,10 @@ export default function Actions() {
     <div style={{marginLeft: '20px'}}>
       <DeleteDialog
         id="deleteCluster"
-        header="Delete Cluster?"
+        header={t('cluster.list.dialogs.delete.title')}
         deleteCallback={deleteCluster}
       >
-        {t('cluster.list.dialogs.delete', {clusterName: clusterName})}
+        {t('cluster.list.dialogs.delete.body', {clusterName: clusterName})}
       </DeleteDialog>
       <StopDialog clusterName={clusterName} />
       <SpaceBetween direction="horizontal" size="xs">

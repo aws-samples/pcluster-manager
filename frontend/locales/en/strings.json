@@ -139,7 +139,10 @@
         "description": "The list of your clusters."
       },
       "dialogs": {
-        "delete": "Are you sure you want to delete cluster {{clusterName}}?"
+        "delete": {
+          "title": "Delete cluster",
+          "body": "Are you sure you want to delete cluster {{clusterName}}?"
+        }
       },
       "actions": {
         "create": "Create",
@@ -579,6 +582,50 @@
         "type": {
           "label": "Volume type",
           "placeholder": "Default ({{defaultRootVolumeType}})"
+        }
+      }
+    }
+  },
+  "users": {
+    "header": {
+      "title": "Users",
+      "description": "The list of users that have permission to access the AWS ParallelCluster User Interface."
+    },
+    "actions": {
+      "create": "Create user",
+      "refresh": "Refresh",
+      "delete": "Delete"
+    },
+    "list": {
+      "columns": {
+        "username": "Username",
+        "email": "Email",
+        "created": "Created",
+        "action": "Action"
+      },
+      "dialogs": {
+        "delete": {
+          "title": "Delete user",
+          "body": "Are you sure you want to delete user {{userEmail}}?"
+        }
+      },
+      "createForm": {
+        "phoneNumberPlaceholder": "+11234567890",
+        "emailPlaceholder": "email@domain.com"
+      },
+      "filtering": {
+        "loadingText": "Loading users...",
+        "countText": "Results: {{filteredItemsCount}}",
+        "filteringAriaLabel": "Enter search text",
+        "filteringPlaceholder": "Enter search text",
+        "empty": {
+          "title": "No users",
+          "subtitle": "No users to display."
+        },
+        "noMatch": {
+          "title": "No matches",
+          "subtitle": "No users match the filters.",
+          "action": "Clear filter"
         }
       }
     }
