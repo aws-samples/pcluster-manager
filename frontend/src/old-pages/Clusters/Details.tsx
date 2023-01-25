@@ -26,8 +26,10 @@ import Scheduling from './Scheduling'
 import Properties from './Properties'
 import Logs from './Logs'
 import Loading from '../../components/Loading'
+import {useTranslation} from 'react-i18next'
 
 export default function ClusterTabs() {
+  const {t} = useTranslation()
   const clusterName = useState(['app', 'clusters', 'selected'])
   const clusterPath = ['clusters', 'index', clusterName]
   const cluster = useState(clusterPath)
@@ -57,15 +59,41 @@ export default function ClusterTabs() {
   return cluster ? (
     <Tabs
       tabs={[
-        {label: 'Details', id: 'details', content: <Properties />},
-        {label: 'Instances', id: 'instances', content: <Instances />},
-        {label: 'Storage', id: 'storage', content: <Filesystems />},
-        {label: 'Job Scheduling', id: 'scheduling', content: <Scheduling />},
+        {
+          label: t('cluster.tabs.details'),
+          id: 'details',
+          content: <Properties />,
+        },
+        {
+          label: t('cluster.tabs.instances'),
+          id: 'instances',
+          content: <Instances />,
+        },
+        {
+          label: t('cluster.tabs.storage'),
+          id: 'storage',
+          content: <Filesystems />,
+        },
+        {
+          label: t('cluster.tabs.scheduling'),
+          id: 'scheduling',
+          content: <Scheduling />,
+        },
         ...(accountingEnabled
-          ? [{label: 'Accounting', id: 'accounting', content: <Accounting />}]
+          ? [
+              {
+                label: t('cluster.tabs.accounting'),
+                id: 'accounting',
+                content: <Accounting />,
+              },
+            ]
           : []),
-        {label: 'Stack Events', id: 'stack-events', content: <StackEvents />},
-        {label: 'Logs', id: 'logs', content: <Logs />},
+        {
+          label: t('cluster.tabs.stackEvents'),
+          id: 'stack-events',
+          content: <StackEvents />,
+        },
+        {label: t('cluster.tabs.logs'), id: 'logs', content: <Logs />},
       ]}
       onChange={({detail}) => {
         navigate(`/clusters/${selectedClusterName}/${detail.activeTabId}`)

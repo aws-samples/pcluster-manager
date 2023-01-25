@@ -30,6 +30,7 @@ import {
 
 // Components
 import EmptyState from '../../components/EmptyState'
+import {useTranslation} from 'react-i18next'
 
 function LogEventsTable() {
   const selected = getState(['app', 'clusters', 'selected'])
@@ -302,6 +303,7 @@ function LogStreamList() {
 }
 
 export default function ClusterLogs() {
+  const {t} = useTranslation()
   const selected = getState(['app', 'clusters', 'selected'])
   const logStreamIndexPath = ['app', 'clusters', 'logs', 'index']
   const streams = useState(['clusters', 'index', selected, 'logstreams'])
@@ -339,8 +341,7 @@ export default function ClusterLogs() {
           <div style={{width: 'calc(100% - 165px)', overflowX: 'auto'}}>
             {selectedLogStreamName &&
               (logEvents ? <LogEventsTable /> : <Loading />)}
-            {!selectedLogStreamName &&
-              'Please select a log stream from the left.'}
+            {!selectedLogStreamName && t('cluster.logs.label')}
           </div>
         </div>
       ) : (
