@@ -6,7 +6,7 @@ Parameters:
   PublicEcrImageUri:
     Description: When specified, the URI of the Docker image for the Lambda of the ParallelCluster UI container
     Type: String
-    Default: public.ecr.aws/pcm/parallelcluster-ui:3.3.0
+    Default: public.ecr.aws/pcm/parallelcluster-ui:2023.02
   UserPoolId:
     Description: UserPoolId of a previously deployed PCUI Cognito User Pool. Leave blank to create a new one.
     Type: String
@@ -99,8 +99,8 @@ Conditions:
 Mappings:
   ParallelClusterUI:
     Constants:
-      Version: 3.3.0
-      ShortVersion: 3.3.0
+      Version: 2023.02
+      ShortVersion: 2023.02
 
 Resources:
 
