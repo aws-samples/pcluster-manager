@@ -355,7 +355,7 @@ function DcvSettings() {
       >
         <SpaceBetween direction="vertical" size="xxxs">
           <Toggle disabled={editing} checked={dcvEnabled} onChange={toggleDcv}>
-            DCV Enabled
+            {t('wizard.headNode.Dcv.add')}
           </Toggle>
           <SpaceBetween direction="vertical" size="xs">
             {dcvEnabled && (
@@ -481,7 +481,9 @@ function HeadNode() {
           >
             <SecurityGroups basePath={headNodePath} />
           </FormField>
-          <ExpandableSection header="Advanced options">
+          <ExpandableSection
+            header={t('wizard.headNode.advancedOptions.label')}
+          >
             {isOnNodeUpdatedActive ? (
               <HeadNodeActionsEditor
                 basePath={headNodePath}
@@ -490,7 +492,9 @@ function HeadNode() {
             ) : (
               <ActionsEditor basePath={headNodePath} errorsPath={errorsPath} />
             )}
-            <ExpandableSection header="IAM Policies">
+            <ExpandableSection
+              header={t('wizard.headNode.advancedOptions.iamPolicies.label')}
+            >
               <IamPoliciesEditor basePath={headNodePath} />
             </ExpandableSection>
           </ExpandableSection>

@@ -331,6 +331,7 @@
       },
       "Dcv": {
         "label": "Virtual desktop",
+        "add": "Add DCV",
         "description": "Add the DCV virtual desktop option on the head node. Increase your instance size if you add this option.",
         "help": "Use the DCV virtual desktop to access the head node and visualize results."
       },
@@ -357,7 +358,30 @@
       },
       "securityGroups": {
        "label": "Additional security groups",
-       "help": "Select a security group."
+       "help": "Select a security group.",
+       "select": "Select a security group"
+      },
+      "advancedOptions": {
+        "label": "Advanced options",
+        "scripts": {
+          "onStart": {
+            "label": "Run script on node start",
+            "description": "The script runs on head node start, before node configuration."
+          },
+          "onConfigured": {
+            "label": "Run script on node configured",
+            "description": "The script runs after node configuration."
+          },
+          "onUpdated": {
+            "label": "Run script on node updated",
+            "description": "The script runs after an update, after node configuration."
+          }
+        },
+        "iamPolicies": {
+          "label": "IAM Policies",
+          "description": "Add IAM policies, in addition to the set of policies that AWS ParallelCluster provides automatically.",
+          "policyAlreadyAdded": "Policy already added."
+        }
       },
       "slurmSettings": {
         "validation": {
@@ -368,24 +392,30 @@
         },
         "container": {
           "title": "Slurm settings",
+          "description": "Connect with an external Slurm database to monitor and analyze cluster usage.",
           "optional": "optional"
         },
         "database": {
           "label": "Database",
+          "description": "Enter the path to the Slurm database.",
           "placeholder": "DNSName/ip:port"
         },
         "username": {
-          "label": "Username"
+          "label": "Username",
+          "description": "Enter the user ID for access to the database."
         },
         "password": {
-          "label": "Password secret ARN"
+          "label": "Password secret ARN",
+          "description": "The ARN of the AWS secret containing the database password."
         },
         "scaledownIdleTime": {
-          "label": "Scale down idle time (minutes)",
+          "label": "Scale down idle time (in minutes)",
+          "description": "The amount of time (in minutes) that a queue has no jobs before the Slurm node terminates.",
           "placeholder": "10"
         },
         "queueUpdateStrategy": {
           "label": "Queue update strategy",
+          "description": "Specifies the node replacement strategy for a queue.",
           "placeholder": "Select a queue update strategy",
           "selectedAriaLabel": "Selected",
           "options": {

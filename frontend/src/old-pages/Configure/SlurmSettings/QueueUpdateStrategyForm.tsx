@@ -67,6 +67,9 @@ export const QueueUpdateStrategyForm: React.FC<Props> = ({value, onChange}) => {
   return (
     <FormField
       label={t('wizard.headNode.slurmSettings.queueUpdateStrategy.label')}
+      description={t(
+        'wizard.headNode.slurmSettings.queueUpdateStrategy.description',
+      )}
     >
       <Select
         selectedOption={selectedOption}

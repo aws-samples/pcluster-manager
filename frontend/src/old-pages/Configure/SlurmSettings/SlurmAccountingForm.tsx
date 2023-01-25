@@ -27,6 +27,7 @@ function DatabaseField({uriPath, uriErrorPath}: DatabaseFieldProps) {
   return (
     <FormField
       label={t('wizard.headNode.slurmSettings.database.label')}
+      description={t('wizard.headNode.slurmSettings.database.description')}
       errorText={uriError}
     >
       <Input
@@ -53,6 +54,7 @@ function UsernameField({usernamePath, usernameErrorPath}: UsernameFieldProps) {
   return (
     <FormField
       label={t('wizard.headNode.slurmSettings.username.label')}
+      description={t('wizard.headNode.slurmSettings.username.description')}
       errorText={usernameError}
     >
       <Input
@@ -79,6 +81,7 @@ function PasswordField({passwordPath, passwordErrorPath}: PasswordFieldProps) {
   return (
     <FormField
       label={t('wizard.headNode.slurmSettings.password.label')}
+      description={t('wizard.headNode.slurmSettings.password.description')}
       errorText={passwordError}
     >
       <Input
