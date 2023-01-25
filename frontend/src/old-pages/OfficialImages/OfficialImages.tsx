@@ -29,6 +29,7 @@ import {useState} from '../../store'
 import Layout from '../Layout'
 import {DefaultHelpPanel} from '../../components/help-panel/DefaultHelpPanel'
 import {useHelpPanel} from '../../components/help-panel/HelpPanel'
+import {useTranslation} from 'react-i18next'
 
 type Image = {
   amiId: string
@@ -38,6 +39,7 @@ type Image = {
 }
 
 function OfficialImagesList({images}: {images: Image[]}) {
+  const {t} = useTranslation()
   const {
     items,
     actions,
@@ -49,18 +51,18 @@ function OfficialImagesList({images}: {images: Image[]}) {
     filtering: {
       empty: (
         <EmptyState
-          title="No images"
-          subtitle="No images to display."
+          title={t('officialImages.list.filtering.empty.title')}
+          subtitle={t('officialImages.list.filtering.empty.subtitle')}
           action={<></>}
         />
       ),
       noMatch: (
         <EmptyState
-          title="No matches"
-          subtitle="No images match the filters."
+          title={t('officialImages.list.filtering.noMatch.title')}
+          subtitle={t('officialImages.list.filtering.noMatch.subtitle')}
           action={
             <Button onClick={() => actions.setFiltering('')}>
-              Clear filter
+              {t('officialImages.list.filtering.noMatch.action')}
             </Button>
           }
         />
@@ -82,44 +84,52 @@ function OfficialImagesList({images}: {images: Image[]}) {
         <Header
           variant="awsui-h1-sticky"
           counter={items && `(${items.length})`}
+          description={t('officialImages.header.description')}
         >
-          Official Images
+          {t('officialImages.header.title')}
         </Header>
       }
       columnDefinitions={[
         {
           id: 'id',
-          header: 'Id',
+          header: t('officialImages.list.columns.id'),
           cell: item => item.amiId,
           sortingField: 'amiId',
         },
         {
           id: 'os',
-          header: 'OS',
+          header: t('officialImages.list.columns.os'),
           cell: item => item.os || '-',
           sortingField: 'os',
         },
         {
           id: 'architecture',
-          header: 'Architecture',
+          header: t('officialImages.list.columns.architecture'),
           cell: item => item.architecture || '-',
           sortingField: 'architecture',
         },
         {
           id: 'version',
-          header: 'Version',
+          header: t('officialImages.list.columns.version'),
           cell: item => item.version || '-',
         },
       ]}
       loading={!images}
       items={items}
-      loadingText="Loading images..."
+      loadingText={t('officialImages.list.filtering.loadingText')}
       pagination={<Pagination {...paginationProps} />}
       filter={
         <TextFilter
           {...filterProps}
-          countText={`Results: ${filteredItemsCount}`}
-          filteringAriaLabel="Filter images"
+          countText={t('officialImages.list.filtering.countText', {
+            filteredItemsCount,
+          })}
+          filteringAriaLabel={t(
+            'officialImages.list.filtering.filteringAriaLabel',
+          )}
+          filteringPlaceholder={t(
+            'officialImages.list.filtering.filteringPlaceholder',
+          )}
         />
       }
     />

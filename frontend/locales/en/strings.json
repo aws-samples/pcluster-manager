@@ -587,6 +587,35 @@
     "copyImageConfiguration": "Image configuration URL copied to clipboard.",
     "copyAmiId": "AMI ID copied to clipboard."
   },
+  "officialImages": {
+    "header": {
+      "title": "Official images",
+      "description": "The official list of tested Amazon Machine Images (AMIs) that are automatically used to create AWS ParallelClusters."
+    },
+    "list": {
+      "columns": {
+        "id": "ID",
+        "os": "Operating system",
+        "architecture": "Architecture",
+        "version": "Version"
+      },
+      "filtering": {
+        "loadingText": "Loading images...",
+        "countText": "Results: {{filteredItemsCount}}",
+        "filteringAriaLabel": "Enter search text",
+        "filteringPlaceholder": "Enter search text",
+        "empty": {
+          "title": "No images",
+          "subtitle": "No images to display."
+        },
+        "noMatch": {
+          "title": "No matches",
+          "subtitle": "No images match the filters.",
+          "action": "Clear filter"
+        }
+      }
+    }
+  },
   "components": {
     "ClusterFailedHelp": {
       "errorMessage": "Stack failed to create, see <0>CloudFormation stack events</0> or <1>Cluster logs</1> to see why."
