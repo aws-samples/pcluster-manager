@@ -53,6 +53,7 @@ function InstanceActions({
   const clusterName = useState(['app', 'clusters', 'selected'])
   const navigate = useNavigate()
   const logHref = `/clusters/${clusterName}/logs?instance=${instance.instanceId}`
+  const {t} = useTranslation()
 
   const refresh = () => {
     const clusterName = getState(['app', 'clusters', 'selected'])
@@ -84,7 +85,7 @@ function InstanceActions({
                   stopInstance(instance)
                 }}
               >
-                Stop
+                {t('cluster.instances.actions.stop')}
               </Button>
             )}
           {instance.nodeType === NodeType.HeadNode &&
@@ -95,16 +96,18 @@ function InstanceActions({
                   startInstance(instance)
                 }}
               >
-                Start
+                {t('cluster.instances.actions.start')}
               </Button>
             )}
         </div>
       )}
       {fleetStatus !== ComputeFleetStatus.Stopped && (
-        <div title="Compute Fleet must be stopped.">
+        <div title={t('cluster.instances.computeFleetInfo')}>
           {instance.nodeType === NodeType.HeadNode &&
             instance.state === InstanceState.Running && (
-              <Button disabled={true}>Stop</Button>
+              <Button disabled={true}>
+                {t('cluster.instances.actions.stop')}
+              </Button>
             )}
         </div>
       )}
@@ -115,7 +118,7 @@ function InstanceActions({
           e.preventDefault()
         }}
       >
-        Logs
+        {t('cluster.instances.actions.logs')}
       </Button>
     </SpaceBetween>
   )
@@ -124,6 +127,7 @@ function InstanceActions({
 export default function ClusterInstances() {
   let defaultRegion = useState(['aws', 'region']) || ''
   const region: Region = useState(['app', 'selectedRegion']) || defaultRegion
+  const {t} = useTranslation()
 
   const clusterName: ClusterName = useState(['app', 'clusters', 'selected'])
   const instances: Instance[] = useState([
@@ -201,11 +205,11 @@ export default function ClusterInstances() {
       columnDefinitions={[
         {
           id: 'id',
-          header: 'Id',
+          header: t('cluster.instances.id'),
           cell: instance => (
             <Link
               external
-              externalIconAriaLabel="Opens in a new tab"
+              externalIconAriaLabel={t('global.openNewTab')}
               href={`${consoleDomain(
                 region,
               )}/ec2/v2/home?region=${region}#InstanceDetails:instanceId=${
@@ -219,43 +223,43 @@ export default function ClusterInstances() {
         },
         {
           id: 'instance-type',
-          header: 'instance',
+          header: t('cluster.instances.instance'),
           cell: instance => instance.instanceType,
           sortingField: 'instanceType',
         },
         {
           id: 'launch-time',
-          header: 'Launch',
+          header: t('cluster.instances.launchedTime'),
           cell: instance => <DateView date={instance.launchTime} />,
           sortingField: 'launchTime',
         },
         {
           id: 'node-type',
-          header: 'Type',
+          header: t('cluster.instances.type'),
           cell: instance => instance.nodeType,
           sortingField: 'nodeType',
         },
         {
           id: 'private-ip',
-          header: 'Private IP',
+          header: t('cluster.instances.privateIp'),
           cell: instance => instance.privateIpAddress,
           sortingField: 'privateIpAddress',
         },
         {
           id: 'public-ip',
-          header: 'Public IP',
+          header: t('cluster.instances.publicIp'),
           cell: instance => instance.publicIpAddress,
           sortingField: 'publicIpAddress',
         },
         {
           id: 'state',
-          header: 'State',
+          header: t('cluster.instances.state'),
           cell: instance => <InstanceStatusIndicator instance={instance} />,
           sortingField: 'state',
         },
         {
           id: 'actions',
-          header: 'Actions',
+          header: t('cluster.instances.actionsLabel'),
           cell: instance => (
             <InstanceActions fleetStatus={fleetStatus} instance={instance} />
           ),
