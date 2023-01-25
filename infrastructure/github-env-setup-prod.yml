@@ -42,7 +42,7 @@ Resources:
                   - ecr-public:BatchCheckLayerAvailability
                   - ecr-public:PutImage
                   - ecr-public:TagResource
-                Resource: !Sub arn:${AWS::Partition}:ecr-public::${AWS::AccountId}:repository/pcluster-manager-awslambda
+                Resource: !Sub arn:${AWS::Partition}:ecr-public::${AWS::AccountId}:repository/parallelcluster-ui
         - PolicyName: UploadS3Bucket
           PolicyDocument:
             Version: 2012-10-17
@@ -53,10 +53,10 @@ Resources:
                   - s3:GetObject
                   - s3:ListBucket
                 Resource:
-                  - !Sub arn:${AWS::Partition}:s3:::pcm-release-us-east-1
-                  - !Sub arn:${AWS::Partition}:s3:::pcm-release-us-east-1/*
-                  - !Sub arn:${AWS::Partition}:s3:::pcm-release-eu-west-1
-                  - !Sub arn:${AWS::Partition}:s3:::pcm-release-eu-west-1/*
+                  - !Sub arn:${AWS::Partition}:s3:::parallelcluster-ui-release-artifacts-us-east-1
+                  - !Sub arn:${AWS::Partition}:s3:::parallelcluster-ui-release-artifacts-us-east-1/*
+                  - !Sub arn:${AWS::Partition}:s3:::parallelcluster-ui-release-artifacts-eu-west-1
+                  - !Sub arn:${AWS::Partition}:s3:::parallelcluster-ui-release-artifacts-eu-west-1/*
 
   GithubOidc:
     Type: AWS::IAM::OIDCProvider

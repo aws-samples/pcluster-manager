@@ -19,5 +19,5 @@ If the rollback script is launched by mistake, the rollforward script helps to r
 bash ./rollforward_awslambda_image.sh
 ```
 
-**NOTE:** The rollforward script should be used only if the rollback script is launched by mistake, the normal procedure to publish a new release after a rollback is by launching the `build_awslambda.sh` after fixing the code
+**NOTE:** The rollforward script should be used only if the rollback script is launched by mistake, the normal procedure to publish a new release after a rollback is by launching the `build_and_release_image.sh` after fixing the code
 
