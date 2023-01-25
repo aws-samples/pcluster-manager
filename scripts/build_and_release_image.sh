@@ -12,7 +12,6 @@ print_usage() {
 }
 
 ECR_REPO=parallelcluster-ui
-TAG=''
 
 
 while [[ $# -gt 0 ]]
@@ -41,18 +40,7 @@ case $key in
 esac
 done
 
-pushd frontend
-if [ ! -d node_modules ]; then
-  npm install
-fi
-docker build --build-arg PUBLIC_URL=/ -t frontend-awslambda .
-popd
-docker build -f Dockerfile.awslambda -t ${ECR_REPO} .
-
 ECR_ENDPOINT="public.ecr.aws/pcm"
-
-ECR_IMAGE=${ECR_ENDPOINT}/${ECR_REPO}:${TAG}
-aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin "${ECR_ENDPOINT}"
 
 if [ -z $TAG ]; then
   TAG=`get_default_pcui_version`
@@ -66,6 +54,16 @@ if ! [ -z $REVISION ]; then
   TAG="${TAG}.${REVISION}"
   echo "Using provided revision, tag: $TAG" 1>&2
 fi
+
+aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin "${ECR_ENDPOINT}"
+
+pushd frontend
+if [ ! -d node_modules ]; then
+  npm install
+fi
+docker build --build-arg PUBLIC_URL=/ -t frontend-awslambda .
+popd
+docker build -f Dockerfile.awslambda -t ${ECR_REPO} .
 
 ECR_IMAGE_VERSION_TAGGED=${ECR_ENDPOINT}/${ECR_REPO}:${TAG}
 ECR_IMAGE_LATEST_TAGGED=${ECR_ENDPOINT}/${ECR_REPO}:latest
