@@ -38,6 +38,7 @@ import {
 import Layout from '../Layout'
 import {DefaultHelpPanel} from '../../components/help-panel/DefaultHelpPanel'
 import {useHelpPanel} from '../../components/help-panel/HelpPanel'
+import {useTranslation} from 'react-i18next'
 
 // Constants
 const errorsPath = ['app', 'wizard', 'errors', 'user']
@@ -46,6 +47,8 @@ const errorsPath = ['app', 'wizard', 'errors', 'user']
 const selectUserIndex = (state: any) => state.users.index
 
 function UserActions({user}: any) {
+  const {t} = useTranslation()
+
   let email = useState(['identity', 'attributes', 'email'])
   return (
     <SpaceBetween direction="horizontal" size="s">
@@ -57,7 +60,7 @@ function UserActions({user}: any) {
           showDialog('deleteUser')
         }}
       >
-        Delete
+        {t('users.actions.delete')}
       </Button>
     </SpaceBetween>
   )
@@ -65,6 +68,7 @@ function UserActions({user}: any) {
 
 const usersSlug = 'users'
 export default function Users(props: any) {
+  const {t} = useTranslation()
   const loading = !useSelector(selectUserIndex)
   const user_index = useSelector(selectUserIndex) || {}
   const usernames = Object.keys(user_index).sort()
@@ -114,18 +118,18 @@ export default function Users(props: any) {
     filtering: {
       empty: (
         <EmptyState
-          title="No users"
-          subtitle="No users to display."
+          title={t('users.list.filtering.empty.title')}
+          subtitle={t('users.list.filtering.empty.subtitle')}
           action={<></>}
         />
       ),
       noMatch: (
         <EmptyState
-          title="No matches"
-          subtitle="No users match the filters."
+          title={t('users.list.filtering.noMatch.title')}
+          subtitle={t('users.list.filtering.noMatch.subtitle')}
           action={
             <Button onClick={() => actions.setFiltering('')}>
-              Clear filter
+              {t('users.list.filtering.noMatch.action')}
             </Button>
           }
         />
@@ -148,10 +152,10 @@ export default function Users(props: any) {
     <Layout pageSlug={usersSlug}>
       <DeleteDialog
         id="deleteUser"
-        header="Delete User?"
+        header={t('users.list.dialogs.delete.title')}
         deleteCallback={deleteUser}
       >
-        Are you sure you want to delete user {userEmail}?
+        {t('users.list.dialogs.delete.body', {userEmail})}
       </DeleteDialog>
       <Table
         {...collectionProps}
@@ -163,6 +167,7 @@ export default function Users(props: any) {
           <Header
             variant="awsui-h1-sticky"
             counter={users && `(${Object.keys(users).length})`}
+            description={t('users.header.description')}
             actions={
               <SpaceBetween direction="horizontal" size="xs">
                 {enableMfa && (
@@ -172,7 +177,9 @@ export default function Users(props: any) {
                       setState(userphonePath, detail.value)
                     }
                     value={userphone}
-                    placeholder="+11234567890"
+                    placeholder={t(
+                      'users.list.createForm.phoneNumberPlaceholder',
+                    )}
                   ></Input>
                 )}
                 <div onKeyPress={e => e.key === 'Enter' && createUser()}>
@@ -182,60 +189,65 @@ export default function Users(props: any) {
                         setState(usernamePath, detail.value)
                       }
                       value={username}
-                      placeholder="email@domain.com"
+                      placeholder={t('users.list.createForm.emailPlaceholder')}
                     ></Input>
                   </FormField>
                 </div>
                 <Button className="action" onClick={createUser}>
-                  Create User
+                  {t('users.actions.create')}
                 </Button>
                 <Button
                   className="action"
                   onClick={refreshUsers}
                   iconName={'refresh'}
                 >
-                  Refresh
+                  {t('users.actions.refresh')}
                 </Button>
               </SpaceBetween>
             }
           >
-            Users
+            {t('users.header.title')}
           </Header>
         }
         columnDefinitions={[
           {
             id: 'username',
-            header: 'Username',
+            header: t('users.list.columns.username'),
             cell: item => item.Username,
             sortingField: 'Username',
           },
           {
             id: 'email',
-            header: 'Email',
+            header: t('users.list.columns.email'),
             cell: item => item.Attributes.email || '-',
             sortingField: 'Attributes.email',
           },
           {
             id: 'created',
-            header: 'Created',
+            header: t('users.list.columns.created'),
             cell: item => <DateView date={item.UserCreateDate} />,
             sortingField: 'UserCreateDate',
           },
           {
             id: 'action',
-            header: 'Action',
+            header: t('users.list.columns.action'),
             cell: item => <UserActions user={item} /> || '-',
           },
         ]}
         loading={loading}
         items={items}
-        loadingText="Loading users..."
+        loadingText={t('users.list.filtering.loadingText')}
         pagination={<Pagination {...paginationProps} />}
         filter={
           <TextFilter
             {...filterProps}
-            countText={`Results: ${filteredItemsCount}`}
-            filteringAriaLabel="Filter users"
+            countText={t('users.list.filtering.countText', {
+              filteredItemsCount,
+            })}
+            filteringAriaLabel={t('users.list.filtering.filteringAriaLabel')}
+            filteringPlaceholder={t(
+              'users.list.filtering.filteringPlaceholder',
+            )}
           />
         }
       />
