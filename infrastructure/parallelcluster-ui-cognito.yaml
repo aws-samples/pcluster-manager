@@ -97,13 +97,9 @@ Resources:
         AllowAdminCreateUserOnly: true
         InviteMessageTemplate:
           EmailSubject: "[AWS ParallelCluster UI] Welcome to AWS ParallelCluster UI, please verify your account."
-          EmailMessage: "Thanks for installing AWS ParallelCluster UI on your AWS account. The following user has been created: {username}<br /><br />Please use this temporary password to login to your account: {####}"
+          EmailMessage: "You are invited to manage clusters with ParallelCluster UI. Your administrator will contact you with the link to access. Your username is {username} and your temporary password is {####} (you will need to change it in your first access)."
       UsernameAttributes:
         - 'email'
-      VerificationMessageTemplate:
-        DefaultEmailOption: CONFIRM_WITH_CODE
-        EmailMessage: "Thanks for signing up to AWS ParallelCluster UI. Please use the following code to verify your account: {####}"
-        EmailSubject: "[AWS ParallelCluster UI] Please verify your account"
 
 
   CognitoAdminGroup:
