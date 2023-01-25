@@ -38,6 +38,7 @@ import {
   TokenGroup,
   Select,
   InputProps,
+  TextContent,
 } from '@cloudscape-design/components'
 
 // Components
@@ -342,7 +343,7 @@ function ArgEditor({path, i}: any) {
   )
 }
 
-function ActionEditor({label, actionKey, errorPath, path}: any) {
+function ActionEditor({label, description, actionKey, errorPath, path}: any) {
   const script = useState([...path, 'Script']) || ''
   const args = useState([...path, 'Args']) || []
 
@@ -357,7 +358,7 @@ function ActionEditor({label, actionKey, errorPath, path}: any) {
   }
 
   return (
-    <FormField label={label} errorText={errorPath}>
+    <FormField label={label} errorText={errorPath} description={description}>
       <SpaceBetween direction="vertical" size="xs">
         <div
           key={actionKey}
@@ -416,6 +417,8 @@ function ActionsEditor({basePath, errorsPath}: ActionsEditorProps) {
 }
 
 function HeadNodeActionsEditor({basePath, errorsPath}: ActionsEditorProps) {
+  const {t} = useTranslation()
+
   const actionsPath = [...basePath, 'CustomActions']
   const onStartPath = [...actionsPath, 'OnNodeStart']
   const onConfiguredPath = [...actionsPath, 'OnNodeConfigured']
@@ -428,17 +431,26 @@ function HeadNodeActionsEditor({basePath, errorsPath}: ActionsEditorProps) {
   return (
     <SpaceBetween direction="vertical" size="xs">
       <ActionEditor
-        label="On Start"
+        label={t('wizard.headNode.advancedOptions.scripts.onStart.label')}
+        description={t(
+          'wizard.headNode.advancedOptions.scripts.onStart.description',
+        )}
         errorPath={onStartErrors}
         path={onStartPath}
       />
       <ActionEditor
-        label="On Configured"
+        label={t('wizard.headNode.advancedOptions.scripts.onConfigured.label')}
+        description={t(
+          'wizard.headNode.advancedOptions.scripts.onConfigured.description',
+        )}
         errorPath={onConfiguredErrors}
         path={onConfiguredPath}
       />
       <ActionEditor
-        label="On Updated"
+        label={t('wizard.headNode.advancedOptions.scripts.onUpdated.label')}
+        description={t(
+          'wizard.headNode.advancedOptions.scripts.onConfigured.description',
+        )}
         errorPath={onUpdatedErrors}
         path={onUpdatedPath}
       />
@@ -447,6 +459,7 @@ function HeadNodeActionsEditor({basePath, errorsPath}: ActionsEditorProps) {
 }
 
 function SecurityGroups({basePath}: any) {
+  const {t} = useTranslation()
   const sgPath = [...basePath, 'Networking', 'AdditionalSecurityGroups']
   const selectedSgs = useState(sgPath) || []
   const sgSelected = useState(['app', 'wizard', 'sg-selected'])
@@ -485,7 +498,7 @@ function SecurityGroups({basePath}: any) {
               ? itemToOption(
                   findFirst(sgs, (x: any) => x.GroupId === sgSelected.value),
                 )
-              : {label: 'Please Select A Security Group'}
+              : {label: t('wizard.headNode.securityGroups.select')}
           }
           onChange={({detail}) => {
             setState(['app', 'wizard', 'sg-selected'], detail.selectedOption)
@@ -603,6 +616,7 @@ function RootVolume({basePath, errorsPath}: any) {
 }
 
 function IamPoliciesEditor({basePath}: any) {
+  const {t} = useTranslation()
   const policiesPath = [...basePath, 'Iam', 'AdditionalIamPolicies']
   const policies = useState(policiesPath) || []
   const policyPath = ['app', 'wizard', 'headNode', 'iamPolicy']
@@ -626,10 +640,15 @@ function IamPoliciesEditor({basePath}: any) {
 
   return (
     <SpaceBetween direction="vertical" size="s">
+      <TextContent>
+        {t('wizard.headNode.advancedOptions.iamPolicies.description')}
+      </TextContent>
       <FormField
         errorText={
           findFirst(policies, (x: any) => x.Policy === policy)
-            ? 'Policy already added.'
+            ? t(
+                'wizard.headNode.advancedOptions.iamPolicies.policyAlreadyAdded',
+              )
             : ''
         }
       >

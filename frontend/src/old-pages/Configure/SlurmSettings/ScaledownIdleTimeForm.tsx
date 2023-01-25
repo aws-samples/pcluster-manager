@@ -65,6 +65,9 @@ export const ScaledownIdleTimeForm: React.FC<Props> = ({value, onChange}) => {
   return (
     <FormField
       label={t('wizard.headNode.slurmSettings.scaledownIdleTime.label')}
+      description={t(
+        'wizard.headNode.slurmSettings.scaledownIdleTime.description',
+      )}
       errorText={errorText}
     >
       <Input
