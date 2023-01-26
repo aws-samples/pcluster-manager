@@ -30,23 +30,21 @@ import FileUploadButton from '../../components/FileChooser'
 // State
 import {setState, useState, getState, clearState} from '../../store'
 import ConfigView from '../../components/ConfigView'
+import {useTranslation} from 'react-i18next'
 
 const buildImageErrorsPath = ['app', 'buildImage', 'errors']
 
 // Constants
 const imageBuildPath = ['app', 'customImages', 'imageBuild']
 
-function buildImageValidate(suppressUpload = false) {
+function buildImageValidate(errorMessage: string) {
   let valid = true
   const imageId = getState([...imageBuildPath, 'imageId'])
 
   setState([...buildImageErrorsPath, 'validated'], true)
 
   if (!imageId || imageId === '') {
-    setState(
-      [...buildImageErrorsPath, 'imageId'],
-      'Image ID must not be blank.',
-    )
+    setState([...buildImageErrorsPath, 'imageId'], errorMessage)
     valid = false
   } else {
     clearState([...buildImageErrorsPath, 'imageId'])
@@ -55,7 +53,8 @@ function buildImageValidate(suppressUpload = false) {
   return valid
 }
 
-export default function ImageBuildDialog(props: any) {
+export default function ImageBuildDialog() {
+  const {t} = useTranslation()
   const open = useState([...imageBuildPath, 'dialog'])
   const imageConfig = useState([...imageBuildPath, 'config']) || ''
   const errors = useState([...imageBuildPath, 'errors'])
@@ -65,6 +64,7 @@ export default function ImageBuildDialog(props: any) {
   let validated = useState([...buildImageErrorsPath, 'validated'])
 
   let imageIdError = useState([...buildImageErrorsPath, 'imageId'])
+  const missingImageIdError = t('customImages.dialogs.buildImage.imageIdError')
 
   const handleClose = () => {
     setState([...imageBuildPath, 'dialog'], false)
@@ -82,14 +82,14 @@ export default function ImageBuildDialog(props: any) {
     }
     clearState([...imageBuildPath, 'errors'])
     setState([...imageBuildPath, 'pending'], true)
-    buildImageValidate() &&
+    buildImageValidate(missingImageIdError) &&
       BuildImage(imageId, imageConfig, successHandler, errHandler)
   }
 
   const setImageId = (newImageId: any) => {
     if (newImageId !== imageId) {
       setState([...imageBuildPath, 'imageId'], newImageId)
-      if (validated) buildImageValidate()
+      if (validated) buildImageValidate(missingImageIdError)
     }
   }
 
@@ -108,22 +108,26 @@ export default function ImageBuildDialog(props: any) {
       className="wizard-dialog"
       visible={open || false}
       onDismiss={handleClose}
-      closeAriaLabel="Close modal"
+      closeAriaLabel={t('customImages.dialogs.buildImage.closeAriaLabel')}
       size="large"
       header={
-        <Header variant="h2">Image Configuration: {props.imageId}</Header>
+        <Header variant="h2">
+          {t('customImages.dialogs.buildImage.title')}
+        </Header>
       }
       footer={
         <Box float="right">
           <SpaceBetween direction="horizontal" size="xs">
-            <Button onClick={handleClose}>Cancel</Button>
+            <Button onClick={handleClose}>
+              {t('customImages.dialogs.buildImage.cancel')}
+            </Button>
             <Button
               disabled={pending}
               onClick={() => {
-                buildImageValidate() && handleBuild()
+                buildImageValidate(missingImageIdError) && handleBuild()
               }}
             >
-              Build Image
+              {t('customImages.dialogs.buildImage.build')}
             </Button>
           </SpaceBetween>
         </Box>
@@ -144,10 +148,13 @@ export default function ImageBuildDialog(props: any) {
               setState([...imageBuildPath, 'config'], data)
             }}
           />
-          <div>Image Id:</div>
+          <div>{t('customImages.dialogs.buildImage.imageIdLabel')}</div>
           <FormField errorText={imageIdError}>
             <Input
               value={imageId}
+              placeholder={t(
+                'customImages.dialogs.buildImage.imageIdPlaceholder',
+              )}
               onChange={({detail}) => {
                 setImageId(detail.value)
               }}
@@ -165,7 +172,8 @@ export default function ImageBuildDialog(props: any) {
         {errors && <ValidationErrors errors={errors} />}
         {pending && (
           <div>
-            <Spinner size="normal" /> Image Build request pending...
+            <Spinner size="normal" />{' '}
+            {t('customImages.dialogs.buildImage.loading')}
           </div>
         )}
       </SpaceBetween>
