@@ -9,8 +9,11 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import Spinner from '@cloudscape-design/components/spinner'
+import {useTranslation} from 'react-i18next'
 
 export default function Loading(props: any) {
+  const {t} = useTranslation()
+  const defaultText = t('components.Loading.text')
   return (
     <div
       style={{
@@ -24,7 +27,7 @@ export default function Loading(props: any) {
       <Spinner size="normal" />
       <span style={{display: 'inline-block', paddingLeft: '10px'}}>
         {' '}
-        {props.text || 'Loading...'}
+        {props.text || defaultText}
       </span>
     </div>
   )

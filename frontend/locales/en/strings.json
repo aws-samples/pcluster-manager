@@ -703,6 +703,9 @@
       "errors": "Errors",
       "warnings": "Warnings"
     },
+    "Loading": {
+      "text": "Loading..."
+    },
     "FileUploadButton": {
       "label": "Chose file"
     }
