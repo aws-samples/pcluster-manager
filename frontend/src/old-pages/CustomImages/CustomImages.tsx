@@ -8,7 +8,7 @@
 // or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-import {ImageInfoSummary} from '../../types/images'
+import {Ec2AmiState, ImageInfoSummary} from '../../types/images'
 import React from 'react'
 import {useSelector} from 'react-redux'
 
@@ -27,6 +27,7 @@ import CustomImageDetails from './CustomImageDetails'
 import {
   Button,
   Header,
+  Link,
   Pagination,
   Select,
   SpaceBetween,
@@ -37,6 +38,7 @@ import {
 import Layout from '../Layout'
 import {DefaultHelpPanel} from '../../components/help-panel/DefaultHelpPanel'
 import {useHelpPanel} from '../../components/help-panel/HelpPanel'
+import {TFunction, Trans, useTranslation} from 'react-i18next'
 
 const imageBuildPath = ['app', 'customImages', 'imageBuild']
 
@@ -45,6 +47,7 @@ const selectCustomImagesList = (state: any): ImageInfoSummary[] =>
   state.customImages.list
 
 function CustomImagesList() {
+  const {t} = useTranslation()
   const images = useSelector(selectCustomImagesList)
 
   const [selected, setSelected] = React.useState<ImageInfoSummary[]>([])
@@ -78,22 +81,22 @@ function CustomImagesList() {
     filtering: {
       empty: (
         <EmptyState
-          title="No images"
-          subtitle="No images to display."
+          title={t('customImages.list.filtering.empty.title')}
+          subtitle={t('customImages.list.filtering.empty.subtitle')}
           action={
-            <Button onClick={buildImage} iconName={'add-plus'}>
-              Build Image
+            <Button onClick={buildImage}>
+              {t('customImages.list.filtering.empty.action')}
             </Button>
           }
         />
       ),
       noMatch: (
         <EmptyState
-          title="No matches"
-          subtitle="No images match the filters."
+          title={t('customImages.list.filtering.noMatch.title')}
+          subtitle={t('customImages.list.filtering.noMatch.subtitle')}
           action={
             <Button onClick={() => actions.setFiltering('')}>
-              Clear filter
+              {t('customImages.list.filtering.noMatch.action')}
             </Button>
           }
         />
@@ -114,71 +117,79 @@ function CustomImagesList() {
       header={
         <Header
           variant="awsui-h1-sticky"
-          description=""
+          description={
+            <Trans i18nKey="customImages.header.description">
+              <Link
+                variant="primary"
+                external
+                externalIconAriaLabel={t('global.openNewTab')}
+                href="https://docs.aws.amazon.com/parallelcluster/latest/ug/custom-ami-v3.html"
+              ></Link>
+            </Trans>
+          }
           counter={images && `(${images.length})`}
           actions={
             <SpaceBetween direction="horizontal" size="xs">
-              <Button
-                className="action"
-                onClick={refreshImages}
-                iconName={'refresh'}
-              >
-                Refresh
+              <Button className="action" onClick={refreshImages}>
+                {t('customImages.actions.refresh')}
               </Button>
               <StatusSelect />
-              <Button
-                className="action"
-                onClick={buildImage}
-                iconName={'add-plus'}
-              >
-                Build Image
+              <Button className="action" onClick={buildImage}>
+                {t('customImages.actions.build')}
               </Button>
             </SpaceBetween>
           }
         >
-          Custom Images
+          {t('customImages.header.title')}
         </Header>
       }
       columnDefinitions={[
         {
           id: 'name',
-          header: 'Name',
+          header: t('customImages.list.columns.name'),
           cell: image => image.imageId,
           sortingField: 'imageId',
         },
         {
           id: 'ami-id',
-          header: 'AMI ID',
+          header: t('customImages.list.columns.amiId'),
           cell: image => (image.ec2AmiInfo ? image.ec2AmiInfo.amiId : ''),
         },
         {
           id: 'status',
-          header: 'Status',
+          header: t('customImages.list.columns.status'),
           cell: image => image.imageBuildStatus || '-',
           sortingField: 'imageBuildStatus',
         },
         {
           id: 'region',
-          header: 'Region',
+          header: t('customImages.list.columns.region'),
           cell: image => image.region || '-',
           sortingField: 'region',
         },
         {
           id: 'version',
-          header: 'Version',
+          header: t('customImages.list.columns.version'),
           cell: image => image.version || '-',
         },
       ]}
       loading={!images}
       items={items}
       selectionType="single"
-      loadingText="Loading Images..."
+      loadingText={t('customImages.list.filtering.loadingText')}
       pagination={<Pagination {...paginationProps} />}
       filter={
         <TextFilter
           {...filterProps}
-          countText={`Results: ${filteredItemsCount}`}
-          filteringAriaLabel="Filter image"
+          countText={t('customImages.list.filtering.countText', {
+            filteredItemsCount,
+          })}
+          filteringAriaLabel={t(
+            'customImages.list.filtering.filteringAriaLabel',
+          )}
+          filteringPlaceholder={t(
+            'customImages.list.filtering.filteringPlaceholder',
+          )}
         />
       }
       selectedItems={selected}
@@ -189,16 +200,36 @@ function CustomImagesList() {
   )
 }
 
+type Status = Ec2AmiState.Available | Ec2AmiState.Pending | Ec2AmiState.Failed
+
+function statusToOption(t: TFunction, status: Status) {
+  switch (status) {
+    case Ec2AmiState.Available:
+      return {
+        label: t('customImages.actions.statusSelect.available'),
+        value: Ec2AmiState.Available,
+      }
+    case Ec2AmiState.Pending:
+      return {
+        label: t('customImages.actions.statusSelect.pending'),
+        value: Ec2AmiState.Pending,
+      }
+    case Ec2AmiState.Failed:
+      return {
+        label: t('customImages.actions.statusSelect.failed'),
+        value: Ec2AmiState.Failed,
+      }
+  }
+}
+
 function StatusSelect() {
-  const [status, setStatus] = React.useState({
-    label: 'Available',
-    value: 'AVAILABLE',
-  })
+  const {t} = useTranslation()
+  const defaultStatus = statusToOption(t, Ec2AmiState.Available)
+  const [status, setStatus] = React.useState(defaultStatus)
 
   return (
     <Select
       className="status-select"
-      placeholder="Status"
       selectedOption={status}
       onChange={({detail}) => {
         console.log(detail.selectedOption)
@@ -211,11 +242,13 @@ function StatusSelect() {
         ListCustomImages(detail.selectedOption.value)
       }}
       options={[
-        {label: 'Available', value: 'AVAILABLE'},
-        {label: 'Pending', value: 'PENDING'},
-        {label: 'Failed', value: 'FAILED'},
+        statusToOption(t, Ec2AmiState.Available),
+        statusToOption(t, Ec2AmiState.Pending),
+        statusToOption(t, Ec2AmiState.Failed),
       ]}
-      selectedAriaLabel="Selected"
+      selectedAriaLabel={t(
+        'customImages.actions.statusSelect.selectedAriaLabel',
+      )}
     />
   )
 }
@@ -223,8 +256,8 @@ function StatusSelect() {
 const customImageSlug = 'customImages'
 
 export default function CustomImages() {
+  const {t} = useTranslation()
   const imageId = useState(['app', 'customImages', 'selected'])
-  const images = useSelector(selectCustomImagesList)
 
   const [splitOpen, setSplitOpen] = React.useState(true)
 
@@ -245,25 +278,38 @@ export default function CustomImages() {
       splitPanel={
         <SplitPanel
           i18nStrings={{
-            preferencesTitle: 'Split panel preferences',
-            preferencesPositionLabel: 'Split panel position',
-            preferencesPositionDescription:
-              'Choose the default split panel position for the service.',
-            preferencesPositionSide: 'Side',
-            preferencesPositionBottom: 'Bottom',
-            preferencesConfirm: 'Confirm',
-            preferencesCancel: 'Cancel',
-            closeButtonAriaLabel: 'Close panel',
-            openButtonAriaLabel: 'Open panel',
-            resizeHandleAriaLabel: 'Resize split panel',
+            preferencesTitle: t('global.splitPanel.preferencesTitle'),
+            preferencesPositionLabel: t(
+              'global.splitPanel.preferencesPositionLabel',
+            ),
+            preferencesPositionDescription: t(
+              'global.splitPanel.preferencesPositionDescription',
+            ),
+            preferencesPositionSide: t(
+              'global.splitPanel.preferencesPositionSide',
+            ),
+            preferencesPositionBottom: t(
+              'global.splitPanel.preferencesPositionBottom',
+            ),
+            preferencesConfirm: t('global.splitPanel.preferencesConfirm'),
+            preferencesCancel: t('global.splitPanel.preferencesCancel'),
+            closeButtonAriaLabel: t('global.splitPanel.closeButtonAriaLabel'),
+            openButtonAriaLabel: t('global.splitPanel.openButtonAriaLabel'),
+            resizeHandleAriaLabel: t('global.splitPanel.resizeHandleAriaLabel'),
           }}
-          header={imageId ? `Image: ${imageId}` : 'No image selected'}
+          header={
+            imageId
+              ? t('customImages.splitPanel.imageSelectedText', {imageId})
+              : t('customImages.splitPanel.noImageSelectedText')
+          }
         >
           {imageId ? (
             <CustomImageDetails />
           ) : (
             <div>
-              <h3 style={{userSelect: 'none'}}>Select an image above</h3>
+              <h3 style={{userSelect: 'none'}}>
+                {t('customImages.splitPanel.selectImageText')}
+              </h3>
             </div>
           )}
         </SplitPanel>

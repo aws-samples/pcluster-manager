@@ -13,7 +13,20 @@
       "title": "$t(global.projectName) documentation",
       "link": "https://pcluster.cloud/"
     },
-    "openNewTab": "Open in a new tab"
+    "openNewTab": "Open in a new tab",
+    "splitPanel": {
+      "preferencesTitle": "Split panel preferences",
+      "preferencesPositionLabel": "Split panel position",
+      "preferencesPositionDescription": "Choose the default split panel position for the service.",
+      "preferencesPositionSide": "Side",
+      "preferencesPositionBottom": "Bottom",
+      "preferencesConfirm": "Confirm",
+      "preferencesCancel": "Cancel",
+      "closeButtonAriaLabel": "Close panel",
+      "openButtonAriaLabel": "Open panel",
+      "resizeHandleAriaLabel": "Resize split panel"
+    },
+    "loading": "Loading..."
   },
   "errorBoundary": {
     "modal": {
@@ -176,16 +189,6 @@
       "filteringAriaLabel": "Filter cluster",
       "filteringPlaceholder": "Enter search text",
       "splitPanel": {
-        "preferencesTitle": "Split panel preferences",
-        "preferencesPositionLabel": "Split panel position",
-        "preferencesPositionDescription": "Choose the default split panel position for the service.",
-        "preferencesPositionSide": "Side",
-        "preferencesPositionBottom": "Bottom",
-        "preferencesConfirm": "Confirm",
-        "preferencesCancel": "Cancel",
-        "closeButtonAriaLabel": "Close panel",
-        "openButtonAriaLabel": "Open panel",
-        "resizeHandleAriaLabel": "Resize split panel",
         "noClusterSelectedText": "No cluster selected",
         "selectClusterText": "Select a cluster to see its details"
       }
@@ -661,8 +664,100 @@
     }
   },
   "customImages": {
-    "copyImageConfiguration": "Image configuration URL copied to clipboard.",
-    "copyAmiId": "AMI ID copied to clipboard."
+    "header": {
+      "title": "Custom images",
+      "description": "The list of custom images that you created. Custom images are customized AMIs that are used to build a <0>customized AWS ParallelCluster</0>"
+    },
+    "actions": {
+      "build": "Build image",
+      "refresh": "Refresh",
+      "statusSelect": {
+        "available": "Available",
+        "pending": "Pending",
+        "failed": "Failed",
+        "selectedAriaLabel": "Selected"
+      }
+    },
+    "list": {
+      "columns": {
+        "name": "Name",
+        "amiId": "AMI ID",
+        "status": "Status",
+        "region": "Region",
+        "version": "Version"
+      },
+      "filtering": {
+        "loadingText": "Loading images...",
+        "countText": "Results: {{filteredItemsCount}}",
+        "filteringAriaLabel": "Enter search text",
+        "filteringPlaceholder": "Enter search text",
+        "empty": {
+          "title": "No images",
+          "subtitle": "No images to display.",
+          "action": "Build image"
+        },
+        "noMatch": {
+          "title": "No matches",
+          "subtitle": "No images match the filters.",
+          "action": "Clear filter"
+        }
+      }
+    },
+    "splitPanel": {
+      "imageSelectedText": "Image: {{imageId}}",
+      "noImageSelectedText": "No image selected",
+      "selectImageText": "Select an image to see its details"
+    },
+    "imageDetails": {
+      "tabs": {
+        "properties": "Properties",
+        "tags": "Tags",
+        "configuration": "Configuration",
+        "stackEvents": "Stack events"
+      },
+      "tags": {
+        "key": "Key",
+        "value": "Value"
+      },
+      "properties": {
+        "header": {
+          "title": "Properties"
+        },
+        "creationTime": "Created time",
+        "architecture": "Architecture",
+        "state": "State",
+        "configurationUrl": {
+          "label": "Configuration URL",
+          "copyText": "Copy",
+          "tooltiptext": "Image configuration URL copied to clipboard."
+        },
+        "buildStatus": "Build status",
+        "amiId": {
+          "label": "AMI ID",
+          "copyText": "Copy",
+          "tooltiptext": "AMI ID copied to clipboard."
+        },
+        "imageId": "Image ID",
+        "region": "Region",
+        "version": "Version"
+      },
+      "stackEvents": {
+        "status": "Status {{status}}",
+        "reason": "Reason: {{reason}}"
+      }
+    },
+    "dialogs": {
+      "buildImage": {
+        "closeAriaLabel": "Close",
+        "title": "Image configuration",
+        "cancel": "Cancel",
+        "build": "Build image",
+        "imageIdLabel":"Image ID",
+        "imageIdPlaceholder":"Enter image AMI ID",
+        "imageIdError":"Image ID must not be blank",
+        "loading": "Image Build request pending"
+      }
+    }
   },
   "officialImages": {
     "header": {
@@ -702,6 +797,12 @@
       "validation": "Validation",
       "errors": "Errors",
       "warnings": "Warnings"
+    },
+    "Loading": {
+      "text": "Loading..."
+    },
+    "FileUploadButton": {
+      "label": "Chose file"
     }
   }
 }
