@@ -432,10 +432,23 @@
     "storage": {
       "title": "Shared storage",
       "description": "Configure shared storage for your cluster.",
+      "container": {
+        "title": "Configure up to 20 shared storage resources.",
+        "noStorageSelected": "No shared storage options selected.",
+        "storageType": "Storage type",
+        "storageTypePlaceholder": "Select a file system type",
+        "volumePlaceholder": "Select a volume",
+        "addStorage": "Add storage"
+      },
       "validation": {
         "volumeSize": "You must specify a valid volume size."
       },
       "Fsx": {
+        "existing": {
+          "fsxLustre": "FSx Lustre Filesystem",
+          "fsxOpenZfs": "FSx OpenZFS volume",
+          "fsxOnTap": "FSx NetApp ONTAP volume"
+        },
         "capacity": {
           "label": "Storage capacity: {{storageCapacity}} GB"
         },
@@ -463,6 +476,7 @@
         }
       },
       "Efs": {
+        "existing": "EFS filesystem",
         "encrypted": {
           "label": "Encrypted",
           "title": "Encryption",
@@ -478,6 +492,7 @@
         }
       },
       "Ebs": {
+        "existing": "EBS ID",
         "volumeType": {
           "label": "Volume type",
           "placeholder": "Default ({{defaultVolumeType}})"
@@ -498,9 +513,6 @@
         }
       },
       "instance": {
-        "name": {
-          "label": "Name: {{storageName}}"
-        },
         "mountPoint": {
           "label": "Mount path",
           "help": "Specify where to mount the shared storage on both the head node and compute instances."
