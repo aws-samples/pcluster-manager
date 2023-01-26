@@ -36,27 +36,7 @@ import {
 import TitleDescriptionHelpPanel from '../../components/help-panel/TitleDescriptionHelpPanel'
 import InfoLink from '../../components/InfoLink'
 import {useClusterPoll} from '../../components/useClusterPoll'
-
-// Key:Value pair (label / children)
-const ValueWithLabel = ({
-  label,
-  children,
-  info,
-}: PropsWithChildren<{label: string; info?: ReactElement}>) => (
-  <div>
-    <SpaceBetween direction="horizontal" size="s">
-      <Box
-        variant="awsui-key-label"
-        margin={{bottom: 'xxxs'}}
-        color="text-label"
-      >
-        {label}
-      </Box>
-      {info}
-    </SpaceBetween>
-    <div>{children}</div>
-  </div>
-)
+import {ValueWithLabel} from '../../components/ValueWithLabel'
 
 export default function ClusterProperties() {
   const {t} = useTranslation()
