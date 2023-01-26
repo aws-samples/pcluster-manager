@@ -222,30 +222,24 @@ export default function Clusters() {
       splitPanel={
         <SplitPanel
           i18nStrings={{
-            preferencesTitle: t('cluster.list.splitPanel.preferencesTitle'),
+            preferencesTitle: t('global.splitPanel.preferencesTitle'),
             preferencesPositionLabel: t(
-              'cluster.list.splitPanel.preferencesPositionLabel',
+              'global.splitPanel.preferencesPositionLabel',
             ),
             preferencesPositionDescription: t(
-              'cluster.list.splitPanel.preferencesPositionDescription',
+              'global.splitPanel.preferencesPositionDescription',
             ),
             preferencesPositionSide: t(
-              'cluster.list.splitPanel.preferencesPositionSide',
+              'global.splitPanel.preferencesPositionSide',
             ),
             preferencesPositionBottom: t(
-              'cluster.list.splitPanel.preferencesPositionBottom',
+              'global.splitPanel.preferencesPositionBottom',
             ),
-            preferencesConfirm: t('cluster.list.splitPanel.preferencesConfirm'),
-            preferencesCancel: t('cluster.list.splitPanel.preferencesCancel'),
-            closeButtonAriaLabel: t(
-              'cluster.list.splitPanel.closeButtonAriaLabel',
-            ),
-            openButtonAriaLabel: t(
-              'cluster.list.splitPanel.openButtonAriaLabel',
-            ),
-            resizeHandleAriaLabel: t(
-              'cluster.list.splitPanel.resizeHandleAriaLabel',
-            ),
+            preferencesConfirm: t('global.splitPanel.preferencesConfirm'),
+            preferencesCancel: t('global.splitPanel.preferencesCancel'),
+            closeButtonAriaLabel: t('global.splitPanel.closeButtonAriaLabel'),
+            openButtonAriaLabel: t('global.splitPanel.openButtonAriaLabel'),
+            resizeHandleAriaLabel: t('global.splitPanel.resizeHandleAriaLabel'),
           }}
           header={
             clusterName
