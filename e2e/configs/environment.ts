@@ -9,5 +9,5 @@
 // limitations under the License.
 
 export const ENVIRONMENT_CONFIG = {
-  URL: process.env.E2E_TEST_URL || 'https://osq823c157.execute-api.eu-west-1.amazonaws.com'
+  URL: process.env.E2E_TEST_URL || 'https://ind9uoiv6j.execute-api.eu-west-1.amazonaws.com'
 }
