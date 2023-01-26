@@ -27,6 +27,7 @@ import {
   InputProps,
   Select,
   SpaceBetween,
+  TextContent,
   Toggle,
 } from '@cloudscape-design/components'
 
@@ -807,10 +808,7 @@ function StorageInstance({index}: any) {
             </Button>
           }
         >
-          <Trans
-            i18nKey="wizard.storage.instance.name.label"
-            values={{storageName: storageName}}
-          />
+          {storageName}
         </Header>
       }
     >
@@ -886,7 +884,7 @@ function StorageInstance({index}: any) {
                       marginTop: '10px',
                     }}
                   >
-                    Existing EBS ID:
+                    {t('wizard.storage.Ebs.existing')}:
                     <Input
                       placeholder={t(
                         'wizard.storage.instance.useExisting.placeholder',
@@ -899,9 +897,11 @@ function StorageInstance({index}: any) {
                   </div>
                 ),
                 FsxLustre: (
-                  <FormField label="FSx Lustre Filesystem">
+                  <FormField label={t('wizard.storage.Fsx.existing.fsxLustre')}>
                     <Select
-                      placeholder="Please Select"
+                      placeholder={t(
+                        'wizard.storage.container.volumePlaceholder',
+                      )}
                       selectedOption={existingId && idToOption(existingId)}
                       onChange={({detail}) => {
                         setState(existingPath, detail.selectedOption.value)
@@ -914,9 +914,13 @@ function StorageInstance({index}: any) {
                   </FormField>
                 ),
                 FsxOpenZfs: (
-                  <FormField label="Existing FSx OpenZFS volume">
+                  <FormField
+                    label={t('wizard.storage.Fsx.existing.fsxOpenZfs')}
+                  >
                     <Select
-                      placeholder="Please Select"
+                      placeholder={t(
+                        'wizard.storage.container.volumePlaceholder',
+                      )}
                       selectedOption={existingId && idToOption(existingId)}
                       onChange={({detail}) => {
                         setState(existingPath, detail.selectedOption.value)
@@ -929,9 +933,11 @@ function StorageInstance({index}: any) {
                   </FormField>
                 ),
                 FsxOntap: (
-                  <FormField label="Existing FSx NetApp ONTAP volume">
+                  <FormField label={t('wizard.storage.Fsx.existing.fsxOnTap')}>
                     <Select
-                      placeholder="Please Select"
+                      placeholder={t(
+                        'wizard.storage.container.volumePlaceholder',
+                      )}
                       selectedOption={existingId && idToOption(existingId)}
                       onChange={({detail}) => {
                         setState(existingPath, detail.selectedOption.value)
@@ -977,6 +983,7 @@ function StorageInstance({index}: any) {
 }
 
 function Storage() {
+  const {t} = useTranslation()
   const storages = useState(storagePath)
   const uiStorageSettings = useState(['app', 'wizard', 'storage', 'ui'])
   const storageType = useState(['app', 'wizard', 'storage', 'type'])
@@ -1064,57 +1071,62 @@ function Storage() {
 
   return (
     <Container>
-      <div style={{display: 'flex', flexDirection: 'column', gap: '20px'}}>
-        {storages ? (
-          storages.map((_: any, i: any) => (
-            <StorageInstance key={i} index={i} />
-          ))
-        ) : (
-          <div>No shared storage options selected.</div>
-        )}
+      <SpaceBetween direction="vertical" size="m">
+        <TextContent>{t('wizard.storage.container.title')}</TextContent>
+        <div style={{display: 'flex', flexDirection: 'column', gap: '20px'}}>
+          {storages ? (
+            storages.map((_: any, i: any) => (
+              <StorageInstance key={i} index={i} />
+            ))
+          ) : (
+            <TextContent>
+              {t('wizard.storage.container.noStorageSelected')}
+            </TextContent>
+          )}
 
-        {canEditFilesystems && storageTypes.length > 0 && (
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              justifyContent: 'flex-end',
-            }}
-          >
+          {canEditFilesystems && storageTypes.length > 0 && (
             <div
               style={{
                 display: 'flex',
                 flexDirection: 'row',
-                gap: '16px',
-                alignItems: 'center',
-                marginTop: '10px',
+                justifyContent: 'flex-end',
               }}
             >
-              Storage Type:
-              <Select
-                placeholder="Please Select a Filesystem Type"
-                selectedOption={
-                  storageType &&
-                  itemToDisplayIconOption(
-                    findFirst(storageTypes, s => s[0] === storageType)!,
-                  )
-                }
-                onChange={({detail}) => {
-                  setStorageType(detail.selectedOption.value)
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  gap: '16px',
+                  alignItems: 'center',
+                  marginTop: '10px',
                 }}
-                options={storageTypes.map(itemToIconOption)}
-              />
-              <Button
-                onClick={addStorage}
-                disabled={!storageType}
-                iconName={'add-plus'}
               >
-                Add Storage
-              </Button>
+                <TextContent>
+                  {t('wizard.storage.container.storageType')}
+                </TextContent>
+                <Select
+                  placeholder={t(
+                    'wizard.storage.container.storageTypePlaceholder',
+                  )}
+                  selectedOption={
+                    storageType &&
+                    itemToDisplayIconOption(
+                      findFirst(storageTypes, s => s[0] === storageType)!,
+                    )
+                  }
+                  onChange={({detail}) => {
+                    setStorageType(detail.selectedOption.value)
+                  }}
+                  options={storageTypes.map(itemToIconOption)}
+                />
+                <Button onClick={addStorage} disabled={!storageType}>
+                  {t('wizard.storage.container.addStorage')}
+                </Button>
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      </SpaceBetween>
     </Container>
   )
 }
