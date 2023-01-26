@@ -13,7 +13,19 @@
       "title": "$t(global.projectName) documentation",
       "link": "https://pcluster.cloud/"
     },
-    "openNewTab": "Open in a new tab"
+    "openNewTab": "Open in a new tab",
+    "splitPanel": {
+      "preferencesTitle": "Split panel preferences",
+      "preferencesPositionLabel": "Split panel position",
+      "preferencesPositionDescription": "Choose the default split panel position for the service.",
+      "preferencesPositionSide": "Side",
+      "preferencesPositionBottom": "Bottom",
+      "preferencesConfirm": "Confirm",
+      "preferencesCancel": "Cancel",
+      "closeButtonAriaLabel": "Close panel",
+      "openButtonAriaLabel": "Open panel",
+      "resizeHandleAriaLabel": "Resize split panel"
+    },
   },
   "errorBoundary": {
     "modal": {
@@ -176,16 +188,6 @@
       "filteringAriaLabel": "Filter cluster",
       "filteringPlaceholder": "Enter search text",
       "splitPanel": {
-        "preferencesTitle": "Split panel preferences",
-        "preferencesPositionLabel": "Split panel position",
-        "preferencesPositionDescription": "Choose the default split panel position for the service.",
-        "preferencesPositionSide": "Side",
-        "preferencesPositionBottom": "Bottom",
-        "preferencesConfirm": "Confirm",
-        "preferencesCancel": "Cancel",
-        "closeButtonAriaLabel": "Close panel",
-        "openButtonAriaLabel": "Open panel",
-        "resizeHandleAriaLabel": "Resize split panel",
         "noClusterSelectedText": "No cluster selected",
         "selectClusterText": "Select a cluster to see its details"
       }
