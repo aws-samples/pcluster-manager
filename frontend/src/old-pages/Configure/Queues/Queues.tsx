@@ -53,6 +53,7 @@ import * as MultiInstanceCR from './MultiInstanceComputeResource'
 import {AllocationStrategy, ComputeResource} from './queues.types'
 import {SubnetMultiSelect} from './SubnetMultiSelect'
 import {NonCancelableEventHandler} from '@cloudscape-design/components/internal/events'
+import Head from 'next/head'
 
 // Constants
 const queuesPath = ['app', 'wizard', 'config', 'Scheduling', 'SlurmQueues']
@@ -236,9 +237,16 @@ function queuesValidate() {
 }
 
 function ComputeResources({queue, index, canUseEFA}: any) {
+  const {t} = useTranslation()
   const {ViewComponent} = useComputeResourceAdapter()
   return (
     <Container>
+      <Header
+        variant="h3"
+        description={t('wizard.queues.computeResource.header.description')}
+      >
+        {t('wizard.queues.computeResource.header.title')}
+      </Header>
       {queue.ComputeResources.map((computeResource: any, i: any) => (
         <ViewComponent
           queue={queue}
@@ -392,9 +400,13 @@ function Queue({index}: any) {
                   disabled={queue.ComputeResources.length >= 3}
                   onClick={addComputeResource}
                 >
-                  Add Resource
+                  {t('wizard.queues.computeResource.addComputeResource')}
                 </Button>
-                {index > 0 && <Button onClick={remove}>Remove Queue</Button>}
+                {index > 0 && (
+                  <Button onClick={remove}>
+                    {t('wizard.queues.removeQueueButton.label')}
+                  </Button>
+                )}
               </SpaceBetween>
             }
           >
@@ -412,7 +424,7 @@ function Queue({index}: any) {
                 />
               ) : (
                 <span>
-                  Queue: {queue.Name}{' '}
+                  {queue.Name}{' '}
                   <Button
                     variant="icon"
                     onClick={_e => setEditingName(true)}
@@ -504,7 +516,9 @@ function Queue({index}: any) {
               basePath={[...queuesPath, index, 'ComputeSettings']}
               errorsPath={errorsPath}
             />
-            <ExpandableSection header={t('wizard.queues.IamPolicies.label')}>
+            <ExpandableSection
+              headerText={t('wizard.queues.advancedOptions.iamPolicies.label')}
+            >
               <IamPoliciesEditor basePath={[...queuesPath, index]} />
             </ExpandableSection>
           </SpaceBetween>
@@ -553,7 +567,12 @@ function Queues() {
       {isMemoryBasedSchedulingActive && <SlurmMemorySettings />}
       <Container
         header={
-          <Header variant="h2">{t('wizard.queues.container.title')}</Header>
+          <Header
+            variant="h2"
+            description={t('wizard.queues.container.description')}
+          >
+            {t('wizard.queues.container.title')}
+          </Header>
         }
       >
         <QueuesView />

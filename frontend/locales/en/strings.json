@@ -381,9 +381,7 @@
           }
         },
         "iamPolicies": {
-          "label": "IAM Policies",
-          "description": "Add IAM policies, in addition to the set of policies that AWS ParallelCluster provides automatically.",
-          "policyAlreadyAdded": "Policy already added."
+          "label": "IAM Policies"
         }
       },
       "slurmSettings": {
@@ -514,7 +512,7 @@
     },
     "queues": {
       "title": "Queues",
-      "description": "Specify queues and compute resources for the cluster",
+      "description": "Configure the cluster queues.",
       "validation": {
         "instanceTypeUnique": "Instance types must be unique within a queue.",
         "instanceTypeMissing": "Select at least one instance type.",
@@ -526,7 +524,8 @@
         "customAmiSelect": "You must select an AMI ID if you use a custom AMI."
       },
       "container": {
-        "title": "Queues"
+        "title": "Queues",
+        "description": "Configure up to 5 queues (Slurm partitions)."
       },
       "slurmMemorySettings": {
         "container": {
@@ -553,13 +552,28 @@
         "help": "The default value is 95 percent of the memory advertised by EC2."
       },
       "computeResource": {
+        "header": {
+          "title": "Compute resources",
+          "description": "Configure up to 3 compute resources."
+        },
+        "addComputeResource": "Add compute resource",
         "staticNodes": "Static nodes",
         "dynamicNodes": "Dynamic nodes",
         "instanceType": "Instance type",
-        "disableHT": "Turn off multithreading",
+        "disableHT": {
+          "label": "Turn off multithreading",
+          "description": "Prevent multiple threads from running on an EC2 instance core."
+        },
         "enableEfa": "Use EFA"
       },
+      "advancedOptions": {
+        "iamPolicies": {
+          "label": "IAM Policies"        }
+      },
       "addQueueButton": {
+        "label": "Add queue"
+      },
+      "removeQueueButton": {
         "label": "Add queue"
       },
       "placementGroup": {
@@ -576,9 +590,6 @@
       },
       "securityGroups": {
         "label": "Additional security groups"
-      },
-      "IamPolicies": {
-        "label": "IAM policies"
       }
     },
     "create": {
@@ -594,10 +605,10 @@
     },
     "components": {
       "customAmi": {
-        "ariaLabel": "Custom AMI",
-        "label": "Custom AMI",
+        "ariaLabel": "Custom Amazon Machine Image (AMI)",
+        "label": "Custom Amazon Machine Image (AMI)",
         "helpPanel": {
-          "title": "Custom AMI",
+          "title": "Custom Amazon Machine Image (AMI)",
           "description": "Custom AMI's provide you a way to customize the cluster. See the <0>Image section</0> of the documentation for more information.",
           "link": "https://docs.aws.amazon.com/parallelcluster/latest/ug/pcluster.build-image-v3.html"
         },
@@ -606,12 +617,28 @@
       "rootVolume": {
         "size": {
           "label": "Root volume size (GB)",
-          "description": "Typically users use a shared storage option for application data so a smaller root volume size is suitable. Leave this blank to use the default from the AMI.",
+          "description": "The compute node local storage.",
           "placeholder": "Enter root volume size."
         },
+        "encrypted": "Encrypt root volume",
         "type": {
           "label": "Volume type",
           "placeholder": "Default ({{defaultRootVolumeType}})"
+        }
+      },
+      "IamPoliciesEditor": {
+        "title": "Add IAM policies, in addition to the set of policies that AWS ParallelCluster provides automatically.",
+        "policyAlreadyAdded": "Policy already added.",
+        "addButtonLabel": "Add"
+      },
+      "actionsEditor": {
+        "onStart": {
+          "label": "Run script on node start",
+          "description": "The script runs on head node start, before node configuration."
+        },
+        "onConfigured": {
+          "label": "Run script on node configured",
+          "description": "The script runs after node configuration."
         }
       }
     }

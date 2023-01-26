@@ -482,7 +482,7 @@ function HeadNode() {
             <SecurityGroups basePath={headNodePath} />
           </FormField>
           <ExpandableSection
-            header={t('wizard.headNode.advancedOptions.label')}
+            headerText={t('wizard.headNode.advancedOptions.label')}
           >
             {isOnNodeUpdatedActive ? (
               <HeadNodeActionsEditor
@@ -493,7 +493,9 @@ function HeadNode() {
               <ActionsEditor basePath={headNodePath} errorsPath={errorsPath} />
             )}
             <ExpandableSection
-              header={t('wizard.headNode.advancedOptions.iamPolicies.label')}
+              headerText={t(
+                'wizard.headNode.advancedOptions.iamPolicies.label',
+              )}
             >
               <IamPoliciesEditor basePath={headNodePath} />
             </ExpandableSection>
