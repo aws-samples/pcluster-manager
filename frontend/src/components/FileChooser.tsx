@@ -15,6 +15,7 @@ import {Button} from '@cloudscape-design/components'
 
 // State
 import {setState, getState} from '../store'
+import {useTranslation} from 'react-i18next'
 
 function HiddenUploader({callbackPath, handleData, handleCancel}: any) {
   const hiddenFileInput = React.useRef(null)
@@ -52,6 +53,7 @@ function HiddenUploader({callbackPath, handleData, handleCancel}: any) {
 }
 
 function FileUploadButton(props: any) {
+  const {t} = useTranslation()
   const hiddenFileInput = React.useRef(null)
   const handleClick = (event: any) => {
     // @ts-expect-error TS(2531) FIXME: Object is possibly 'null'.
@@ -68,7 +70,9 @@ function FileUploadButton(props: any) {
   }
   return (
     <div>
-      <Button onClick={handleClick}>Choose file...</Button>
+      <Button onClick={handleClick}>
+        {t('components.FileUploadButton.label')}
+      </Button>
       <input
         type="file"
         ref={hiddenFileInput}

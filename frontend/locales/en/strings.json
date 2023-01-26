@@ -702,6 +702,9 @@
       "validation": "Validation",
       "errors": "Errors",
       "warnings": "Warnings"
+    },
+    "FileUploadButton": {
+      "label": "Chose file"
     }
   }
 }
