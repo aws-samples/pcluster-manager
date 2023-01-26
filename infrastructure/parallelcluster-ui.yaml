@@ -101,6 +101,7 @@ Mappings:
     Constants:
       Version: 2023.02
       ShortVersion: 2023.02
+      EcrRecipeVersion: 2023.02.00
 
 Resources:
 
@@ -457,7 +458,7 @@ Resources:
       Name: !Sub
         - 'parallelcluster-ui-${Version}-${StackIdSuffix}'
         - { Version: !Join ['_', !Split ['.', !FindInMap [ParallelClusterUI, Constants, Version]]], StackIdSuffix: !Select [2, !Split ['/', !Ref 'AWS::StackId']] }
-      Version: !FindInMap [ParallelClusterUI, Constants, ShortVersion]
+      Version: !FindInMap [ParallelClusterUI, Constants, EcrRecipeVersion]
       ParentImage: !Ref PublicEcrImageUri
       PlatformOverride: Linux
       TargetRepository:
