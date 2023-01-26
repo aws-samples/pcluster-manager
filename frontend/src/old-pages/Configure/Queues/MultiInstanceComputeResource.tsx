@@ -244,8 +244,11 @@ export function ComputeResource({
             onChange={_e => {
               setDisableHT(!disableHT)
             }}
+            description={t(
+              'wizard.queues.computeResource.disableHT.description',
+            )}
           >
-            <Trans i18nKey="wizard.queues.computeResource.disableHT" />
+            <Trans i18nKey="wizard.queues.computeResource.disableHT.label" />
           </Toggle>
           <Toggle
             disabled={

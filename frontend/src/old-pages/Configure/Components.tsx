@@ -393,6 +393,8 @@ function ActionEditor({label, description, actionKey, errorPath, path}: any) {
 }
 
 function ActionsEditor({basePath, errorsPath}: ActionsEditorProps) {
+  const {t} = useTranslation()
+
   const actionsPath = [...basePath, 'CustomActions']
   const onStartPath = [...actionsPath, 'OnNodeStart']
   const onConfiguredPath = [...actionsPath, 'OnNodeConfigured']
@@ -403,12 +405,16 @@ function ActionsEditor({basePath, errorsPath}: ActionsEditorProps) {
   return (
     <SpaceBetween direction="vertical" size="xs">
       <ActionEditor
-        label="On Start"
+        label={t('wizard.components.actionsEditor.onStart.label')}
+        description={t('wizard.components.actionsEditor.onStart.description')}
         errorPath={onStartErrors}
         path={onStartPath}
       />
       <ActionEditor
-        label="On Configured"
+        label={t('wizard.components.actionsEditor.onConfigured.label')}
+        description={t(
+          'wizard.components.actionsEditor.onConfigured.description',
+        )}
         errorPath={onConfiguredErrors}
         path={onConfiguredPath}
       />
@@ -587,7 +593,7 @@ function RootVolume({basePath, errorsPath}: any) {
         checked={rootVolumeEncrypted || false}
         onChange={toggleEncrypted}
       >
-        Encrypted Root Volume
+        {t('wizard.components.rootVolume.encrypted')}
       </Toggle>
       <div
         key="volume-type"
@@ -641,14 +647,12 @@ function IamPoliciesEditor({basePath}: any) {
   return (
     <SpaceBetween direction="vertical" size="s">
       <TextContent>
-        {t('wizard.headNode.advancedOptions.iamPolicies.description')}
+        {t('wizard.components.IamPoliciesEditor.title')}
       </TextContent>
       <FormField
         errorText={
           findFirst(policies, (x: any) => x.Policy === policy)
-            ? t(
-                'wizard.headNode.advancedOptions.iamPolicies.policyAlreadyAdded',
-              )
+            ? t('wizard.components.IamPoliciesEditor.policyAlreadyAdded')
             : ''
         }
       >
@@ -667,7 +671,7 @@ function IamPoliciesEditor({basePath}: any) {
               findFirst(policies, (x: any) => x.Policy === policy)
             }
           >
-            Add
+            {t('wizard.components.IamPoliciesEditor.addButtonLabel')}
           </Button>
         </SpaceBetween>
       </FormField>
