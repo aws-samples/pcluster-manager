@@ -20,6 +20,7 @@ import {ExpandableSection} from '@cloudscape-design/components'
 // Components
 import DateView from '../../components/DateView'
 import Loading from '../../components/Loading'
+import {useTranslation} from 'react-i18next'
 
 type Event = {
   resourceStatus: string
@@ -28,12 +29,20 @@ type Event = {
 }
 
 function EventDetails({event}: {event: Event}) {
+  const {t} = useTranslation()
   return (
     <div style={{marginLeft: '20px'}}>
       <div>
-        Status {event.resourceStatus} (<DateView date={event.timestamp} />)
+        {t('customImages.imageDetails.stackEvents.status', {
+          status: event.resourceStatus,
+        })}{' '}
+        (<DateView date={event.timestamp} />)
       </div>
-      <div>Reason: {event.resourceStatusReason}</div>
+      <div>
+        {t('customImages.imageDetails.stackEvents.reason', {
+          reason: event.resourceStatusReason,
+        })}
+      </div>
     </div>
   )
 }
