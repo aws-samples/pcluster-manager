@@ -59,6 +59,13 @@ export default function ClusterProperties() {
   ])
   const ssmEnabled = iamPolicies && findFirst(iamPolicies, isSsmPolicy)
 
+  const footerLinks = [
+    {
+      title: t('global.help.ec2ConnectLink.title'),
+      href: t('global.help.ec2ConnectLink.href'),
+    },
+  ]
+
   useClusterPoll(clusterName, true)
 
   return (
@@ -174,20 +181,10 @@ export default function ClusterProperties() {
                           title={t(
                             'cluster.properties.ec2InstanceConnect.label',
                           )}
-                          description={
-                            <Trans i18nKey="cluster.properties.ec2InstanceConnect.help">
-                              <a
-                                rel="noreferrer"
-                                target="_blank"
-                                href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-connect-set-up.html"
-                              />
-                              <a
-                                rel="noreferrer"
-                                target="_blank"
-                                href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-connect-set-up.html"
-                              />
-                            </Trans>
-                          }
+                          description={t(
+                            'cluster.properties.ec2InstanceConnect.help',
+                          )}
+                          footerLinks={footerLinks}
                         />
                       }
                     />
