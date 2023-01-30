@@ -22,7 +22,7 @@ import {
   Input,
   Link,
   SpaceBetween,
-  Toggle,
+  Checkbox,
 } from '@cloudscape-design/components'
 
 // State
@@ -87,7 +87,7 @@ function HelpToggle({name, configKey, description, help, defaultValue}: any) {
         }}
       >
         <div style={{flexGrow: 1}}>
-          <Toggle
+          <Checkbox
             checked={value === null ? defaultValue : value}
             onChange={({detail}) => setState([...dsPath, configKey], !value)}
           />

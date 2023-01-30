@@ -4,7 +4,7 @@ import {
   ColumnLayout,
   FormField,
   Input,
-  Toggle,
+  Checkbox,
 } from '@cloudscape-design/components'
 import {useEffect} from 'react'
 import {Trans, useTranslation} from 'react-i18next'
@@ -199,7 +199,7 @@ export function ComputeResource({index, queueIndex, computeResource}: any) {
           )}
         </ColumnLayout>
         <div style={{display: 'flex', flexDirection: 'row', gap: '20px'}}>
-          <Toggle
+          <Checkbox
             disabled={
               tInstances.has(instanceType) ||
               gravitonInstances.has(instanceType)
@@ -213,8 +213,8 @@ export function ComputeResource({index, queueIndex, computeResource}: any) {
             )}
           >
             <Trans i18nKey="wizard.queues.computeResource.disableHT.label" />
-          </Toggle>
-          <Toggle
+          </Checkbox>
+          <Checkbox
             disabled={!efaInstances.has(instanceType)}
             checked={enableEFA}
             onChange={_e => {
@@ -222,7 +222,7 @@ export function ComputeResource({index, queueIndex, computeResource}: any) {
             }}
           >
             <Trans i18nKey="wizard.queues.computeResource.enableEfa" />
-          </Toggle>
+          </Checkbox>
         </div>
       </div>
     </div>
