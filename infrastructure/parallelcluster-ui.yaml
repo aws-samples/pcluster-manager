@@ -99,9 +99,8 @@ Conditions:
 Mappings:
   ParallelClusterUI:
     Constants:
-      Version: 2023.02
-      ShortVersion: 2023.02
-      EcrRecipeVersion: 2023.02.00
+      Version: 2023.02 # format YYYY.MM[.REVISION]
+      ShortVersion: 2023.02 # format YYYY.MM
 
 Resources:
 
@@ -164,7 +163,7 @@ Resources:
       Timeout: 30
       Tags:
         - Key: 'parallelcluster:ui:version'
-          Value: !FindInMap [ ParallelClusterUI, Constants, ShortVersion ]
+          Value: !FindInMap [ ParallelClusterUI, Constants, Version ]
       TracingConfig:
         Mode: Active
       Environment:
@@ -197,7 +196,7 @@ Resources:
       Description: ParallelClusterUI Lambda Proxy
       ProtocolType: HTTP
       Tags:
-        'parallelcluster:ui:version': !FindInMap [ParallelClusterUI, Constants, ShortVersion]
+        'parallelcluster:ui:version': !FindInMap [ParallelClusterUI, Constants, Version]
 
   ApiGatewayRoute:
     Type: AWS::ApiGatewayV2::Route
@@ -458,7 +457,7 @@ Resources:
       Name: !Sub
         - 'parallelcluster-ui-${Version}-${StackIdSuffix}'
         - { Version: !Join ['_', !Split ['.', !FindInMap [ParallelClusterUI, Constants, Version]]], StackIdSuffix: !Select [2, !Split ['/', !Ref 'AWS::StackId']] }
-      Version: !FindInMap [ParallelClusterUI, Constants, EcrRecipeVersion]
+      Version: !Join [".", [ !FindInMap [ParallelClusterUI, Constants, ShortVersion], "00"]]
       ParentImage: !Ref PublicEcrImageUri
       PlatformOverride: Linux
       TargetRepository:
