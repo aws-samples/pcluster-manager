@@ -14,6 +14,7 @@ import * as React from 'react'
 import {Box, Button, Modal, SpaceBetween} from '@cloudscape-design/components'
 
 import {setState, useState} from '../store'
+import {useTranslation} from 'react-i18next'
 
 export function showDialog(id: any) {
   setState(['app', 'confirmDelete', id], true)
@@ -24,6 +25,7 @@ export function hideDialog(id: any) {
 }
 
 export function DeleteDialog({children, deleteCallback, header, id}: any) {
+  const {t} = useTranslation()
   const open = useState(['app', 'confirmDelete', id])
 
   const cancel = () => {
@@ -39,8 +41,10 @@ export function DeleteDialog({children, deleteCallback, header, id}: any) {
       footer={
         <Box float="right">
           <SpaceBetween direction="horizontal" size="xs">
-            <Button onClick={cancel}>Cancel</Button>
-            <Button onClick={deleteCallback}>Delete!</Button>
+            <Button onClick={cancel}>{t('users.actions.cancel')}</Button>
+            <Button onClick={deleteCallback}>
+              {t('users.actions.delete')}
+            </Button>
           </SpaceBetween>
         </Box>
       }
