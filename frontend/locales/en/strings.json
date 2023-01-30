@@ -773,6 +773,10 @@
       "delete": "Delete",
       "cancel": "Cancel"
     },
+    "helpPanel": {
+      "title": "Users",
+      "description": "Maintain the list of cognito users with credentials that only permit access to the $t(global.projectName).<p>Enter a user email address and choose <strong>Create user</strong> to add a user.</p><p>Choose <strong>Delete</strong> to remove a user.</p><p>Choose <strong>Refresh</strong> to view changes to the list of users.</p>"
+    },
     "list": {
       "columns": {
         "username": "Username",
