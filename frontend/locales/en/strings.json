@@ -696,9 +696,10 @@
       "description": "The list of users that have permission to access the AWS ParallelCluster User Interface."
     },
     "actions": {
-      "create": "Create user",
+      "create": "Create",
       "refresh": "Refresh",
-      "delete": "Delete"
+      "delete": "Delete",
+      "cancel": "Cancel"
     },
     "list": {
       "columns": {
@@ -715,7 +716,8 @@
       },
       "createForm": {
         "phoneNumberPlaceholder": "+11234567890",
-        "emailPlaceholder": "email@domain.com"
+        "emailPlaceholder": "email@domain.com",
+        "invalidEmail": "You must enter a valid email"
       },
       "filtering": {
         "loadingText": "Loading users...",

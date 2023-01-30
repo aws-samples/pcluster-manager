@@ -13,7 +13,7 @@ import {useSelector} from 'react-redux'
 import {useCollection} from '@cloudscape-design/collection-hooks'
 import {clearState, setState, getState, useState} from '../../store'
 
-import {CreateUser, DeleteUser, ListUsers} from '../../model'
+import {CreateUser, DeleteUser, ListUsers, notify} from '../../model'
 
 // UI Elements
 import {
@@ -39,32 +39,13 @@ import Layout from '../Layout'
 import {DefaultHelpPanel} from '../../components/help-panel/DefaultHelpPanel'
 import {useHelpPanel} from '../../components/help-panel/HelpPanel'
 import {useTranslation} from 'react-i18next'
+import {User} from '../../types/users'
 
 // Constants
 const errorsPath = ['app', 'wizard', 'errors', 'user']
 
 // selectors
 const selectUserIndex = (state: any) => state.users.index
-
-function UserActions({user}: any) {
-  const {t} = useTranslation()
-
-  let email = useState(['identity', 'attributes', 'email'])
-  return (
-    <SpaceBetween direction="horizontal" size="s">
-      <Button
-        disabled={email === user.Attributes.email}
-        className="action"
-        onClick={() => {
-          setState(['app', 'user', 'delete'], user)
-          showDialog('deleteUser')
-        }}
-      >
-        {t('users.actions.delete')}
-      </Button>
-    </SpaceBetween>
-  )
-}
 
 const usersSlug = 'users'
 export default function Users(props: any) {
@@ -75,10 +56,12 @@ export default function Users(props: any) {
   const users = usernames.map(username => user_index[username])
   const userEmail = useState(['app', 'user', 'delete', 'Attributes', 'email'])
   const deletedUser = useState(['app', 'user', 'delete'])
-
-  const error = useState([...errorsPath, 'username'])
+  const [selectedUsers, setSelectedUsers] = React.useState<User[]>([])
+  const currentUserEmail = useState(['identity', 'attributes', 'email'])
 
   const newUser = useState(['app', 'users', 'newUser'])
+  const [createUserInputValidated, setCreateUserInputValidated] =
+    React.useState(true)
 
   const usernamePath = ['app', 'users', 'newUser', 'Username']
   const username = useState(usernamePath)
@@ -98,12 +81,15 @@ export default function Users(props: any) {
   }
 
   const createUser = () => {
-    userValidate()
-    const validated = getState([...errorsPath, 'validated'])
+    const validated = userValidate()
+    setCreateUserInputValidated(validated)
+
     if (validated) {
       CreateUser(newUser, () => {
         clearState(['app', 'users', 'newUser'])
       })
+    } else {
+      notify(t('users.list.createForm.invalidEmail'), 'error')
     }
   }
 
@@ -144,9 +130,26 @@ export default function Users(props: any) {
     console.log(deletedUser)
     DeleteUser(deletedUser, (returned_user: any) => {
       clearState(['users', 'index', returned_user.Username])
+      setSelectedUsers([])
     })
     hideDialog('deleteUser')
   }
+
+  const isDeleteUserButtonDisabled = () => {
+    return (
+      selectedUsers.length === 0 ||
+      currentUserEmail === selectedUsers[0].Attributes.email
+    )
+  }
+
+  const onSelectionChangeCallback = React.useCallback(({detail}) => {
+    setSelectedUsers(detail.selectedItems)
+  }, [])
+
+  const onCreateUserChangeCallback = React.useCallback(({detail}) => {
+    setState(usernamePath, detail.value)
+    setCreateUserInputValidated(true)
+  }, [])
 
   return (
     <Layout pageSlug={usersSlug}>
@@ -162,6 +165,7 @@ export default function Users(props: any) {
         resizableColumns
         trackBy={item => item.Attributes && item.Attributes.email}
         variant="full-page"
+        selectionType="single"
         stickyHeader
         header={
           <Header
@@ -170,6 +174,21 @@ export default function Users(props: any) {
             description={t('users.header.description')}
             actions={
               <SpaceBetween direction="horizontal" size="xs">
+                <Button
+                  className="action"
+                  onClick={refreshUsers}
+                  iconName={'refresh'}
+                />
+                <Button
+                  disabled={isDeleteUserButtonDisabled()}
+                  className="action"
+                  onClick={() => {
+                    setState(['app', 'user', 'delete'], selectedUsers[0])
+                    showDialog('deleteUser')
+                  }}
+                >
+                  {t('users.actions.delete')}
+                </Button>
                 {enableMfa && (
                   <Input
                     inputMode="tel"
@@ -183,25 +202,15 @@ export default function Users(props: any) {
                   ></Input>
                 )}
                 <div onKeyPress={e => e.key === 'Enter' && createUser()}>
-                  <FormField errorText={error}>
-                    <Input
-                      onChange={({detail}) =>
-                        setState(usernamePath, detail.value)
-                      }
-                      value={username}
-                      placeholder={t('users.list.createForm.emailPlaceholder')}
-                    ></Input>
-                  </FormField>
+                  <Input
+                    onChange={onCreateUserChangeCallback}
+                    invalid={!createUserInputValidated}
+                    value={username}
+                    placeholder={t('users.list.createForm.emailPlaceholder')}
+                  ></Input>
                 </div>
                 <Button className="action" onClick={createUser}>
                   {t('users.actions.create')}
-                </Button>
-                <Button
-                  className="action"
-                  onClick={refreshUsers}
-                  iconName={'refresh'}
-                >
-                  {t('users.actions.refresh')}
                 </Button>
               </SpaceBetween>
             }
@@ -228,16 +237,13 @@ export default function Users(props: any) {
             cell: item => <DateView date={item.UserCreateDate} />,
             sortingField: 'UserCreateDate',
           },
-          {
-            id: 'action',
-            header: t('users.list.columns.action'),
-            cell: item => <UserActions user={item} /> || '-',
-          },
         ]}
         loading={loading}
         items={items}
         loadingText={t('users.list.filtering.loadingText')}
         pagination={<Pagination {...paginationProps} />}
+        onSelectionChange={onSelectionChangeCallback}
+        selectedItems={selectedUsers}
         filter={
           <TextFilter
             {...filterProps}
@@ -257,17 +263,6 @@ export default function Users(props: any) {
 
 function userValidate() {
   const username = getState(['app', 'users', 'newUser', 'Username'])
-  setState([...errorsPath, 'validated'], true)
-  let valid = true
-
   const regex = /^([a-zA-Z0-9_.-])+@(([a-zA-Z0-9-])+.)+([a-zA-Z0-9]{2,4})+$/
-  if (!regex.test(username)) {
-    setState([...errorsPath, 'username'], 'You must enter a valid email.')
-    valid = false
-    setState([...errorsPath, 'validated'], false)
-  } else {
-    clearState([...errorsPath, 'username'])
-  }
-
-  return valid
+  return regex.test(username)
 }
