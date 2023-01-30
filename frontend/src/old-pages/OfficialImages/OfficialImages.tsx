@@ -8,7 +8,7 @@
 // or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-import React from 'react'
+import React, {useMemo} from 'react'
 
 import {ListOfficialImages} from '../../model'
 import {useCollection} from '@cloudscape-design/collection-hooks'
@@ -27,15 +27,36 @@ import EmptyState from '../../components/EmptyState'
 import {useQuery} from 'react-query'
 import {useState} from '../../store'
 import Layout from '../Layout'
-import {DefaultHelpPanel} from '../../components/help-panel/DefaultHelpPanel'
 import {useHelpPanel} from '../../components/help-panel/HelpPanel'
-import {useTranslation} from 'react-i18next'
+import {Trans, useTranslation} from 'react-i18next'
+import TitleDescriptionHelpPanel from '../../components/help-panel/TitleDescriptionHelpPanel'
+import InfoLink from '../../components/InfoLink'
 
 type Image = {
   amiId: string
   os: string
   architecture: string
   version: string
+}
+
+function OfficialImagesHelpPanel() {
+  const {t} = useTranslation()
+  const footerLinks = useMemo(
+    () => [
+      {
+        title: t('officialImages.helpPanel.link.title'),
+        href: t('officialImages.helpPanel.link.href'),
+      },
+    ],
+    [t],
+  )
+  return (
+    <TitleDescriptionHelpPanel
+      title={t('officialImages.helpPanel.title')}
+      description={<Trans i18nKey="officialImages.helpPanel.description" />}
+      footerLinks={footerLinks}
+    />
+  )
 }
 
 function OfficialImagesList({images}: {images: Image[]}) {
@@ -85,6 +106,7 @@ function OfficialImagesList({images}: {images: Image[]}) {
           variant="awsui-h1-sticky"
           counter={items && `(${items.length})`}
           description={t('officialImages.header.description')}
+          info={<InfoLink helpPanel={<OfficialImagesHelpPanel />} />}
         >
           {t('officialImages.header.title')}
         </Header>
@@ -142,7 +164,7 @@ export default function OfficialImages() {
   const region = useState(['app', 'selectedRegion']) || defaultRegion
   const {data} = useQuery('OFFICIAL_IMAGES', () => ListOfficialImages(region))
 
-  useHelpPanel(<DefaultHelpPanel />)
+  useHelpPanel(<OfficialImagesHelpPanel />)
 
   return (
     <Layout pageSlug={officialImagesSlug}>
