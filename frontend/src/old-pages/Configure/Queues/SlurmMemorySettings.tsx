@@ -15,7 +15,7 @@ import {
   Container,
   Header,
   Alert,
-  Toggle,
+  Checkbox,
   SpaceBetween,
 } from '@cloudscape-design/components'
 import {setState, getState, useState, clearState} from '../../../store'
@@ -117,13 +117,13 @@ function SlurmMemorySettings() {
             justifyContent: 'space-between',
           }}
         >
-          <Toggle
+          <Checkbox
             checked={memoryBasedSchedulingEnabled}
             disabled={multipleInstancesTypesSelected}
             onChange={toggleMemoryBasedSchedulingEnabled}
           >
             <Trans i18nKey="wizard.queues.slurmMemorySettings.toggle.label" />
-          </Toggle>
+          </Checkbox>
         </div>
         <Alert
           visible={multipleInstancesTypesSelected}

@@ -20,7 +20,12 @@ import {
 } from '../../model'
 
 // UI Elements
-import {Container, Header, Toggle, Spinner} from '@cloudscape-design/components'
+import {
+  Container,
+  Header,
+  Checkbox,
+  Spinner,
+} from '@cloudscape-design/components'
 
 // Components
 import ValidationErrors from '../../components/ValidationErrors'
@@ -177,24 +182,24 @@ function Create() {
         </div>
       )}
       {editing && (
-        <Toggle
+        <Checkbox
           checked={forceUpdate}
           onChange={() =>
             setState(['app', 'wizard', 'forceUpdate'], !forceUpdate)
           }
         >
           {t('wizard.create.configuration.forceUpdate')}
-        </Toggle>
+        </Checkbox>
       )}
       {!editing && (
-        <Toggle
+        <Checkbox
           checked={disableRollback}
           onChange={() =>
             setState(['app', 'wizard', 'disableRollback'], !disableRollback)
           }
         >
           {t('wizard.create.configuration.disableRollback')}
-        </Toggle>
+        </Checkbox>
       )}
     </Container>
   )

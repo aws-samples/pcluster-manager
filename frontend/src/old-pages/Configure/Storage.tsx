@@ -28,7 +28,7 @@ import {
   Select,
   SpaceBetween,
   TextContent,
-  Toggle,
+  Checkbox,
 } from '@cloudscape-design/components'
 
 // State
@@ -360,9 +360,9 @@ export function FsxLustreSettings({index}: any) {
         </FormField>
       )}
       <SpaceBetween direction="horizontal" size="xs">
-        <Toggle checked={compression !== null} onChange={toggleCompression}>
+        <Checkbox checked={compression !== null} onChange={toggleCompression}>
           <Trans i18nKey="wizard.storage.Fsx.compression.label" />
-        </Toggle>
+        </Checkbox>
         <InfoLink
           helpPanel={
             <TitleDescriptionHelpPanel
@@ -440,9 +440,9 @@ function EfsSettings({index}: any) {
             />
           }
         >
-          <Toggle checked={encrypted} onChange={toggleEncrypted}>
+          <Checkbox checked={encrypted} onChange={toggleEncrypted}>
             {t('wizard.storage.Efs.encrypted.label')}
-          </Toggle>
+          </Checkbox>
 
           {encrypted ? (
             <FormField label={t('wizard.storage.Efs.encrypted.kmsId')}>
@@ -475,7 +475,7 @@ function EfsSettings({index}: any) {
         </div>
         <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
           <SpaceBetween direction="horizontal" size="xs">
-            <Toggle
+            <Checkbox
               checked={throughputMode !== 'bursting'}
               onChange={_event => {
                 setState(
@@ -487,7 +487,7 @@ function EfsSettings({index}: any) {
               }}
             >
               <Trans i18nKey="wizard.storage.Efs.provisioned.label" />
-            </Toggle>
+            </Checkbox>
 
             <InfoLink
               helpPanel={
@@ -653,9 +653,9 @@ function EbsSettings({index}: any) {
             />
           }
         >
-          <Toggle checked={encrypted} onChange={toggleEncrypted}>
+          <Checkbox checked={encrypted} onChange={toggleEncrypted}>
             {t('wizard.storage.Ebs.encrypted.label')}
-          </Toggle>
+          </Checkbox>
 
           {encrypted ? (
             <FormField label={t('wizard.storage.Ebs.encrypted.kmsId')}>
@@ -689,14 +689,14 @@ function EbsSettings({index}: any) {
             />
           }
         >
-          <Toggle
+          <Checkbox
             checked={snapshotId !== null}
             onChange={_event => {
               setState(snapshotIdPath, snapshotId === null ? '' : null)
             }}
           >
             {t('wizard.storage.Ebs.snapshotId.label')}
-          </Toggle>
+          </Checkbox>
           {snapshotId !== null && (
             <Input
               value={snapshotId}
@@ -837,13 +837,13 @@ function StorageInstance({index}: any) {
           <div style={{display: 'flex', flexDirection: 'column'}}>
             {STORAGE_TYPE_PROPS[storageType].maxToCreate > 0 ? (
               <SpaceBetween direction="horizontal" size="xs">
-                <Toggle
+                <Checkbox
                   disabled={!canToggle}
                   checked={useExisting}
                   onChange={toggleUseExisting}
                 >
                   <Trans i18nKey="wizard.storage.instance.useExisting.label" />
-                </Toggle>
+                </Checkbox>
                 <InfoLink
                   helpPanel={
                     <TitleDescriptionHelpPanel

@@ -25,7 +25,7 @@ import {
   Input,
   Select,
   SpaceBetween,
-  Toggle,
+  Checkbox,
   MultiselectProps,
 } from '@cloudscape-design/components'
 
@@ -486,7 +486,7 @@ function Queue({index}: any) {
           ) : null}
         </ColumnLayout>
         <Box variant="div" margin={{vertical: 'xs'}}>
-          <Toggle
+          <Checkbox
             checked={enablePlacementGroup}
             disabled={!canUsePlacementGroup}
             onChange={_e => {
@@ -494,7 +494,7 @@ function Queue({index}: any) {
             }}
           >
             <Trans i18nKey="wizard.queues.placementGroup.label" />
-          </Toggle>
+          </Checkbox>
         </Box>
         <ComputeResources queue={queue} index={index} canUseEFA={canUseEFA} />
         <ExpandableSection header="Advanced options">

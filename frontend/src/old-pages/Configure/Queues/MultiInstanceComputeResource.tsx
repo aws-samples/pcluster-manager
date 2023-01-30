@@ -6,7 +6,7 @@ import {
   Input,
   Multiselect,
   MultiselectProps,
-  Toggle,
+  Checkbox,
 } from '@cloudscape-design/components'
 import {NonCancelableEventHandler} from '@cloudscape-design/components/internal/events'
 import {useCallback, useEffect, useMemo} from 'react'
@@ -239,7 +239,7 @@ export function ComputeResource({
           )}
         </ColumnLayout>
         <div style={{display: 'flex', flexDirection: 'row', gap: '20px'}}>
-          <Toggle
+          <Checkbox
             checked={disableHT}
             onChange={_e => {
               setDisableHT(!disableHT)
@@ -249,8 +249,8 @@ export function ComputeResource({
             )}
           >
             <Trans i18nKey="wizard.queues.computeResource.disableHT.label" />
-          </Toggle>
-          <Toggle
+          </Checkbox>
+          <Checkbox
             disabled={
               !allInstancesSupportEFA(instances, efaInstances) || !canUseEFA
             }
@@ -260,7 +260,7 @@ export function ComputeResource({
             }}
           >
             <Trans i18nKey="wizard.queues.computeResource.enableEfa" />
-          </Toggle>
+          </Checkbox>
         </div>
       </div>
     </div>
