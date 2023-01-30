@@ -717,6 +717,18 @@
         "selectedAriaLabel": "Selected"
       }
     },
+    "helpPanel": {
+      "title": "Custom images",
+      "description": "Choose <strong>Build image</strong> to create your custom image.<p>You can only <strong>Create images</strong> with the same AWS ParallelCluster version that was used to create the $t(global.projectName).</p><p>If you choose <strong>Build image</strong>, you proceed to create a custom image by uploading a configuration, by entering the ID of an existing image, or by manually entering the configuration.</p><p>After you have provided the configuration, you choose <strong>Build image</strong>.</p><p>Choose <strong>Refresh</strong> to view recently changed or added AWS resources.",
+      "amiCustomizationlink": {
+        "title": "AWS ParallelCluster AMI customization",
+        "href": "https://docs.aws.amazon.com/parallelcluster/latest/ug/custom-ami-v3.html?icmpid=docs_parallelcluster_hp_custom_images_v1"
+      },
+      "buildImagePropertieslink": {
+        "title": "Build image configuration properties",
+        "href": "https://docs.aws.amazon.com/parallelcluster/latest/ug/image-builder-configuration-file-v3.html?icmpid=docs_parallelcluster_hp_custom_images_v1"
+      }
+    },
     "list": {
       "columns": {
         "name": "Name",
