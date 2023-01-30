@@ -936,6 +936,14 @@
       "title": "Official images",
       "description": "The official list of tested Amazon Machine Images (AMIs) that are automatically used to create AWS ParallelClusters."
     },
+    "helpPanel": {
+      "title": "Official images",
+      "description": "<p>Refer to this list of AMI images when configuring your cluster.</p><p>This version-coupled instance of the $t(global.projectName) automatically uses these tested AMIs to create clusters based on the operating system and architecture that you choose.</p>",
+      "link": {
+        "title": "AWS ParallelCluster support policy",
+        "href": "https://docs.aws.amazon.com/parallelcluster/latest/ug/support-policy.html"
+      }
+    },
     "list": {
       "columns": {
         "id": "ID",
