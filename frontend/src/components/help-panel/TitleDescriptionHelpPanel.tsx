@@ -10,19 +10,31 @@
 // limitations under the License.
 
 import {HelpPanel, Icon, Link} from '@cloudscape-design/components'
-import {ReactElement} from 'react'
+import {ReactElement, useMemo} from 'react'
 import {useTranslation} from 'react-i18next'
 
 interface TitleDescriptionHelpPanelProps {
   title: string | ReactElement
   description: string | ReactElement
+  footerLinks?: {title: string; href: string}[]
 }
 
 function TitleDescriptionHelpPanel({
   title,
   description,
+  footerLinks,
 }: TitleDescriptionHelpPanelProps) {
   const {t} = useTranslation()
+
+  const DEFAULT_FOOTER_LINKS = useMemo(
+    () => [
+      {
+        title: t('global.docs.title'),
+        href: t('global.docs.link'),
+      },
+    ],
+    [t],
+  )
 
   return (
     <HelpPanel
@@ -33,15 +45,17 @@ function TitleDescriptionHelpPanel({
             {t('helpPanel.footer.learnMore')} <Icon name="external" />
           </h3>
           <ul>
-            <li>
-              <Link
-                external
-                externalIconAriaLabel={t('global.openNewTab')}
-                href={t('global.docs.link')}
-              >
-                {t('global.docs.title')}
-              </Link>
-            </li>
+            {(footerLinks || DEFAULT_FOOTER_LINKS).map(link => (
+              <li key={link.href}>
+                <Link
+                  external
+                  externalIconAriaLabel={t('global.openNewTab')}
+                  href={link.href}
+                >
+                  {link.title}
+                </Link>
+              </li>
+            ))}
           </ul>
         </div>
       }
