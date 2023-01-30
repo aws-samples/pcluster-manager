@@ -13,6 +13,16 @@
       "title": "$t(global.projectName) documentation",
       "link": "https://pcluster.cloud/"
     },
+    "help": {
+      "configurationProperties": {
+        "title": "Configuration properties",
+        "href": "https://docs.aws.amazon.com/parallelcluster/latest/ug/cluster-configuration-file-v3.html?icmpid=docs_parallelcluster_hp_clusters_v1"
+      },
+      "ec2ConnectLink": {
+        "title": "EC2 Instance Connect",
+        "href": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-connect-set-up.html?icmpid=docs_parallelcluster_hp_clusters_v1"
+      }
+    },
     "openNewTab": "Open in a new tab",
     "splitPanel": {
       "preferencesTitle": "Split panel preferences",
@@ -145,6 +155,28 @@
     },
     "logs": {
       "label": "Select a log stream from the left."
+    },
+    "help": {
+      "main": "<p><strong>Create</strong> a new cluster or select a listed cluster to view detailed information. You can also choose <strong>Stop fleet</strong> or <strong>Start fleet</strong> to stop or start the cluster compute fleet, and <strong>Edit</strong> or <strong>Delete</strong> a selected cluster.</p><p>You can only <strong>Create</strong> and <strong>Edit</strong> clusters with the same AWS ParallelCluster version that was used to create the $t(global.projectName).</p><p>Depending on the cluster configuration, you can use an AWS Systems Manager shell session or a DCV virtual desktop to access the head node of the selected cluster. You can also access the file system of the selected cluster.</p><p>Enter text in the search field to find clusters by name, status, or version.</p>Select a listed cluster to view its details.<0></0><p>Choose <strong>Create</strong> to create and configure a cluster.</p>Choose <strong>Edit</strong> to update the cluster configuration. Some configuration updates require that you first stop the compute fleet, and some updates can't be performed.",
+      "details": "<strong>Details</strong> shows a summary of cluster properties, starting with a link to the CloudFormation stack that created your cluster.To connect to the head node instance, use the link provided by the <strong>EC2 Instance Connect</strong> helper.",
+      "instances": "<strong>Instances</strong> shows the list of cluster EC2 instances.",
+      "storage": "<strong>Storage</strong> shows the list of your configured file systems.",
+      "scheduling": "<strong>Job scheduling</strong> shows running jobs.",
+      "accounting": "<strong>Accounting</strong> is a dashboard for your configured Slurm accounting data.",
+      "events": "<strong>Stack events</strong> shows the record of cluster CloudFormation stack create, update, and delete events.",
+      "logs": "<strong>Logs</strong> shows the AWS ParallelCluster logs created for your cluster.",
+      "dcvLink": {
+        "title": "NICE DCV",
+        "href": "https://docs.aws.amazon.com/parallelcluster/latest/ug/dcv-v3.html?icmpid=docs_parallelcluster_hp_clusters_v1"
+      },
+      "accountingLink": {
+        "title": "Slurm accounting with AWS ParallelCluster",
+        "href": "https://docs.aws.amazon.com/parallelcluster/latest/ug/slurm-accounting-v3.html?icmpid=docs_parallelcluster_hp_headnode_accounting_v1"
+      },
+      "logsLink": {
+        "title": "AWS ParallelCluster logs",
+        "href": "https://docs.aws.amazon.com/parallelcluster/latest/ug/cloudwatch-logs-v3.html?icmpid=docs_parallelcluster_hp_clusters_v1"
+      }
     },
     "list": {
       "header": {

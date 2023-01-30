@@ -12,13 +12,13 @@ import {
   ClusterName,
   ClusterStatus,
 } from '../../types/clusters'
-import React, {useEffect} from 'react'
+import React, {useEffect, useMemo} from 'react'
 import {NavigateFunction, useNavigate, useParams} from 'react-router-dom'
 import {DescribeCluster, GetConfiguration, ListClusters} from '../../model'
 import {useState, clearState, setState} from '../../store'
 import {selectCluster} from './util'
 import {findFirst} from '../../util'
-import {useTranslation} from 'react-i18next'
+import {Trans, useTranslation} from 'react-i18next'
 
 import {useQuery} from 'react-query'
 import {
@@ -39,7 +39,8 @@ import Details from './Details'
 import {wizardShow} from '../Configure/Configure'
 import Layout from '../Layout'
 import {useHelpPanel} from '../../components/help-panel/HelpPanel'
-import {DefaultHelpPanel} from '../../components/help-panel/DefaultHelpPanel'
+import TitleDescriptionHelpPanel from '../../components/help-panel/TitleDescriptionHelpPanel'
+import InfoLink from '../../components/InfoLink'
 
 export function onClustersUpdate(
   selectedClusterName: ClusterName,
@@ -137,6 +138,7 @@ function ClusterList({clusters}: {clusters: ClusterInfoSummary[]}) {
           variant="awsui-h1-sticky"
           description={t('cluster.list.header.description')}
           counter={items && `(${items.length})`}
+          info={<InfoLink helpPanel={<ClustersHelpPanel />} />}
           actions={
             <SpaceBetween direction="horizontal" size="xs">
               {selectedClusterName && <Actions />}
@@ -205,7 +207,7 @@ export default function Clusters() {
   const oldStatus = useState(['app', 'clusters', 'selectedStatus'])
   let navigate = useNavigate()
 
-  useHelpPanel(<DefaultHelpPanel />)
+  useHelpPanel(<ClustersHelpPanel />)
 
   useEffect(
     () => onClustersUpdate(selectedClusterName, clusters!, oldStatus, navigate),
@@ -257,5 +259,59 @@ export default function Clusters() {
     >
       <ClusterList clusters={clusters!} />
     </Layout>
+  )
+}
+
+const CLUSTERS_HELP_PANEL_LIST = [
+  <Trans key="cluster.help.details" i18nKey="cluster.help.details" />,
+  <Trans key="cluster.help.instances" i18nKey="cluster.help.instances" />,
+  <Trans key="cluster.help.storage" i18nKey="cluster.help.storage" />,
+  <Trans key="cluster.help.scheduling" i18nKey="cluster.help.scheduling" />,
+  <Trans key="cluster.help.accounting" i18nKey="cluster.help.accounting" />,
+  <Trans key="cluster.help.events" i18nKey="cluster.help.events" />,
+  <Trans key="cluster.help.logs" i18nKey="cluster.help.logs" />,
+]
+
+const ClustersHelpPanel = () => {
+  const {t} = useTranslation()
+  const footerLinks = useMemo(
+    () => [
+      {
+        title: t('global.help.configurationProperties.title'),
+        href: t('global.help.configurationProperties.href'),
+      },
+      {
+        title: t('cluster.help.dcvLink.title'),
+        href: t('cluster.help.dcvLink.href'),
+      },
+      {
+        title: t('global.help.ec2ConnectLink.title'),
+        href: t('global.help.ec2ConnectLink.href'),
+      },
+      {
+        title: t('cluster.help.accountingLink.title'),
+        href: t('cluster.help.accountingLink.href'),
+      },
+      {
+        title: t('cluster.help.logsLink.title'),
+        href: t('cluster.help.logsLink.href'),
+      },
+    ],
+    [t],
+  )
+  return (
+    <TitleDescriptionHelpPanel
+      title={<Trans i18nKey="cluster.list.header.title" />}
+      description={
+        <Trans i18nKey="cluster.help.main">
+          <ul>
+            {CLUSTERS_HELP_PANEL_LIST.map(detail => (
+              <li key={detail.key}>{detail}</li>
+            ))}
+          </ul>
+        </Trans>
+      }
+      footerLinks={footerLinks}
+    />
   )
 }
