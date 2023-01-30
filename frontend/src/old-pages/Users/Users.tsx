@@ -36,10 +36,11 @@ import {
   hideDialog,
 } from '../../components/DeleteDialog'
 import Layout from '../Layout'
-import {DefaultHelpPanel} from '../../components/help-panel/DefaultHelpPanel'
 import {useHelpPanel} from '../../components/help-panel/HelpPanel'
-import {useTranslation} from 'react-i18next'
 import {User} from '../../types/users'
+import {Trans, useTranslation} from 'react-i18next'
+import TitleDescriptionHelpPanel from '../../components/help-panel/TitleDescriptionHelpPanel'
+import InfoLink from '../../components/InfoLink'
 
 // Constants
 const errorsPath = ['app', 'wizard', 'errors', 'user']
@@ -47,8 +48,18 @@ const errorsPath = ['app', 'wizard', 'errors', 'user']
 // selectors
 const selectUserIndex = (state: any) => state.users.index
 
+function UsersHelpPanel() {
+  const {t} = useTranslation()
+  return (
+    <TitleDescriptionHelpPanel
+      title={t('users.helpPanel.title')}
+      description={<Trans i18nKey="users.helpPanel.description" />}
+    />
+  )
+}
+
 const usersSlug = 'users'
-export default function Users(props: any) {
+export default function Users() {
   const {t} = useTranslation()
   const loading = !useSelector(selectUserIndex)
   const user_index = useSelector(selectUserIndex) || {}
@@ -66,7 +77,7 @@ export default function Users(props: any) {
   const usernamePath = ['app', 'users', 'newUser', 'Username']
   const username = useState(usernamePath)
 
-  useHelpPanel(<DefaultHelpPanel />)
+  useHelpPanel(<UsersHelpPanel />)
 
   React.useEffect(() => {
     ListUsers()
@@ -168,6 +179,7 @@ export default function Users(props: any) {
             variant="awsui-h1-sticky"
             counter={users && `(${Object.keys(users).length})`}
             description={t('users.header.description')}
+            info={<InfoLink helpPanel={<UsersHelpPanel />} />}
             actions={
               <SpaceBetween direction="horizontal" size="xs">
                 <Button
