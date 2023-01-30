@@ -19,15 +19,14 @@ import {findFirst, getIn} from '../../util'
 // UI Elements
 import {
   Box,
+  Checkbox,
   ColumnLayout,
   Container,
   ExpandableSection,
   FormField,
-  Header,
   Input,
   Select,
   SpaceBetween,
-  Toggle,
 } from '@cloudscape-design/components'
 
 // State
@@ -296,13 +295,13 @@ function SsmSettings() {
           />
         }
       >
-        <Toggle
+        <Checkbox
           checked={ssmEnabled}
           onChange={({detail}) => enableSsm(!ssmEnabled)}
           disabled={dcvEnabled}
         >
           <Trans i18nKey="wizard.headNode.Ssm.label" />
-        </Toggle>
+        </Checkbox>
       </FormField>
     </div>
   )
@@ -354,9 +353,13 @@ function DcvSettings() {
         }
       >
         <SpaceBetween direction="vertical" size="xxxs">
-          <Toggle disabled={editing} checked={dcvEnabled} onChange={toggleDcv}>
+          <Checkbox
+            disabled={editing}
+            checked={dcvEnabled}
+            onChange={toggleDcv}
+          >
             {t('wizard.headNode.Dcv.add')}
-          </Toggle>
+          </Checkbox>
           <SpaceBetween direction="vertical" size="xs">
             {dcvEnabled && (
               <FormField label="Allowed IPs">
@@ -446,9 +449,12 @@ function HeadNode() {
           <SsmSettings />
           <DcvSettings />
           <SpaceBetween size="xs" direction="horizontal">
-            <Toggle checked={imdsSecured || false} onChange={toggleImdsSecured}>
+            <Checkbox
+              checked={imdsSecured || false}
+              onChange={toggleImdsSecured}
+            >
               <Trans i18nKey="wizard.headNode.imdsSecured.label" />
-            </Toggle>
+            </Checkbox>
             <InfoLink
               helpPanel={
                 <TitleDescriptionHelpPanel

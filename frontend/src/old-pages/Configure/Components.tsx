@@ -34,7 +34,7 @@ import {
   FormField,
   Input,
   SpaceBetween,
-  Toggle,
+  Checkbox,
   TokenGroup,
   Select,
   InputProps,
@@ -266,13 +266,13 @@ function CustomAMISettings({basePath, appPath, errorsPath, validate}: any) {
   return (
     <>
       <SpaceBetween direction="horizontal" size={'xxs'}>
-        <Toggle
-          disabled={editing}
+        <Checkbox
           checked={customAmiEnabled}
+          disabled={editing}
           onChange={toggleCustomAmi}
         >
           <Trans i18nKey="wizard.components.customAmi.label" />
-        </Toggle>
+        </Checkbox>
         <InfoLink
           ariaLabel={t('wizard.components.customAmi.ariaLabel')}
           helpPanel={
@@ -574,7 +574,7 @@ function RootVolume({basePath, errorsPath}: any) {
   }, [rootVolumeType, rootVolumeTypePath])
 
   return (
-    <>
+    <SpaceBetween direction="vertical" size="xs">
       <FormField
         label={t('wizard.components.rootVolume.size.label')}
         errorText={rootVolumeErrors}
@@ -588,13 +588,13 @@ function RootVolume({basePath, errorsPath}: any) {
           onChange={({detail}) => setRootVolume(detail.value)}
         />
       </FormField>
-      <Toggle
+      <Checkbox
         disabled={editing}
         checked={rootVolumeEncrypted || false}
         onChange={toggleEncrypted}
       >
         {t('wizard.components.rootVolume.encrypted')}
-      </Toggle>
+      </Checkbox>
       <div
         key="volume-type"
         style={{
@@ -617,7 +617,7 @@ function RootVolume({basePath, errorsPath}: any) {
           options={volumeTypes.map(strToOption)}
         />
       </div>
-    </>
+    </SpaceBetween>
   )
 }
 
