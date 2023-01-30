@@ -95,6 +95,7 @@
       }
     },
     "instances": {
+      "title": "Instances",
       "id": "ID",
       "instance": "Instance",
       "launchedTime": "Launched time",
@@ -108,7 +109,18 @@
         "start": "Start compute fleet",
         "logs": "Logs"
       },
-      "computeFleetInfo": "Compute fleet must be stopped."
+      "computeFleetInfo": "Compute fleet must be stopped.",
+      "filtering": {
+        "empty": {
+          "title": "No instances",
+          "subtitle": "No instances found"
+        },
+        "noMatch": {
+          "title": "No matches",
+          "subtitle": "No instances match the filters."
+        },
+        "clearFilter": "Clear filter"
+      }
     },
     "storage": {
       "id": "ID",
