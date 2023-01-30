@@ -136,12 +136,19 @@ export default function ClusterInstances() {
     clusterName,
     'instances',
   ])
+  const [selectedInstances, setSelectedInstances] = React.useState<Instance[]>(
+    [],
+  )
 
   const clusterPath = ['clusters', 'index', clusterName]
   const fleetStatus: ComputeFleetStatus = useState([
     ...clusterPath,
     'computeFleetStatus',
   ])
+
+  const onSelectionChangeCallback = React.useCallback(({detail}) => {
+    setSelectedInstances(detail.selectedItems)
+  }, [])
 
   React.useEffect(() => {
     const tick = () => {
@@ -167,18 +174,18 @@ export default function ClusterInstances() {
     filtering: {
       empty: (
         <EmptyState
-          title="No instances"
-          subtitle="No instances found."
+          title={t('cluster.instances.filtering.empty.title')}
+          subtitle={t('cluster.instances.filtering.empty.subtitle')}
           action={<span>:(</span>}
         />
       ),
       noMatch: (
         <EmptyState
-          title="No matches"
-          subtitle="No instances match the filters."
+          title={t('cluster.instances.filtering.noMatch.title')}
+          subtitle={t('cluster.instances.filtering.noMatch.subtitle')}
           action={
             <Button onClick={() => actions.setFiltering('')}>
-              Clear filter
+              {t('cluster.instances.filtering.clearFilter')}
             </Button>
           }
         />
@@ -197,8 +204,16 @@ export default function ClusterInstances() {
           variant="h3"
           description=""
           counter={instances && `(${instances.length})`}
+          actions={
+            selectedInstances.length > 0 && (
+              <InstanceActions
+                fleetStatus={fleetStatus}
+                instance={selectedInstances[0]}
+              />
+            )
+          }
         >
-          Instances
+          {t('cluster.instances.title')}
         </Header>
       }
       trackBy="instanceId"
@@ -257,14 +272,10 @@ export default function ClusterInstances() {
           cell: instance => <InstanceStatusIndicator instance={instance} />,
           sortingField: 'state',
         },
-        {
-          id: 'actions',
-          header: t('cluster.instances.actionsLabel'),
-          cell: instance => (
-            <InstanceActions fleetStatus={fleetStatus} instance={instance} />
-          ),
-        },
       ]}
+      selectionType="single"
+      selectedItems={selectedInstances}
+      onSelectionChange={onSelectionChangeCallback}
       loading={instances === null}
       items={items}
       loadingText="Loading instances..."
