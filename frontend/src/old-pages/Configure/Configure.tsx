@@ -22,7 +22,7 @@ import {
 } from '@cloudscape-design/components'
 
 import {Source, sourceValidate} from './Source'
-import {Cluster, clusterValidate} from './Cluster'
+import {Cluster, ClusterPropertiesHelpPanel, clusterValidate} from './Cluster'
 import {HeadNode, headNodeValidate} from './HeadNode'
 import {Storage, storageValidate} from './Storage'
 import {Queues, queuesValidate} from './Queues/Queues'
@@ -42,6 +42,7 @@ import i18next from 'i18next'
 import {pages, useWizardNavigation} from './useWizardNavigation'
 import {ComputeFleetStatus} from '../../types/clusters'
 import {useClusterPoll} from '../../components/useClusterPoll'
+import InfoLink from '../../components/InfoLink'
 
 const validators: {[key: string]: (...args: any[]) => boolean} = {
   source: sourceValidate,
@@ -239,6 +240,7 @@ function Configure() {
             title: t('wizard.cluster.title'),
             description: t('wizard.cluster.description'),
             content: <Cluster />,
+            info: <InfoLink helpPanel={<ClusterPropertiesHelpPanel />} />,
           },
           {
             title: t('wizard.headNode.title'),
