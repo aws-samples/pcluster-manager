@@ -40,7 +40,7 @@ test.describe('environment: @demo', () => {
         await expect(page.getByRole('heading', { name: 'Queues' }).first()).toBeVisible()
         await page.getByRole('button', { name: 'Next' }).click();
 
-        await expect(page.getByRole('heading', { name: 'Cluster configuration' })).toBeVisible()
+        await expect(page.getByRole('heading', { name: 'Create' })).toBeVisible()
         await page.getByRole('button', { name: 'Dry run' }).click();
 
         await expect(page.getByText('Request would have succeeded, but DryRun flag is set.')).toBeVisible()
