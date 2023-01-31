@@ -7,7 +7,6 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useRef,
   useState,
 } from 'react'
 
@@ -47,34 +46,22 @@ export const HelpPanelProvider: FunctionComponent = ({children}) => {
  *
  * Update and show the help panel when tapping on an Info link
  * ```
- * const { setContent, setVisible } = useHelpPanel()
- * setContent(<HelpPanel .../>)
- * setVisible(true)
+ * const { updateHelpPanel } = useHelpPanel()
+ * updateHelpPanel({ element: <HelpPanel .../>, open: true})
  * ```
  */
 
 export const useHelpPanel = (initialPanel?: ReactElement) => {
   const [helpPanel, setHelpPanel] = useContext(HelpPanelContext)
-  // The ref is used to keep track of local changes made to the help panel properties,
-  // otherwise triggering both a content and a visibility change will result in a partial object update,
-  // meaning that if you call setContent() and setVisible(true) sequentially you can end up
-  // with a visible help panel, but with the old panel content
-  const panelRef = useRef(helpPanel)
 
-  const setContent = useCallback(
-    (panel: ReactElement) => {
-      panelRef.current.element = panel
-      setHelpPanel({...panelRef.current})
+  const updateHelpPanel = useCallback(
+    ({element, open}: {element?: ReactElement; open?: boolean}) => {
+      setHelpPanel({
+        element: element || helpPanel.element,
+        open: typeof open !== 'undefined' ? open : helpPanel.open,
+      })
     },
-    [setHelpPanel],
-  )
-
-  const setVisible = useCallback(
-    (visible: boolean) => {
-      panelRef.current.open = visible
-      setHelpPanel({...panelRef.current})
-    },
-    [setHelpPanel],
+    [setHelpPanel, helpPanel],
   )
 
   // This useEffect simplify the usage of the component
@@ -82,10 +69,10 @@ export const useHelpPanel = (initialPanel?: ReactElement) => {
   // and avoid placing effects in the main page component
   useEffect(() => {
     if (initialPanel) {
-      setContent(initialPanel)
+      updateHelpPanel({element: initialPanel})
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  return {...helpPanel, setContent, setVisible}
+  return {...helpPanel, updateHelpPanel}
 }
