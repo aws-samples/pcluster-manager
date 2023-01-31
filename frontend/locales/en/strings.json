@@ -829,7 +829,22 @@
       },
       "tags": {
         "key": "Key",
-        "value": "Value"
+        "value": "Value",
+        "filtering": {
+          "loadingText": "Loading tags...",
+          "countText": "Results: {{filteredItemsCount}}",
+          "filteringAriaLabel": "Enter search text",
+          "filteringPlaceholder": "Enter search text",
+          "empty": {
+            "title": "No tags",
+            "subtitle": "No tags to display."
+          },
+          "noMatch": {
+            "title": "No matches",
+            "subtitle": "No tags match the filters.",
+            "action": "Clear filter"
+          }
+        }
       },
       "properties": {
         "header": {
