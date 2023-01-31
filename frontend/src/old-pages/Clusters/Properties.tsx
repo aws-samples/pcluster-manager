@@ -21,6 +21,7 @@ import {
   ColumnLayout,
   Container,
   Header,
+  Link,
   Popover,
   SpaceBetween,
   StatusIndicator,
@@ -129,17 +130,23 @@ export default function ClusterProperties() {
                 </div>
               </ValueWithLabel>
             )}
-            <ValueWithLabel label={t('cluster.properties.configurationLabel')}>
-              <Button
-                disabled={cluster.clusterStatus === ClusterStatus.CreateFailed}
-                iconName="external"
-                onClick={() =>
-                  setState(['app', 'clusters', 'clusterConfig', 'dialog'], true)
-                }
+            {cluster.clusterStatus !== ClusterStatus.CreateFailed && (
+              <ValueWithLabel
+                label={t('cluster.properties.configurationLabel')}
               >
-                View
-              </Button>
-            </ValueWithLabel>
+                <Link
+                  href="#"
+                  onFollow={() =>
+                    setState(
+                      ['app', 'clusters', 'clusterConfig', 'dialog'],
+                      true,
+                    )
+                  }
+                >
+                  {t('cluster.properties.configurationLink')}
+                </Link>
+              </ValueWithLabel>
+            )}
           </SpaceBetween>
           <SpaceBetween size="l">
             <ValueWithLabel label={t('cluster.properties.statusLabel')}>
