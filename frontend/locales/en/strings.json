@@ -83,6 +83,7 @@
         "tooltiptext": "Copy the command to SSH into the head node. If the key pair you use to create the head node isn't the default, you must specify the path to the key pair. See <0>Connect to your Linux instance using an SSH Client</0> for more information."
       },
       "configurationLabel": "Cluster configuration",
+      "configurationLink": "VIEW",
       "statusLabel": "Cluster status",
       "computeFleetStatusLabel": "Compute fleet status",
       "creationTimeLabel": "Created time",
