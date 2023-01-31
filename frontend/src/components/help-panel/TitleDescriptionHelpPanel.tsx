@@ -60,9 +60,7 @@ function TitleDescriptionHelpPanel({
         </div>
       }
     >
-      <div>
-        <p>{description}</p>
-      </div>
+      <div>{description}</div>
     </HelpPanel>
   )
 }
