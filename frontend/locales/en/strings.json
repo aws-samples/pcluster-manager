@@ -270,13 +270,21 @@
         "placeholder": "Select a cluster."
       },
       "clusterName": {
-        "label": "Cluster name",
+        "label": "Set up",
         "description": "The name must start with an alphabetical character and can have up to 60 characters. If Slurm accounting is configured, the name can have up to 40 characters. Valid characters: A-Z, a-z, 0-9, and - (hyphen).",
         "placeholder": "Enter your cluster name"
       },
       "configurationSource": {
         "label": "Source",
         "description": "Choose the source for creating your cluster configuration and cluster. After you choose a source, you step through the $t(global.projectName) configuration options for review and edits, to create your cluster."
+      },
+      "helpPanel": {
+        "title": "Set up",
+        "description": "Name your cluster and choose a method for configuring your cluster.",
+        "link": {
+          "title": "Configuration properties",
+          "href": "https://docs.aws.amazon.com/parallelcluster/latest/ug/cluster-configuration-file-v3.html?icmpid=docs_parallelcluster_hp_cluster_source_v1"
+        }
       },
       "sourceOptions": {
         "wizard": {
