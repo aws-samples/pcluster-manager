@@ -396,6 +396,42 @@
     "headNode": {
       "title": "Head node",
       "description": "Configure the head node.",
+      "help": {
+        "main": "<p>Configure the head node of your cluster.</p><p>Choose <strong>Refresh</strong> to view recently changed or added AWS resources.</p>",
+        "instanceSelectionLink": {
+          "title": "Head node instance type selection",
+          "href": "https://docs.aws.amazon.com/parallelcluster/latest/ug/best-practices-v3.html?icmpid=docs_parallelcluster_hp_headnode_v1#best-practices-head-node-instance-type"
+        },
+        "headNodePropertiesLink": {
+          "title": "Head node properties",
+          "href": "https://docs.aws.amazon.com/parallelcluster/latest/ug/HeadNode-v3.html?icmpid=docs_parallelcluster_hp_headnode_v1"
+        },
+        "ssmLink": {
+          "title": "What is an SSM session?",
+          "href": "https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html#what-is-a-session?icmpid=docs_parallelcluster_hp_headnode_v1"
+        },
+        "dcvLink": {
+          "title": "What is NICE DCV virtual desktop?",
+          "href": "https://docs.aws.amazon.com/parallelcluster/latest/ug/dcv-v3.html?icmpid=docs_parallelcluster_hp_headnode_v1"
+        },
+        "customActionsLink": {
+          "title": "What are custom actions?",
+          "href": "https://docs.aws.amazon.com/parallelcluster/latest/ug/custom-bootstrap-actions-v3.html?icmpid=docs_parallelcluster_hp_headnode_v1"
+        },
+        "slurmSettings": "<p>Configure Slurm accounting settings and queue update strategy settings for your cluster.</p><p>Choose <strong>Refresh</strong> to view recently changed or added AWS resources.</p>",
+        "accountingLink": {
+          "title": "How Slurm accounting works with AWS ParallelCluster",
+          "href": "https://docs.aws.amazon.com/parallelcluster/latest/ug/slurm-accounting-v3.html?icmpid=docs_parallelcluster_hp_headnode_accounting_v1"
+        },
+        "databaseLink": {
+          "title": "Slurm accounting database setting",
+          "href": "https://alpha.www.docs.aws.a2z.com/parallelcluster/latest/ug/Scheduling-v3.html#Scheduling-v3-SlurmSettings-Database"
+        },
+        "queueLink": {
+          "title": "Queue update strategy setting",
+          "href": "https://docs.aws.amazon.com/parallelcluster/latest/ug/Scheduling-v3.html#yaml-Scheduling-SlurmSettings-QueueUpdateStrategy"
+        }
+      },
       "validation": {
         "selectSubnet": "You must select a subnet.",
         "selectInstanceType": "You must select an instance type.",

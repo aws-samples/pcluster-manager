@@ -23,7 +23,11 @@ import {
 
 import {Source, sourceValidate} from './Source'
 import {Cluster, ClusterPropertiesHelpPanel, clusterValidate} from './Cluster'
-import {HeadNode, headNodeValidate} from './HeadNode'
+import {
+  HeadNode,
+  HeadNodePropertiesHelpPanel,
+  headNodeValidate,
+} from './HeadNode'
 import {Storage, storageValidate} from './Storage'
 import {Queues, queuesValidate} from './Queues/Queues'
 import {
@@ -246,6 +250,7 @@ function Configure() {
             title: t('wizard.headNode.title'),
             description: t('wizard.headNode.description'),
             content: <HeadNode />,
+            info: <InfoLink helpPanel={<HeadNodePropertiesHelpPanel />} />,
           },
           {
             title: t('wizard.storage.title'),
