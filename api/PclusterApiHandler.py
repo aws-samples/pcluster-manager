@@ -38,7 +38,6 @@ OIDC_PROVIDER = os.getenv("OIDC_PROVIDER")
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 SECRET_ID = os.getenv("SECRET_ID")
-ENABLE_MFA = os.getenv("ENABLE_MFA")
 SITE_URL = os.getenv("SITE_URL", API_BASE_URL)
 SCOPES_LIST = os.getenv("SCOPES_LIST")
 REGION = os.getenv("AWS_DEFAULT_REGION")
@@ -193,7 +192,7 @@ def get_redirect_uri():
 
 
 def get_version():
-    return {"version": API_VERSION, "enable_mfa": ENABLE_MFA == "true"}
+    return {"version": API_VERSION}
 
 def get_app_config():
   return {
