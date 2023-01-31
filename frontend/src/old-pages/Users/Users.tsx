@@ -66,16 +66,12 @@ export default function Users(props: any) {
   const usernamePath = ['app', 'users', 'newUser', 'Username']
   const username = useState(usernamePath)
 
-  const userphonePath = ['app', 'users', 'newUser', 'Phonenumber']
-  const userphone = useState(userphonePath)
-
   useHelpPanel(<DefaultHelpPanel />)
 
   React.useEffect(() => {
     ListUsers()
   }, [])
 
-  const enableMfa = useState(['app', 'enableMfa'])
   const refreshUsers = () => {
     ListUsers()
   }
@@ -189,18 +185,6 @@ export default function Users(props: any) {
                 >
                   {t('users.actions.delete')}
                 </Button>
-                {enableMfa && (
-                  <Input
-                    inputMode="tel"
-                    onChange={({detail}) =>
-                      setState(userphonePath, detail.value)
-                    }
-                    value={userphone}
-                    placeholder={t(
-                      'users.list.createForm.phoneNumberPlaceholder',
-                    )}
-                  ></Input>
-                )}
                 <div onKeyPress={e => e.key === 'Enter' && createUser()}>
                   <Input
                     onChange={onCreateUserChangeCallback}
