@@ -298,8 +298,23 @@
       }
     },
     "cluster": {
-      "title": "Cluster",
+      "title": "Cluster properties",
       "description": "Configure the settings that apply to all cluster resources.",
+      "help": {
+        "main": "<p>Configure your cluster environment by selecting the AWS Region, operating system, and VPC.</p><p>Choose <strong>Multiple users on a cluster</strong> to use your Active Directory for managing multiple cluster users.</p><p>Choose <strong>Custom Amazon Machine Image (AMI)</strong> to use your custom AWS ParallelCluster image.</p><p>Choose <strong>Refresh</strong> to view recently changed or added AWS resources.</p>",
+        "networkLink": {
+          "title": "Network configurations",
+          "href": "https://docs.aws.amazon.com/parallelcluster/latest/ug/network-configuration-v3.html?icmpid=docs_parallelcluster_hp_cluster_v1"
+        },
+        "adLink": {
+          "title": "Multiple user access to clusters",
+          "href": "https://docs.aws.amazon.com/parallelcluster/latest/ug/multi-user-v3.html?icmpid=docs_parallelcluster_hp_cluster_v1"
+        },
+        "amiLink": {
+          "title": "AWS ParallelCluster AMI customization",
+          "href": "https://docs.aws.amazon.com/parallelcluster/latest/ug/custom-ami-v3.html?icmpid=docs_parallelcluster_hp_cluster_v1"
+        }
+      },
       "validation": {
         "VpcSelect": "You must select a VPC.",
         "customAmiSelect": "You must select an AMI ID if you add a custom AMI."
