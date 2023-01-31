@@ -1,5 +1,5 @@
 import {Link} from '@cloudscape-design/components'
-import {ReactElement} from 'react'
+import {ReactElement, useCallback} from 'react'
 import {useTranslation} from 'react-i18next'
 import {useHelpPanel} from './help-panel/HelpPanel'
 
@@ -9,13 +9,12 @@ type InfoLinkProps = {
 }
 
 function InfoLink({ariaLabel, helpPanel}: InfoLinkProps) {
-  const {setContent, setVisible} = useHelpPanel()
+  const {updateHelpPanel} = useHelpPanel()
   const {t} = useTranslation()
 
-  const setHelpPanel = () => {
-    setContent(helpPanel)
-    setVisible(true)
-  }
+  const setHelpPanel = useCallback(() => {
+    updateHelpPanel({element: helpPanel, open: true})
+  }, [updateHelpPanel, helpPanel])
 
   return (
     <Link

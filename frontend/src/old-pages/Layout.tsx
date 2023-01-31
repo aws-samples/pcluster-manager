@@ -114,9 +114,12 @@ export default function Layout({
   const messages = useState(['app', 'messages']) || []
   useLocationChangeLog()
 
-  const {element, open, setVisible} = useHelpPanel()
+  const {element, open, updateHelpPanel} = useHelpPanel()
   const updateHelpPanelVisibility: NonCancelableEventHandler<AppLayoutProps.ChangeDetail> =
-    useCallback(({detail}) => setVisible(detail.open), [setVisible])
+    useCallback(
+      ({detail}) => updateHelpPanel({open: detail.open}),
+      [updateHelpPanel],
+    )
 
   return (
     <>
