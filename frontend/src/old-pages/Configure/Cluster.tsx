@@ -35,11 +35,12 @@ import {LoadAwsConfig} from '../../model'
 // Components
 import {LabeledIcon, CustomAMISettings} from './Components'
 import {useFeatureFlag} from '../../feature-flags/useFeatureFlag'
-import {useComputeResourceAdapter} from './Queues/Queues'
 import {createComputeResource as singleCreate} from './Queues/SingleInstanceComputeResource'
 import {createComputeResource as multiCreate} from './Queues/MultiInstanceComputeResource'
 import {MultiUser, multiUserValidate} from './MultiUser'
 import {NonCancelableEventHandler} from '@cloudscape-design/components/internal/events'
+import TitleDescriptionHelpPanel from '../../components/help-panel/TitleDescriptionHelpPanel'
+import {useHelpPanel} from '../../components/help-panel/HelpPanel'
 
 // Constants
 const errorsPath = ['app', 'wizard', 'errors', 'cluster']
@@ -359,6 +360,8 @@ function Cluster() {
     'queues_multiple_instance_types',
   )
 
+  useHelpPanel(<ClusterPropertiesHelpPanel />)
+
   React.useEffect(() => {
     const configPath = ['app', 'wizard', 'config']
     // Don't overwrite the config if we go back, still gets overwritten
@@ -455,4 +458,36 @@ function Cluster() {
   )
 }
 
-export {Cluster, clusterValidate}
+const ClusterPropertiesHelpPanel = () => {
+  const {t} = useTranslation()
+  const footerLinks = React.useMemo(
+    () => [
+      {
+        title: t('wizard.cluster.help.networkLink.title'),
+        href: t('wizard.cluster.help.networkLink.href'),
+      },
+      {
+        title: t('wizard.cluster.help.adLink.title'),
+        href: t('wizard.cluster.help.adLink.href'),
+      },
+      {
+        title: t('wizard.cluster.help.amiLink.title'),
+        href: t('wizard.cluster.help.amiLink.href'),
+      },
+      {
+        title: t('global.help.configurationProperties.title'),
+        href: t('global.help.configurationProperties.href'),
+      },
+    ],
+    [t],
+  )
+  return (
+    <TitleDescriptionHelpPanel
+      title={t('wizard.cluster.title')}
+      description={<Trans i18nKey="wizard.cluster.help.main" />}
+      footerLinks={footerLinks}
+    />
+  )
+}
+
+export {Cluster, clusterValidate, ClusterPropertiesHelpPanel}
