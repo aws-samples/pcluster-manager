@@ -16,7 +16,7 @@ test.describe('Given an endpoint where AWS ParallelCluster UI is deployed', () =
     await visitAndLogin(page)
   
     await page.getByRole('button', { name: 'Create' }).first().click();
-    await expect(page.getByRole('heading', { name: 'Cluster name' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Set up' })).toBeVisible()
     await page.getByRole('textbox', { name: 'Enter your cluster name' }).fill("testcluster");
     await page.getByRole('button', { name: 'Next' }).click();
     
