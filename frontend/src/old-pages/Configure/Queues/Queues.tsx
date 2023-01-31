@@ -59,17 +59,10 @@ import Head from 'next/head'
 const queuesPath = ['app', 'wizard', 'config', 'Scheduling', 'SlurmQueues']
 const queuesErrorsPath = ['app', 'wizard', 'errors', 'queues']
 
-// Helper Functions
-// @ts-expect-error TS(7031) FIXME: Binding element 'value' implicitly has an 'any' ty... Remove this comment to see the full error message
-function itemToIconOption([value, label, icon]) {
-  return {value: value, label: label, ...(icon ? {iconUrl: icon} : {})}
-}
-
-// @ts-expect-error TS(7031) FIXME: Binding element 'value' implicitly has an 'any' ty... Remove this comment to see the full error message
-function itemToDisplayIconOption([value, label, icon]) {
+function itemToOption([value, label]: string[]) {
   return {
     value: value,
-    label: icon ? <LabeledIcon label={label} icon={icon} /> : label,
+    label: label,
   }
 }
 
@@ -458,17 +451,16 @@ function Queue({index}: any) {
           </FormField>
           <FormField label={t('wizard.queues.purchaseType.label')}>
             <Select
-              selectedOption={itemToDisplayIconOption(
+              selectedOption={itemToOption(
                 findFirst(capacityTypes, x => x[0] === capacityType) || [
                   '',
                   '',
-                  null,
                 ],
               )}
               onChange={({detail}) => {
                 setState(capacityTypePath, detail.selectedOption.value)
               }}
-              options={capacityTypes.map(itemToIconOption)}
+              options={capacityTypes.map(itemToOption)}
             />
           </FormField>
           {isMultiInstanceTypesActive ? (
