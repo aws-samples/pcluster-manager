@@ -23,6 +23,7 @@ import {
   Container,
   Header,
   Pagination,
+  Link,
   Popover,
   SpaceBetween,
   StatusIndicator,
@@ -35,6 +36,7 @@ import DateView from '../../components/DateView'
 import CustomImageStackEvents from './CustomImageStackEvents'
 import {ValueWithLabel} from '../../components/ValueWithLabel'
 import EmptyState from '../../components/EmptyState'
+import {truncate} from 'lodash'
 
 const customImagesPath = ['app', 'customImages']
 
@@ -121,12 +123,17 @@ function CustomImageProperties() {
                 </StatusIndicator>
               }
             >
-              <Button iconName="copy" onClick={copyImageConfigUrl}>
-                {t(
-                  'customImages.imageDetails.properties.configurationUrl.copyText',
-                )}
-              </Button>
+              <Button
+                iconName="copy"
+                onClick={copyImageConfigUrl}
+                variant="inline-icon"
+              />
             </Popover>
+            <Link href={image.imageConfiguration.url}>
+              {truncate(image.imageConfiguration.url, {
+                length: 100,
+              })}
+            </Link>
           </ValueWithLabel>
           <ValueWithLabel
             label={t('customImages.imageDetails.properties.buildStatus')}
@@ -137,25 +144,29 @@ function CustomImageProperties() {
             label={t('customImages.imageDetails.properties.amiId.label')}
           >
             <SpaceBetween size="s" direction="horizontal">
-              <div>{image.ec2AmiInfo && image.ec2AmiInfo.amiId}</div>
               {image.ec2AmiInfo && (
-                <Popover
-                  size="medium"
-                  position="top"
-                  triggerType="custom"
-                  dismissButton={false}
-                  content={
-                    <StatusIndicator type="success">
-                      {t(
-                        'customImages.imageDetails.properties.amiId.tooltiptext',
-                      )}
-                    </StatusIndicator>
-                  }
-                >
-                  <Button iconName="copy" onClick={copyAmiId}>
-                    {t('customImages.imageDetails.properties.amiId.copyText')}
-                  </Button>
-                </Popover>
+                <span>
+                  <Popover
+                    size="medium"
+                    position="top"
+                    triggerType="custom"
+                    dismissButton={false}
+                    content={
+                      <StatusIndicator type="success">
+                        {t(
+                          'customImages.imageDetails.properties.amiId.tooltiptext',
+                        )}
+                      </StatusIndicator>
+                    }
+                  >
+                    <Button
+                      iconName="copy"
+                      onClick={copyAmiId}
+                      variant="inline-icon"
+                    />
+                  </Popover>
+                  {image.ec2AmiInfo.amiId}
+                </span>
               )}
               {!image.ec2AmiInfo && loadingText}
             </SpaceBetween>
