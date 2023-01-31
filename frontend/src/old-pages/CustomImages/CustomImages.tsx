@@ -9,7 +9,7 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import {Ec2AmiState, ImageInfoSummary} from '../../types/images'
-import React from 'react'
+import React, {useMemo} from 'react'
 import {useSelector} from 'react-redux'
 
 import {ListCustomImages, DescribeCustomImage} from '../../model'
@@ -36,9 +36,10 @@ import {
   TextFilter,
 } from '@cloudscape-design/components'
 import Layout from '../Layout'
-import {DefaultHelpPanel} from '../../components/help-panel/DefaultHelpPanel'
 import {useHelpPanel} from '../../components/help-panel/HelpPanel'
 import {TFunction, Trans, useTranslation} from 'react-i18next'
+import InfoLink from '../../components/InfoLink'
+import TitleDescriptionHelpPanel from '../../components/help-panel/TitleDescriptionHelpPanel'
 
 const imageBuildPath = ['app', 'customImages', 'imageBuild']
 
@@ -117,6 +118,7 @@ function CustomImagesList() {
       header={
         <Header
           variant="awsui-h1-sticky"
+          info={<InfoLink helpPanel={<CustomImagesHelpPanel />} />}
           description={
             <Trans i18nKey="customImages.header.description">
               <Link
@@ -253,6 +255,30 @@ function StatusSelect() {
   )
 }
 
+function CustomImagesHelpPanel() {
+  const {t} = useTranslation()
+  const footerLinks = useMemo(
+    () => [
+      {
+        title: t('customImages.helpPanel.amiCustomizationlink.title'),
+        href: t('customImages.helpPanel.amiCustomizationlink.href'),
+      },
+      {
+        title: t('customImages.helpPanel.buildImagePropertieslink.title'),
+        href: t('customImages.helpPanel.buildImagePropertieslink.href'),
+      },
+    ],
+    [t],
+  )
+  return (
+    <TitleDescriptionHelpPanel
+      title={t('customImages.helpPanel.title')}
+      description={<Trans i18nKey="customImages.helpPanel.description" />}
+      footerLinks={footerLinks}
+    />
+  )
+}
+
 const customImageSlug = 'customImages'
 
 export default function CustomImages() {
@@ -261,7 +287,7 @@ export default function CustomImages() {
 
   const [splitOpen, setSplitOpen] = React.useState(true)
 
-  useHelpPanel(<DefaultHelpPanel />)
+  useHelpPanel(<CustomImagesHelpPanel />)
 
   React.useEffect(() => {
     const imageStatus = getState(['app', 'customImages', 'selectedImageStatus'])
