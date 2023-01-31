@@ -246,7 +246,7 @@
       "remove": "Remove",
       "back": "Back",
       "next": "Next",
-      "update": "Edit",
+      "update": "Edit cluster",
       "create": "Create",
       "dryRun": "Dry run"
     },
@@ -667,14 +667,31 @@
       }
     },
     "create": {
-      "title": "{{action}}",
+      "title": "Create",
       "description": "Review or edit your configuration and create your cluster.",
       "configuration": {
-        "title": "Cluster configuration",
-        "description": "Review or edit your cluster configuration that's used to {{action}} your cluster.",
         "pending": "{{action}} request pending...",
         "forceUpdate": "Force update: Edit the cluster while the compute fleet is still running.",
         "disableRollback": "Disable rollback: Retain the cluster resources in case of a cluster create failure."
+      },
+      "helpPanel": {
+        "title": "Cluster configuration",
+        "description": "<p>Review, edit and test cluster configuration.</p><p>Choose <strong>Dry run</strong> to validate your configuration without creating your cluster.</p><p>Choose <strong>Create</strong> to validate your configuration and create your cluster in one step.</p>",
+        "link": {
+          "title": "Configuration properties",
+          "href": "https://docs.aws.amazon.com/parallelcluster/latest/ug/cluster-configuration-file-v3.html?icmpid=docs_parallelcluster_hp_config_create_v1"
+        }
+      }
+    },
+    "update": {
+      "title": "Edit",
+      "helpPanel": {
+        "title": "Cluster configuration",
+        "description": "<p>Review, edit and test cluster configuration.</p><p>Choose <strong>Dry run</strong> to validate your configuration without editing your cluster.</p><p>Choose <strong>Edit cluster</strong> to validate your configuration and edit your cluster in one step.</p>",
+        "link": {
+          "title": "Configuration properties",
+          "href": "https://docs.aws.amazon.com/parallelcluster/latest/ug/cluster-configuration-file-v3.html?icmpid=docs_parallelcluster_hp_config_create_v1"
+        }
       }
     },
     "components": {
