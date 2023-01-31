@@ -33,7 +33,7 @@ import {getState, setState, useState, clearState} from '../../store'
 import {LoadAwsConfig} from '../../model'
 
 // Components
-import {LabeledIcon, CustomAMISettings} from './Components'
+import {CustomAMISettings} from './Components'
 import {useFeatureFlag} from '../../feature-flags/useFeatureFlag'
 import {createComputeResource as singleCreate} from './Queues/SingleInstanceComputeResource'
 import {createComputeResource as multiCreate} from './Queues/MultiInstanceComputeResource'
@@ -89,18 +89,11 @@ function clusterValidate() {
   return valid
 }
 
-function itemToOption(item: [string, string, string] | null) {
+function itemToOption(item: string | null) {
   if (!item) return
-  const [value, title, icon] = item
   return {
-    label: icon ? (
-      <div style={{minWidth: '200px'}}>
-        <LabeledIcon icon={icon} label={title} />
-      </div>
-    ) : (
-      <div style={{minWidth: '200px'}}>{title}</div>
-    ),
-    value: value,
+    label: item,
+    value: item,
   }
 }
 
@@ -127,30 +120,30 @@ function RegionSelect() {
   }
 
   const supportedRegions = [
-    ['af-south-1', 'af-south-1', 'flags/af.svg'],
-    ['ap-east-1', 'ap-east-1', 'flags/cn.svg'],
-    ['ap-northeast-1', 'ap-northeast-1', 'flags/jp.svg'],
-    ['ap-northeast-2', 'ap-northeast-2', 'flags/kr.svg'],
-    ['ap-south-1', 'ap-south-1', 'flags/in.svg'],
-    ['ap-southeast-1', 'ap-southeast-1', 'flags/sg.svg'],
-    ['ap-southeast-2', 'ap-southeast-2', 'flags/au.svg'],
-    ['ca-central-1', 'ca-central-1', 'flags/ca.svg'],
-    ['cn-north-1', 'cn-north-1', 'flags/cn.svg'],
-    ['cn-northwest-1', 'cn-northwest-1', 'flags/cn.svg'],
-    ['eu-central-1', 'eu-central-1', 'flags/de.svg'],
-    ['eu-north-1', 'eu-north-1', 'flags/se.svg'],
-    ['eu-south-1', 'eu-south-1', 'flags/it.svg'],
-    ['eu-west-1', 'eu-west-1', 'flags/ie.svg'],
-    ['eu-west-2', 'eu-west-2', 'flags/gb.svg'],
-    ['eu-west-3', 'eu-west-3', 'flags/fr.svg'],
-    ['me-south-1', 'me-south-1', 'flags/bh.svg'],
-    ['sa-east-1', 'sa-east-1', 'flags/br.svg'],
-    ['us-east-1', 'us-east-1', 'flags/us.svg'],
-    ['us-east-2', 'us-east-2', 'flags/us.svg'],
-    ['us-gov-east-1', 'us-gov-east-1', 'flags/us.svg'],
-    ['us-gov-west-1', 'us-gov-west-1', 'flags/us.svg'],
-    ['us-west-1', 'us-west-1', 'flags/us.svg'],
-    ['us-west-2', 'us-west-2', 'flags/us.svg'],
+    'af-south-1',
+    'ap-east-1',
+    'ap-northeast-1',
+    'ap-northeast-2',
+    'ap-south-1',
+    'ap-southeast-1',
+    'ap-southeast-2',
+    'ca-central-1',
+    'cn-north-1',
+    'cn-northwest-1',
+    'eu-central-1',
+    'eu-north-1',
+    'eu-south-1',
+    'eu-west-1',
+    'eu-west-2',
+    'eu-west-3',
+    'me-south-1',
+    'sa-east-1',
+    'us-east-1',
+    'us-east-2',
+    'us-gov-east-1',
+    'us-gov-west-1',
+    'us-west-1',
+    'us-west-2',
   ]
 
   return (
@@ -165,8 +158,8 @@ function RegionSelect() {
             // @ts-expect-error TS(2322) FIXME: Type '{ label: Element; value: string; } | undefin... Remove this comment to see the full error message
             selectedOption={itemToOption(
               // @ts-expect-error TS(2345) FIXME: Argument of type 'string[] | undefined' is not ass... Remove this comment to see the full error message
-              findFirst(supportedRegions, (x: any) => {
-                return x[0] === region
+              findFirst(supportedRegions, (r: string) => {
+                return r === region
               }),
             )}
             onChange={handleChange}

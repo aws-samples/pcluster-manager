@@ -124,22 +124,18 @@ function SubnetSelect({value, onChange, disabled}: any) {
   )
 }
 
-// instance type, description, image
-type InstanceGroup = [string, string, string][]
+type InstanceGroup = [string, string][]
 
 export function useInstanceGroups(): Record<string, InstanceGroup> {
   const instanceTypes = useState(['aws', 'instanceTypes']) || []
 
-  let groups: {[key: string]: [string, string, string][]} = {}
+  let groups: {[key: string]: [string, string][]} = {}
 
   for (let instance of instanceTypes) {
     let group = 'General Purpose'
-    let img = '/img/od.svg'
     if (instance.InstanceType.startsWith('c6g')) {
       group = 'Graviton'
     } else if (instance.InstanceType.startsWith('c')) {
-      img = '/img/c5.svg'
-      if (instance.InstanceType.startsWith('c5n')) img = '/img/c5n.svg'
       group = 'Compute'
     } else if (instance.InstanceType.startsWith('hpc')) {
       group = 'HPC'
@@ -151,7 +147,6 @@ export function useInstanceGroups(): Record<string, InstanceGroup> {
       instance.InstanceType.startsWith('p') ||
       instance.InstanceType.startsWith('g')
     ) {
-      if (instance.InstanceType.startsWith('p3')) img = '/img/p3.svg'
       group = 'GPU'
     }
 
@@ -164,7 +159,7 @@ export function useInstanceGroups(): Record<string, InstanceGroup> {
     if (Object.keys(instance.GpuInfo).length > 0)
       desc = `${instance.GpuInfo.Count} x ${instance.GpuInfo.Name}, ${desc}`
 
-    groups[group].push([instance.InstanceType, desc, img])
+    groups[group].push([instance.InstanceType, desc])
   }
   return groups
 }
@@ -173,9 +168,8 @@ function InstanceSelect({path, selectId, callback, disabled}: any) {
   const value = useState(path) || ''
   const instanceGroups = useInstanceGroups()
 
-  // @ts-expect-error TS(7031) FIXME: Binding element 'value' implicitly has an 'any' ty... Remove this comment to see the full error message
-  const instanceToOption = ([value, label, icon]) => {
-    return {label: value, iconUrl: icon, description: label, value: value}
+  const instanceToOption = ([value, label]: string[]) => {
+    return {label: value, description: label, value: value}
   }
 
   return (
