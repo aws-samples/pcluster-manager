@@ -11,7 +11,7 @@
 
 import * as React from 'react'
 import i18next from 'i18next'
-import {useTranslation} from 'react-i18next'
+import {Trans, useTranslation} from 'react-i18next'
 import {Container, Header, ColumnLayout} from '@cloudscape-design/components'
 import {setState, getState, clearState, useState} from '../../../store'
 import {SlurmAccountingForm} from './SlurmAccountingForm'
@@ -20,6 +20,8 @@ import {
   validateScaledownIdleTime,
 } from './ScaledownIdleTimeForm'
 import {QueueUpdateStrategyForm} from './QueueUpdateStrategyForm'
+import TitleDescriptionHelpPanel from '../../../components/help-panel/TitleDescriptionHelpPanel'
+import InfoLink from '../../../components/InfoLink'
 
 const slurmSettingsPath = [
   'app',
@@ -119,6 +121,7 @@ function SlurmSettings() {
         <Header
           variant="h2"
           description={t('wizard.headNode.slurmSettings.container.description')}
+          info={<InfoLink helpPanel={<SlurmSettingsHelpPanel />} />}
         >
           {t('wizard.headNode.slurmSettings.container.title')}{' '}
           <span
@@ -148,6 +151,34 @@ function SlurmSettings() {
         />
       </ColumnLayout>
     </Container>
+  )
+}
+
+const SlurmSettingsHelpPanel = () => {
+  const {t} = useTranslation()
+  const footerLinks = React.useMemo(
+    () => [
+      {
+        title: t('wizard.headNode.help.accountingLink.title'),
+        href: t('wizard.headNode.help.accountingLink.href'),
+      },
+      {
+        title: t('wizard.headNode.help.databaseLink.title'),
+        href: t('wizard.headNode.help.databaseLink.href'),
+      },
+      {
+        title: t('wizard.headNode.help.queueLink.title'),
+        href: t('wizard.headNode.help.queueLink.href'),
+      },
+    ],
+    [t],
+  )
+  return (
+    <TitleDescriptionHelpPanel
+      title={t('wizard.headNode.slurmSettings.container.title')}
+      description={<Trans i18nKey="wizard.headNode.help.slurmSettings" />}
+      footerLinks={footerLinks}
+    />
   )
 }
 

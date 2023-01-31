@@ -56,6 +56,7 @@ import {
 } from './SlurmSettings/SlurmSettings'
 import InfoLink from '../../components/InfoLink'
 import TitleDescriptionHelpPanel from '../../components/help-panel/TitleDescriptionHelpPanel'
+import {useHelpPanel} from '../../components/help-panel/HelpPanel'
 
 // Constants
 const headNodePath = ['app', 'wizard', 'config', 'HeadNode']
@@ -407,6 +408,8 @@ function HeadNode() {
   const editing = useState(['app', 'wizard', 'editing'])
   const isOnNodeUpdatedActive = useFeatureFlag('on_node_updated')
 
+  useHelpPanel(<HeadNodePropertiesHelpPanel />)
+
   const toggleImdsSecured = () => {
     const setImdsSecured = !imdsSecured
     if (setImdsSecured) setState(imdsSecuredPath, setImdsSecured)
@@ -513,4 +516,40 @@ function HeadNode() {
   )
 }
 
-export {HeadNode, headNodeValidate}
+const HeadNodePropertiesHelpPanel = () => {
+  const {t} = useTranslation()
+  const footerLinks = React.useMemo(
+    () => [
+      {
+        title: t('wizard.headNode.help.instanceSelectionLink.title'),
+        href: t('wizard.headNode.help.instanceSelectionLink.href'),
+      },
+      {
+        title: t('wizard.headNode.help.headNodePropertiesLink.title'),
+        href: t('wizard.headNode.help.headNodePropertiesLink.href'),
+      },
+      {
+        title: t('wizard.headNode.help.ssmLink.title'),
+        href: t('wizard.headNode.help.ssmLink.href'),
+      },
+      {
+        title: t('wizard.headNode.help.dcvLink.title'),
+        href: t('wizard.headNode.help.dcvLink.href'),
+      },
+      {
+        title: t('wizard.headNode.help.customActionsLink.title'),
+        href: t('wizard.headNode.help.customActionsLink.href'),
+      },
+    ],
+    [t],
+  )
+  return (
+    <TitleDescriptionHelpPanel
+      title={t('wizard.headNode.title')}
+      description={<Trans i18nKey="wizard.headNode.help.main" />}
+      footerLinks={footerLinks}
+    />
+  )
+}
+
+export {HeadNode, headNodeValidate, HeadNodePropertiesHelpPanel}
