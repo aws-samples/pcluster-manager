@@ -10,7 +10,7 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from 'react'
+import React, {useMemo} from 'react'
 import i18next from 'i18next'
 import {Trans, useTranslation} from 'react-i18next'
 import {useState, setState, getState, clearState} from '../../store'
@@ -39,6 +39,9 @@ import Loading from '../../components/Loading'
 
 // Types
 import {ClusterInfoSummary, ClusterStatus} from '../../types/clusters'
+import {useHelpPanel} from '../../components/help-panel/HelpPanel'
+import TitleDescriptionHelpPanel from '../../components/help-panel/TitleDescriptionHelpPanel'
+import InfoLink from '../../components/InfoLink'
 
 // Constants
 const sourcePath = ['app', 'wizard', 'source']
@@ -181,6 +184,26 @@ function ClusterSelect() {
   )
 }
 
+const SourceHelpPanel = () => {
+  const {t} = useTranslation()
+  const footerLinks = useMemo(
+    () => [
+      {
+        title: t('wizard.source.helpPanel.link.title'),
+        href: t('wizard.source.helpPanel.link.href'),
+      },
+    ],
+    [t],
+  )
+  return (
+    <TitleDescriptionHelpPanel
+      title={<Trans i18nKey="wizard.source.helpPanel.title" />}
+      description={<Trans i18nKey="wizard.source.helpPanel.description" />}
+      footerLinks={footerLinks}
+    />
+  )
+}
+
 function Source() {
   const {t} = useTranslation()
   let clusterName = useState(['app', 'wizard', 'clusterName']) || ''
@@ -189,6 +212,8 @@ function Source() {
   let clusterNameError = useState([...sourceErrorsPath, 'clusterName'])
   const loadingPath = ['app', 'wizard', 'source', 'loading']
   const loading = useState(loadingPath)
+
+  useHelpPanel(<SourceHelpPanel />)
 
   React.useEffect(() => {
     if (!getState([...sourcePath, 'type']))
@@ -215,6 +240,7 @@ function Source() {
             <Header
               variant="h2"
               description={t('wizard.source.clusterName.description')}
+              info={<InfoLink helpPanel={<SourceHelpPanel />} />}
             >
               <Trans i18nKey="wizard.source.clusterName.label" />
             </Header>
