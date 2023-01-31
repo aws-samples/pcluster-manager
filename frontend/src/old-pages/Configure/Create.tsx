@@ -34,6 +34,8 @@ import ConfigView from '../../components/ConfigView'
 // State
 import {setState, getState, useState} from '../../store'
 import {NavigateFunction} from 'react-router-dom'
+import TitleDescriptionHelpPanel from '../../components/help-panel/TitleDescriptionHelpPanel'
+import {useHelpPanel} from '../../components/help-panel/HelpPanel'
 
 // Constants
 const configPath = ['app', 'wizard', 'clusterConfigYaml']
@@ -146,6 +148,46 @@ function createValidate() {
   return true
 }
 
+const CreateReviewHelpPanel = () => {
+  const {t} = useTranslation()
+  const footerLinks = React.useMemo(
+    () => [
+      {
+        title: t('wizard.create.helpPanel.link.title'),
+        href: t('wizard.create.helpPanel.link.href'),
+      },
+    ],
+    [t],
+  )
+  return (
+    <TitleDescriptionHelpPanel
+      title={t('wizard.create.helpPanel.title')}
+      description={<Trans i18nKey="wizard.create.helpPanel.description" />}
+      footerLinks={footerLinks}
+    />
+  )
+}
+
+const EditReviewHelpPanel = () => {
+  const {t} = useTranslation()
+  const footerLinks = React.useMemo(
+    () => [
+      {
+        title: t('wizard.update.helpPanel.link.title'),
+        href: t('wizard.update.helpPanel.link.href'),
+      },
+    ],
+    [t],
+  )
+  return (
+    <TitleDescriptionHelpPanel
+      title={t('wizard.update.helpPanel.title')}
+      description={<Trans i18nKey="wizard.update.helpPanel.description" />}
+      footerLinks={footerLinks}
+    />
+  )
+}
+
 function Create() {
   const {t} = useTranslation()
   const clusterConfig = useState(configPath)
@@ -155,18 +197,15 @@ function Create() {
   const errors = useState(['app', 'wizard', 'errors', 'create'])
   const pending = useState(['app', 'wizard', 'pending'])
   const editing = getState(['app', 'wizard', 'editing'])
+
+  const HelpPanelComponent = editing
+    ? EditReviewHelpPanel
+    : CreateReviewHelpPanel
+
+  useHelpPanel(<HelpPanelComponent />)
+
   return (
-    <Container
-      header={
-        <Header
-          description={t('wizard.create.configuration.description', {
-            action: editing ? 'update' : 'create',
-          })}
-        >
-          <Trans i18nKey="wizard.create.configuration.title" />
-        </Header>
-      }
-    >
+    <Container>
       <ConfigView
         config={clusterConfig}
         pending={!clusterConfig}
@@ -205,4 +244,11 @@ function Create() {
   )
 }
 
-export {Create, createValidate, handleCreate, handleDryRun}
+export {
+  Create,
+  EditReviewHelpPanel,
+  CreateReviewHelpPanel,
+  createValidate,
+  handleCreate,
+  handleDryRun,
+}
