@@ -65,7 +65,7 @@ export type ImageInfoSummary = {
   // Id of the image.
   imageId: ImageId
   // Ec2 image information.
-  ec2AmiInfo: Ec2AmiInfoSummary
+  ec2AmiInfo: Ec2AmiInfo
   // AWS region where the image is built.
   region: Region
   // ParallelCluster version used to build the image.
@@ -85,8 +85,3 @@ export type ImageConfigurationStructure = {
 
 // Image configuration as a YAML document
 export type ImageConfigurationData = string
-
-export type Ec2AmiInfoSummary = {
-  // EC2 AMI id
-  amiId: string
-}
