@@ -32,7 +32,9 @@ import {Storage, storageValidate} from './Storage'
 import {Queues, queuesValidate} from './Queues/Queues'
 import {
   Create,
+  CreateReviewHelpPanel,
   createValidate,
+  EditReviewHelpPanel,
   handleCreate as wizardHandleCreate,
   handleDryRun as wizardHandleDryRun,
 } from './Create'
@@ -201,6 +203,10 @@ function Configure() {
     )
   }
 
+  const CreateHelpPanelComponent = editing
+    ? EditReviewHelpPanel
+    : CreateReviewHelpPanel
+
   return (
     <Layout
       contentType="form"
@@ -263,13 +269,12 @@ function Configure() {
             content: <Queues />,
           },
           {
-            title: i18next.t('wizard.create.title', {
-              action: editing
-                ? t('wizard.actions.update')
-                : t('wizard.actions.create'),
-            }),
+            title: editing
+              ? t('wizard.update.title')
+              : t('wizard.create.title'),
             description: t('wizard.create.description'),
             content: <Create />,
+            info: <InfoLink helpPanel={<CreateHelpPanelComponent />} />,
           },
         ]}
       />
