@@ -84,9 +84,8 @@ export function ComputeResource({
       Object.keys(instanceGroups).map(groupName => {
         return {
           label: groupName,
-          options: instanceGroups[groupName].map(([value, label, icon]) => ({
+          options: instanceGroups[groupName].map(([value, label]) => ({
             label: value,
-            iconUrl: icon,
             description: label,
             value: value,
           })),
