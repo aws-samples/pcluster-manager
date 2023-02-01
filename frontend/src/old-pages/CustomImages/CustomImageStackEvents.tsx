@@ -18,7 +18,7 @@ import {getState, useState} from '../../store'
 import {ExpandableSection} from '@cloudscape-design/components'
 
 // Components
-import DateView from '../../components/DateView'
+import DateView from '../../components/date/DateView'
 import Loading from '../../components/Loading'
 import {useTranslation} from 'react-i18next'
 

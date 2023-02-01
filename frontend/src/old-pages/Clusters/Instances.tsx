@@ -40,7 +40,7 @@ import {useCollection} from '@cloudscape-design/collection-hooks'
 // Components
 import {InstanceStatusIndicator} from '../../components/Status'
 import EmptyState from '../../components/EmptyState'
-import DateView from '../../components/DateView'
+import DateView from '../../components/date/DateView'
 
 function InstanceActions({
   fleetStatus,
