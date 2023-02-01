@@ -251,9 +251,7 @@ function Source() {
               <Header
                 variant="h2"
                 description={t('wizard.source.configurationSource.description')}
-              >
-                {/*<Trans i18nKey="wizard.source.configurationSource.label" />*/}
-              </Header>
+              ></Header>
             }
           >
             <SpaceBetween direction="vertical" size="xxs" key="source">
