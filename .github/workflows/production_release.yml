@@ -71,7 +71,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-region: us-east-1
-          role-to-assume: arn:aws:iam::046399108653:role/pcluster-manager-github-prod-ProductionDeploy-1I1HYDA5DH7T3
+          role-to-assume: ${{ secrets.ACTION_PRODUCTION_RELEASE_ROLE }}
 
       - name: Build and upload Docker image
         run: ./scripts/build_and_release_image.sh
