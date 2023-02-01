@@ -29,7 +29,7 @@ import {
   headNodeValidate,
 } from './HeadNode'
 import {Storage, storageValidate} from './Storage'
-import {Queues, queuesValidate} from './Queues/Queues'
+import {Queues, QueuesHelpPanel, queuesValidate} from './Queues/Queues'
 import {
   Create,
   CreateReviewHelpPanel,
@@ -267,6 +267,7 @@ function Configure() {
             title: t('wizard.queues.title'),
             description: t('wizard.queues.description'),
             content: <Queues />,
+            info: <InfoLink helpPanel={<QueuesHelpPanel />} />,
           },
           {
             title: editing

@@ -632,6 +632,21 @@
     "queues": {
       "title": "Queues",
       "description": "Configure the cluster queues.",
+      "help": {
+        "main": "<p>Configure your cluster queues for job scheduling.</p><p>Add and remove queues and queue compute resources.</p><p>Choose <strong>Refresh</strong> to view recently changed or added AWS resources.</p>",
+        "schedulerLink": {
+          "title": "Queue scheduler properties",
+          "href": "https://docs.aws.amazon.com/parallelcluster/latest/ug/Scheduling-v3.html?icmpid=docs_parallelcluster_hp_queues_v1"
+        },
+        "customActionsLink": {
+          "title": "Custom actions",
+          "href": "https://docs.aws.amazon.com/parallelcluster/latest/ug/custom-bootstrap-actions-v3.html?icmpid=docs_parallelcluster_hp_headnode_v1"
+        },
+        "amiLink": {
+          "title": "AWS ParallelCluster AMI customization",
+          "href": "https://docs.aws.amazon.com/parallelcluster/latest/ug/custom-ami-v3.html?icmpid=docs_parallelcluster_hp_cluster_v1"
+        }
+      },
       "validation": {
         "instanceTypeUnique": "Instance types must be unique within a queue.",
         "instanceTypeMissing": "Select at least one instance type.",
@@ -649,7 +664,15 @@
       "slurmMemorySettings": {
         "container": {
           "title": "Slurm memory settings",
-          "help": "When using Slurm memory-based scheduling, use <i>--mem</i> to specify the amount of memory per node required by a job. For more information, see the <0>Slurm documentation for ConstrainRAMSpace</0>"
+          "help": "<p>Use Slurm memory-based scheduling to specify the amount of memory per node required by a job with Slurm's --mem parameter.</p><p>Choose <strong>Refresh</strong> to view recently changed or added AWS resources.</p>",
+          "memorySchedulingLink": {
+            "title": "How Slurm memory-based scheduling works with AWS ParallelCluster",
+            "href": "https://docs.aws.amazon.com/parallelcluster/latest/ug/slurm-mem-based-scheduling-v3.html?icmpid=docs_parallelcluster_hp_queues_slurm_memory_v1"
+          },
+          "schedulingPropertiesLink": {
+            "title": "Slurm memory-based scheduling setting",
+            "href": "https://docs.aws.amazon.com/parallelcluster/latest/ug/Scheduling-v3.html#yaml-Scheduling-SlurmSettings-EnableMemoryBasedScheduling"
+          }
         },
         "toggle": {
           "label": "Slurm memory based scheduling"
