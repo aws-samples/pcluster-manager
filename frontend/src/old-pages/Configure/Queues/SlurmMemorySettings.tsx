@@ -84,24 +84,7 @@ function SlurmMemorySettings() {
       header={
         <Header
           variant="h2"
-          info={
-            <InfoLink
-              helpPanel={
-                <TitleDescriptionHelpPanel
-                  title={t('wizard.queues.slurmMemorySettings.container.title')}
-                  description={
-                    <Trans i18nKey="wizard.queues.slurmMemorySettings.container.help">
-                      <a
-                        rel="noopener noreferrer"
-                        target="_blank"
-                        href="https://slurm.schedmd.com/cgroup.conf.html#OPT_ConstrainRAMSpace"
-                      ></a>
-                    </Trans>
-                  }
-                />
-              }
-            />
-          }
+          info={<InfoLink helpPanel={<SlurmMemorySettingsHelpPanel />} />}
         >
           {t('wizard.queues.slurmMemorySettings.container.title')}
         </Header>
@@ -133,6 +116,40 @@ function SlurmMemorySettings() {
         </Alert>
       </SpaceBetween>
     </Container>
+  )
+}
+
+const SlurmMemorySettingsHelpPanel = () => {
+  const {t} = useTranslation()
+  const footerLinks = React.useMemo(
+    () => [
+      {
+        title: t(
+          'wizard.queues.slurmMemorySettings.container.memorySchedulingLink.title',
+        ),
+        href: t(
+          'wizard.queues.slurmMemorySettings.container.memorySchedulingLink.href',
+        ),
+      },
+      {
+        title: t(
+          'wizard.queues.slurmMemorySettings.container.schedulingPropertiesLink.title',
+        ),
+        href: t(
+          'wizard.queues.slurmMemorySettings.container.schedulingPropertiesLink.href',
+        ),
+      },
+    ],
+    [t],
+  )
+  return (
+    <TitleDescriptionHelpPanel
+      title={t('wizard.queues.slurmMemorySettings.container.title')}
+      description={
+        <Trans i18nKey="wizard.queues.slurmMemorySettings.container.help" />
+      }
+      footerLinks={footerLinks}
+    />
   )
 }
 
