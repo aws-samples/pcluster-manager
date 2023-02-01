@@ -29,7 +29,7 @@ import {
 
 // Components
 import ConfigDialog from './ConfigDialog'
-import DateView from '../../components/DateView'
+import DateView from '../../components/date/DateView'
 import {
   ClusterStatusIndicator,
   ComputeFleetStatusIndicator,
