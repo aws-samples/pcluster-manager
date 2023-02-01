@@ -113,11 +113,7 @@ function sourceValidate(suppressUpload = false) {
   // Returning false here tells the wizard not to advance
   // which allows us to explicitly control the page if the
   // user selects a file (or stay here if they do not)
-  if (
-    valid &&
-    (source === 'upload' || source === 'template') &&
-    !suppressUpload
-  ) {
+  if (valid && source === 'template' && !suppressUpload) {
     upload()
     return false
   }
@@ -221,11 +217,7 @@ function Source() {
   }, [])
 
   const handleUpload = (data: any) => {
-    if (source === 'upload') {
-      setState(['app', 'wizard', 'page'], 'create')
-      setState(['app', 'wizard', 'clusterConfigYaml'], data)
-      setState(loadingPath, false)
-    } else if (source === 'template') {
+    if (source === 'template') {
       loadTemplate(jsyaml.load(data))
     }
   }
@@ -301,13 +293,6 @@ function Source() {
                           </FormField>
                         </SpaceBetween>
                       </Box>
-                    ),
-                  },
-                  {
-                    value: 'upload',
-                    label: t('wizard.source.sourceOptions.file.label'),
-                    description: t(
-                      'wizard.source.sourceOptions.file.description',
                     ),
                   },
                 ]}
