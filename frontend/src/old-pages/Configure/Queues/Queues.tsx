@@ -54,6 +54,8 @@ import {AllocationStrategy, ComputeResource} from './queues.types'
 import {SubnetMultiSelect} from './SubnetMultiSelect'
 import {NonCancelableEventHandler} from '@cloudscape-design/components/internal/events'
 import Head from 'next/head'
+import TitleDescriptionHelpPanel from '../../../components/help-panel/TitleDescriptionHelpPanel'
+import {useHelpPanel} from '../../../components/help-panel/HelpPanel'
 
 // Constants
 const queuesPath = ['app', 'wizard', 'config', 'Scheduling', 'SlurmQueues']
@@ -554,6 +556,8 @@ function Queues() {
     )
   }
 
+  useHelpPanel(<QueuesHelpPanel />)
+
   return (
     <ColumnLayout>
       {isMemoryBasedSchedulingActive && <SlurmMemorySettings />}
@@ -648,6 +652,34 @@ export function setSubnetsAndValidate(
     detail.selectedOptions.map((option: any) => option.value) || []
   setState(subnetPath, subnetIds)
   queueValidate(queueIndex)
+}
+
+export const QueuesHelpPanel = () => {
+  const {t} = useTranslation()
+  const footerLinks = React.useMemo(
+    () => [
+      {
+        title: t('wizard.queues.help.schedulerLink.title'),
+        href: t('wizard.queues.help.schedulerLink.href'),
+      },
+      {
+        title: t('wizard.queues.help.customActionsLink.title'),
+        href: t('wizard.queues.help.customActionsLink.href'),
+      },
+      {
+        title: t('wizard.queues.help.amiLink.title'),
+        href: t('wizard.queues.help.amiLink.href'),
+      },
+    ],
+    [t],
+  )
+  return (
+    <TitleDescriptionHelpPanel
+      title={t('wizard.queues.title')}
+      description={<Trans i18nKey="wizard.queues.help.main" />}
+      footerLinks={footerLinks}
+    />
+  )
 }
 
 export {Queues, queuesValidate}
