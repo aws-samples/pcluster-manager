@@ -531,9 +531,8 @@
       }
     },
     "storage": {
-      "title": "Shared storage",
+      "title": "Storage properties",
       "description": "Configure shared storage for your cluster.",
-      "header": "Storage properties",
       "container": {
         "title": "Configure up to 20 shared storage resources.",
         "noStorageSelected": "No shared storage options selected.",

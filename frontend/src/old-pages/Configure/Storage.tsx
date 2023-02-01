@@ -1076,12 +1076,6 @@ function Storage() {
   return (
     <Container>
       <SpaceBetween direction="vertical" size="m">
-        <Header
-          variant="h2"
-          info={<InfoLink helpPanel={<StorageHelpPanel />} />}
-        >
-          <Trans i18nKey="wizard.storage.header" />
-        </Header>
         <TextContent>{t('wizard.storage.container.title')}</TextContent>
         <div style={{display: 'flex', flexDirection: 'column', gap: '20px'}}>
           {storages ? (
@@ -1241,4 +1235,5 @@ export {
   canCreateStorage,
   canAttachExistingStorage,
   useDynamicStorage,
+  StorageHelpPanel,
 }
