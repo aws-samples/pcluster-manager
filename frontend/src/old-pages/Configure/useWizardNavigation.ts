@@ -6,7 +6,6 @@ const pages = ['source', 'cluster', 'headNode', 'storage', 'queues', 'create']
 
 export const useWizardNavigation = (validate: (page: string) => boolean) => {
   const currentPage = useState(['app', 'wizard', 'page']) || 'source'
-  const source = useState(['app', 'wizard', 'source', 'type'])
 
   return (reason: string, requestedStepIndex: number) => {
     switch (reason) {
@@ -14,7 +13,7 @@ export const useWizardNavigation = (validate: (page: string) => boolean) => {
         handleNext(currentPage, validate)
         break
       case 'previous':
-        handlePrev(currentPage, source)
+        handlePrev(currentPage)
         break
       case 'step':
         handleStep(currentPage, pages[requestedStepIndex], validate)
@@ -39,15 +38,8 @@ const handleNext = (
   setPage(nextPage)
 }
 
-const handlePrev = (currentPage: string, source: string) => {
+const handlePrev = (currentPage: string) => {
   setState(['app', 'wizard', 'errors'], null)
-
-  // Special case where the user uploaded a file, hitting "back"
-  // goes back to the upload screen rather than through the wizard
-  if (currentPage === 'create' && source === 'upload') {
-    setPage('source')
-    return
-  }
 
   const prevPage = pages[pages.indexOf(currentPage) - 1]
   setPage(prevPage)
