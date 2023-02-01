@@ -45,6 +45,8 @@ import {
 import {useFeatureFlag} from '../../feature-flags/useFeatureFlag'
 import InfoLink from '../../components/InfoLink'
 import TitleDescriptionHelpPanel from '../../components/help-panel/TitleDescriptionHelpPanel'
+import {useMemo} from 'react'
+import {useHelpPanel} from '../../components/help-panel/HelpPanel'
 
 // Constants
 const storagePath = ['app', 'wizard', 'config', 'SharedStorage']
@@ -991,6 +993,8 @@ function Storage() {
   const isFsxOpenZsfActive = useFeatureFlag('fsx_openzsf')
   const canEditFilesystems = useDynamicStorage()
 
+  useHelpPanel(<StorageHelpPanel />)
+
   const storageMaxes: Record<string, number> = {
     FsxLustre: 21,
     FsxOntap: 20,
@@ -1131,6 +1135,51 @@ function Storage() {
   )
 }
 
+const StorageHelpPanel = () => {
+  const {t} = useTranslation()
+  const footerLinks = useMemo(
+    () => [
+      {
+        title: t('wizard.storage.helpPanel.link.sharedStorage.title'),
+        href: t('wizard.storage.helpPanel.link.sharedStorage.href'),
+      },
+      {
+        title: t('wizard.storage.helpPanel.link.sharedStorageSection.title'),
+        href: t('wizard.storage.helpPanel.link.sharedStorageSection.href'),
+      },
+    ],
+    [t],
+  )
+  return (
+    <TitleDescriptionHelpPanel
+      title={<Trans i18nKey="wizard.storage.helpPanel.title" />}
+      description={
+        <>
+          <Trans i18nKey="wizard.storage.helpPanel.description" />
+          <Trans i18nKey="wizard.storage.helpPanel.section.external.title" />
+          <Trans i18nKey="wizard.storage.helpPanel.section.external.description" />
+          <Trans i18nKey="wizard.storage.helpPanel.section.managed.title" />
+          <Trans i18nKey="wizard.storage.helpPanel.section.managed.description">
+            <ul>
+              <li>
+                <Trans i18nKey="wizard.storage.helpPanel.section.managed.list.delete" />
+              </li>
+              <li>
+                <Trans i18nKey="wizard.storage.helpPanel.section.managed.list.remove" />
+              </li>
+              <li>
+                <Trans i18nKey="wizard.storage.helpPanel.section.managed.list.edit" />
+              </li>
+            </ul>
+          </Trans>
+          <Trans i18nKey="wizard.storage.helpPanel.section.recommendation.description" />
+        </>
+      }
+      footerLinks={footerLinks}
+    />
+  )
+}
+
 function canCreateStorage(
   storageType: StorageType,
   storages: Storages,
@@ -1186,4 +1235,5 @@ export {
   canCreateStorage,
   canAttachExistingStorage,
   useDynamicStorage,
+  StorageHelpPanel,
 }

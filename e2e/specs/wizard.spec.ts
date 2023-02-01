@@ -28,7 +28,7 @@ test.describe('Given an endpoint where AWS ParallelCluster UI is deployed', () =
     await expect(page.getByRole('heading', { name: 'Head node' })).toBeVisible()
     await page.getByRole('button', { name: 'Next' }).click();
   
-    await expect(page.getByRole('heading', { name: 'Storage' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Storage properties' })).toBeVisible()
     await page.getByRole('button', { name: 'Next' }).click();
   
     await expect(page.getByRole('heading', { name: 'Queues' }).first()).toBeVisible()
