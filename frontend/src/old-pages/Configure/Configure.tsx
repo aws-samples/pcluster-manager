@@ -28,7 +28,7 @@ import {
   HeadNodePropertiesHelpPanel,
   headNodeValidate,
 } from './HeadNode'
-import {Storage, storageValidate} from './Storage'
+import {Storage,StorageHelpPanel, storageValidate} from './Storage'
 import {Queues, QueuesHelpPanel, queuesValidate} from './Queues/Queues'
 import {
   Create,
@@ -262,6 +262,7 @@ function Configure() {
             title: t('wizard.storage.title'),
             description: t('wizard.storage.description'),
             content: <Storage />,
+            info: <InfoLink helpPanel={<StorageHelpPanel />} />,
           },
           {
             title: t('wizard.queues.title'),

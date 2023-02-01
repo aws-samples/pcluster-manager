@@ -531,7 +531,7 @@
       }
     },
     "storage": {
-      "title": "Shared storage",
+      "title": "Storage properties",
       "description": "Configure shared storage for your cluster.",
       "container": {
         "title": "Configure up to 20 shared storage resources.",
@@ -540,6 +540,38 @@
         "storageTypePlaceholder": "Select a file system type",
         "volumePlaceholder": "Select a volume",
         "addStorage": "Add storage"
+      },
+      "helpPanel": {
+        "title": "Shared storage properties",
+        "description": "<p>Add and configure shared storage for your cluster. Shared storage is shared between the head node and compute nodes.</p><p>Choose <strong>Add storage</strong> to configure shared storage for your cluster.</p><p>When you <strong>Edit</strong> shared storage configuration settings, AWS ParallelCluster doesn't check your inputs as you enter them. If your inputs can cause errors, AWS ParallelCluster returns validation error messages when you create the cluster or submit a dry run.</p><p>To see what settings can't be edited, search on the text \"Update policy: If this setting is changed, the update is not allowed\" in the <strong>Shared Storage section</strong> of the AWS ParallelCluster configuration documentation.</p><p>You can configure external or AWS ParallelCluster managed shared storage.</p>",
+        "section": {
+          "external": {
+            "title": "<strong>External storage</strong>",
+            "description": "<p>External storage refers to an existing volume or file system that you manage. AWS ParallelCluster doesn't create or delete external storage. You can configure AWS ParallelCluster to attach external storage to the cluster when the cluster is created or updated. Similarly, you can configure AWS ParallelCluster to detach external storage from the cluster when the cluster is deleted or edited. We recommend that you use external storage for long-term, permanent shared storage outside of the cluster lifecycle.</p>"
+          },
+          "managed": {
+            "title": "<strong>AWS ParallelCluster managed storage</strong>",
+            "description": "<p>Managed storage refers to a volume or file system that AWS ParallelCluster creates and can delete. By default, AWS ParallelCluster managed storage is configured to depend on the lifecycle of the cluster. By default, an AWS ParallelCluster managed file system or volume and its data are deleted if you do one of the following things:</p><0></0><p>For EBS storage you can edit the <strong>Deletion Policy</strong> and change it from the default <strong>Delete</strong> to <strong>Retain</strong>. Then, if you delete the cluster, the EBS volume persists and can be used as external storage for another cluster. <strong>Deletion policy</strong> is set to <strong>Delete</strong> for all other managed shared storage types.</p>",
+            "list": {
+              "delete": "<strong>Delete</strong> the cluster",
+              "remove": "<strong>Remove</strong> the managed shared storage",
+              "edit": "<strong>Edit</strong> the configuration YAML to change the managed shared name."
+            }
+          },
+          "recommendation": {
+            "description": "<p>We recommend that you regularly back up your data to avoid any data loss.</p><p>Learn more about shared storage properties, types, and quotas in <strong>Learn more</strong>.</p><p>Choose <strong>Refresh</strong> to view recently changed or added AWS resources.</p>"
+          }
+        },
+        "link": {
+          "sharedStorage": {
+            "title": "Shared storage",
+            "href": "https://docs.aws.amazon.com/parallelcluster/latest/ug/shared-storage-quotas-integration-v3.html?icmpid=docs_parallelcluster_hp_shared_storage_v1"
+          },
+          "sharedStorageSection": {
+            "title": "Shared storage section",
+            "href": "https://docs.aws.amazon.com/parallelcluster/latest/ug/SharedStorage-v3.html?icmpid=docs_parallelcluster_hp_shared_storage_v1"
+          }
+        }
       },
       "validation": {
         "volumeSize": "You must specify a valid volume size."
