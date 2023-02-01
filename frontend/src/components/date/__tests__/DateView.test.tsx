@@ -1,8 +1,10 @@
 import {render, RenderResult, waitFor} from '@testing-library/react'
 import {TimeZone} from '../AbsoluteTimestamp'
 import DateView from '../DateView'
+import tzmock from 'timezone-mock'
 
 describe('Given a DateView component', () => {
+  tzmock.register('UTC')
   let renderResult: RenderResult
 
   describe('when only a string date is provided', () => {
