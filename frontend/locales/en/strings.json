@@ -299,10 +299,6 @@
           "label": "Existing cluster",
           "description": "Start by selecting an existing cluster for the configuration of your new cluster. The selected existing cluster version must match the $t(global.projectName) version.",
           "empty": "No cluster available"
-        },
-        "file": {
-          "label": "File upload",
-          "description": "Start by uploading your own partial or complete YAML configuration file."
         }
       }
     },
@@ -1026,7 +1022,7 @@
       "text": "Loading..."
     },
     "FileUploadButton": {
-      "label": "Chose file"
+      "label": "Choose file"
     }
   }
 }
