@@ -9,9 +9,23 @@
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
 import React from 'react'
+import AbsoluteTimestamp, {TimeZone} from './AbsoluteTimestamp'
 
-export default function DateView(props: any) {
-  var d = new Date()
-  d.setTime(Date.parse(props.date))
-  return <span>{d.toLocaleString()}</span>
+type DateViewProps = {
+  date: string
+  locales?: string | string[]
+  timeZone?: TimeZone
+}
+
+export default function DateView({
+  date,
+  locales = 'en-Us',
+  timeZone = TimeZone.Local,
+}: DateViewProps) {
+  const timestamp = Date.parse(date)
+  return (
+    <AbsoluteTimestamp locales={locales} timeZone={timeZone}>
+      {timestamp}
+    </AbsoluteTimestamp>
+  )
 }
