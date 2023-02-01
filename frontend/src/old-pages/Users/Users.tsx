@@ -29,7 +29,7 @@ import {
 
 // Components
 import EmptyState from '../../components/EmptyState'
-import DateView from '../../components/DateView'
+import DateView from '../../components/date/DateView'
 import {
   DeleteDialog,
   showDialog,

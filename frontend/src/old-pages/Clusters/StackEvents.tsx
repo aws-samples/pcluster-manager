@@ -39,7 +39,7 @@ import {
 
 // Components
 import {StackEventStatusIndicator} from '../../components/Status'
-import DateView from '../../components/DateView'
+import DateView from '../../components/date/DateView'
 import Loading from '../../components/Loading'
 import EmptyState from '../../components/EmptyState'
 

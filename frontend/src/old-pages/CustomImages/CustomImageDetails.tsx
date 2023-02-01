@@ -32,7 +32,7 @@ import {
 } from '@cloudscape-design/components'
 
 import Loading from '../../components/Loading'
-import DateView from '../../components/DateView'
+import DateView from '../../components/date/DateView'
 import CustomImageStackEvents from './CustomImageStackEvents'
 import {ValueWithLabel} from '../../components/ValueWithLabel'
 import EmptyState from '../../components/EmptyState'
