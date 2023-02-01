@@ -270,7 +270,7 @@
         "placeholder": "Select a cluster."
       },
       "clusterName": {
-        "label": "Set up",
+        "label": "Cluster name",
         "description": "The name must start with an alphabetical character and can have up to 60 characters. If Slurm accounting is configured, the name can have up to 40 characters. Valid characters: A-Z, a-z, 0-9, and - (hyphen).",
         "placeholder": "Enter your cluster name"
       },

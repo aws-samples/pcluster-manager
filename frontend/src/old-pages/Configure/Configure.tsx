@@ -21,14 +21,14 @@ import {
   WizardProps,
 } from '@cloudscape-design/components'
 
-import {Source, sourceValidate} from './Source'
+import {Source, SourceHelpPanel, sourceValidate} from './Source'
 import {Cluster, ClusterPropertiesHelpPanel, clusterValidate} from './Cluster'
 import {
   HeadNode,
   HeadNodePropertiesHelpPanel,
   headNodeValidate,
 } from './HeadNode'
-import {Storage,StorageHelpPanel, storageValidate} from './Storage'
+import {Storage, StorageHelpPanel, storageValidate} from './Storage'
 import {Queues, QueuesHelpPanel, queuesValidate} from './Queues/Queues'
 import {
   Create,
@@ -245,6 +245,7 @@ function Configure() {
             title: t('wizard.source.title'),
             description: t('wizard.source.description'),
             content: <Source />,
+            info: <InfoLink helpPanel={<SourceHelpPanel />} />,
           },
           {
             title: t('wizard.cluster.title'),
