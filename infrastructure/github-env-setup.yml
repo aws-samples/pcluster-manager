@@ -114,6 +114,7 @@ Resources:
                   - cloudformation:CreateChangeSet
                 Resource:
                   - !Sub arn:${AWS::Partition}:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/parallelcluster-ui-demo*
+                  - !Sub arn:${AWS::Partition}:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${AWS::StackName}*
                   - !Sub arn:${AWS::Partition}:cloudformation:${AWS::Region}:aws:transform/*
               - Effect: Allow
                 Action:
