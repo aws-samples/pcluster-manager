@@ -18,6 +18,7 @@ import TopNavigation from '@cloudscape-design/components/top-navigation'
 import {useQueryClient} from 'react-query'
 import {NavigateFunction, useNavigate} from 'react-router-dom'
 import {ButtonDropdownProps} from '@cloudscape-design/components'
+import {useTranslation} from 'react-i18next'
 
 export function regions(selected: string) {
   const supportedRegions = [
@@ -103,11 +104,13 @@ export const clearClusterOnRegionChange = (
 }
 
 export default function Topbar() {
+  const {t} = useTranslation()
   let username = useState(['identity', 'attributes', 'email'])
   const queryClient = useQueryClient()
   const navigate = useNavigate()
 
-  const defaultRegion = useState(['aws', 'region']) || 'DEFAULT'
+  const defaultRegionText = t('global.topBar.regionSelector.defaultRegionText')
+  const defaultRegion = useState(['aws', 'region']) || defaultRegionText
   const selectedRegion = useState(['app', 'selectedRegion']) || defaultRegion
   const displayedRegions = regions(selectedRegion)
 
@@ -123,22 +126,22 @@ export default function Topbar() {
     () => [
       {
         id: 'signout',
-        text: 'Sign out',
+        text: t('global.topBar.signOut'),
         href: '/logout',
       },
     ],
-    [],
+    [t],
   )
 
   return (
     <div id="top-bar">
       <TopNavigation
         identity={{
-          title: 'AWS ParallelCluster UI',
+          title: t('global.projectName'),
           href: '/',
           logo: {
             src: '/img/pcluster.svg',
-            alt: 'AWS ParallelCluster UI Logo',
+            alt: t('global.topBar.logoAltText'),
           },
         }}
         utilities={[
@@ -152,29 +155,25 @@ export default function Topbar() {
                 }
               : {
                   type: 'button',
-                  text: 'loading...',
+                  text: t('global.loading'),
                 },
           ],
           ...[
             selectedRegion && {
               type: 'menu-dropdown',
-              ariaLabel: 'Region',
+              ariaLabel: t('global.topBar.regionSelector.ariaLabel'),
               disableUtilityCollapse: true,
               text: (
-                <span style={{fontWeight: 'normal'}}>
-                  {selectedRegion || 'region'}
-                </span>
+                <span style={{fontWeight: 'normal'}}>{selectedRegion}</span>
               ),
               onItemClick: selectRegion,
               items: regionsToDropdownItems(displayedRegions, selectedRegion),
             },
           ],
         ]}
-        // @ts-expect-error TS(2741) FIXME: Property 'overflowMenuTitleText' is missing in typ... Remove this comment to see the full error message
         i18nStrings={{
-          searchIconAriaLabel: 'Search',
-          searchDismissIconAriaLabel: 'Close search',
-          overflowMenuTriggerText: 'More',
+          overflowMenuTitleText: t('global.topBar.overflowMenuTitleText'),
+          overflowMenuTriggerText: t('global.topBar.overflowMenuTriggerText'),
         }}
       />
     </div>

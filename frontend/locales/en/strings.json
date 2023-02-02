@@ -9,6 +9,16 @@
       "users": "Users",
       "viewLicense": "View License"
     },
+    "topBar": {
+      "signOut": "Sign out",
+      "logoAltText": "$t(global.projectName} logo",
+      "regionSelector": {
+        "defaultRegionText": "Region",
+        "ariaLabel": "Region"
+      },
+      "overflowMenuTitleText": "All",
+      "overflowMenuTriggerText": "More"
+    },
     "docs": {
       "title": "$t(global.projectName) documentation",
       "link": "https://pcluster.cloud/"
