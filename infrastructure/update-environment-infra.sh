@@ -30,8 +30,6 @@ BUCKET=$(aws cloudformation describe-stack-resources \
   --query 'StackResources[0].PhysicalResourceId'\
   | tr -d '"' )
 
-BUCKET_URL="https://${BUCKET}.s3.${REGION}.amazonaws.com"
-
 # The yaml files describing the infrastructure are uploaded to a private S3 bucket
 # and then used to update the CloudFormation stack, where the same bucket is passed as parameters.
 # This is done to make sure that we deploy all the changes to the infrastructure, and not only the changes
@@ -42,11 +40,12 @@ do
   aws s3 cp "${SCRIPT_DIR}/${FILE}" "s3://${BUCKET}/${FILE}"
 done
 
+BUCKET_URL="https://${BUCKET}.s3.${REGION}.amazonaws.com"
+CLI_INPUT_YAML=$(sed "s#BUCKET_URL_PLACEHOLDER#${BUCKET_URL}#g" "${SCRIPT_DIR}/environments/${ENVIRONMENT}-cfn-update-args.yaml")
+
 # Launches a new CFN update: the script hangs until the stack is updated
 AWS_PAGER="cat" aws cloudformation update-stack \
-  --cli-input-yaml "file://${SCRIPT_DIR}/environments/${ENVIRONMENT}-cfn-update-args.yaml" \
-  --template-url "${BUCKET_URL}/parallelcluster-ui.yaml" \
-  --parameters "ParameterKey=InfrastructureBucket,ParameterValue=${BUCKET_URL}" \
+  --cli-input-yaml "${CLI_INPUT_YAML}" \
   --stack-name "${STACK_NAME}" \
   --region "${REGION}"
 
