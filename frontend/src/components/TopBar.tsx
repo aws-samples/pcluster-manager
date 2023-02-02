@@ -8,8 +8,7 @@
 // or in the "LICENSE.txt" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 // OR CONDITIONS OF ANY KIND, express or implied. See the License for the specific language governing permissions and
 // limitations under the License.
-
-import * as React from 'react'
+import React, {useMemo} from 'react'
 
 import {useState, setState} from '../store'
 import {LoadInitialState} from '../model'
@@ -18,6 +17,7 @@ import {LoadInitialState} from '../model'
 import TopNavigation from '@cloudscape-design/components/top-navigation'
 import {useQueryClient} from 'react-query'
 import {NavigateFunction, useNavigate} from 'react-router-dom'
+import {ButtonDropdownProps} from '@cloudscape-design/components'
 
 export function regions(selected: string) {
   const supportedRegions = [
@@ -111,10 +111,6 @@ export default function Topbar() {
   const selectedRegion = useState(['app', 'selectedRegion']) || defaultRegion
   const displayedRegions = regions(selectedRegion)
 
-  const handleLogout = () => {
-    window.location.href = 'logout'
-  }
-
   const selectRegion = (region: any) => {
     let newRegion = region.detail.id
     setState(['app', 'selectedRegion'], newRegion)
@@ -123,7 +119,16 @@ export default function Topbar() {
     queryClient.invalidateQueries()
   }
 
-  const profileActions = [{type: 'button', id: 'signout', text: 'Sign out'}]
+  const profileActions: ButtonDropdownProps.Items = useMemo(
+    () => [
+      {
+        id: 'signout',
+        text: 'Sign out',
+        href: '/logout',
+      },
+    ],
+    [],
+  )
 
   return (
     <div id="top-bar">
@@ -143,7 +148,6 @@ export default function Topbar() {
                   type: 'menu-dropdown',
                   text: username || 'user',
                   iconName: 'user-profile',
-                  onItemClick: handleLogout,
                   items: profileActions,
                 }
               : {
