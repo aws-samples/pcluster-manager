@@ -41,6 +41,9 @@ import {MultiUser, multiUserValidate} from './MultiUser'
 import {NonCancelableEventHandler} from '@cloudscape-design/components/internal/events'
 import TitleDescriptionHelpPanel from '../../components/help-panel/TitleDescriptionHelpPanel'
 import {useHelpPanel} from '../../components/help-panel/HelpPanel'
+import {useCallback, useMemo} from 'react'
+import {OptionDefinition} from '@cloudscape-design/components/internal/components/option/interfaces'
+import {SelectProps} from '@cloudscape-design/components/select/interfaces'
 
 // Constants
 const errorsPath = ['app', 'wizard', 'errors', 'cluster']
@@ -89,12 +92,18 @@ function clusterValidate() {
   return valid
 }
 
-function itemToOption(item: string | null) {
-  if (!item) return
-  return {
-    label: item,
-    value: item,
+function itemToOption(
+  item: string | [string, string] | null,
+): SelectProps.Option | null {
+  if (!item) return null
+  let label, value
+  if (typeof item == 'string') {
+    label = item
+    value = item
+  } else {
+    ;[value, label] = item
   }
+  return {label, value}
 }
 
 function RegionSelect() {
@@ -155,7 +164,6 @@ function RegionSelect() {
         actions={
           <Select
             disabled={editing}
-            // @ts-expect-error TS(2322) FIXME: Type '{ label: Element; value: string; } | undefin... Remove this comment to see the full error message
             selectedOption={itemToOption(
               // @ts-expect-error TS(2345) FIXME: Argument of type 'string[] | undefined' is not ass... Remove this comment to see the full error message
               findFirst(supportedRegions, (r: string) => {
@@ -186,6 +194,18 @@ function OsSelect() {
   const osPath = ['app', 'wizard', 'config', 'Image', 'Os']
   const os = useState(osPath) || 'alinux2'
   const editing = useState(['app', 'wizard', 'editing'])
+
+  const osesOptions = useMemo(() => oses.map(itemToOption), [oses])
+
+  const selectedOs: OptionDefinition | null = useMemo(() => {
+    const selectedOsTuple = findFirst(oses, (x: any) => x[0] === os) || null
+    return itemToOption(selectedOsTuple)
+  }, [os, oses])
+
+  const handleChange = useCallback(({detail}: any) => {
+    setState(osPath, detail.selectedOption.value)
+  }, [])
+
   return (
     <>
       <Header
@@ -195,18 +215,10 @@ function OsSelect() {
         actions={
           <Select
             disabled={editing}
-            // @ts-expect-error TS(2322) FIXME: Type '{ label: Element; value: string; } | undefin... Remove this comment to see the full error message
-            selectedOption={itemToOption(
-              // @ts-expect-error TS(2345) FIXME: Argument of type '[string, string] | undefined' is... Remove this comment to see the full error message
-              findFirst(oses, (x: any) => {
-                return x[0] === os
-              }),
-            )}
-            onChange={({detail}) =>
-              setState(osPath, detail.selectedOption.value)
-            }
+            selectedOption={selectedOs}
+            onChange={handleChange}
             // @ts-expect-error TS(2322) FIXME: Type '({ label: Element; value: string; } | undefi... Remove this comment to see the full error message
-            options={oses.map(itemToOption)}
+            options={osesOptions}
             selectedAriaLabel={t('wizard.cluster.os.selectedAriaLabel')}
           />
         }
@@ -483,4 +495,4 @@ const ClusterPropertiesHelpPanel = () => {
   )
 }
 
-export {Cluster, clusterValidate, ClusterPropertiesHelpPanel}
+export {Cluster, clusterValidate, ClusterPropertiesHelpPanel, itemToOption}
