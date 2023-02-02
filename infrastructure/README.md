@@ -11,7 +11,7 @@ To create the resources needed by the workflow action you can deploy the `./gith
 The stack will create three new roles:
 - the `PrivateDeployRole` with the minimum set of policies needed to build and deploy an instance of PCluster Manager, its arn should be put in the secret named `ACTION_DEMO_DEPLOY_JOB_BUILD_AND_DEPLOY_ROLE`
 - the `PrivateInfrastructureUpdateRole` with the minimum set of policies needed to update the infrastructure of an environment running PCluster Manager, its arn should be put in the secret named `ACTION_DEMO_DEPLOY_JOB_UPDATE_INFRASTRUCTURE_ROLE`
-- the `E2ETestExecution` with the minimum set of policies needed to in order to run E2E tests workflow, its arn should be put in the secret named `ACTION_E2E_TESTS_ROLE`
+- the `E2ETestExecutionRole` with the minimum set of policies needed to in order to run E2E tests workflow, its arn should be put in the secret named `ACTION_E2E_TESTS_ROLE`
 
 The same steps are required for the production release workflow, using the `./github-env-setup-prod.yml` stack, to create the role `ProductionDeploy` that should be put in the secret named `ACTION_PRODUCTION_RELEASE_ROLE`.
 
