@@ -74,7 +74,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-region: eu-west-1
-          role-to-assume: arn:aws:iam::***REMOVED***:role/pcluster-manager-github-PrivateInfrastructureUpdat-1HXHHPQ292PNI
+          role-to-assume: ${{ secrets.ACTION_DEMO_DEPLOY_JOB_UPDATE_INFRASTRUCTURE_ROLE }}
       
       - name: Update staging infrastructure
         run: ./infrastructure/update-environment-infra.sh demo
@@ -92,7 +92,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-region: eu-west-1
-          role-to-assume: arn:aws:iam::***REMOVED***:role/pcluster-manager-github-PrivateDeployRole-8D5K5C4RM02U
+          role-to-assume: ${{ secrets.ACTION_DEMO_DEPLOY_JOB_BUILD_AND_DEPLOY_ROLE }}
       
       - name: Update staging environment
         run: ./scripts/build_and_update_lambda.sh --stack-name "parallelcluster-ui-demo" --region eu-west-1
