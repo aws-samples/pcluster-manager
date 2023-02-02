@@ -1,3 +1,5 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
 Parameters:
   GitHubOrg:
     Type: String
@@ -123,8 +125,8 @@ Resources:
                   - s3:GetObjectAcl
                   - s3:PutObjectAcl
                 Resource:
-                  - !Sub arn:${AWS::Partition}:s3:::pcluster-manager-github-infrastructurebucket-7y5h202iem8l
-                  - !Sub arn:${AWS::Partition}:s3:::pcluster-manager-github-infrastructurebucket-7y5h202iem8l/*
+                  - !GetAtt 'InfrastructureBucket.Arn'
+                  - !Join ['', [!GetAtt 'InfrastructureBucket.Arn', '/*']]
                   - !Sub arn:${AWS::Partition}:s3:::${AWS::Region}-aws-parallelcluster
                   - !Sub arn:${AWS::Partition}:s3:::${AWS::Region}-aws-parallelcluster/*
               - Effect: Allow
@@ -151,7 +153,7 @@ Resources:
                   - cognito-idp:UpdateGroup
                   - cognito-idp:DeleteGroup
                 Resource:
-                  - arn:aws:cognito-idp:eu-west-1:063695377715:userpool/*
+                  - !Sub arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/*
         - PolicyName: ImageBuilderPolicy
           PolicyDocument:
             Version: 2012-10-17
@@ -198,7 +200,7 @@ Resources:
                 Resource: "*"
               - Effect: Allow
                 Action: secretsmanager:GetSecretValue
-                Resource: arn:aws:secretsmanager:eu-west-1:063695377715:secret:e2e/test1-AUsDgk
+                Resource: !Sub arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:e2e/test1-AUsDgk
 
 Outputs:
   PrivateDeployRole:
