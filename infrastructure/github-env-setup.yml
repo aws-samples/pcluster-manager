@@ -109,6 +109,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - cloudformation:DescribeStacks
+                  - cloudformation:DescribeStackResources
                   - cloudformation:UpdateStack
                   - cloudformation:CreateChangeSet
                 Resource:
