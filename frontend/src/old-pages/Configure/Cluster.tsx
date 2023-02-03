@@ -97,12 +97,14 @@ function itemToOption(
 ): SelectProps.Option | null {
   if (!item) return null
   let label, value
+
   if (typeof item == 'string') {
     label = item
     value = item
   } else {
     ;[value, label] = item
   }
+
   return {label, value}
 }
 
