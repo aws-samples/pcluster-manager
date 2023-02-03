@@ -16,15 +16,8 @@ import {useNavigate} from 'react-router-dom'
 import {useTranslation} from 'react-i18next'
 
 import {GetClusterInstances, Ec2Action} from '../../model'
-import {
-  setState,
-  clearState,
-  useState,
-  getState,
-  consoleDomain,
-} from '../../store'
+import {useState, getState, consoleDomain} from '../../store'
 
-// UI Elements
 import {
   Button,
   Header,
@@ -36,88 +29,80 @@ import {
 } from '@cloudscape-design/components'
 
 import {useCollection} from '@cloudscape-design/collection-hooks'
-
-// Components
 import {InstanceStatusIndicator} from '../../components/Status'
 import EmptyState from '../../components/EmptyState'
 import DateView from '../../components/date/DateView'
 
-function InstanceActions({
-  fleetStatus,
-  instance,
-}: {
-  fleetStatus: ComputeFleetStatus
-  instance: Instance
-}) {
-  const pending = useState(['app', 'clusters', 'action', 'pending'])
-  const clusterName = useState(['app', 'clusters', 'selected'])
-  const navigate = useNavigate()
-  const logHref = `/clusters/${clusterName}/logs?instance=${instance.instanceId}`
+function InstanceActions({instance}: {instance?: Instance}) {
   const {t} = useTranslation()
+  const navigate = useNavigate()
 
-  const refresh = () => {
+  const clusterName = useState(['app', 'clusters', 'selected'])
+  const fleetStatus: ComputeFleetStatus = useState([
+    'clusters',
+    'index',
+    clusterName,
+    'computeFleetStatus',
+  ])
+  const [startPending, setStartPending] = React.useState(false)
+  const [stopPending, setStopPending] = React.useState(false)
+
+  const resetPending = () => {
+    setStopPending(false)
+    setStartPending(false)
+  }
+
+  const refresh = React.useCallback(() => {
     const clusterName = getState(['app', 'clusters', 'selected'])
-    clusterName &&
-      GetClusterInstances(clusterName, () =>
-        clearState(['app', 'clusters', 'action', 'pending']),
-      )
-  }
+    clusterName && GetClusterInstances(clusterName, resetPending)
+  }, [])
 
-  const stopInstance = (instance: Instance) => {
-    setState(['app', 'clusters', 'action', 'pending'], true)
-    Ec2Action([instance.instanceId], 'stop_instances', refresh)
-  }
+  const stopInstance = React.useCallback(() => {
+    setStopPending(true)
+    Ec2Action([instance!.instanceId], 'stop_instances', refresh)
+  }, [instance, refresh])
 
-  const startInstance = (instance: Instance) => {
-    setState(['app', 'clusters', 'action', 'pending'], true)
-    Ec2Action([instance.instanceId], 'start_instances', refresh)
-  }
+  const startInstance = React.useCallback(() => {
+    setStartPending(true)
+    Ec2Action([instance!.instanceId], 'start_instances', refresh)
+  }, [instance, refresh])
+
+  const navigateToLogTab = React.useCallback(
+    (event: CustomEvent) => {
+      const logHref = `/clusters/${clusterName}/logs?instance=${
+        instance!.instanceId
+      }`
+      navigate(logHref)
+      event.preventDefault()
+    },
+    [clusterName, instance, navigate],
+  )
+
+  const isComputeFleetStopped = fleetStatus === ComputeFleetStatus.Stopped
+  const isHeadNodeRunning =
+    instance?.nodeType === NodeType.HeadNode &&
+    instance?.state === InstanceState.Running
+  const isHeadNodeStopped =
+    instance?.nodeType === NodeType.HeadNode &&
+    instance?.state === InstanceState.Stopped
 
   return (
     <SpaceBetween direction="horizontal" size="s">
-      {fleetStatus === ComputeFleetStatus.Stopped && (
-        <div>
-          {instance.nodeType === NodeType.HeadNode &&
-            instance.state === InstanceState.Running && (
-              <Button
-                loading={pending}
-                onClick={() => {
-                  stopInstance(instance)
-                }}
-              >
-                {t('cluster.instances.actions.stop')}
-              </Button>
-            )}
-          {instance.nodeType === NodeType.HeadNode &&
-            instance.state === InstanceState.Stopped && (
-              <Button
-                loading={pending}
-                onClick={() => {
-                  startInstance(instance)
-                }}
-              >
-                {t('cluster.instances.actions.start')}
-              </Button>
-            )}
-        </div>
-      )}
-      {fleetStatus !== ComputeFleetStatus.Stopped && (
-        <div title={t('cluster.instances.computeFleetInfo')}>
-          {instance.nodeType === NodeType.HeadNode &&
-            instance.state === InstanceState.Running && (
-              <Button disabled={true}>
-                {t('cluster.instances.actions.stop')}
-              </Button>
-            )}
-        </div>
-      )}
       <Button
-        href={logHref}
-        onClick={e => {
-          navigate(logHref)
-          e.preventDefault()
-        }}
+        disabled={!(instance && isComputeFleetStopped && isHeadNodeRunning)}
+        loading={stopPending}
+        onClick={stopInstance}
       >
+        {t('cluster.instances.actions.stop')}
+      </Button>
+      <Button
+        disabled={!(instance && isComputeFleetStopped && isHeadNodeStopped)}
+        loading={startPending}
+        onClick={startInstance}
+      >
+        {t('cluster.instances.actions.start')}
+      </Button>
+      <Button disabled={!instance} onClick={navigateToLogTab}>
         {t('cluster.instances.actions.logs')}
       </Button>
     </SpaceBetween>
@@ -139,12 +124,6 @@ export default function ClusterInstances() {
   const [selectedInstances, setSelectedInstances] = React.useState<Instance[]>(
     [],
   )
-
-  const clusterPath = ['clusters', 'index', clusterName]
-  const fleetStatus: ComputeFleetStatus = useState([
-    ...clusterPath,
-    'computeFleetStatus',
-  ])
 
   const onSelectionChangeCallback = React.useCallback(({detail}) => {
     setSelectedInstances(detail.selectedItems)
@@ -204,14 +183,7 @@ export default function ClusterInstances() {
           variant="h3"
           description=""
           counter={instances && `(${instances.length})`}
-          actions={
-            selectedInstances.length > 0 && (
-              <InstanceActions
-                fleetStatus={fleetStatus}
-                instance={selectedInstances[0]}
-              />
-            )
-          }
+          actions={<InstanceActions instance={selectedInstances[0]} />}
         >
           {t('cluster.instances.title')}
         </Header>

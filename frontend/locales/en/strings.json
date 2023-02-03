@@ -116,11 +116,10 @@
       "state": "State",
       "actionsLabel": "Actions",
       "actions": {
-        "stop": "Stop compute fleet",
-        "start": "Start compute fleet",
+        "stop": "Stop",
+        "start": "Start",
         "logs": "Logs"
       },
-      "computeFleetInfo": "Compute fleet must be stopped.",
       "filtering": {
         "empty": {
           "title": "No instances",
