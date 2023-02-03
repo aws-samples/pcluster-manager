@@ -41,6 +41,9 @@ import {MultiUser, multiUserValidate} from './MultiUser'
 import {NonCancelableEventHandler} from '@cloudscape-design/components/internal/events'
 import TitleDescriptionHelpPanel from '../../components/help-panel/TitleDescriptionHelpPanel'
 import {useHelpPanel} from '../../components/help-panel/HelpPanel'
+import {useCallback, useMemo} from 'react'
+import {OptionDefinition} from '@cloudscape-design/components/internal/components/option/interfaces'
+import {SelectProps} from '@cloudscape-design/components/select/interfaces'
 
 // Constants
 const errorsPath = ['app', 'wizard', 'errors', 'cluster']
@@ -89,12 +92,20 @@ function clusterValidate() {
   return valid
 }
 
-function itemToOption(item: string | null) {
-  if (!item) return
-  return {
-    label: item,
-    value: item,
+function itemToOption(
+  item: string | [string, string] | null,
+): SelectProps.Option | null {
+  if (!item) return null
+  let label, value
+
+  if (typeof item == 'string') {
+    label = item
+    value = item
+  } else {
+    ;[value, label] = item
   }
+
+  return {label, value}
 }
 
 function RegionSelect() {
@@ -148,29 +159,24 @@ function RegionSelect() {
 
   return (
     <>
-      <Header
-        // @ts-expect-error TS(2322) FIXME: Type '"h4"' is not assignable to type 'Variant | u... Remove this comment to see the full error message
-        variant="h4"
+      <FormField
+        label={t('wizard.cluster.region.label')}
         description={t('wizard.cluster.region.description')}
-        actions={
-          <Select
-            disabled={editing}
-            // @ts-expect-error TS(2322) FIXME: Type '{ label: Element; value: string; } | undefin... Remove this comment to see the full error message
-            selectedOption={itemToOption(
-              // @ts-expect-error TS(2345) FIXME: Argument of type 'string[] | undefined' is not ass... Remove this comment to see the full error message
-              findFirst(supportedRegions, (r: string) => {
-                return r === region
-              }),
-            )}
-            onChange={handleChange}
-            // @ts-expect-error TS(2322) FIXME: Type '({ label: Element; value: string; } | undefi... Remove this comment to see the full error message
-            options={supportedRegions.map(itemToOption)}
-            selectedAriaLabel={t('wizard.cluster.region.selectedAriaLabel')}
-          />
-        }
       >
-        <Trans i18nKey="wizard.cluster.region.label" />
-      </Header>
+        <Select
+          disabled={editing}
+          selectedOption={itemToOption(
+            // @ts-expect-error TS(2345) FIXME: Argument of type 'string[] | undefined' is not ass... Remove this comment to see the full error message
+            findFirst(supportedRegions, (r: string) => {
+              return r === region
+            }),
+          )}
+          onChange={handleChange}
+          // @ts-expect-error TS(2322) FIXME: Type '({ label: Element; value: string; } | undefi... Remove this comment to see the full error message
+          options={supportedRegions.map(itemToOption)}
+          selectedAriaLabel={t('wizard.cluster.region.selectedAriaLabel')}
+        />
+      </FormField>
     </>
   )
 }
@@ -186,33 +192,33 @@ function OsSelect() {
   const osPath = ['app', 'wizard', 'config', 'Image', 'Os']
   const os = useState(osPath) || 'alinux2'
   const editing = useState(['app', 'wizard', 'editing'])
+
+  const osesOptions = useMemo(() => oses.map(itemToOption), [oses])
+
+  const selectedOs: OptionDefinition | null = useMemo(() => {
+    const selectedOsTuple = findFirst(oses, (x: any) => x[0] === os) || null
+    return itemToOption(selectedOsTuple)
+  }, [os, oses])
+
+  const handleChange = useCallback(({detail}: any) => {
+    setState(osPath, detail.selectedOption.value)
+  }, [])
+
   return (
     <>
-      <Header
-        // @ts-expect-error TS(2322) FIXME: Type '"h4"' is not assignable to type 'Variant | u... Remove this comment to see the full error message
-        variant="h4"
+      <FormField
+        label={t('wizard.cluster.os.label')}
         description={t('wizard.cluster.os.description')}
-        actions={
-          <Select
-            disabled={editing}
-            // @ts-expect-error TS(2322) FIXME: Type '{ label: Element; value: string; } | undefin... Remove this comment to see the full error message
-            selectedOption={itemToOption(
-              // @ts-expect-error TS(2345) FIXME: Argument of type '[string, string] | undefined' is... Remove this comment to see the full error message
-              findFirst(oses, (x: any) => {
-                return x[0] === os
-              }),
-            )}
-            onChange={({detail}) =>
-              setState(osPath, detail.selectedOption.value)
-            }
-            // @ts-expect-error TS(2322) FIXME: Type '({ label: Element; value: string; } | undefi... Remove this comment to see the full error message
-            options={oses.map(itemToOption)}
-            selectedAriaLabel={t('wizard.cluster.os.selectedAriaLabel')}
-          />
-        }
       >
-        <Trans i18nKey="wizard.cluster.os.label" />
-      </Header>
+        <Select
+          disabled={editing}
+          selectedOption={selectedOs}
+          onChange={handleChange}
+          // @ts-expect-error TS(2322) FIXME: Type '({ label: Element; value: string; } | undefi... Remove this comment to see the full error message
+          options={osesOptions}
+          selectedAriaLabel={t('wizard.cluster.os.selectedAriaLabel')}
+        />
+      </FormField>
     </>
   )
 }
@@ -311,29 +317,24 @@ function VpcSelect() {
   }
 
   return (
-    <Header
-      // @ts-expect-error TS(2322) FIXME: Type '"h4"' is not assignable to type 'Variant | u... Remove this comment to see the full error message
-      variant="h4"
+    <FormField
+      errorText={error}
       description={t('wizard.cluster.vpc.description')}
-      actions={
-        <FormField errorText={error}>
-          <Select
-            disabled={editing}
-            // @ts-expect-error TS(2322) FIXME: Type '{ label: JSX.Element; value: any; }' is not ... Remove this comment to see the full error message
-            selectedOption={vpcToDisplayOption(
-              findFirst(vpcs, x => x.VpcId === vpc),
-            )}
-            onChange={({detail}) => {
-              setVpc(detail.selectedOption.value)
-            }}
-            options={vpcs.map(vpcToOption)}
-            selectedAriaLabel={t('wizard.cluster.vpc.selectedAriaLabel')}
-          />
-        </FormField>
-      }
+      label={t('wizard.cluster.vpc.label')}
     >
-      <Trans i18nKey="wizard.cluster.vpc.label" />
-    </Header>
+      <Select
+        disabled={editing}
+        // @ts-expect-error TS(2322) FIXME: Type '{ label: JSX.Element; value: any; }' is not ... Remove this comment to see the full error message
+        selectedOption={vpcToDisplayOption(
+          findFirst(vpcs, x => x.VpcId === vpc),
+        )}
+        onChange={({detail}) => {
+          setVpc(detail.selectedOption.value)
+        }}
+        options={vpcs.map(vpcToOption)}
+        selectedAriaLabel={t('wizard.cluster.vpc.selectedAriaLabel')}
+      />
+    </FormField>
   )
 }
 
@@ -483,4 +484,4 @@ const ClusterPropertiesHelpPanel = () => {
   )
 }
 
-export {Cluster, clusterValidate, ClusterPropertiesHelpPanel}
+export {Cluster, clusterValidate, ClusterPropertiesHelpPanel, itemToOption}
