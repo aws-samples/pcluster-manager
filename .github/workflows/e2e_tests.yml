@@ -24,7 +24,7 @@ jobs:
       uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-region: eu-west-1
-        role-to-assume: arn:aws:iam::***REMOVED***:role/pcluster-manager-github-E2ETestExecution-Z7IMRUIJAZAO
+        role-to-assume: ${{ secrets.ACTION_E2E_TESTS_ROLE }}
 
     - name: Retrieve test user email and password
       uses: aws-actions/aws-secretsmanager-get-secrets@v1
